@@ -28,7 +28,7 @@ void main(void)
     // color_.r = 0.0;
     // color_.g = 0.0;
     starColor = color_;
-    starColor.a = 1.0;
+    starColor.a = 0.6;
 
 
     newVertex = projection * newVertex;
