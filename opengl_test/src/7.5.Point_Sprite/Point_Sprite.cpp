@@ -1,6 +1,7 @@
 #include <ROS_interface.hpp>
 //
-#include "Common.h"
+// #include "Common.h"
+#include "ViewManager.h"
 #include <iostream>
 #include <string>
 //
@@ -72,13 +73,28 @@ vector<string> window_names;
 
 
 //uniform id
+
 struct
 {
-	GLint  mv_matrix;
+	GLint  view_matrix;
 	GLint  proj_matrix;
 } uniforms;
 
+// The structure for each star
+struct star_t
+{
+    glm::vec3     position;
+    glm::vec3     color;
+};
 
+
+
+//
+ViewManager		m_camera;
+float			m_zoom = 3.0f;
+float			aspect;
+vec2			m_screenSize;
+//
 GLuint			program;			//shader program
 mat4			proj_matrix;		//projection matrix
 GLuint          vao;
@@ -131,24 +147,28 @@ void My_Init()
     std::string path_fs("Assets/7.5.Point_Sprite/Point_Sprite.fs.glsl");
     path_vs = path_pkg_directory + path_vs;
     path_fs = path_pkg_directory + path_fs;
-	char** vsSource = LoadShaderSource(path_vs.c_str());
-	char** fsSource = LoadShaderSource(path_fs.c_str());
+	char** vsSource = Common::LoadShaderSource(path_vs.c_str());
+	char** fsSource = Common::LoadShaderSource(path_fs.c_str());
 
     std::cout << "here\n";
 
 	glShaderSource(vs, 1, vsSource, NULL);
 	glShaderSource(fs, 1, fsSource, NULL);
-	FreeShaderSource(vsSource);
-	FreeShaderSource(fsSource);
+	Common::FreeShaderSource(vsSource);
+	Common::FreeShaderSource(fsSource);
 	glCompileShader(vs);
 	glCompileShader(fs);
-	ShaderLog(vs);
-	ShaderLog(fs);
+	Common::ShaderLog(vs);
+	Common::ShaderLog(fs);
 
 	//Attach Shader to program
 	glAttachShader(program, vs);
 	glAttachShader(program, fs);
 	glLinkProgram(program);
+
+    //Cache uniform variable id
+	uniforms.view_matrix = glGetUniformLocation(program, "view");
+	uniforms.proj_matrix = glGetUniformLocation(program, "projection");
 
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -159,16 +179,18 @@ void My_Init()
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
+    /*
 	struct star_t
 	{
 		glm::vec3     position;
 		glm::vec3     color;
 	};
+    */
 
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glBufferData(GL_ARRAY_BUFFER, NUM_STARS * sizeof(star_t), NULL, GL_STATIC_DRAW);
-	// glBufferData(GL_ARRAY_BUFFER, NUM_STARS * sizeof(star_t), NULL, GL_DYNAMIC_DRAW);
+	// glBufferData(GL_ARRAY_BUFFER, NUM_STARS * sizeof(star_t), NULL, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, NUM_STARS * sizeof(star_t), NULL, GL_DYNAMIC_DRAW); // test, change to dynamic draw to assign point cloud
 
 	star_t * star = (star_t *)glMapBufferRange(GL_ARRAY_BUFFER, 0, NUM_STARS * sizeof(star_t), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 	int i;
@@ -195,7 +217,7 @@ void My_Init()
 
     std::string path_tdata("Assets/7.5.Point_Sprite/star.png");
     path_tdata = path_pkg_directory + path_tdata;
-	TextureData tdata = Load_png(path_tdata.c_str());
+	TextureData tdata = Common::Load_png(path_tdata.c_str());
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -211,9 +233,10 @@ void My_Init()
 // GLUT callback. Called to draw the scene.
 void My_Idle(){
     // Update screen later
-    glutPostRedisplay();
+    // glutPostRedisplay();
 }
 // GLUT callback. Called to draw the scene.
+size_t num_points=1000;
 void My_Display()
 {
 
@@ -225,10 +248,11 @@ void My_Display()
         leave_main_loop();
         std::cout << "Quit main loop\n";
     }
+
+    // Image
     int num_image = NUM_IMAGE;
     int image_topic_id = int(MSG_ID::camera_0);
     //
-
     vector<cv::Mat> image_out_list(num_image);
     vector<bool> is_image_updated(num_image, false);
     for (size_t i=0; i < num_image; ++i){
@@ -247,8 +271,50 @@ void My_Display()
 #endif
 
 
+#ifdef __SUB_POINT_CLOUD__
+    // ITRIPointCloud
+    int num_pointcloud = 1;
+    // ITRIPointCloud
+    int ITRIPointCloud_topic_id = int(MSG_ID::point_cloud_1);
+    pcl::PointCloud<pcl::PointXYZI> pc_out;
+    bool pc_result = ros_interface.get_ITRIPointCloud( (ITRIPointCloud_topic_id), pc_out);
+    /*
+    for (size_t i=0; i < num_pointcloud; ++i){
+        bool result = ros_interface.get_ITRIPointCloud( (ITRIPointCloud_topic_id+i), pc_out);
+        //
+        if (result){
+            // std::cout << "got one pointcloud\n";
+        }
+    }
+    */
 
 
+    if (pc_result){
+        star_t * star = (star_t *)glMapBufferRange(GL_ARRAY_BUFFER, 0, NUM_STARS * sizeof(star_t), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+    	int i;
+        //
+        num_points = pc_out.width;
+        //
+    	for (i = 0; i < num_points; i++)
+    	{
+    		star[i].position[0] = pc_out.points[i].x;
+    		star[i].position[1] = pc_out.points[i].y;
+    		star[i].position[2] = pc_out.points[i].z;
+
+    		star[i].color[0] = 0.8f;
+    		star[i].color[1] = 0.8f;
+    		star[i].color[2] = 0.8f;
+    	}
+
+    	glUnmapBuffer(GL_ARRAY_BUFFER);
+    }
+
+
+#endif
+
+
+
+    //--------------------------------------------//
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//Update shaders' input variable
@@ -256,29 +322,47 @@ void My_Display()
 	static const GLfloat black[] = { 0.0f, 0, 0.0f, 1.0f };
 	static const GLfloat one = 1.0f;
 
-	glClearBufferfv(GL_COLOR, 0, black);
-	glClearBufferfv(GL_DEPTH, 0, &one);
+    glClearColor(0, 0, 0, 0);
+	// glClearBufferfv(GL_COLOR, 0, black);
+	// glClearBufferfv(GL_DEPTH, 0, &one);
 
-	glUseProgram(program);
 
-	float f_timer_cnt = glutGet(GLUT_ELAPSED_TIME);
-	float currentTime = f_timer_cnt* 0.001f;
+    //
+    m_camera.SetZoom(m_zoom);
+    glUseProgram(program);
+    {
+        glUniformMatrix4fv(uniforms.view_matrix, 1, GL_FALSE, value_ptr(m_camera.GetViewMatrix() * m_camera.GetModelMatrix()));
+    	glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(m_camera.GetProjectionMatrix(aspect)));
+        //
 
-	currentTime *= 0.1f;
-	currentTime -= floor(currentTime);
+        /*
+        float f_timer_cnt = glutGet(GLUT_ELAPSED_TIME);
+    	float currentTime = f_timer_cnt* 0.001f;
 
-	glUniform1f(time_Loc, currentTime);
-	glUniformMatrix4fv(proj_location, 1, GL_FALSE, &proj_matrix[0][0]);
+    	currentTime *= 0.1f;
+    	currentTime -= floor(currentTime);
 
-	glEnable(GL_POINT_SPRITE);
+    	glUniform1f(time_Loc, currentTime);
+    	glUniformMatrix4fv(proj_location, 1, GL_FALSE, &proj_matrix[0][0]);
+        */
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    	glEnable(GL_POINT_SPRITE);
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glEnable(GL_PROGRAM_POINT_SIZE);
- 	glDrawArrays(GL_POINTS, 0, NUM_STARS);
+    	glEnable(GL_BLEND);
+    	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    	glActiveTexture(GL_TEXTURE0);
+    	glBindTexture(GL_TEXTURE_2D, m_texture);
+    	glEnable(GL_PROGRAM_POINT_SIZE);
+     	// glDrawArrays(GL_POINTS, 0, NUM_STARS);
+        // test, to draw a partial of points
+        glDrawArrays(GL_POINTS, 0, num_points);
+    }
+    glUseProgram(0);
+
+
+
+    //
 	/*
 	// Test for dynamically changing the number of vertexes (points)
 	// This is for testing the drawing for point-clouds,
@@ -295,11 +379,12 @@ void My_Display()
 //Call to resize the window
 void My_Reshape(int width, int height)
 {
+
+    m_screenSize = vec2(width, height);
+	aspect = width * 1.0f / height;
+	m_camera.SetWindowSize(width, height);
 	glViewport(0, 0, width, height);
 
-	float viewportAspect = (float)width / (float)height;
-
-	proj_matrix = glm::perspective(deg2rad(50.0f), viewportAspect, 0.1f, 1000.0f);
 }
 
 //Timer event
@@ -328,6 +413,20 @@ void My_SpecialKeys(int key, int x, int y)
 		break;
 	}
 }
+
+void My_Mouse(int button, int state, int x, int y)
+{
+    m_camera.mouseEvents(button, state, x, y);
+    m_zoom = m_camera.GetZoom();
+    // TwRefreshBar(bar);
+}
+void My_Mouse_Moving(int x, int y) {
+	m_camera.mouseMoveEvent(x, y);
+}
+
+
+
+
 
 int main(int argc, char *argv[])
 {
@@ -423,7 +522,7 @@ int main(int argc, char *argv[])
 #endif
 
 	//Print debug information
-	DumpInfo();
+	Common::DumpInfo();
 	////////////////////
 
 	//Call custom initialize function
@@ -435,6 +534,10 @@ int main(int argc, char *argv[])
 	glutDisplayFunc(My_Display);
 	glutReshapeFunc(My_Reshape);
 	glutTimerFunc(16, My_Timer, 0);
+    //
+    glutMouseFunc(My_Mouse);
+    glutPassiveMotionFunc(My_Mouse_Moving);
+	glutMotionFunc(My_Mouse_Moving);
 	////////////////////
 
 	// Enter main event loop.

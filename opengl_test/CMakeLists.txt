@@ -73,17 +73,17 @@ catkin_package(
 
 
 include_directories(
-  # include
-  ${catkin_INCLUDE_DIRS}
-  ${OpenCV_INCLUDE_DIRS}
-  ${PCL_INCLUDE_DIRS}
-  include/async_buffer/
-  include/ROS_interface/
-  include/ROS_interface/include
-  .
+    # include
+    ${catkin_INCLUDE_DIRS}
+    ${OpenCV_INCLUDE_DIRS}
+    ${PCL_INCLUDE_DIRS}
+    include/async_buffer/
+    include/ROS_interface/
+    include/ROS_interface/include
+    .
 )
 include_directories(
-        include/
+    include/
 	external/AntTweakBar-1.16/include/
 	external/glfw-3.1.2/include/
 	external/glm-0.9.7.1/
@@ -99,7 +99,7 @@ set(ALL_LIBS
 	${OPENGL_LIBRARY}
 	glfw
 	GLEW_1130
-        ${GLUT_LIBRARY}
+    ${GLUT_LIBRARY}
 )
 
 
@@ -122,10 +122,21 @@ target_link_libraries(ROS_interface_1 async_buffer_1)
 
 
 
+add_library (tiny_obj_loader STATIC src/tiny_obj_loader.cpp)
+target_link_libraries(tiny_obj_loader ${ALL_LIBS}  )
+
+add_library (Common STATIC src/Common.cpp)
+target_link_libraries(Common ${ALL_LIBS} tiny_obj_loader )
+
 add_library (ViewManager STATIC src/ViewManager.cpp)
-target_link_libraries(ViewManager ${ALL_LIBS}  )
+target_link_libraries(ViewManager ${ALL_LIBS} Common )
+
+
+
+
 
 add_executable(point_sprite src/7.5.Point_Sprite/Point_Sprite.cpp )
+# add_executable(point_sprite src/7.5.Point_Sprite/Point_Sprite.cpp src/tiny_obj_loader.cpp src/Common.cpp src/ViewManager.cpp)
 # target_link_libraries(point_sprite ${ALL_LIBS} Common ViewManager tiny_obj_loader ANTTWEAKBAR_116_OGLCORE_GLFW )
 # target_link_libraries(point_sprite ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW )
-target_link_libraries(point_sprite ROS_interface ${OpenCV_LIBS} ${catkin_LIBRARIES} ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW )
+target_link_libraries(point_sprite ROS_interface  ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} )

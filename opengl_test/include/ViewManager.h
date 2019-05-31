@@ -1,29 +1,7 @@
-#ifndef VIEWMANAGER_H
-#define VIEWMANAGER_H
+﻿#ifndef _VIEWMANAGER_H_
+#define _VIEWMANAGER_H_
 
-#ifdef _MSC_VER
-	#include "GLEW/glew.h"
-	#include "FreeGLUT/freeglut.h"
-	#include <direct.h>
-#else
-        // #include <OpenGL/gl3.h>
-        // #include <GLUT/glut.h>
-        #include <GL/glew.h> // <-- Added for Ubuntu, by Benson 
-        #include <GL/glut.h> // <-- Changed from 'GLUT/glut.h' to 'GL/glut.h' for Ubuntu, by Benson 
-	#include <unistd.h>
-#endif
-
-#define GLM_SWIZZLE
-#include "GLM/glm/glm.hpp"
-#include "GLM/glm/gtc/matrix_transform.hpp"
-#include "GLM/glm/gtc/type_ptr.hpp"
-#include "GLM/glm/gtx/rotate_vector.hpp"
-
-#include <cstdio>
-#include <cstring>
-#include <iostream>
-#include <string>
-#include <algorithm>
+#include "Common.h"
 
 /**
  * @brief The ViewManager class
@@ -35,7 +13,7 @@
  *
  * The viewing manipulation will be done for you in the class. When you are ready
  * to render something, call GetModelMatrix(), GetViewMatrix(), GetProjectionMatrix()
- * and their composite versions to get the MVP matrices which ecode current viewing
+ * and their composite versions to get the MVP matrices which encode current viewing
  * properties.
  */
 
@@ -50,21 +28,24 @@ public:
     void mouseMoveEvent(int x,int y);
 	void keyEvents(unsigned char key);
     void wheelEvent(int direction);
-	void Translate(glm::vec2 vec);
+	void Translate(glm::vec3 vec);
 
 	glm::mat4 GetModelMatrix();
 	glm::mat4 GetViewMatrix();
+	glm::mat4 GetProjectionMatrix();
 	glm::mat4 GetProjectionMatrix(float aspect);
 	glm::mat4 GetViewProjectionMatrix(float aspect);
 	glm::mat4 GetModelViewProjectionMatrix(float aspect);
 	glm::vec3 GetEyePosition() {return eyePosition;}
 	glm::vec3 GetViewVector() {return viewVector;}
-
+	float GetZoom() {return zoom;}
+	
 	glm::vec3 GetWorldEyePosition();
 	glm::vec3 GetWorldViewVector();
 
     bool IsOrthoProjection() { return ortho; }
 
+	void SetZoom(float value);
     void SetRotation(float theta, float phi);
     void SetRotation(float x, float y, float z);
 	void SetWindowSize(int width, int height);
@@ -72,30 +53,33 @@ public:
     bool ToggleOrtho() { return ortho = !ortho; }
     void Zoom(float distance);
     void Reset();
+	
 
 private:
-    bool ortho = false;
-    float zoom = 1.0f;
-	float moveSpeed = 3.0f;
+	float aspect;					///< 儲存目前視窗的長寬比。
+    bool ortho;						///< 是否使用正交視角。
+    float zoom;				
+	float moveSpeed;				///< 相機的移動速度。
+	float orthoScale;
 
-	glm::mat4 translationMatrix;
-	glm::mat4 rotationMatrix;
-	glm::mat4 viewMatrix;
-	glm::vec3 viewVector;
-	glm::vec3 rotateXAxis;
-	glm::vec3 rotateYAxis;
-	glm::vec3 eyePosition;
-	glm::vec3 eyeLookPosition;
+	glm::mat4 translationMatrix;	///< 紀錄Translate動作的Matrix。
+	glm::mat4 rotationMatrix;		///< 紀錄Rotation動作的Matrix。
+	glm::mat4 viewMatrix;			///< 紀錄ViewMatrix。
+	glm::mat4 projMatrix;			///< 紀錄projMatrix。
+	glm::vec3 viewVector;			///< 紀錄相機看往焦點看的向量。
+	glm::vec3 rotateXAxis;			///< 紀錄相機的X軸旋轉。
+	glm::vec3 rotateYAxis;			///< 紀錄相機的Y軸旋轉。
+	glm::vec3 eyePosition;			///< 紀錄相機的位置。
+	glm::vec3 eyeLookPosition;		///< 紀錄相機的所看的位置。
 
-    bool lmbDown = false;
-    bool midDown = false;
-	glm::vec2 lmbDownCoord;
-	glm::vec2 midDownCoord;
+    bool lmbDown;					///< 紀錄滑鼠左鍵是否被按住。
+    bool midDown;					///< 紀錄滑鼠中鍵是否被按住。
+	glm::vec2 lmbDownCoord;			///< 紀錄滑鼠左鍵點擊時的座標。
+	glm::vec2 midDownCoord;			///< 紀錄滑鼠中鍵點擊時的座標。
 	
-	int w_width;
-	int w_height;
-	float wheel_val;
+	int w_width;					///< 紀錄螢幕的寬。
+	int w_height;					///< 紀錄螢幕的高。
+	float wheel_val;				///< 紀錄滾輪的值。
 };
 
-
-#endif // VIEWMANAGER_H
+#endif // _VIEWMANAGER_H_

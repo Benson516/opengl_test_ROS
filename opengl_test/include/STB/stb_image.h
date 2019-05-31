@@ -517,10 +517,7 @@ STBIDEF int   stbi_zlib_decode_noheader_buffer(char *obuffer, int olen, const ch
 }
 #endif
 
-//
-//
-////   end header file   /////////////////////////////////////////////////////
-#endif // STBI_INCLUDE_STB_IMAGE_H
+
 
 #ifdef STB_IMAGE_IMPLEMENTATION
 
@@ -6753,3 +6750,9 @@ STBIDEF int stbi_info_from_callbacks(stbi_io_callbacks const *c, void *user, int
       0.50  (2006-11-19)
               first released version
 */
+
+
+//
+//
+////   end header file   /////////////////////////////////////////////////////
+#endif // STBI_INCLUDE_STB_IMAGE_H
