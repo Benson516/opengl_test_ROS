@@ -1,0 +1,133 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(opengl_test)
+set (CMAKE_CXX_STANDARD 14)
+
+## Compile as C++11, supported in ROS Kinetic and newer
+# add_compile_options(-std=c++11)
+
+## Find catkin macros and libraries
+## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
+## is used, also find other catkin packages
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  rospy
+  std_msgs
+  sensor_msgs
+  message_generation
+#
+  msgs # ITRI package: "msgs"
+#
+  pcl_conversions
+  pcl_ros
+#
+  image_transport
+  cv_bridge
+)
+
+find_package(OpenCV REQUIRED)
+#
+find_package(OpenGL REQUIRED)
+find_package(GLUT REQUIRED)
+include_directories( ${OPENGL_INCLUDE_DIRS}  ${GLUT_INCLUDE_DIRS} )
+
+
+# Compile external dependencies 
+add_subdirectory (external)
+
+
+
+################################################
+## Declare ROS messages, services and actions ##
+################################################
+
+
+
+# file(GLOB SOURCES_MESSAGE *.msg)
+# add_message_files(
+#   ${SOURCES_MESSAGE}
+# )
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  msgs
+)
+
+
+
+
+catkin_package(
+  INCLUDE_DIRS include
+  CATKIN_DEPENDS
+  DEPENDS Eigen OpenCV
+)
+catkin_package(
+#  INCLUDE_DIRS include
+#  LIBRARIES opengl_test
+   CATKIN_DEPENDS roscpp rospy std_msgs message_runtime image_transport sensor_msgs cv_bridge message_runtime
+#  DEPENDS system_lib
+)
+
+
+
+
+
+include_directories(
+  # include
+  ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
+  include/async_buffer/
+  include/ROS_interface/
+  include/ROS_interface/include
+  .
+)
+include_directories(
+        include/
+	external/AntTweakBar-1.16/include/
+	external/glfw-3.1.2/include/
+	external/glm-0.9.7.1/
+	external/glew-1.13.0/include/
+	# external/assimp-3.0.1270/include/
+	# external/bullet-2.81-rev2613/src/
+	.
+)
+
+
+
+set(ALL_LIBS
+	${OPENGL_LIBRARY}
+	glfw
+	GLEW_1130
+        ${GLUT_LIBRARY}
+)
+
+
+
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+
+
+
+
+
+
+
+# Libraries
+add_library (async_buffer_1 STATIC include/async_buffer/async_buffer.cpp)
+# target_link_libraries(async_buffer_1 ${ALL_LIBS}  )
+
+add_library (ROS_interface_1 STATIC include/ROS_interface/ROS_interface.cpp)
+target_link_libraries(ROS_interface_1 async_buffer_1)
+
+
+
+add_library (ViewManager STATIC src/ViewManager.cpp)
+target_link_libraries(ViewManager ${ALL_LIBS}  )
+
+add_executable(point_sprite src/7.5.Point_Sprite/Point_Sprite.cpp )
+# target_link_libraries(point_sprite ${ALL_LIBS} Common ViewManager tiny_obj_loader ANTTWEAKBAR_116_OGLCORE_GLFW )
+target_link_libraries(point_sprite ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW )
+
+
+

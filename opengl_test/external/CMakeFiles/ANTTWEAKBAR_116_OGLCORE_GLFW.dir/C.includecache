@@ -1,0 +1,42 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/benson516_itri/OpenGL_programming(disk_of_the_book)/example_codes/Ch07/Program/external/AntTweakBar-1.16/src/MiniGLFW.h
+
+/home/benson516_itri/OpenGL_programming(disk_of_the_book)/example_codes/Ch07/Program/external/AntTweakBar-1.16/src/MiniGLUT.h
+windows.h
+-
+OpenGL/gl.h
+-
+OpenGL/glu.h
+-
+GL/gl.h
+-
+GL/glu.h
+-
+
+/home/benson516_itri/OpenGL_programming(disk_of_the_book)/example_codes/Ch07/Program/external/AntTweakBar-1.16/src/TwEventGLFW.c
+MiniGLFW.h
+/home/benson516_itri/OpenGL_programming(disk_of_the_book)/example_codes/Ch07/Program/external/AntTweakBar-1.16/src/MiniGLFW.h
+AntTweakBar.h
+-
+
+/home/benson516_itri/OpenGL_programming(disk_of_the_book)/example_codes/Ch07/Program/external/AntTweakBar-1.16/src/TwEventGLUT.c
+MiniGLUT.h
+/home/benson516_itri/OpenGL_programming(disk_of_the_book)/example_codes/Ch07/Program/external/AntTweakBar-1.16/src/MiniGLUT.h
+AntTweakBar.h
+-
+
+external/AntTweakBar-1.16/include/AntTweakBar.h
+stddef.h
+-
+string
+-
+string
+-
+
