@@ -31,7 +31,7 @@ find_package(GLUT REQUIRED)
 include_directories( ${OPENGL_INCLUDE_DIRS}  ${GLUT_INCLUDE_DIRS} )
 
 
-# Compile external dependencies 
+# Compile external dependencies
 add_subdirectory (external)
 
 
@@ -127,7 +127,5 @@ target_link_libraries(ViewManager ${ALL_LIBS}  )
 
 add_executable(point_sprite src/7.5.Point_Sprite/Point_Sprite.cpp )
 # target_link_libraries(point_sprite ${ALL_LIBS} Common ViewManager tiny_obj_loader ANTTWEAKBAR_116_OGLCORE_GLFW )
-target_link_libraries(point_sprite ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW )
-
-
-
+# target_link_libraries(point_sprite ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW )
+target_link_libraries(point_sprite ROS_interface ${OpenCV_LIBS} ${catkin_LIBRARIES} ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW )

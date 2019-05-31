@@ -1,11 +1,75 @@
+#include <ROS_interface.hpp>
+//
 #include "Common.h"
 #include <iostream>
 #include <string>
+//
+#include <setjmp.h> // For leaving main loop
+
+static jmp_buf jmpbuf;
+static bool jmp_set = false;
+void enter_main_loop () {
+    if (!setjmp(jmpbuf)) {
+        jmp_set = true;
+        glutMainLoop();
+    }
+    jmp_set = false;
+}
+void leave_main_loop () {
+    if (jmp_set) longjmp(jmpbuf, 1);
+}
+
+
+#define STRING_TOPIC_COUNT 6
+#define NUM_IMAGE 9
+
+#define __OPENCV_WINDOW__
+#define __SUB_POINT_CLOUD__
+
+
+
 
 #define M_PI = 3.14;
 
+using std::vector;
+using std::string;
+using namespace cv;
+//
 using namespace glm;
 using namespace std;
+
+
+
+
+
+
+ROS_INTERFACE* ros_interface_ptr=NULL;
+// nickname for topic_id
+enum class MSG_ID{
+    chatter_0,
+    chatter_1,
+    chatter_2,
+    chatter_3,
+    chatter_4,
+    chatter_5,
+
+    camera_0,
+    camera_1,
+    camera_2,
+    camera_3,
+    camera_4,
+    camera_5,
+    camera_6,
+    camera_7,
+    camera_8,
+
+    point_cloud_1
+};
+vector<string> window_names;
+
+
+
+
 
 //uniform id
 struct
@@ -145,8 +209,46 @@ void My_Init()
 }
 
 // GLUT callback. Called to draw the scene.
+void My_Idle(){
+    // Update screen later
+    glutPostRedisplay();
+}
+// GLUT callback. Called to draw the scene.
 void My_Display()
 {
+
+
+    ROS_INTERFACE &ros_interface = (*ros_interface_ptr);
+    //
+    if (!ros_interface.is_running()){
+        std::cout << "Leaving main loop\n";
+        leave_main_loop();
+        std::cout << "Quit main loop\n";
+    }
+    int num_image = NUM_IMAGE;
+    int image_topic_id = int(MSG_ID::camera_0);
+    //
+
+    vector<cv::Mat> image_out_list(num_image);
+    vector<bool> is_image_updated(num_image, false);
+    for (size_t i=0; i < num_image; ++i){
+        is_image_updated[i] = ros_interface.get_Image( (image_topic_id+i), image_out_list[i]);
+    }
+    // std::cout << "Drawing images\n";
+#ifdef __OPENCV_WINDOW__
+    for (size_t i=0; i < num_image; ++i){
+        if (is_image_updated[i]){
+            // std::cout << "Drawing an image\n";
+            imshow(window_names[i], image_out_list[i]);
+            // std::cout << "got one image\n";
+            waitKey(1);
+        }
+    }
+#endif
+
+
+
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//Update shaders' input variable
@@ -186,7 +288,7 @@ void My_Display()
 	glDrawArrays(GL_POINTS, 0, _start_count);
 	*/
 	///////////////////////////
-
+    // std::cout << "Drawing points\n";
 	glutSwapBuffers();
 }
 
@@ -229,6 +331,77 @@ void My_SpecialKeys(int key, int x, int y)
 
 int main(int argc, char *argv[])
 {
+
+    // ROS
+    //------------------------------------------------//
+    ROS_INTERFACE ros_interface(argc, argv);
+    ros_interface_ptr = &ros_interface;
+
+    // Total topic count
+    size_t topic_count = STRING_TOPIC_COUNT;
+    // Topic names
+    vector<string> string_topic_names;
+    for (size_t i=0; i < topic_count; ++i){
+        std::stringstream _ss_topic_name;
+        _ss_topic_name << "chatter_" << i;
+        string_topic_names.push_back(_ss_topic_name.str());
+    }
+    // string_topic_names.push_back("chatter_0");
+
+
+
+
+    // std::cout << "here\n";
+    {
+        using MSG::M_TYPE;
+        // String
+        for (size_t i=0; i < string_topic_names.size(); ++i){
+            ros_interface.add_a_topic(string_topic_names[i], int(M_TYPE::String), true, 1000, 10);
+        }
+        // Image
+        ros_interface.add_a_topic("/camera/1/0/image_sync", int(M_TYPE::Image), true, 1, 3);
+        ros_interface.add_a_topic("/camera/1/1/image_sync", int(M_TYPE::Image), true, 1, 3);
+        ros_interface.add_a_topic("/camera/1/2/image_sync", int(M_TYPE::Image), true, 1, 3);
+        ros_interface.add_a_topic("/camera/0/2/image_sync", int(M_TYPE::Image), true, 1, 3);
+        ros_interface.add_a_topic("/camera/2/0/image", int(M_TYPE::Image), true, 1, 3);
+        ros_interface.add_a_topic("/camera/2/1/image", int(M_TYPE::Image), true, 1, 3);
+        ros_interface.add_a_topic("/camera/0/0/image", int(M_TYPE::Image), true, 1, 3);
+        ros_interface.add_a_topic("/camera/0/1/image", int(M_TYPE::Image), true, 1, 3);
+        ros_interface.add_a_topic("/camera/2/2/image", int(M_TYPE::Image), true, 1, 3);
+        // ITRIPointCloud
+#ifdef __SUB_POINT_CLOUD__
+        ros_interface.add_a_topic("LidFrontLeft_sync", int(M_TYPE::ITRIPointCloud), true, 5, 5);
+#endif
+    }
+    //------------------------------------------------//
+
+    // std::cout << "here\n";
+
+    // start
+    ros_interface.start();
+    // std::this_thread::sleep_for( std::chrono::milliseconds(3000) );
+    // std::cout << "here\n";
+
+
+
+    // Image
+    int num_image = NUM_IMAGE;
+#ifdef __OPENCV_WINDOW__
+    // OpenCV windows
+    // vector<string> window_names;
+    for (size_t i=0; i < num_image; ++i){
+        std::stringstream _ss_window_name;
+        _ss_window_name << "image_" << i;
+        namedWindow(_ss_window_name.str(), cv::WINDOW_AUTOSIZE);
+        window_names.push_back( _ss_window_name.str() );
+    }
+#endif
+
+
+
+
+
+
 	// Initialize GLUT and GLEW, then create a window.
 	////////////////////
 	glutInit(&argc, argv);
@@ -258,13 +431,16 @@ int main(int argc, char *argv[])
 
 	//Register GLUT callback functions
 	////////////////////
+    glutIdleFunc(My_Idle);
 	glutDisplayFunc(My_Display);
 	glutReshapeFunc(My_Reshape);
 	glutTimerFunc(16, My_Timer, 0);
 	////////////////////
 
 	// Enter main event loop.
-	glutMainLoop();
+	// glutMainLoop();
+    enter_main_loop();
+
 
 	return 0;
 }
