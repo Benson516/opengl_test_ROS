@@ -69,7 +69,9 @@ enum class MSG_ID{
 vector<string> window_names;
 
 
-
+// Declare outside the loop to avoid periodically construction and destruction.
+std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > pc_out_ptr;
+//
 
 
 //uniform id
@@ -276,8 +278,8 @@ void My_Display()
     int num_pointcloud = 1;
     // ITRIPointCloud
     int ITRIPointCloud_topic_id = int(MSG_ID::point_cloud_1);
-    pcl::PointCloud<pcl::PointXYZI> pc_out;
-    bool pc_result = ros_interface.get_ITRIPointCloud( (ITRIPointCloud_topic_id), pc_out);
+    // pcl::PointCloud<pcl::PointXYZI> pc_out;
+    bool pc_result = ros_interface.get_ITRIPointCloud( (ITRIPointCloud_topic_id), pc_out_ptr);
     /*
     for (size_t i=0; i < num_pointcloud; ++i){
         bool result = ros_interface.get_ITRIPointCloud( (ITRIPointCloud_topic_id+i), pc_out);
@@ -291,21 +293,21 @@ void My_Display()
 
     if (pc_result){
         star_t * star = (star_t *)glMapBufferRange(GL_ARRAY_BUFFER, 0, NUM_STARS * sizeof(star_t), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    	int i;
+        // num_points = pc_out.width;
+        num_points = pc_out_ptr->width;
         //
-        num_points = pc_out.width;
-        //
-    	for (i = 0; i < num_points; i++)
+    	for (size_t i = 0; i < num_points; i++)
     	{
-    		star[i].position[0] = pc_out.points[i].x;
-    		star[i].position[1] = pc_out.points[i].y;
-    		star[i].position[2] = pc_out.points[i].z;
-
+    		// star[i].position[0] = pc_out.points[i].x;
+    		// star[i].position[1] = pc_out.points[i].y;
+    		// star[i].position[2] = pc_out.points[i].z;
+            star[i].position[0] = pc_out_ptr->points[i].x;
+    		star[i].position[1] = pc_out_ptr->points[i].y;
+    		star[i].position[2] = pc_out_ptr->points[i].z;
     		star[i].color[0] = 0.8f;
     		star[i].color[1] = 0.8f;
     		star[i].color[2] = 0.8f;
     	}
-
     	glUnmapBuffer(GL_ARRAY_BUFFER);
     }
 
@@ -530,7 +532,7 @@ int main(int argc, char *argv[])
 
 	//Register GLUT callback functions
 	////////////////////
-    glutIdleFunc(My_Idle);
+    // glutIdleFunc(My_Idle); // <-- Note: If overwrite this function, remember to add a sleep() call.
 	glutDisplayFunc(My_Display);
 	glutReshapeFunc(My_Reshape);
 	glutTimerFunc(16, My_Timer, 0);

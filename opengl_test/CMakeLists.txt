@@ -117,8 +117,12 @@ add_definitions(${PCL_DEFINITIONS})
 add_library (async_buffer_1 STATIC include/async_buffer/async_buffer.cpp)
 # target_link_libraries(async_buffer_1 ${ALL_LIBS}  )
 
+add_library (async_buffer_v2_1 STATIC include/async_buffer/async_buffer_v2.cpp)
+# target_link_libraries(async_buffer_v2 ${ALL_LIBS}  )
+
 add_library (ROS_interface_1 STATIC include/ROS_interface/ROS_interface.cpp)
-target_link_libraries(ROS_interface_1 async_buffer_1)
+# target_link_libraries(ROS_interface_1 async_buffer_1)
+target_link_libraries(ROS_interface_1 async_buffer_v2_1)
 
 
 
@@ -139,4 +143,4 @@ add_executable(point_sprite src/7.5.Point_Sprite/Point_Sprite.cpp )
 # add_executable(point_sprite src/7.5.Point_Sprite/Point_Sprite.cpp src/tiny_obj_loader.cpp src/Common.cpp src/ViewManager.cpp)
 # target_link_libraries(point_sprite ${ALL_LIBS} Common ViewManager tiny_obj_loader ANTTWEAKBAR_116_OGLCORE_GLFW )
 # target_link_libraries(point_sprite ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW )
-target_link_libraries(point_sprite ROS_interface  ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} )
+target_link_libraries(point_sprite ROS_interface_1  ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} )
