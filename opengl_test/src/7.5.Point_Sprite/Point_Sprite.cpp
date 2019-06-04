@@ -27,6 +27,7 @@ void leave_main_loop () {
 #define STRING_TOPIC_COUNT 6
 #define NUM_IMAGE 9
 
+// #define __DEBUG__
 #define __OPENCV_WINDOW__
 #define __SUB_POINT_CLOUD__
 
@@ -101,6 +102,7 @@ float			aspect;
 vec2			m_screenSize;
 //
 GLuint			program;			//shader program
+
 mat4			proj_matrix;		//projection matrix
 GLuint          vao;
 GLuint			vertex_shader;
@@ -109,6 +111,23 @@ GLuint          buffer;
 GLint           mv_location;
 GLint           proj_location;
 GLint			time_Loc;
+
+// test, off-screen rendering
+GLuint			program2;             // Shader program for off-screen rendering
+GLuint          window_vao;
+GLuint			window_buffer;
+GLuint			FBO;
+GLuint			depthRBO;
+GLuint			FBODataTexture;
+static const GLfloat window_positions[] =
+{
+	1.0f,-1.0f,1.0f,0.0f,  // Position 1, texcord 1
+	-1.0f,-1.0f,0.0f,0.0f, // Position 2, texcord 2
+	-1.0f,1.0f,0.0f,1.0f,  // Position 3, texcord 3
+	1.0f,1.0f,1.0f,1.0f    // Position 4, texcord 4
+};
+//
+
 
 GLuint m_texture;
 static unsigned int seed = 0x13371337;
@@ -232,7 +251,53 @@ void My_Init()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);;
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+
+    // test, off-screen rendering
+    // Initialize shader2 for 2D rendering
+	//----------------------------------------------------------//
+	program2 = glCreateProgram();
+
+	GLuint vs2 = glCreateShader(GL_VERTEX_SHADER);
+	GLuint fs2 = glCreateShader(GL_FRAGMENT_SHADER);
+    std::string path_vs2("Assets/7.5.Point_Sprite/gray.vs.glsl");
+    std::string path_fs2("Assets/7.5.Point_Sprite/gray.fs.glsl");
+    path_vs2 = path_pkg_directory + path_vs2;
+    path_fs2 = path_pkg_directory + path_fs2;
+    char** vsSource2 = Common::LoadShaderSource(path_vs2.c_str());
+	char** fsSource2 = Common::LoadShaderSource(path_fs2.c_str());
+	glShaderSource(vs2, 1, vsSource2, NULL);
+	glShaderSource(fs2, 1, fsSource2, NULL);
+	Common::FreeShaderSource(vsSource2);
+	Common::FreeShaderSource(fsSource2);
+	glCompileShader(vs2);
+	glCompileShader(fs2);
+	Common::ShaderLog(vs2);
+	Common::ShaderLog(fs2);
+
+	//Attach Shader to program
+	glAttachShader(program2, vs2);
+	glAttachShader(program2, fs2);
+	glLinkProgram(program2);
+
+	glGenVertexArrays(1, &window_vao);
+	glBindVertexArray(window_vao);
+
+	glGenBuffers(1, &window_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, window_buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(window_positions), window_positions, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT) * 4, 0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT) * 4, (const GLvoid*)(sizeof(GL_FLOAT) * 2));
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+    //----------------------------------------------------------//
+
+    // test, off-screen rendering
+    glGenFramebuffers(1, &FBO);
+    //
 }
 
 // GLUT callback. Called to draw the scene.
@@ -241,7 +306,7 @@ void My_Idle(){
     // glutPostRedisplay();
 }
 // GLUT callback. Called to draw the scene.
-size_t num_points = 1000;
+size_t num_points = NUM_STARS;
 auto start_old = std::chrono::high_resolution_clock::now();
 auto t_image_old_0 = std::chrono::high_resolution_clock::now();
 auto t_pc_old = std::chrono::high_resolution_clock::now();
@@ -313,7 +378,10 @@ void My_Display()
     }
     */
 
-
+    // Nomatter got point cloud or not, bind the buffer and vao
+    glBindBuffer(GL_ARRAY_BUFFER, buffer); // Start to use the buffer
+    glBindVertexArray(vao);
+    //
     if (pc_result){
         // test, time
         //--------------------------//
@@ -346,81 +414,89 @@ void My_Display()
 
 #endif
 
-
-
-    //--------------------------------------------//
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//Update shaders' input variable
-	///////////////////////////
-	static const GLfloat black[] = { 0.0f, 0, 0.0f, 1.0f };
-	static const GLfloat one = 1.0f;
-
-    glClearColor(0, 0, 0, 0);
-	// glClearBufferfv(GL_COLOR, 0, black);
-	// glClearBufferfv(GL_DEPTH, 0, &one);
-
-
-    //
-    // m_camera.SetZoom(m_zoom); // <-- No need to do this, since the m_camera already keep the zoom
-    glUseProgram(program);
+    glBindFramebuffer(GL_FRAMEBUFFER, FBO);
     {
-        /*
-        mat4 Identy_Init(1.0);
-	    mat4 model_matrix = Identy_Init;
-        // model_matrix[3][2] = -10.0; // Note: the glm::mat4 use [col][raw] index instead of [raw][col]
-	    model_matrix = translate(model_matrix, vec3(0.0f, 0.0f, -4.0f));
-        model_matrix = rotate(model_matrix, deg2rad(90.0f), vec3(0.0f, 0.0f, 1.0f)); // z-axis
-        model_matrix = rotate(model_matrix, deg2rad(60.0f), vec3(0.0f, 1.0f, 0.0f)); // y-axis
-        // model_matrix = rotate(model_matrix, deg2rad(0.0f), vec3(1.0f, 0.0f, 0.0f)); // x-axis
+        //--------------------------------------------//
+    	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    	//Update shaders' input variable
+    	///////////////////////////
+    	static const GLfloat black[] = { 0.0f, 0, 0.0f, 1.0f };
+    	static const GLfloat one = 1.0f;
+
+        // glClearColor(0, 0, 0, 0);
+    	glClearBufferfv(GL_COLOR, 0, black);
+    	glClearBufferfv(GL_DEPTH, 0, &one);
+
+
         //
-        // Note: the glm::translate and glm::rotate are doing the "post-multiplication", which is different than the normal "pre-multiplication"
-        mat4 view_matrix = Identy_Init;
-        // view_matrix = translate(view_matrix, vec3(0.0f, 0.0f, -10.0f));
-        // view_matrix = rotate(view_matrix, deg2rad(90.0f), vec3(0.0f, 0.0f, 1.0f)); // z-axis
-        // view_matrix = rotate(view_matrix, deg2rad(60.0f), vec3(0.0f, 1.0f, 0.0f)); // y-axis
-        // view_matrix = rotate(view_matrix, deg2rad(0.0f), vec3(1.0f, 0.0f, 0.0f)); // x-axis
-        // mat4 view_matrix_inv = inverse(view_matrix);
-        //
-        glUniformMatrix4fv(uniforms.view_matrix, 1, GL_FALSE, value_ptr(view_matrix*model_matrix) );
-        */
+        // m_camera.SetZoom(m_zoom); // <-- No need to do this, since the m_camera already keep the zoom
+        glUseProgram(program);
+        {
+            /*
+            mat4 Identy_Init(1.0);
+    	    mat4 model_matrix = Identy_Init;
+            // model_matrix[3][2] = -10.0; // Note: the glm::mat4 use [col][raw] index instead of [raw][col]
+    	    model_matrix = translate(model_matrix, vec3(0.0f, 0.0f, -4.0f));
+            model_matrix = rotate(model_matrix, deg2rad(90.0f), vec3(0.0f, 0.0f, 1.0f)); // z-axis
+            model_matrix = rotate(model_matrix, deg2rad(60.0f), vec3(0.0f, 1.0f, 0.0f)); // y-axis
+            // model_matrix = rotate(model_matrix, deg2rad(0.0f), vec3(1.0f, 0.0f, 0.0f)); // x-axis
+            //
+            // Note: the glm::translate and glm::rotate are doing the "post-multiplication", which is different than the normal "pre-multiplication"
+            mat4 view_matrix = Identy_Init;
+            // view_matrix = translate(view_matrix, vec3(0.0f, 0.0f, -10.0f));
+            // view_matrix = rotate(view_matrix, deg2rad(90.0f), vec3(0.0f, 0.0f, 1.0f)); // z-axis
+            // view_matrix = rotate(view_matrix, deg2rad(60.0f), vec3(0.0f, 1.0f, 0.0f)); // y-axis
+            // view_matrix = rotate(view_matrix, deg2rad(0.0f), vec3(1.0f, 0.0f, 0.0f)); // x-axis
+            // mat4 view_matrix_inv = inverse(view_matrix);
+            //
+            glUniformMatrix4fv(uniforms.view_matrix, 1, GL_FALSE, value_ptr(view_matrix*model_matrix) );
+            */
 
-        glUniformMatrix4fv(uniforms.view_matrix, 1, GL_FALSE, value_ptr(m_camera.GetViewMatrix() * m_camera.GetModelMatrix()));
-    	glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(m_camera.GetProjectionMatrix(aspect)));
-        //
-
-
-        // Point sprite
-        //--------------------------------//
-    	glEnable(GL_POINT_SPRITE);
-
-        // Assign the blending rule
-    	glEnable(GL_BLEND);
-    	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    	glActiveTexture(GL_TEXTURE0);
-    	glBindTexture(GL_TEXTURE_2D, m_texture);
-    	glEnable(GL_PROGRAM_POINT_SIZE);
-     	// glDrawArrays(GL_POINTS, 0, NUM_STARS); // <-- draw all the points
-        // test, to draw a partial of points
-        glDrawArrays(GL_POINTS, 0, num_points); // draw part of points
-        //--------------------------------//
+            glUniformMatrix4fv(uniforms.view_matrix, 1, GL_FALSE, value_ptr(m_camera.GetViewMatrix() * m_camera.GetModelMatrix()));
+        	glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(m_camera.GetProjectionMatrix(aspect)));
+            //
+            // Point sprite
+            //--------------------------------//
+        	glEnable(GL_POINT_SPRITE);
+            // Assign the blending rule
+        	glEnable(GL_BLEND);
+        	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            //
+        	glActiveTexture(GL_TEXTURE0);
+        	glBindTexture(GL_TEXTURE_2D, m_texture);
+        	glEnable(GL_PROGRAM_POINT_SIZE);
+         	// glDrawArrays(GL_POINTS, 0, NUM_STARS); // <-- draw all the points
+            // test, to draw a partial of points
+            glDrawArrays(GL_POINTS, 0, num_points); // draw part of points
+            // Close
+            // glDisable(GL_BLEND);
+            // glDisable(GL_POINT_SPRITE);
+            //--------------------------------//
+        }
+        glUseProgram(0);
     }
-    glUseProgram(0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
 
+    // test, off-screen rendering
+    //-----------------------------------------------------//
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
     //
-	/*
-	// Test for dynamically changing the number of vertexes (points)
-	// This is for testing the drawing for point-clouds,
-	// which are of uncertain/dynamic number of points
-	int _start_count = int(currentTime*1000);
-	if (_start_count > NUM_STARS) _start_count=NUM_STARS;
-	glDrawArrays(GL_POINTS, 0, _start_count);
-	*/
-	///////////////////////////
-    // std::cout << "Drawing points\n";
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, FBODataTexture);
+    glBindBuffer(GL_ARRAY_BUFFER, window_buffer);
+    glBindVertexArray(window_vao);
+    glUseProgram(program2);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    // glUseProgram(0);
+	//-----------------------------------------------------//
+
+
+    // end of drawing
 	glutSwapBuffers();
 
 
@@ -437,11 +513,13 @@ void My_Display()
     long long elapsed_us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
     long long period_us = std::chrono::duration_cast<std::chrono::microseconds>(period).count();
 
+#ifdef __DEBUG__
     std::cout << "execution time (ms): " << elapsed_us*0.001 << ",\t";
     std::cout << "Image[0] rate: " << (1000000.0/image_period_lpf_0.output) << " fps\t";
     std::cout << "PointCloud rate: " << (1000000.0/pc_period_lpf_0.output) << " fps\t";
     std::cout << "\n";
     //
+#endif
 
 
 }
@@ -455,6 +533,35 @@ void My_Reshape(int width, int height)
 	m_camera.SetWindowSize(width, height);
 	glViewport(0, 0, width, height);
 
+
+
+    // test, off-screen rendering
+    //--------------------------------------------//
+    // Clear buffer
+    glDeleteRenderbuffers(1, &depthRBO);
+	glDeleteTextures(1, &FBODataTexture);
+    // generate RBO
+    glGenRenderbuffers(1, &depthRBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthRBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, width, height);
+    // Generate FBO texture
+    glGenTextures(1, &FBODataTexture);
+	glBindTexture(GL_TEXTURE_2D, FBODataTexture);
+        // Tesxture settings
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // unbind
+    glBindTexture(GL_TEXTURE_2D, 0);
+    // Connect FBO and RBO/FBODataTexture
+    glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRBO); // Connect RBO to FBO
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FBODataTexture, 0); // Connect FBODataTexture to FBO
+
+    //--------------------------------------------//
+
 }
 
 //Timer event
@@ -464,6 +571,14 @@ void My_Timer(int val)
 	glutTimerFunc(16, My_Timer, val);
 }
 
+//
+void My_Keyboard(unsigned char key, int x, int y)
+{
+	if (key == 27){ // Escape key
+		exit(0);
+	}
+    m_camera.keyEvents(key);
+}
 //Special key event
 void My_SpecialKeys(int key, int x, int y)
 {
@@ -493,6 +608,7 @@ void My_Mouse(int button, int state, int x, int y)
 void My_Mouse_Moving(int x, int y) {
 	m_camera.mouseMoveEvent(x, y);
 }
+
 
 
 
@@ -583,7 +699,7 @@ int main(int argc, char *argv[])
 #endif
 */
 	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(600, 600);
+	glutInitWindowSize(800, 600);
 	glutCreateWindow("Framework"); // You cannot use OpenGL functions before this line; The OpenGL context must be created first by glutCreateWindow()!
 
 	glewInit();
@@ -605,9 +721,13 @@ int main(int argc, char *argv[])
 	glutReshapeFunc(My_Reshape);
 	glutTimerFunc(16, My_Timer, 0);
     //
+    glutKeyboardFunc(My_Keyboard);
+	glutSpecialFunc(My_SpecialKeys);
+    //
     glutMouseFunc(My_Mouse);
     glutPassiveMotionFunc(My_Mouse_Moving);
 	glutMotionFunc(My_Mouse_Moving);
+
 	////////////////////
 
 	// Enter main event loop.

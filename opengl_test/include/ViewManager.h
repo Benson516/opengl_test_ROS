@@ -39,7 +39,7 @@ public:
 	glm::vec3 GetEyePosition() {return eyePosition;}
 	glm::vec3 GetViewVector() {return viewVector;}
 	float GetZoom() {return zoom;}
-	
+
 	glm::vec3 GetWorldEyePosition();
 	glm::vec3 GetWorldViewVector();
 
@@ -53,17 +53,18 @@ public:
     bool ToggleOrtho() { return ortho = !ortho; }
     void Zoom(float distance);
     void Reset();
-	
+
 
 private:
 	float aspect;					///< 儲存目前視窗的長寬比。
     bool ortho;						///< 是否使用正交視角。
-    float zoom;				
+    float zoom;
 	float moveSpeed;				///< 相機的移動速度。
 	float orthoScale;
 
 	glm::mat4 translationMatrix;	///< 紀錄Translate動作的Matrix。
 	glm::mat4 rotationMatrix;		///< 紀錄Rotation動作的Matrix。
+    glm::mat4 tansformMatrix;       // test, T*R
 	glm::mat4 viewMatrix;			///< 紀錄ViewMatrix。
 	glm::mat4 projMatrix;			///< 紀錄projMatrix。
 	glm::vec3 viewVector;			///< 紀錄相機看往焦點看的向量。
@@ -74,9 +75,11 @@ private:
 
     bool lmbDown;					///< 紀錄滑鼠左鍵是否被按住。
     bool midDown;					///< 紀錄滑鼠中鍵是否被按住。
+    bool rmbDown;					///< 紀錄滑鼠左鍵是否被按住。
 	glm::vec2 lmbDownCoord;			///< 紀錄滑鼠左鍵點擊時的座標。
 	glm::vec2 midDownCoord;			///< 紀錄滑鼠中鍵點擊時的座標。
-	
+    glm::vec2 rmbDownCoord;			///< 紀錄滑鼠左鍵點擊時的座標。
+
 	int w_width;					///< 紀錄螢幕的寬。
 	int w_height;					///< 紀錄螢幕的高。
 	float wheel_val;				///< 紀錄滾輪的值。
