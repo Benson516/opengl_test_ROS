@@ -7,6 +7,9 @@
 //
 #include <setjmp.h> // For leaving main loop
 
+// test
+#include <FILTER_LIB.h>
+
 static jmp_buf jmpbuf;
 static bool jmp_set = false;
 void enter_main_loop () {
@@ -238,10 +241,20 @@ void My_Idle(){
     // glutPostRedisplay();
 }
 // GLUT callback. Called to draw the scene.
-size_t num_points=1000;
+size_t num_points = 1000;
+auto start_old = std::chrono::high_resolution_clock::now();
+auto t_image_old_0 = std::chrono::high_resolution_clock::now();
+auto t_pc_old = std::chrono::high_resolution_clock::now();
+long long image_period_us_0 = 1000000;
+long long pc_period_us = 1000000;
+LPF image_period_lpf_0(1/60.0, 1.0);
+LPF pc_period_lpf_0(1/60.0, 1.0);
+//
 void My_Display()
 {
-
+    auto start = std::chrono::high_resolution_clock::now();
+    // Evaluation
+    //=============================================================//
 
     ROS_INTERFACE &ros_interface = (*ros_interface_ptr);
     //
@@ -264,6 +277,16 @@ void My_Display()
 #ifdef __OPENCV_WINDOW__
     for (size_t i=0; i < num_image; ++i){
         if (is_image_updated[i]){
+            if (i == 0){
+                // test, time
+                //--------------------------//
+                auto t_image_new_0 = std::chrono::high_resolution_clock::now();
+                auto image_period_0 = t_image_new_0 - t_image_old_0;
+                t_image_old_0 = t_image_new_0;
+                image_period_us_0 = std::chrono::duration_cast<std::chrono::microseconds>(image_period_0).count();
+                image_period_lpf_0.filter(image_period_us_0);
+                //--------------------------//
+            }
             // std::cout << "Drawing an image\n";
             imshow(window_names[i], image_out_list[i]);
             // std::cout << "got one image\n";
@@ -292,6 +315,15 @@ void My_Display()
 
 
     if (pc_result){
+        // test, time
+        //--------------------------//
+        auto t_pc_new = std::chrono::high_resolution_clock::now();
+        auto pc_period = t_pc_new - t_pc_old;
+        t_pc_old = t_pc_new;
+        pc_period_us = std::chrono::duration_cast<std::chrono::microseconds>(pc_period).count();
+        pc_period_lpf_0.filter(pc_period_us);
+        //--------------------------//
+
         star_t * star = (star_t *)glMapBufferRange(GL_ARRAY_BUFFER, 0, NUM_STARS * sizeof(star_t), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
         // num_points = pc_out.width;
         num_points = pc_out_ptr->width;
@@ -376,6 +408,28 @@ void My_Display()
 	///////////////////////////
     // std::cout << "Drawing points\n";
 	glutSwapBuffers();
+
+
+
+    //=============================================================//
+    // end Evaluation
+
+    //
+    auto elapsed = std::chrono::high_resolution_clock::now() - start;
+    auto period = start - start_old;
+    start_old = start;
+
+
+    long long elapsed_us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+    long long period_us = std::chrono::duration_cast<std::chrono::microseconds>(period).count();
+
+    std::cout << "execution time (ms): " << elapsed_us*0.001 << ",\t";
+    std::cout << "Image[0] rate: " << (1000000.0/image_period_lpf_0.output) << " fps\t";
+    std::cout << "PointCloud rate: " << (1000000.0/pc_period_lpf_0.output) << " fps\t";
+    std::cout << "\n";
+    //
+
+
 }
 
 //Call to resize the window

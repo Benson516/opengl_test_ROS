@@ -80,6 +80,9 @@ include_directories(
     include/async_buffer/
     include/ROS_interface/
     include/ROS_interface/include
+    #
+    include/FILTER_LIB/
+    include/FILTER_LIB/IIR/
     .
 )
 include_directories(
@@ -95,12 +98,7 @@ include_directories(
 
 
 
-set(ALL_LIBS
-	${OPENGL_LIBRARY}
-	glfw
-	GLEW_1130
-    ${GLUT_LIBRARY}
-)
+
 
 
 
@@ -109,7 +107,12 @@ add_definitions(${PCL_DEFINITIONS})
 
 
 
-
+set(ALL_LIBS
+	${OPENGL_LIBRARY}
+	glfw
+	GLEW_1130
+    ${GLUT_LIBRARY}
+)
 
 
 
@@ -125,6 +128,8 @@ add_library (ROS_interface_1 STATIC include/ROS_interface/ROS_interface.cpp)
 target_link_libraries(ROS_interface_1 async_buffer_v2_1)
 
 
+add_library (FILTER_LIB STATIC include/FILTER_LIB/FILTER_LIB.cpp include/FILTER_LIB/CIRCULAR_BUFFER_VECTOR include/FILTER_LIB/IIR/IIR.cpp)
+
 
 add_library (tiny_obj_loader STATIC src/tiny_obj_loader.cpp)
 target_link_libraries(tiny_obj_loader ${ALL_LIBS}  )
@@ -139,8 +144,9 @@ target_link_libraries(ViewManager ${ALL_LIBS} Common )
 
 
 
+
 add_executable(point_sprite src/7.5.Point_Sprite/Point_Sprite.cpp )
 # add_executable(point_sprite src/7.5.Point_Sprite/Point_Sprite.cpp src/tiny_obj_loader.cpp src/Common.cpp src/ViewManager.cpp)
 # target_link_libraries(point_sprite ${ALL_LIBS} Common ViewManager tiny_obj_loader ANTTWEAKBAR_116_OGLCORE_GLFW )
 # target_link_libraries(point_sprite ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW )
-target_link_libraries(point_sprite ROS_interface_1  ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} )
+target_link_libraries(point_sprite ROS_interface_1  ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )
