@@ -13,9 +13,14 @@ ViewManager::ViewManager()
 	orthoScale = 1.5f;
 	lmbDown = false;
 	midDown = false;
+	/*
 	eyePosition = vec3(0.0f, 0.0f, 5.0f);
 	eyeLookPosition = vec3(0.0f, 0.0f, 0.0f);
 	vec3 up = vec3(0, 1, 0);
+	*/
+	eyePosition = vec3(-5.0f, 0.0f, 5.0f);
+	eyeLookPosition = vec3(10.0f, 0.0f, 0.0f);
+	vec3 up = vec3(1, 0, 0);
 	viewMatrix = lookAt(eyePosition, eyeLookPosition, up);
 	viewVector = eyePosition - eyeLookPosition;
 	viewVector = normalize(viewVector);
@@ -253,8 +258,10 @@ void ViewManager::mouseMoveEvent(int x, int y)
 		vec2 coord = vec2(x, y);
 		vec2 diff = coord - lmbDownCoord;
 		float factor = 0.002f;
-		rotationMatrix = rotate(rotationMatrix, diff.x * factor, rotateYAxis);
-		rotationMatrix = rotate(rotationMatrix, diff.y * factor, rotateXAxis);
+		glm::vec3 rotateAxis = (diff.x * factor)*rotateYAxis + (diff.y * factor)*rotateXAxis;
+		// rotationMatrix = rotate(rotationMatrix, diff.x * factor, rotateYAxis);
+		// rotationMatrix = rotate(rotationMatrix, diff.y * factor, rotateXAxis);
+		rotationMatrix = rotate(rotationMatrix, 0.01745f, rotateAxis);
 		lmbDownCoord = coord;
 	}
 	else if (midDown)
@@ -290,8 +297,8 @@ void ViewManager::wheelEvent(int direction)
 void ViewManager::Zoom(float distance)
 {
 	zoom *= (1.0f + 0.05f * distance);
-	// zoom = clamp(0.1f, zoom, 3.0f);
-	zoom = clamp(0.001f, zoom, 30.0f);
+	zoom = clamp(0.1f, zoom, 3.0f);
+	// zoom = clamp(0.001f, zoom, 30.0f);
 }
 
 /**

@@ -362,35 +362,49 @@ void My_Display()
 
 
     //
-    m_camera.SetZoom(m_zoom);
+    // m_camera.SetZoom(m_zoom); // <-- No need to do this, since the m_camera already keep the zoom
     glUseProgram(program);
     {
+        /*
+        mat4 Identy_Init(1.0);
+	    mat4 model_matrix = Identy_Init;
+        // model_matrix[3][2] = -10.0; // Note: the glm::mat4 use [col][raw] index instead of [raw][col]
+	    model_matrix = translate(model_matrix, vec3(0.0f, 0.0f, -4.0f));
+        model_matrix = rotate(model_matrix, deg2rad(90.0f), vec3(0.0f, 0.0f, 1.0f)); // z-axis
+        model_matrix = rotate(model_matrix, deg2rad(60.0f), vec3(0.0f, 1.0f, 0.0f)); // y-axis
+        // model_matrix = rotate(model_matrix, deg2rad(0.0f), vec3(1.0f, 0.0f, 0.0f)); // x-axis
+        //
+        // Note: the glm::translate and glm::rotate are doing the "post-multiplication", which is different than the normal "pre-multiplication"
+        mat4 view_matrix = Identy_Init;
+        // view_matrix = translate(view_matrix, vec3(0.0f, 0.0f, -10.0f));
+        // view_matrix = rotate(view_matrix, deg2rad(90.0f), vec3(0.0f, 0.0f, 1.0f)); // z-axis
+        // view_matrix = rotate(view_matrix, deg2rad(60.0f), vec3(0.0f, 1.0f, 0.0f)); // y-axis
+        // view_matrix = rotate(view_matrix, deg2rad(0.0f), vec3(1.0f, 0.0f, 0.0f)); // x-axis
+        // mat4 view_matrix_inv = inverse(view_matrix);
+        //
+        glUniformMatrix4fv(uniforms.view_matrix, 1, GL_FALSE, value_ptr(view_matrix*model_matrix) );
+        */
+
         glUniformMatrix4fv(uniforms.view_matrix, 1, GL_FALSE, value_ptr(m_camera.GetViewMatrix() * m_camera.GetModelMatrix()));
     	glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(m_camera.GetProjectionMatrix(aspect)));
         //
 
-        /*
-        float f_timer_cnt = glutGet(GLUT_ELAPSED_TIME);
-    	float currentTime = f_timer_cnt* 0.001f;
 
-    	currentTime *= 0.1f;
-    	currentTime -= floor(currentTime);
-
-    	glUniform1f(time_Loc, currentTime);
-    	glUniformMatrix4fv(proj_location, 1, GL_FALSE, &proj_matrix[0][0]);
-        */
-
+        // Point sprite
+        //--------------------------------//
     	glEnable(GL_POINT_SPRITE);
 
+        // Assign the blending rule
     	glEnable(GL_BLEND);
     	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     	glActiveTexture(GL_TEXTURE0);
     	glBindTexture(GL_TEXTURE_2D, m_texture);
     	glEnable(GL_PROGRAM_POINT_SIZE);
-     	// glDrawArrays(GL_POINTS, 0, NUM_STARS);
+     	// glDrawArrays(GL_POINTS, 0, NUM_STARS); // <-- draw all the points
         // test, to draw a partial of points
-        glDrawArrays(GL_POINTS, 0, num_points);
+        glDrawArrays(GL_POINTS, 0, num_points); // draw part of points
+        //--------------------------------//
     }
     glUseProgram(0);
 
@@ -473,7 +487,7 @@ void My_SpecialKeys(int key, int x, int y)
 void My_Mouse(int button, int state, int x, int y)
 {
     m_camera.mouseEvents(button, state, x, y);
-    m_zoom = m_camera.GetZoom();
+    // m_zoom = m_camera.GetZoom(); // No need to do this, since m_camera already keep the zoom
     // TwRefreshBar(bar);
 }
 void My_Mouse_Moving(int x, int y) {
