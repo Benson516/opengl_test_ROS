@@ -421,7 +421,7 @@ void My_Display()
 
     	//Update shaders' input variable
     	///////////////////////////
-    	static const GLfloat black[] = { 0.0f, 0, 0.0f, 1.0f };
+    	static const GLfloat black[] = { 0.0f, 0.0f, 0.0f, 0.0f };
     	static const GLfloat one = 1.0f;
 
         // glClearColor(0, 0, 0, 0);
@@ -462,6 +462,7 @@ void My_Display()
             // Assign the blending rule
         	glEnable(GL_BLEND);
         	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            // glBlendFunc(GL_SRC_ALPHA, GL_ONE);
             //
         	glActiveTexture(GL_TEXTURE0);
         	glBindTexture(GL_TEXTURE_2D, m_texture);
@@ -470,8 +471,8 @@ void My_Display()
             // test, to draw a partial of points
             glDrawArrays(GL_POINTS, 0, num_points); // draw part of points
             // Close
-            // glDisable(GL_BLEND);
-            // glDisable(GL_POINT_SPRITE);
+            glDisable(GL_BLEND);
+            glDisable(GL_POINT_SPRITE);
             //--------------------------------//
         }
         glUseProgram(0);
