@@ -153,4 +153,4 @@ void LoadMtl(std::map<std::string, int> &material_map, // [output]
              std::istream &inStream);
 }
 
-#endif TINY_OBJ_LOADER_H
+#endif // TINY_OBJ_LOADER_H

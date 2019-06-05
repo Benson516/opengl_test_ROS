@@ -27,14 +27,14 @@ void leave_main_loop () {
 #define STRING_TOPIC_COUNT 6
 #define NUM_IMAGE 9
 
-// #define __DEBUG__
+#define __DEBUG__
 #define __OPENCV_WINDOW__
 #define __SUB_POINT_CLOUD__
 
 
 
 
-#define M_PI = 3.14;
+// #define M_PI = 3.14;
 
 using std::vector;
 using std::string;
@@ -74,7 +74,9 @@ vector<string> window_names;
 
 
 // Declare outside the loop to avoid periodically construction and destruction.
+vector< std::shared_ptr< cv::Mat > > image_out_ptr_list(9);
 std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > pc_out_ptr;
+
 //
 
 
@@ -138,6 +140,7 @@ static const GLfloat window_positions[] =
 	1.0f,1.0f,1.0f,1.0f    // right-up
 };
 */
+GLuint background_texture;
 //
 
 
@@ -236,9 +239,9 @@ void My_Init()
 		star[i].position[0] = (random_float() * 2.0f - 1.0f) * 100.0f;
 		star[i].position[1] = (random_float() * 2.0f - 1.0f) * 100.0f;
 		star[i].position[2] = random_float();
-		star[i].color[0] = 0.8f + random_float() * 0.2f;
-		star[i].color[1] = 0.8f + random_float() * 0.2f;
-		star[i].color[2] = 0.8f + random_float() * 0.2f;
+		star[i].color[0] = 0.8f; //  + random_float() * 0.2f;
+		star[i].color[1] = 0.8f; //  + random_float() * 0.2f;
+		star[i].color[2] = 0.8f; //  + random_float() * 0.2f;
 	}
 
 	glUnmapBuffer(GL_ARRAY_BUFFER);
@@ -255,8 +258,8 @@ void My_Init()
     path_tdata = path_pkg_directory + path_tdata;
 	TextureData tdata = Common::Load_png(path_tdata.c_str());
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// glEnable(GL_BLEND);
+	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tdata.width, tdata.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata.data);
@@ -305,6 +308,22 @@ void My_Init()
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+
+
+    // background_texture
+    std::string path_tdata_b("Assets/7.5.Point_Sprite/light.png");
+    path_tdata_b = path_pkg_directory + path_tdata_b;
+	TextureData tdata_b = Common::Load_png(path_tdata_b.c_str());
+    //
+    glGenTextures(1, &background_texture);
+	glBindTexture(GL_TEXTURE_2D, background_texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, tdata_b.width, tdata_b.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata_b.data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    //
+
     //----------------------------------------------------------//
 
     // test, off-screen rendering
@@ -329,9 +348,11 @@ LPF pc_period_lpf_0(1/60.0, 1.0);
 //
 void My_Display()
 {
+
     auto start = std::chrono::high_resolution_clock::now();
     // Evaluation
     //=============================================================//
+
 
     ROS_INTERFACE &ros_interface = (*ros_interface_ptr);
     //
@@ -341,16 +362,22 @@ void My_Display()
         std::cout << "Quit main loop\n";
     }
 
+
+
     // Image
     int num_image = NUM_IMAGE;
     int image_topic_id = int(MSG_ID::camera_0);
     //
-    vector<cv::Mat> image_out_list(num_image);
+    // vector<cv::Mat> image_out_list(num_image);
     vector<bool> is_image_updated(num_image, false);
     for (size_t i=0; i < num_image; ++i){
-        is_image_updated[i] = ros_interface.get_Image( (image_topic_id+i), image_out_list[i]);
+        is_image_updated[i] = ros_interface.get_Image( (image_topic_id+i), image_out_ptr_list[i]);
     }
     // std::cout << "Drawing images\n";
+
+
+
+
 #ifdef __OPENCV_WINDOW__
     for (size_t i=0; i < num_image; ++i){
         if (is_image_updated[i]){
@@ -365,12 +392,14 @@ void My_Display()
                 //--------------------------//
             }
             // std::cout << "Drawing an image\n";
-            imshow(window_names[i], image_out_list[i]);
+            imshow(window_names[i], *image_out_ptr_list[i]);
             // std::cout << "got one image\n";
             waitKey(1);
         }
     }
 #endif
+
+
 
 
 #ifdef __SUB_POINT_CLOUD__
@@ -416,15 +445,16 @@ void My_Display()
             star[i].position[0] = pc_out_ptr->points[i].x;
     		star[i].position[1] = pc_out_ptr->points[i].y;
     		star[i].position[2] = pc_out_ptr->points[i].z;
-    		star[i].color[0] = 0.8f;
-    		star[i].color[1] = 0.8f;
-    		star[i].color[2] = 0.8f;
+    		// star[i].color[0] = 0.8f;
+    		// star[i].color[1] = 0.8f;
+    		// star[i].color[2] = 0.8f;
     	}
     	glUnmapBuffer(GL_ARRAY_BUFFER);
     }
-
-
 #endif
+
+
+
 
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
     {
@@ -493,20 +523,42 @@ void My_Display()
 
 
 
+
     // test, off-screen rendering
     //-----------------------------------------------------//
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
     //
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, FBODataTexture);
     glBindBuffer(GL_ARRAY_BUFFER, window_buffer);
     glBindVertexArray(window_vao);
-    glUseProgram(program2);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    // glUseProgram(0);
+    glUseProgram(program2);{
+
+            glActiveTexture(GL_TEXTURE0);
+
+            // FBO
+            glBindTexture(GL_TEXTURE_2D, FBODataTexture);
+            glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+            /*
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            // background_texture
+            glBindTexture(GL_TEXTURE_2D, background_texture);
+    	    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+            // FBO
+            glBindTexture(GL_TEXTURE_2D, FBODataTexture);
+            glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+            // Close
+            glDisable(GL_BLEND);
+            glDisable(GL_DEPTH_TEST);
+            */
+    }
+    glUseProgram(0);
+
 	//-----------------------------------------------------//
+
+
 
 
     // end of drawing
@@ -516,23 +568,19 @@ void My_Display()
 
     //=============================================================//
     // end Evaluation
-
-    //
+    #ifdef __DEBUG__
     auto elapsed = std::chrono::high_resolution_clock::now() - start;
     auto period = start - start_old;
     start_old = start;
-
-
     long long elapsed_us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
     long long period_us = std::chrono::duration_cast<std::chrono::microseconds>(period).count();
-
-#ifdef __DEBUG__
     std::cout << "execution time (ms): " << elapsed_us*0.001 << ",\t";
     std::cout << "Image[0] rate: " << (1000000.0/image_period_lpf_0.output) << " fps\t";
     std::cout << "PointCloud rate: " << (1000000.0/pc_period_lpf_0.output) << " fps\t";
     std::cout << "\n";
-    //
-#endif
+    #endif
+
+
 
 
 }
