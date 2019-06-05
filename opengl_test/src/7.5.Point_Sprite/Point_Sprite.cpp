@@ -119,12 +119,23 @@ GLuint			window_buffer;
 GLuint			FBO;
 GLuint			depthRBO;
 GLuint			FBODataTexture;
+/*
 static const GLfloat window_positions[] =
 {
-	1.0f,-1.0f,1.0f,0.0f,  // Position 1, texcord 1
-	-1.0f,-1.0f,0.0f,0.0f, // Position 2, texcord 2
-	-1.0f,1.0f,0.0f,1.0f,  // Position 3, texcord 3
-	1.0f,1.0f,1.0f,1.0f    // Position 4, texcord 4
+    // Position i, texcord i
+	1.0f,-1.0f,1.0f,0.0f,  // right-down
+	-1.0f,-1.0f,0.0f,0.0f, // left-down
+	-1.0f,1.0f,0.0f,1.0f,  // left-up
+	1.0f,1.0f,1.0f,1.0f    // right-up
+};
+*/
+static const GLfloat window_positions[] =
+{
+    // Position i, texcord i
+	1.0f,-0.0f,1.0f,0.0f,  // right-down
+	-1.0f,-0.0f,0.0f,0.0f, // left-down
+	-1.0f,1.0f,0.0f,1.0f,  // left-up
+	1.0f,1.0f,1.0f,1.0f    // right-up
 };
 //
 
@@ -528,28 +539,38 @@ void My_Display()
 //Call to resize the window
 void My_Reshape(int width, int height)
 {
+    glViewport(0, 0, width, height);
 
-    m_screenSize = vec2(width, height);
-	aspect = width * 1.0f / height;
-	m_camera.SetWindowSize(width, height);
-	glViewport(0, 0, width, height);
+    //
+    int width_1, height_1;
+    width_1 = width;
+    height_1 = height/2;
+    //
+    // m_screenSize = vec2(width_1, height_1);
+	// aspect = width_1 * 1.0f / height_1;
+    aspect = width * 1.0f / height; // <-- Why using this is correct?
+	m_camera.SetWindowSize(width_1, height_1);
 
+    // glViewport(0, 0, width_1, height_1);
 
 
     // test, off-screen rendering
     //--------------------------------------------//
+    int width_2, height_2;
+    width_2 = width;
+    height_2 = height;
     // Clear buffer
     glDeleteRenderbuffers(1, &depthRBO);
 	glDeleteTextures(1, &FBODataTexture);
     // generate RBO
     glGenRenderbuffers(1, &depthRBO);
 	glBindRenderbuffer(GL_RENDERBUFFER, depthRBO);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, width, height);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, width_1, height_1);
     // Generate FBO texture
     glGenTextures(1, &FBODataTexture);
 	glBindTexture(GL_TEXTURE_2D, FBODataTexture);
         // Tesxture settings
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_1, height_1, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

@@ -355,8 +355,8 @@ void ViewManager::Zoom(float distance)
 void ViewManager::SetWindowSize(int width, int height) {
 	w_width = width;
 	w_height = height;
+    aspect = width * 1.0/height;
 	projMatrix = GetProjectionMatrix();
-	aspect = height / width;
 }
 
 /**
@@ -415,13 +415,10 @@ void ViewManager::Reset()
 	translationMatrix = mat4(1.0);
 	rotationMatrix = mat4(1.0);
     rotationMatrix = rotate(rotationMatrix, deg2rad(90.0f), vec3(0.0f, 0.0f, 1.0f)); // z-axis
-    rotationMatrix = rotate(rotationMatrix, deg2rad(60.0f), vec3(0.0f, 1.0f, 0.0f)); // y-axis
+    rotationMatrix = rotate(rotationMatrix, deg2rad(75.0f), vec3(0.0f, 1.0f, 0.0f)); // y-axis
     // test
-    glm::mat4 _delta_rot(1.0);
-    _delta_rot = rotate(_delta_rot, deg2rad(90.0f), vec3(0.0f, 0.0f, 1.0f)); // z-axis
-    _delta_rot = rotate(_delta_rot, deg2rad(75.0f), vec3(0.0f, 1.0f, 0.0f)); // y-axis
-    tansformMatrix = mat4(1.0);
-    tansformMatrix = _delta_rot*tansformMatrix;
+    // tansformMatrix = mat4(1.0);
+    tansformMatrix = rotationMatrix*mat4(1.0);
 }
 
 /**
