@@ -82,19 +82,19 @@ std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > pc_out_ptr;
 
 //uniform id
 
+// Matrices
 struct
 {
 	GLint  view_matrix;
 	GLint  proj_matrix;
 } uniforms;
 
-// The structure for each star
+// The structure for each star (point)
 struct star_t
 {
     glm::vec3     position;
     glm::vec3     color;
 };
-
 
 
 //
@@ -104,17 +104,15 @@ float			aspect;
 vec2			m_screenSize;
 //
 GLuint			program;			//shader program
-
-mat4			proj_matrix;		//projection matrix
+//
 GLuint          vao;
 GLuint			vertex_shader;
 GLuint			fragment_shader;
 GLuint          buffer;
-GLint           mv_location;
-GLint           proj_location;
 GLint			time_Loc;
 
 // test, off-screen rendering
+//--------------------------------------------//
 GLuint			program2;             // Shader program for off-screen rendering
 GLuint          window_vao;
 GLuint			window_buffer;
@@ -141,8 +139,75 @@ static const GLfloat window_positions[] =
 };
 */
 GLuint background_texture;
-//
+//--------------------------------------------//
 
+
+
+// a box
+//--------------------------------------//
+//uniform id
+struct
+{
+    GLint   model;
+	GLint   view;
+	GLint   projection;
+} box_uniforms;
+//
+GLuint			program1;			//shader program
+GLuint          box_vao;
+GLuint          box_buffer;
+float box_half_size = 1.0f;
+static const GLfloat box_vertex_positions[] =
+{
+	-box_half_size,  box_half_size, -box_half_size,
+	-box_half_size, -box_half_size, -box_half_size,
+	box_half_size, -box_half_size, -box_half_size,
+
+	box_half_size, -box_half_size, -box_half_size,
+	box_half_size,  box_half_size, -box_half_size,
+	-box_half_size,  box_half_size, -box_half_size,
+
+	box_half_size, -box_half_size, -box_half_size,
+	box_half_size, -box_half_size,  box_half_size,
+	box_half_size,  box_half_size, -box_half_size,
+
+	box_half_size, -box_half_size,  box_half_size,
+	box_half_size,  box_half_size,  box_half_size,
+	box_half_size,  box_half_size, -box_half_size,
+
+	box_half_size, -box_half_size,  box_half_size,
+	-box_half_size, -box_half_size,  box_half_size,
+	box_half_size,  box_half_size,  box_half_size,
+
+	-box_half_size, -box_half_size,  box_half_size,
+	-box_half_size,  box_half_size,  box_half_size,
+	box_half_size,  box_half_size,  box_half_size,
+
+	-box_half_size, -box_half_size,  box_half_size,
+	-box_half_size, -box_half_size, -box_half_size,
+	-box_half_size,  box_half_size,  box_half_size,
+
+	-box_half_size, -box_half_size, -box_half_size,
+	-box_half_size,  box_half_size, -box_half_size,
+	-box_half_size,  box_half_size,  box_half_size,
+
+	-box_half_size, -box_half_size,  box_half_size,
+	box_half_size, -box_half_size,  box_half_size,
+	box_half_size, -box_half_size, -box_half_size,
+
+	box_half_size, -box_half_size, -box_half_size,
+	-box_half_size, -box_half_size, -box_half_size,
+	-box_half_size, -box_half_size,  box_half_size,
+
+	-box_half_size,  box_half_size, -box_half_size,
+	box_half_size,  box_half_size, -box_half_size,
+	box_half_size,  box_half_size,  box_half_size,
+
+	box_half_size,  box_half_size,  box_half_size,
+	-box_half_size,  box_half_size,  box_half_size,
+	-box_half_size,  box_half_size, -box_half_size
+};
+//--------------------------------------//
 
 GLuint m_texture;
 static unsigned int seed = 0x13371337;
@@ -168,6 +233,9 @@ enum
 
 void My_Init()
 {
+    std::string path_pkg_directory("/home/benson516_itri/catkin_ws/src/opengl_test_ROS/opengl_test/");
+
+    //
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 
@@ -181,7 +249,6 @@ void My_Init()
 	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
     //
-    std::string path_pkg_directory("/home/benson516_itri/catkin_ws/src/opengl_test_ROS/opengl_test/");
     std::string path_vs("Assets/7.5.Point_Sprite/Point_Sprite.vs.glsl");
     std::string path_fs("Assets/7.5.Point_Sprite/Point_Sprite.fs.glsl");
     path_vs = path_pkg_directory + path_vs;
@@ -212,7 +279,6 @@ void My_Init()
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	proj_location = glGetUniformLocation(program, "proj_matrix");
 	time_Loc = glGetUniformLocation(program, "time");
 
 	glGenVertexArrays(1, &vao);
@@ -231,9 +297,10 @@ void My_Init()
 	// glBufferData(GL_ARRAY_BUFFER, NUM_STARS * sizeof(star_t), NULL, GL_STATIC_DRAW);
 	glBufferData(GL_ARRAY_BUFFER, NUM_STARS * sizeof(star_t), NULL, GL_DYNAMIC_DRAW); // test, change to dynamic draw to assign point cloud
 
+    // Directly assign data to memory of GPU
+    //--------------------------------------------//
 	star_t * star = (star_t *)glMapBufferRange(GL_ARRAY_BUFFER, 0, NUM_STARS * sizeof(star_t), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 	int i;
-
 	for (i = 0; i < NUM_STARS; i++)
 	{
 		star[i].position[0] = (random_float() * 2.0f - 1.0f) * 100.0f;
@@ -243,8 +310,8 @@ void My_Init()
 		star[i].color[1] = 0.8f; //  + random_float() * 0.2f;
 		star[i].color[2] = 0.8f; //  + random_float() * 0.2f;
 	}
-
 	glUnmapBuffer(GL_ARRAY_BUFFER);
+    //--------------------------------------------//
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(star_t), NULL);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(star_t), (void *)sizeof(glm::vec3));
@@ -269,6 +336,54 @@ void My_Init()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 
+
+    // test, a box
+    // Initialize shader1 for a box
+	//----------------------------------------------------------//
+    program1 = glCreateProgram();
+
+	GLuint vs1 = glCreateShader(GL_VERTEX_SHADER);
+	GLuint fs1 = glCreateShader(GL_FRAGMENT_SHADER);
+    std::string path_vs1("Assets/7.5.Point_Sprite/box.vs.glsl");
+    std::string path_fs1("Assets/7.5.Point_Sprite/box.fs.glsl");
+    path_vs1 = path_pkg_directory + path_vs1;
+    path_fs1 = path_pkg_directory + path_fs1;
+	char** vsSource1 = Common::LoadShaderSource(path_vs1.c_str());
+	char** fsSource1 = Common::LoadShaderSource(path_fs1.c_str());
+
+    glShaderSource(vs1, 1, vsSource1, NULL);
+    glShaderSource(fs1, 1, fsSource1, NULL);
+    Common::FreeShaderSource(vsSource1);
+    Common::FreeShaderSource(fsSource1);
+    glCompileShader(vs1);
+    glCompileShader(fs1);
+    Common::ShaderLog(vs1);
+    Common::ShaderLog(fs1);
+
+
+	//Attach Shader to program1
+	glAttachShader(program1, vs1);
+	glAttachShader(program1, fs1);
+	glLinkProgram(program1);
+
+	glGenVertexArrays(1, &box_vao);
+	glBindVertexArray(box_vao);
+
+	glGenBuffers(1, &box_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, box_buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(box_vertex_positions), box_vertex_positions, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(0);
+
+	box_uniforms.model = glGetUniformLocation(program1, "model");
+    box_uniforms.view = glGetUniformLocation(program1, "view");
+	box_uniforms.projection = glGetUniformLocation(program1, "projection");
+	//----------------------------------------------------------//
+
+
+
+
     // test, off-screen rendering
     // Initialize shader2 for 2D rendering
 	//----------------------------------------------------------//
@@ -291,7 +406,7 @@ void My_Init()
 	Common::ShaderLog(vs2);
 	Common::ShaderLog(fs2);
 
-	//Attach Shader to program
+	//Attach Shader to program2
 	glAttachShader(program2, vs2);
 	glAttachShader(program2, fs2);
 	glLinkProgram(program2);
@@ -455,7 +570,8 @@ void My_Display()
 
 
 
-
+    glEnable(GL_BLEND);
+    // glEnable(GL_DEPTH_TEST);
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
     {
         //--------------------------------------------//
@@ -463,7 +579,7 @@ void My_Display()
 
     	//Update shaders' input variable
     	///////////////////////////
-    	static const GLfloat black[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    	static const GLfloat black[] = { 0.0f, 0.0f, 0.0f, 1.0f };
     	static const GLfloat one = 1.0f;
 
         // glClearColor(0, 0, 0, 0);
@@ -471,7 +587,9 @@ void My_Display()
     	glClearBufferfv(GL_DEPTH, 0, &one);
 
 
-        //
+        // Nomatter got point cloud or not, bind the buffer and vao
+        glBindBuffer(GL_ARRAY_BUFFER, buffer); // Start to use the buffer
+        glBindVertexArray(vao);
         // m_camera.SetZoom(m_zoom); // <-- No need to do this, since the m_camera already keep the zoom
         glUseProgram(program);
         {
@@ -502,7 +620,7 @@ void My_Display()
             //--------------------------------//
         	glEnable(GL_POINT_SPRITE);
             // Assign the blending rule
-        	glEnable(GL_BLEND);
+        	// glEnable(GL_BLEND); // <-- Move to the front of drawing this frame
         	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             // glBlendFunc(GL_SRC_ALPHA, GL_ONE);
             //
@@ -513,13 +631,36 @@ void My_Display()
             // test, to draw a partial of points
             glDrawArrays(GL_POINTS, 0, num_points); // draw part of points
             // Close
-            glDisable(GL_BLEND);
+            // glDisable(GL_BLEND);
             glDisable(GL_POINT_SPRITE);
             //--------------------------------//
         }
         glUseProgram(0);
+
+        // A box
+        //----------------------------------//
+        // Nomatter got point cloud or not, bind the buffer and vao
+        glBindBuffer(GL_ARRAY_BUFFER, box_buffer); // Start to use the buffer
+        glBindVertexArray(box_vao);
+        glUseProgram(program1);
+        {
+            glUniformMatrix4fv(box_uniforms.view, 1, GL_FALSE, value_ptr(m_camera.GetViewMatrix() * m_camera.GetModelMatrix()));
+        	glUniformMatrix4fv(box_uniforms.projection, 1, GL_FALSE, value_ptr(m_camera.GetProjectionMatrix()));
+            //
+            mat4 model_pose(1.0);
+            model_pose[3][2] = -10.0f;
+            glUniformMatrix4fv(box_uniforms.model, 1, GL_FALSE, value_ptr(model_pose));
+            //--------------------------------//
+
+            // Important, need to draw the buffer array out
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+        glUseProgram(0);
+        //----------------------------------//
+
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDisable(GL_BLEND); // <-- Close, in case that the off-screen rendering is also blended.
 
 
 
