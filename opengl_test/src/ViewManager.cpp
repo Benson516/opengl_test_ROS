@@ -313,6 +313,10 @@ void ViewManager::mouseMoveEvent(int x, int y)
         //
         vec3 _axis = cross(vec3(diff,0)*factor, vec3(coord - _central,0)*factor);
         double _n = l2Norm(_axis);
+        if (_n < 0.000001){
+            _axis = vec3(0,0,1);
+            // std::cout << "The axis is too short.\n";
+        }
         // test
         glm::mat4 _delta_rot(1.0);
         _delta_rot = rotate(_delta_rot, float(1.0f*_n), _axis);

@@ -119,7 +119,7 @@ GLuint			window_buffer;
 GLuint			FBO;
 GLuint			depthRBO;
 GLuint			FBODataTexture;
-/*
+
 static const GLfloat window_positions[] =
 {
     // Position i, texcord i
@@ -128,7 +128,7 @@ static const GLfloat window_positions[] =
 	-1.0f,1.0f,0.0f,1.0f,  // left-up
 	1.0f,1.0f,1.0f,1.0f    // right-up
 };
-*/
+/*
 static const GLfloat window_positions[] =
 {
     // Position i, texcord i
@@ -137,6 +137,7 @@ static const GLfloat window_positions[] =
 	-1.0f,1.0f,0.0f,1.0f,  // left-up
 	1.0f,1.0f,1.0f,1.0f    // right-up
 };
+*/
 //
 
 
@@ -465,7 +466,7 @@ void My_Display()
             */
 
             glUniformMatrix4fv(uniforms.view_matrix, 1, GL_FALSE, value_ptr(m_camera.GetViewMatrix() * m_camera.GetModelMatrix()));
-        	glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(m_camera.GetProjectionMatrix(aspect)));
+        	glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(m_camera.GetProjectionMatrix()));
             //
             // Point sprite
             //--------------------------------//
@@ -539,26 +540,23 @@ void My_Display()
 //Call to resize the window
 void My_Reshape(int width, int height)
 {
-    glViewport(0, 0, width, height);
+    // glViewport(0, 0, width, height);
 
     //
     int width_1, height_1;
     width_1 = width;
-    height_1 = height/2;
+    height_1 = height; // height/2;
     //
+    glViewport(0, 0, width_1, height_1);
     // m_screenSize = vec2(width_1, height_1);
-	// aspect = width_1 * 1.0f / height_1;
-    aspect = width * 1.0f / height; // <-- Why using this is correct?
+	aspect = width_1 * 1.0f / height_1;
 	m_camera.SetWindowSize(width_1, height_1);
 
-    // glViewport(0, 0, width_1, height_1);
+
 
 
     // test, off-screen rendering
     //--------------------------------------------//
-    int width_2, height_2;
-    width_2 = width;
-    height_2 = height;
     // Clear buffer
     glDeleteRenderbuffers(1, &depthRBO);
 	glDeleteTextures(1, &FBODataTexture);
