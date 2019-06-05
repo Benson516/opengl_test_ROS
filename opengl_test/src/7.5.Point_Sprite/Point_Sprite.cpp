@@ -531,20 +531,25 @@ void My_Display()
     //
     glBindBuffer(GL_ARRAY_BUFFER, window_buffer);
     glBindVertexArray(window_vao);
+    glActiveTexture(GL_TEXTURE0);
+
     //
     glUseProgram(program2);{
-        glActiveTexture(GL_TEXTURE0);
+
         glBindTexture(GL_TEXTURE_2D, FBODataTexture);
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+
         /*
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        // background_texture
-        glBindTexture(GL_TEXTURE_2D, background_texture);
-        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
         // FBO
         glBindTexture(GL_TEXTURE_2D, FBODataTexture);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        // background_texture
+        glBindTexture(GL_TEXTURE_2D, background_texture);
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
         // Close
         glDisable(GL_BLEND);
@@ -613,6 +618,7 @@ void My_Reshape(int width, int height)
     glGenTextures(1, &FBODataTexture);
 	glBindTexture(GL_TEXTURE_2D, FBODataTexture);
         // Tesxture settings
+        // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width_1, height_1, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL); // <-- Change to floating point
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_1, height_1, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
