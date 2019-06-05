@@ -445,9 +445,9 @@ void My_Display()
             star[i].position[0] = pc_out_ptr->points[i].x;
     		star[i].position[1] = pc_out_ptr->points[i].y;
     		star[i].position[2] = pc_out_ptr->points[i].z;
-    		// star[i].color[0] = 0.8f;
-    		// star[i].color[1] = 0.8f;
-    		// star[i].color[2] = 0.8f;
+    		star[i].color[0] = 0.8f;
+    		star[i].color[1] = 0.8f;
+    		star[i].color[2] = 0.8f;
     	}
     	glUnmapBuffer(GL_ARRAY_BUFFER);
     }
@@ -531,28 +531,25 @@ void My_Display()
     //
     glBindBuffer(GL_ARRAY_BUFFER, window_buffer);
     glBindVertexArray(window_vao);
+    //
     glUseProgram(program2);{
-
-            glActiveTexture(GL_TEXTURE0);
-
-            // FBO
-            glBindTexture(GL_TEXTURE_2D, FBODataTexture);
-            glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-            /*
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            // background_texture
-            glBindTexture(GL_TEXTURE_2D, background_texture);
-    	    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-            // FBO
-            glBindTexture(GL_TEXTURE_2D, FBODataTexture);
-            glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-            // Close
-            glDisable(GL_BLEND);
-            glDisable(GL_DEPTH_TEST);
-            */
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, FBODataTexture);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        /*
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        // background_texture
+        glBindTexture(GL_TEXTURE_2D, background_texture);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        // FBO
+        glBindTexture(GL_TEXTURE_2D, FBODataTexture);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        // Close
+        glDisable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
+        */
     }
     glUseProgram(0);
 
