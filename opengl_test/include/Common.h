@@ -22,6 +22,7 @@
 #include "../include/GLM/glm/gtc/matrix_transform.hpp"
 #include "../include/GLM/glm/gtc/type_ptr.hpp"
 #include "../include/GLM/glm/gtx/rotate_vector.hpp"
+#include "../include/GLM/glm/gtx/norm.hpp"
 
 //
 /*
