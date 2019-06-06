@@ -87,6 +87,10 @@ include_directories(
 )
 include_directories(
     include/
+    include/TinyOBJ/
+    include/Common/
+    include/ViewManager/
+    #
 	external/AntTweakBar-1.16/include/
 	external/glfw-3.1.2/include/
 	external/glm-0.9.7.1/
@@ -131,13 +135,13 @@ target_link_libraries(ROS_interface_1 async_buffer_v2_1)
 add_library (FILTER_LIB STATIC include/FILTER_LIB/FILTER_LIB.cpp include/FILTER_LIB/CIRCULAR_BUFFER_VECTOR include/FILTER_LIB/IIR/IIR.cpp)
 
 
-add_library (tiny_obj_loader STATIC src/tiny_obj_loader.cpp)
+add_library (tiny_obj_loader STATIC include/TinyOBJ/tiny_obj_loader.cpp)
 target_link_libraries(tiny_obj_loader ${ALL_LIBS}  )
 
-add_library (Common STATIC src/Common.cpp)
+add_library (Common STATIC include/Common/Common.cpp)
 target_link_libraries(Common ${ALL_LIBS} tiny_obj_loader )
 
-add_library (ViewManager STATIC src/ViewManager.cpp)
+add_library (ViewManager STATIC include/ViewManager/ViewManager.cpp)
 target_link_libraries(ViewManager ${ALL_LIBS} Common )
 
 
