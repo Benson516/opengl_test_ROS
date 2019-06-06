@@ -73,7 +73,7 @@ void BaseModel::LoadModel(){
 		return;
 	}
 
-    std::cout << "Load Models Success ! Shapes size = " <<  shapes.size() << ", Maerial size = " << materials.size() << "\n";
+    std::cout << "Load models success ! Shapes size = " <<  shapes.size() << ", Maerial size = " << materials.size() << "\n";
 
 	/*
 	*Bind model data
@@ -128,6 +128,8 @@ void BaseModel::LoadModel(){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    std::cout << "Load texture success!\n";
 }
 
 void BaseModel::Update(float dt){

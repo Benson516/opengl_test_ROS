@@ -9,7 +9,8 @@
 
 
 class BaseModel{
-
+    
+public:
 	//uniform id
 	struct
 	{
@@ -34,7 +35,7 @@ class BaseModel{
 	} Shape;
 
 
-public:
+
 	BaseModel();
 	BaseModel(char* modelFile,char* textFile);
     BaseModel(std::string path_in, std::string modelFile, std::string textFile);
@@ -47,7 +48,7 @@ public:
 	void Rotate(glm::vec3 axis, float angle);
 	void Scale(glm::vec3 vec);
 
-private:
+protected:
     std::string _path;
 	std::string objName;
 	std::string textName;
@@ -57,6 +58,9 @@ private:
 	glm::mat4 translateMatrix;
 	glm::mat4 rotateMatrix;
 	glm::mat4 scaleMatrix;
+
+private:
+
 };
 
 #endif  // BASEMODEL_H
