@@ -69,8 +69,6 @@ set(ANTTWEAKBAR_SOURCE
 	AntTweakBar-1.16/src/TwOpenGL.cpp
 	AntTweakBar-1.16/src/TwOpenGLCore.cpp
 	AntTweakBar-1.16/src/TwPrecomp.cpp
-        # Add by Benson516
-        AntTweakBar-1.16/src/TwEventGLUT
 )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # If on Xcode, rename files to .mm

@@ -19,8 +19,8 @@ set(LIB_SUFFIX "" CACHE STRING "Takes an empty string or 64. Directory where lib
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
-option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" OFF) # ON
-option(GLFW_BUILD_TESTS "Build the GLFW test programs" OFF) # ON
+option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" ON)
+option(GLFW_BUILD_TESTS "Build the GLFW test programs" ON)
 option(GLFW_BUILD_DOCS "Build the GLFW documentation" ON)
 option(GLFW_INSTALL "Generate installation target" ON)
 option(GLFW_DOCUMENT_INTERNALS "Include internals in documentation" OFF)
@@ -490,7 +490,7 @@ configure_package_config_file("${GLFW_SOURCE_DIR}/src/glfw3Config.cmake.in"
                               PATH_VARS CMAKE_INSTALL_PREFIX
                               NO_CHECK_REQUIRED_COMPONENTS_MACRO)
 
-write_basic_package_version_file("${GLFW_BINARY_DIR}/src/glfw3ConfigVersion.cmake"
+write_basic_package_version_file("${GLFW_BINARY_DIR}/src/glfw3ConfigVersion.cmake" 
                                  VERSION ${GLFW_VERSION_FULL}
                                  COMPATIBILITY SameMajorVersion)
 
@@ -548,3 +548,4 @@ if (GLFW_INSTALL)
                           "${GLFW_BINARY_DIR}/cmake_uninstall.cmake")
     endif()
 endif()
+
