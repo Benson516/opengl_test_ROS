@@ -8,32 +8,30 @@
 
 
 
+
 class BaseModel{
-    
+
 public:
-	//uniform id
+    //model info
+    struct Shape{
+        GLuint vao;
+        GLuint vbo;
+        GLuint vboTex;
+        GLuint ebo;
+
+        GLuint p_normal;
+        int materialId;
+        int indexCount;
+        GLuint m_texture;
+
+        glm::mat4 model;
+    };
+    //uniform id
 	struct
 	{
 		GLint  mv_matrix;
 		GLint  proj_matrix;
 	} uniforms;
-
-	//model info
-	typedef struct
-	{
-		GLuint vao;
-		GLuint vbo;
-		GLuint vboTex;
-		GLuint ebo;
-
-		GLuint p_normal;
-		int materialId;
-		int indexCount;
-		GLuint m_texture;
-
-		glm::mat4 model;
-	} Shape;
-
 
 
 	BaseModel();
@@ -49,6 +47,8 @@ public:
 	void Scale(glm::vec3 vec);
 
 protected:
+
+
     std::string _path;
 	std::string objName;
 	std::string textName;
@@ -60,6 +60,7 @@ protected:
 	glm::mat4 scaleMatrix;
 
 private:
+    //
 
 };
 

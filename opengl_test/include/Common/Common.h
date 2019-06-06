@@ -46,7 +46,7 @@
 #include <algorithm>
 #include <fstream>
 
-// 
+//
 #include <memory> // <-- this is for std::shared_ptr
 //
 
