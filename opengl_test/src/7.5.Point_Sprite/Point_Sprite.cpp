@@ -902,22 +902,22 @@ int main(int argc, char *argv[])
 	// Initialize GLUT and GLEW, then create a window.
 	////////////////////
 	glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-/*
-#ifdef _MSC_VER
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-#else
-	glutInitDisplayMode(GLUT_3_2_CORE_PROFILE | GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-#endif
-*/
+    #ifdef _MSC_VER // Compiler for VisualStudio
+    	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+    #elif __GNUC__ // Compiler for cross platform app., including Linux
+        glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+    #else
+        glutInitDisplayMode(GLUT_3_2_CORE_PROFILE | GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+    #endif
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(800, 600);
 	glutCreateWindow("Framework"); // You cannot use OpenGL functions before this line; The OpenGL context must be created first by glutCreateWindow()!
 
-	glewInit();
-#ifdef _MSC_VER
-
-#endif
+    #ifdef _MSC_VER // Compiler for VisualStudio
+        glewInit();
+    #elif  __GNUC__ // Compiler for cross platform app., including Linux
+        glewInit();
+    #endif
 
 	//Print debug information
 	Common::DumpInfo();
