@@ -46,6 +46,9 @@
 #include <algorithm>
 #include <fstream>
 
+// 
+#include <memory> // <-- this is for std::shared_ptr
+//
 
 #define deg2rad(x) ((x)*((3.1415926f)/(180.0f)))
 #define rad2deg(x) ((180.0f) / ((x)*(3.1415926f)))

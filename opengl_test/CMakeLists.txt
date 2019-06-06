@@ -121,20 +121,19 @@ set(ALL_LIBS
 
 
 # Libraries
-add_library (async_buffer_1 STATIC include/async_buffer/async_buffer.cpp)
-# target_link_libraries(async_buffer_1 ${ALL_LIBS}  )
-
+# ROS interfaces
+#---------------------------------------------------#
 add_library (async_buffer_v2_1 STATIC include/async_buffer/async_buffer_v2.cpp)
-# target_link_libraries(async_buffer_v2 ${ALL_LIBS}  )
-
 add_library (ROS_interface_1 STATIC include/ROS_interface/ROS_interface.cpp)
-# target_link_libraries(ROS_interface_1 async_buffer_1)
 target_link_libraries(ROS_interface_1 async_buffer_v2_1)
+#---------------------------------------------------#
 
-
+# Filters
 add_library (FILTER_LIB STATIC include/FILTER_LIB/FILTER_LIB.cpp include/FILTER_LIB/CIRCULAR_BUFFER_VECTOR include/FILTER_LIB/IIR/IIR.cpp)
 
 
+# OpenGL libraries
+#---------------------------------------------------#
 add_library (tiny_obj_loader STATIC include/TinyOBJ/tiny_obj_loader.cpp)
 target_link_libraries(tiny_obj_loader ${ALL_LIBS}  )
 
@@ -143,14 +142,12 @@ target_link_libraries(Common ${ALL_LIBS} tiny_obj_loader )
 
 add_library (ViewManager STATIC include/ViewManager/ViewManager.cpp)
 target_link_libraries(ViewManager ${ALL_LIBS} Common )
+#---------------------------------------------------#
 
 
-
-
-
-
+# point_sprite
 add_executable(point_sprite src/7.5.Point_Sprite/Point_Sprite.cpp )
-# add_executable(point_sprite src/7.5.Point_Sprite/Point_Sprite.cpp src/tiny_obj_loader.cpp src/Common.cpp src/ViewManager.cpp)
-# target_link_libraries(point_sprite ${ALL_LIBS} Common ViewManager tiny_obj_loader ANTTWEAKBAR_116_OGLCORE_GLFW )
-# target_link_libraries(point_sprite ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW )
 target_link_libraries(point_sprite ROS_interface_1  ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )
+# visualizer2
+add_executable(visualizer2 src/visualizer2_main.cpp src/Scene.cpp src/BaseModel.cpp src/Shader.cpp)
+target_link_libraries(visualizer2 ROS_interface_1  ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )
