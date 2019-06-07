@@ -5,8 +5,7 @@
 #include <string>
 #include "Common.h"
 #include "Shader.h"
-
-
+#include "ViewManager.h"
 
 
 class BaseModel{
@@ -40,7 +39,7 @@ public:
 	~BaseModel();
 	virtual void Init();
 	virtual void Update(float dt);
-	virtual void Render();
+	virtual void Render(ViewManager* _camera_ptr);
 
 	void Translate(glm::vec3 vec);
 	void Rotate(glm::vec3 axis, float angle);
@@ -49,7 +48,8 @@ public:
 protected:
 
 
-    std::string _path;
+    std::string _path_Assets;
+    std::string _path_Shaders;
 	std::string objName;
 	std::string textName;
 	ShaderProgram* program;
@@ -63,5 +63,6 @@ private:
     //
 
 };
+
 
 #endif  // BASEMODEL_H

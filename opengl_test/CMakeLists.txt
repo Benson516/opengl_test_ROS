@@ -90,6 +90,7 @@ include_directories(
     include/TinyOBJ/
     include/Common/
     include/ViewManager/
+    include/RenderingModels/
     #
 	external/AntTweakBar-1.16/include/
 	external/glfw-3.1.2/include/
@@ -119,6 +120,13 @@ set(ALL_LIBS
 )
 
 
+# Render models
+set(RENDER_MODEL_PATH
+    include/RenderingModels/
+)
+set(ALL_RENDER_MODELS
+    ${RENDER_MODEL_PATH}BaseModel.cpp
+)
 
 # Libraries
 # ROS interfaces
@@ -149,5 +157,5 @@ target_link_libraries(ViewManager ${ALL_LIBS} Common )
 add_executable(point_sprite src/7.5.Point_Sprite/Point_Sprite.cpp )
 target_link_libraries(point_sprite ROS_interface_1  ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )
 # visualizer2
-add_executable(visualizer2 src/visualizer2_main.cpp src/Scene.cpp src/BaseModel.cpp src/Shader.cpp)
+add_executable(visualizer2 src/visualizer2_main.cpp src/Scene.cpp src/Shader.cpp ${ALL_RENDER_MODELS})
 target_link_libraries(visualizer2 ROS_interface_1  ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )

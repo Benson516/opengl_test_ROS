@@ -26,14 +26,14 @@ public:
 	void Render();
 	void Update(float dt);
 
-	static ViewManager* GetCamera(){ return camera; }
+	ViewManager* GetCamera(){ return _camera_ptr; }
 	std::vector<BaseModel*> GetModels();
 
 private:
     std::string _pkg_path;
     std::string _Assets_path;
 	std::vector<BaseModel*> models;
-	static ViewManager* camera;
+	ViewManager* _camera_ptr;
 };
 
 #endif  // Scene_H

@@ -1,18 +1,19 @@
 #include "BaseModel.h"
-#include "Scene.h"
 
-using namespace glm;
 
 BaseModel::BaseModel(){
 }
 
 BaseModel::BaseModel(char* modelFile,char* textFile){
+    _path_Assets = "./Assets/";
+    _path_Shaders = _path_Assets + "Shaders/";
 	objName = modelFile;
 	textName = textFile;
 	Init();
 }
 BaseModel::BaseModel(std::string path_in, std::string modelFile, std::string textFile){
-    _path = path_in;
+    _path_Assets = path_in;
+    _path_Shaders = _path_Assets + "Shaders/";
     objName = path_in + modelFile;
     textName = path_in + textFile;
 	Init();
@@ -30,8 +31,8 @@ void BaseModel::Init(){
     //
     std::string path_vs("BaseModel.vs.glsl");
     std::string path_fs("BaseModel.fs.glsl");
-    path_vs = _path + path_vs;
-    path_fs = _path + path_fs;
+    path_vs = _path_Shaders + path_vs;
+    path_fs = _path_Shaders + path_fs;
     // test
     std::cout << "path_vs = <" << path_vs << ">\n";
     std::cout << "path_fs = <" << path_fs << ">\n";
@@ -44,10 +45,10 @@ void BaseModel::Init(){
 	program->LinkProgram();
 
 	//init model matrix
-	m_shape.model = mat4();
-	translateMatrix = mat4();
-	rotateMatrix = mat4();
-	scaleMatrix = mat4();
+	m_shape.model = glm::mat4();
+	translateMatrix = glm::mat4();
+	rotateMatrix = glm::mat4();
+	scaleMatrix = glm::mat4();
 
 	//Cache uniform variable id
 	uniforms.proj_matrix = glGetUniformLocation(program->GetID(), "um4p");
@@ -135,7 +136,7 @@ void BaseModel::LoadModel(){
 void BaseModel::Update(float dt){
 
 }
-void BaseModel::Render(){
+void BaseModel::Render(ViewManager* _camera_ptr){
 	//Update shaders' input variable
 	///////////////////////////
 	glBindVertexArray(m_shape.vao);
@@ -143,8 +144,8 @@ void BaseModel::Render(){
 
 	m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
 	glBindTexture(GL_TEXTURE_2D, m_shape.m_texture);
-	glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr(Scene::GetCamera()->GetViewMatrix() * Scene::GetCamera()->GetModelMatrix() * m_shape.model));
-	glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(Scene::GetCamera()->GetProjectionMatrix()));
+	glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetViewMatrix() * _camera_ptr->GetModelMatrix() * m_shape.model));
+	glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
 
 	glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
 	///////////////////////////

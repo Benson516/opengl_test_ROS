@@ -1,16 +1,16 @@
 #include "Scene.h"
 
-ViewManager* Scene::camera = new ViewManager();
+// ViewManager* Scene::_camera_ptr = new ViewManager();
 
 Scene::Scene(std::string pkg_path_in):
     _pkg_path(pkg_path_in),
     _Assets_path(pkg_path_in + "Assets/")
 {
-	camera = new ViewManager();
+	_camera_ptr = new ViewManager();
 
 	BaseModel* bottle = new BaseModel(_Assets_path, "Potion_bottle.obj", "bottle_mana.png");
 	BaseModel* box = new BaseModel(_Assets_path, "box_realistic.obj", "box_texture_color.png");
-    
+
 	bottle->Scale(glm::vec3(0.01, 0.01, 0.01));
 	bottle->Rotate(glm::vec3(1, 0, 0), 3.1415926 / 2 * 3);
 	bottle->Translate(glm::vec3(0.0, 0.5, 0.0));
@@ -19,7 +19,7 @@ Scene::Scene(std::string pkg_path_in):
 	models.push_back(box);
 }
 void Scene::MouseEvent(int button, int state, int x, int y){
-	camera->mouseEvents(button, state, x, y);
+	_camera_ptr->mouseEvents(button, state, x, y);
 }
 
 void Scene::KeyBoardEvent(int key){
@@ -27,7 +27,7 @@ void Scene::KeyBoardEvent(int key){
 }
 
 void Scene::KeyBoardEvent(unsigned char key){
-	camera->keyEvents(key);
+	_camera_ptr->keyEvents(key);
 
 	switch (key)
 	{
@@ -64,7 +64,7 @@ void Scene::MenuEvent(int item){
 
 void Scene::Render(){
 	for (int i = 0; i < models.size(); i++){
-		models[i]->Render();
+		models[i]->Render(_camera_ptr);
 	}
 }
 void Scene::Update(float dt){
