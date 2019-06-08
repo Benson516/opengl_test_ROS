@@ -126,6 +126,7 @@ set(RENDER_MODEL_PATH
 )
 set(ALL_RENDER_MODELS
     ${RENDER_MODEL_PATH}rmBaseModel.cpp
+    ${RENDER_MODEL_PATH}rmPointCloud.cpp
 )
 
 # Libraries

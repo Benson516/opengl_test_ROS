@@ -6,7 +6,7 @@
 class rmPointCloud : public rmBaseModel
 {
 public:
-    rmPointCloud((std::string _path_Assets_in);
+    rmPointCloud(std::string _path_Assets_in);
     //
 	void Update(float dt);
 	void Render(std::shared_ptr<ViewManager> _camera_ptr);

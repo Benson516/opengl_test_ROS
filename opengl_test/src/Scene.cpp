@@ -18,8 +18,32 @@ Scene::Scene(std::string pkg_path_in):
 	_rm_BaseModel.push_back(box);
 
     // PointCloud
-
+    _rm_PointCloud.push_back( std::shared_ptr<rmPointCloud>(new rmPointCloud(_Assets_path) ) );
 }
+
+void Scene::Render(){
+    // rmBaseModel
+	for (int i = 0; i < _rm_BaseModel.size(); i++){
+		_rm_BaseModel[i]->Render(_camera_ptr);
+	}
+    // rmPointCloud
+	for (int i = 0; i < _rm_PointCloud.size(); i++){
+		_rm_PointCloud[i]->Render(_camera_ptr);
+	}
+}
+void Scene::Update(float dt){
+    // rmBaseModel
+	for (int i = 0; i < _rm_BaseModel.size(); i++){
+		_rm_BaseModel[i]->Update(dt);
+	}
+    // rmPointCloud
+	for (int i = 0; i < _rm_PointCloud.size(); i++){
+		_rm_PointCloud[i]->Update(dt);
+	}
+}
+
+
+
 void Scene::MouseEvent(int button, int state, int x, int y){
 	_camera_ptr->mouseEvents(button, state, x, y);
 }
@@ -61,16 +85,5 @@ void Scene::MenuEvent(int item){
 	}
 	else if (item == 2){
 		_rm_BaseModel[1]->Scale(glm::vec3(0.5f, 0.5f, 0.5f));
-	}
-}
-
-void Scene::Render(){
-	for (int i = 0; i < _rm_BaseModel.size(); i++){
-		_rm_BaseModel[i]->Render(_camera_ptr);
-	}
-}
-void Scene::Update(float dt){
-	for (int i = 0; i < _rm_BaseModel.size(); i++){
-		_rm_BaseModel[i]->Update(dt);
 	}
 }

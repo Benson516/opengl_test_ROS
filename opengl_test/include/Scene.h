@@ -20,15 +20,14 @@ class Scene
 public:
 	Scene(std::string pkg_path_in);
     //
-	void MouseEvent(int button,int state,int x,int y);
+	void Render();
+	void Update(float dt);
+    std::shared_ptr<ViewManager> GetCamera(){ return _camera_ptr; }
+    //
+    void MouseEvent(int button,int state,int x,int y);
 	void KeyBoardEvent(int key);
 	void KeyBoardEvent(unsigned char key);
 	void MenuEvent(int item);
-
-	void Render();
-	void Update(float dt);
-
-	std::shared_ptr<ViewManager> GetCamera(){ return _camera_ptr; }
 
 private:
     std::string _pkg_path;
