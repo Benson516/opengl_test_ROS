@@ -125,7 +125,7 @@ set(RENDER_MODEL_PATH
     include/RenderingModels/
 )
 set(ALL_RENDER_MODELS
-    ${RENDER_MODEL_PATH}BaseModel.cpp
+    ${RENDER_MODEL_PATH}rmBaseModel.cpp
 )
 
 # Libraries

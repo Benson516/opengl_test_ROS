@@ -61,7 +61,7 @@ typedef struct _TextureData
 	unsigned char* data;
 } TextureData;
 
-typedef struct _Shape
+struct _Shape
 {
 	_Shape() : vao(0), vbo(0), vboTex(0), ebo(0), p_normal(0), materialId(0), indexCount(0), m_texture(0),
 		position(glm::vec3(0, 0, 0)), rotation(glm::vec3(0, 0, 0)), scale(glm::vec3(1, 1, 1)) {}
@@ -82,7 +82,7 @@ typedef struct _Shape
 
 	glm::mat4 getTransformationMatrix();
 
-} Shape;
+};
 
 class Common
 {

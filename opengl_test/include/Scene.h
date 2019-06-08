@@ -8,7 +8,7 @@
 
 //
 #include "ViewManager.h"
-#include "BaseModel.h"
+#include "rmBaseModel.h"
 
 
 //
@@ -27,13 +27,14 @@ public:
 	void Update(float dt);
 
 	ViewManager* GetCamera(){ return _camera_ptr; }
-	std::vector<BaseModel*> GetModels();
 
 private:
     std::string _pkg_path;
     std::string _Assets_path;
-	std::vector<BaseModel*> models;
 	ViewManager* _camera_ptr;
+
+    // Render models
+    std::vector<rmBaseModel*> _rm_BaseModel;
 };
 
 #endif  // Scene_H

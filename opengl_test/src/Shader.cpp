@@ -1,5 +1,9 @@
 #include "Shader.h"
 
+ShaderProgram::ShaderProgram()
+{
+	linked = false;
+}
 
 void Shader::LoadShader(const char* fileName, int shaderType){
     std::cout << "Start loading shader\n";
@@ -21,11 +25,6 @@ void Shader::Delete(){
 	if (!loaded)return;
 	loaded = false;
 	glDeleteShader(id);
-}
-
-ShaderProgram::ShaderProgram()
-{
-	linked = false;
 }
 
 GLuint Shader::GetID(){
