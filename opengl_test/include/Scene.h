@@ -8,8 +8,10 @@
 
 //
 #include "ViewManager.h"
-#include "rmBaseModel.h"
 
+// Render models
+#include "rmBaseModel.h"
+#include "rmPointCloud.h"
 
 //
 
@@ -26,15 +28,16 @@ public:
 	void Render();
 	void Update(float dt);
 
-	ViewManager* GetCamera(){ return _camera_ptr; }
+	std::shared_ptr<ViewManager> GetCamera(){ return _camera_ptr; }
 
 private:
     std::string _pkg_path;
     std::string _Assets_path;
-	ViewManager* _camera_ptr;
+	std::shared_ptr<ViewManager> _camera_ptr;
 
     // Render models
-    std::vector<rmBaseModel*> _rm_BaseModel;
+    std::vector< std::shared_ptr<rmBaseModel> > _rm_BaseModel;
+    std::vector< std::shared_ptr<rmPointCloud> > _rm_PointCloud;
 };
 
 #endif  // Scene_H

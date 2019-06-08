@@ -17,7 +17,7 @@ rmBaseModel::~rmBaseModel(){
 void rmBaseModel::Init(){
 
     //
-	_program_ptr = new ShaderProgram();
+	_program_ptr.reset( new ShaderProgram() );
     // Load shaders
     _program_ptr->AttachShader(get_full_Shader_path("BaseModel.vs.glsl"), GL_VERTEX_SHADER);
     _program_ptr->AttachShader(get_full_Shader_path("BaseModel.fs.glsl"), GL_FRAGMENT_SHADER);
@@ -119,7 +119,7 @@ void rmBaseModel::LoadModel(){
 void rmBaseModel::Update(float dt){
     // Update the data (uniform variables) here
 }
-void rmBaseModel::Render(ViewManager* _camera_ptr){
+void rmBaseModel::Render(std::shared_ptr<ViewManager> _camera_ptr){
 	//Update shaders' input variable
 	///////////////////////////
 	glBindVertexArray(m_shape.vao);

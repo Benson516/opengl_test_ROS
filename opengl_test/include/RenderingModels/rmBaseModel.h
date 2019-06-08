@@ -15,9 +15,9 @@ public:
 	rmBaseModel();
     rmBaseModel(std::string _path_Assets_in, std::string modelFile, std::string textFile);
 	~rmBaseModel();
-	virtual void Init();
+    //
 	virtual void Update(float dt);
-	virtual void Render(ViewManager* _camera_ptr);
+	virtual void Render(std::shared_ptr<ViewManager> _camera_ptr);
 
     // Utilities
 	void Translate(glm::vec3 vec);
@@ -30,8 +30,9 @@ protected:
 
     std::string _path_Assets;
     std::string _path_Shaders;
-	ShaderProgram* _program_ptr;
+	std::shared_ptr<ShaderProgram> _program_ptr;
 	//
+    virtual void Init();
     virtual void LoadModel();
 
 private:

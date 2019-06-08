@@ -29,7 +29,7 @@ using namespace std;
 // ROS_interface for ICLU3, ver.0
 ROS_ICLU3_V0 ros_api;
 // The scene for rendering
-Scene *scene_ptr;
+std::shared_ptr<Scene> scene_ptr;
 
 
 
@@ -94,7 +94,7 @@ void My_Init()
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
-	scene_ptr = new Scene(ros_api.get_pkg_path());
+	scene_ptr.reset(new Scene(ros_api.get_pkg_path()) );
 }
 
 // GLUT callback. Called to draw the scene.

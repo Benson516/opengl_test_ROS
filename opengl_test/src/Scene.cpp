@@ -6,17 +6,19 @@ Scene::Scene(std::string pkg_path_in):
     _pkg_path(pkg_path_in),
     _Assets_path(pkg_path_in + "Assets/")
 {
-	_camera_ptr = new ViewManager();
+	_camera_ptr.reset(new ViewManager());
 
-	rmBaseModel* bottle = new rmBaseModel(_Assets_path, "Potion_bottle.obj", "bottle_mana.png");
-	rmBaseModel* box = new rmBaseModel(_Assets_path, "box_realistic.obj", "box_texture_color.png");
-
+    // BaseModel
+	std::shared_ptr<rmBaseModel> bottle( new rmBaseModel(_Assets_path, "Potion_bottle.obj", "bottle_mana.png") );
+	std::shared_ptr<rmBaseModel> box( new rmBaseModel(_Assets_path, "box_realistic.obj", "box_texture_color.png") );
 	bottle->Scale(glm::vec3(0.01, 0.01, 0.01));
 	bottle->Rotate(glm::vec3(1, 0, 0), 3.1415926 / 2 * 3);
 	bottle->Translate(glm::vec3(0.0, 0.5, 0.0));
-
 	_rm_BaseModel.push_back(bottle);
 	_rm_BaseModel.push_back(box);
+
+    // PointCloud
+
 }
 void Scene::MouseEvent(int button, int state, int x, int y){
 	_camera_ptr->mouseEvents(button, state, x, y);
