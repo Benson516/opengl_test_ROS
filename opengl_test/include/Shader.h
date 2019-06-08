@@ -19,20 +19,27 @@ private:
 	bool loaded;
 };
 
+//
 class ShaderProgram
 {
 
 public:
-	ShaderProgram();
-	GLuint GetID();
-	GLuint CreateProgram();
-	void Delete();
+
+	ShaderProgram(); // Create a new program
+    // Step 1
+    void AttachShader(GLuint shaderId); // Method 1: Attached a loaded shader
+    void AttachShader(std::string fileName,int _shaderType); // Method 2: Load and attached a shader
+    // Step 2
 	void LinkProgram();
+    // On each iteration
 	void UseProgram();
-	void AttachShader(GLuint shaderId);
+    //
+    GLuint GetID();
+	void Delete();
 
 private:
 	GLuint id;
 	bool linked;
+    GLuint CreateProgram();
 };
 #endif  // SHADER_H

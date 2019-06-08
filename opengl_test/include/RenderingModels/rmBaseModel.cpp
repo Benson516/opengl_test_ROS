@@ -17,36 +17,28 @@ rmBaseModel::~rmBaseModel(){
 void rmBaseModel::Init(){
 
     //
-	program = new ShaderProgram();
-	program->CreateProgram();
-	Shader* vs = new Shader();
-	Shader* fs = new Shader();
-
+	_program_ptr = new ShaderProgram();
     // Load shaders
-    //
-    vs->LoadShader(get_full_Shader_path("BaseModel.vs.glsl"), GL_VERTEX_SHADER);
-    program->AttachShader(vs->GetID());
-    //
-	fs->LoadShader(get_full_Shader_path("BaseModel.fs.glsl"), GL_FRAGMENT_SHADER);
-	program->AttachShader(fs->GetID());
-    //
-	program->LinkProgram();
+    _program_ptr->AttachShader(get_full_Shader_path("BaseModel.vs.glsl"), GL_VERTEX_SHADER);
+    _program_ptr->AttachShader(get_full_Shader_path("BaseModel.fs.glsl"), GL_FRAGMENT_SHADER);
+    // Link _program_ptr
+	_program_ptr->LinkProgram();
     //
 
-	//init model matrix
+	// Init model matrix
 	m_shape.model = glm::mat4();
 	translateMatrix = glm::mat4();
 	rotateMatrix = glm::mat4();
 	scaleMatrix = glm::mat4();
 
-	//Cache uniform variable id
-	uniforms.proj_matrix = glGetUniformLocation(program->GetID(), "proj_matrix");
-	uniforms.mv_matrix = glGetUniformLocation(program->GetID(), "mv_matrix");
+	// Cache uniform variable id
+	uniforms.proj_matrix = glGetUniformLocation(_program_ptr->GetID(), "proj_matrix");
+	uniforms.mv_matrix = glGetUniformLocation(_program_ptr->GetID(), "mv_matrix");
 
-	program->UseProgram();
+	// _program_ptr->UseProgram();
 	///////////////////////////
 
-	//Load model to shader program
+	//Load model to shader _program_ptr
 	LoadModel();
 }
 
@@ -131,7 +123,7 @@ void rmBaseModel::Render(ViewManager* _camera_ptr){
 	//Update shaders' input variable
 	///////////////////////////
 	glBindVertexArray(m_shape.vao);
-	program->UseProgram();
+	_program_ptr->UseProgram();
 
 	m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
 	glBindTexture(GL_TEXTURE_2D, m_shape.m_texture);

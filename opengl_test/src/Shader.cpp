@@ -1,9 +1,5 @@
 #include "Shader.h"
 
-ShaderProgram::ShaderProgram()
-{
-	linked = false;
-}
 
 void Shader::LoadShader(const char* fileName, int shaderType){
     std::cout << "Start loading shader\n";
@@ -35,19 +31,24 @@ bool Shader::isLoaded(){
 	return loaded;
 }
 
-GLuint ShaderProgram::CreateProgram(){
-	id = glCreateProgram();
-	return id;
-}
 
-GLuint ShaderProgram::GetID(){
-	return id;
-}
 
-void ShaderProgram::Delete(){
-	if (!linked)return;
+
+ShaderProgram::ShaderProgram()
+{
 	linked = false;
-	glDeleteProgram(id);
+    CreateProgram();
+}
+//
+void ShaderProgram::AttachShader(GLuint shaderId){
+	glAttachShader(id, shaderId);
+}
+void ShaderProgram::AttachShader(std::string fileName,int _shaderType){ // Method 2: Load and attached a shader
+    // Load shaders
+    Shader _s;
+    _s.LoadShader(fileName, _shaderType);
+    AttachShader(_s.GetID());
+    _s.Delete();
 }
 void ShaderProgram::LinkProgram(){
 	glLinkProgram(id);
@@ -60,6 +61,19 @@ void ShaderProgram::UseProgram(){
 	if (linked)glUseProgram(id);
 }
 
-void ShaderProgram::AttachShader(GLuint shaderId){
-	glAttachShader(id, shaderId);
+
+//
+GLuint ShaderProgram::GetID(){
+	return id;
+}
+
+void ShaderProgram::Delete(){
+	if (!linked)return;
+	linked = false;
+	glDeleteProgram(id);
+}
+// Private methods
+GLuint ShaderProgram::CreateProgram(){
+	id = glCreateProgram();
+	return id;
 }

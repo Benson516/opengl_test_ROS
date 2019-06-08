@@ -30,7 +30,7 @@ protected:
 
     std::string _path_Assets;
     std::string _path_Shaders;
-	ShaderProgram* program;
+	ShaderProgram* _program_ptr;
 	//
     virtual void LoadModel();
 

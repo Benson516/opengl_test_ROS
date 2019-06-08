@@ -276,8 +276,8 @@ void My_Init()
 	uniforms.view_matrix = glGetUniformLocation(program, "view");
 	uniforms.proj_matrix = glGetUniformLocation(program, "projection");
 
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+	// glGenVertexArrays(1, &vao);
+	// glBindVertexArray(vao);
 
 	time_Loc = glGetUniformLocation(program, "time");
 
