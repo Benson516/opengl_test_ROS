@@ -18,7 +18,7 @@ using namespace cv;
 using namespace glm;
 using namespace std;
 
-
+//
 #define __DEBUG__
 #define __OPENCV_WINDOW__
 
@@ -102,6 +102,7 @@ auto start_old = std::chrono::high_resolution_clock::now();
 //
 void My_Display()
 {
+    // std::cout << "in My_Display()\n";
     auto start = std::chrono::high_resolution_clock::now();
     // Evaluation
     //=============================================================//
@@ -164,9 +165,14 @@ void My_Reshape(int width, int height)
 //Timer event
 void My_Timer(int val)
 {
-	scene_ptr->Update(timer_interval);
+    glutTimerFunc(timer_interval, My_Timer, val);
+    // test
+    // std::cout << "in My_Timer()\n";
+    // std::this_thread::sleep_for( std::chrono::milliseconds(100) );
+    //
+    scene_ptr->Update(timer_interval);
 	glutPostRedisplay();
-	glutTimerFunc(timer_interval, My_Timer, val);
+	// glutTimerFunc(timer_interval, My_Timer, val);
 }
 
 //Mouse event

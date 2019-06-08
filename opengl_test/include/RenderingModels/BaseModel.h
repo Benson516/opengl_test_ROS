@@ -1,8 +1,8 @@
 #ifndef BASEMODEL_H
 #define BASEMODEL_H
 
-#include <iostream>
-#include <string>
+
+
 #include "Common.h"
 #include "Shader.h"
 #include "ViewManager.h"
@@ -35,7 +35,7 @@ public:
 
 	BaseModel();
 	BaseModel(char* modelFile,char* textFile);
-    BaseModel(std::string path_in, std::string modelFile, std::string textFile);
+    BaseModel(std::string _path_Assets_in, std::string modelFile, std::string textFile);
 	~BaseModel();
 	virtual void Init();
 	virtual void Update(float dt);
@@ -44,6 +44,12 @@ public:
 	void Translate(glm::vec3 vec);
 	void Rotate(glm::vec3 axis, float angle);
 	void Scale(glm::vec3 vec);
+    std::string get_full_shader_path(std::string shader_name_in){
+        std::string s_p;
+        s_p = _path_Shaders + shader_name_in;
+        std::cout << "shader = <" << s_p << ">\n";
+        return s_p;
+    }
 
 protected:
 

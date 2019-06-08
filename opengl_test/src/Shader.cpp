@@ -1,7 +1,8 @@
 #include "Shader.h"
 
+
 void Shader::LoadShader(const char* fileName, int shaderType){
-    std::cout << "here in LoadShader()\n";
+    std::cout << "Start loading shader\n";
 	GLuint s = glCreateShader(shaderType);
 	char** source = Common::LoadShaderSource(fileName);
 	glShaderSource(s, 1, source, NULL);
@@ -11,6 +12,9 @@ void Shader::LoadShader(const char* fileName, int shaderType){
 	id = s;
 	type = shaderType;
 	loaded = true;
+}
+void Shader::LoadShader(std::string fileName, int shaderType){
+    LoadShader(fileName.c_str(), shaderType);
 }
 
 void Shader::Delete(){

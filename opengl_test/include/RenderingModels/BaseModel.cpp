@@ -11,11 +11,11 @@ BaseModel::BaseModel(char* modelFile,char* textFile){
 	textName = textFile;
 	Init();
 }
-BaseModel::BaseModel(std::string path_in, std::string modelFile, std::string textFile){
-    _path_Assets = path_in;
+BaseModel::BaseModel(std::string _path_Assets_in, std::string modelFile, std::string textFile){
+    _path_Assets = _path_Assets_in;
     _path_Shaders = _path_Assets + "Shaders/";
-    objName = path_in + modelFile;
-    textName = path_in + textFile;
+    objName = _path_Assets + modelFile;
+    textName = _path_Assets + textFile;
 	Init();
 }
 
@@ -28,17 +28,10 @@ void BaseModel::Init(){
 	program->CreateProgram();
 	Shader* vs = new Shader();
 	Shader* fs = new Shader();
-    //
-    std::string path_vs("BaseModel.vs.glsl");
-    std::string path_fs("BaseModel.fs.glsl");
-    path_vs = _path_Shaders + path_vs;
-    path_fs = _path_Shaders + path_fs;
-    // test
-    std::cout << "path_vs = <" << path_vs << ">\n";
-    std::cout << "path_fs = <" << path_fs << ">\n";
-    //
-	vs->LoadShader(path_vs.c_str(), GL_VERTEX_SHADER);
-	fs->LoadShader(path_fs.c_str(), GL_FRAGMENT_SHADER);
+
+    // Load shaders
+    vs->LoadShader(get_full_shader_path("BaseModel.vs.glsl"), GL_VERTEX_SHADER);
+	fs->LoadShader(get_full_shader_path("BaseModel.fs.glsl"), GL_FRAGMENT_SHADER);
 
 	program->AttachShader(vs->GetID());
 	program->AttachShader(fs->GetID());
@@ -67,6 +60,7 @@ void BaseModel::LoadModel(){
 
 	std::string err;
 
+    std::cout << "Start loading <" << objName << ">\n";
 	bool ret = tinyobj::LoadObj(shapes, materials, err, objName.c_str());
 	if (err.size()>0)
 	{
@@ -117,6 +111,7 @@ void BaseModel::LoadModel(){
 	*/
 
 	//Load texture data from file
+    std::cout << "start loading <" << textName << "\n";
 	TextureData tdata = Common::Load_png(textName.c_str());
 
 	//Generate empty texture
@@ -134,7 +129,7 @@ void BaseModel::LoadModel(){
 }
 
 void BaseModel::Update(float dt){
-
+    // Update the data (uniform variables) here
 }
 void BaseModel::Render(ViewManager* _camera_ptr){
 	//Update shaders' input variable

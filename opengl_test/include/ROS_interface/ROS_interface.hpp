@@ -2,7 +2,7 @@
 #define GUI_ROS_INTERFACE_H
 
 // Determine if we are going to preint some debug information to std_out
-#define __DEGUG__
+// #define __DEGUG__
 
 // #define __PUB_WITH_BUFFER__
 

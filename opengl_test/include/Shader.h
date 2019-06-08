@@ -2,8 +2,7 @@
 #define SHADER_H
 
 #include "Common.h"
-// Debug
-#include <iostream>
+
 
 class Shader
 {
@@ -11,6 +10,7 @@ public:
 	GLuint GetID();
 	bool isLoaded();
 	void LoadShader(const char* fileName,int _shaderType);
+    void LoadShader(std::string fileName,int _shaderType);
 	void Delete();
 
 private:
