@@ -1,7 +1,9 @@
 #include "rmPointCloud.h"
 
 
-rmPointCloud::rmPointCloud(std::string _path_Assets_in){
+rmPointCloud::rmPointCloud(std::string _path_Assets_in, int _ROS_topic_id_in):
+    _ROS_topic_id(_ROS_topic_id_in)
+{
     _path_Assets = _path_Assets_in;
     _path_Shaders = _path_Assets + "Shaders/";
     _num_points = 100000;
@@ -47,11 +49,12 @@ void rmPointCloud::LoadModel(){
 		star[i].position[0] = (random_float() * 2.0f - 1.0f) * 100.0f;
 		star[i].position[1] = (random_float() * 2.0f - 1.0f) * 100.0f;
 		star[i].position[2] = random_float();
-		star[i].color[0] = 0.8f; //  + random_float() * 0.2f;
-		star[i].color[1] = 0.8f; //  + random_float() * 0.2f;
-		star[i].color[2] = 0.8f; //  + random_float() * 0.2f;
+		star[i].color[0] = 1.0f; //  + random_float() * 0.2f;
+		star[i].color[1] = 1.0f; //  + random_float() * 0.2f;
+		star[i].color[2] = 1.0f; //  + random_float() * 0.2f;
 	}
 	glUnmapBuffer(GL_ARRAY_BUFFER);
+    m_shape.indexCount = _num_points;
     //--------------------------------------------//
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(star_t), NULL);
@@ -78,9 +81,47 @@ void rmPointCloud::LoadModel(){
 
 }
 void rmPointCloud::Update(float dt){
-
+    // Update the data (uniform variables) here
+}
+void rmPointCloud::Update(ROS_INTERFACE &ros_interface){
+    // Update the data (uniform variables) here
+    glBindVertexArray(m_shape.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
+    bool pc_result = ros_interface.get_ITRIPointCloud( _ROS_topic_id, pc_out_ptr);
+    if (pc_result){
+        star_t * star = (star_t *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _num_points * sizeof(star_t), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+        // num_points = pc_out.width;
+        m_shape.indexCount = pc_out_ptr->width;
+    	for (size_t i = 0; i < m_shape.indexCount; i++)
+    	{
+            star[i].position[0] = pc_out_ptr->points[i].x;
+    		star[i].position[1] = pc_out_ptr->points[i].y;
+    		star[i].position[2] = pc_out_ptr->points[i].z;
+    		star[i].color[0] = 1.0f; // If we don't keep udating the color, the color will be lost when resizing the window.
+    		star[i].color[1] = 1.0f;
+    		star[i].color[2] = 1.0f;
+    	}
+    	glUnmapBuffer(GL_ARRAY_BUFFER);
+    }
 }
 void rmPointCloud::Render(std::shared_ptr<ViewManager> _camera_ptr){
 
-
+    glBindVertexArray(m_shape.vao);
+	_program_ptr->UseProgram();
+    // The transformation matrices and projection matrices
+    glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
+    glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
+    // Point sprite
+    //--------------------------------//
+    glEnable(GL_POINT_SPRITE);
+    {
+        // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        // glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_shape.m_texture);
+        glEnable(GL_PROGRAM_POINT_SIZE);
+        glDrawArrays(GL_POINTS, 0, m_shape.indexCount); // draw part of points
+    }
+    // Close
+    glDisable(GL_POINT_SPRITE);
+    //--------------------------------//
 }

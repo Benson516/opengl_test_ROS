@@ -18,30 +18,29 @@ Scene::Scene(std::string pkg_path_in):
 	_rm_BaseModel.push_back(box);
 
     // PointCloud
-    _rm_BaseModel.push_back( std::shared_ptr<rmPointCloud>(new rmPointCloud(_Assets_path) ) );
+    _rm_BaseModel.push_back( std::shared_ptr<rmPointCloud>(new rmPointCloud(_Assets_path, int(MSG_ID::point_cloud_1)) ) );
 }
 
 void Scene::Render(){
-    // rmBaseModel
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
 		_rm_BaseModel[i]->Render(_camera_ptr);
 	}
-    // rmPointCloud
-	for (int i = 0; i < _rm_PointCloud.size(); i++){
-		_rm_PointCloud[i]->Render(_camera_ptr);
-	}
+    glDisable(GL_BLEND);
 }
 void Scene::Update(float dt){
     // rmBaseModel
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
 		_rm_BaseModel[i]->Update(dt);
 	}
-    // rmPointCloud
-	for (int i = 0; i < _rm_PointCloud.size(); i++){
-		_rm_PointCloud[i]->Update(dt);
+}
+void Scene::Update(ROS_INTERFACE &ros_interface){
+    // rmBaseModel
+	for (int i = 0; i < _rm_BaseModel.size(); i++){
+		_rm_BaseModel[i]->Update(ros_interface);
 	}
 }
-
 
 
 void Scene::MouseEvent(int button, int state, int x, int y){

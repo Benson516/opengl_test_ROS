@@ -125,6 +125,9 @@ void rmBaseModel::LoadModel(){
 void rmBaseModel::Update(float dt){
     // Update the data (uniform variables) here
 }
+void rmBaseModel::Update(ROS_INTERFACE &ros_interface){
+    // Update the data (uniform variables) here
+}
 void rmBaseModel::Render(std::shared_ptr<ViewManager> _camera_ptr){
 	//Update shaders' input variable
 	///////////////////////////
@@ -133,7 +136,7 @@ void rmBaseModel::Render(std::shared_ptr<ViewManager> _camera_ptr){
 
 	m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
 	glBindTexture(GL_TEXTURE_2D, m_shape.m_texture);
-	glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetViewMatrix() * _camera_ptr->GetModelMatrix() * m_shape.model));
+	glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr(get_mv_matrix(_camera_ptr, m_shape.model)));
 	glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
 
 	glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
@@ -150,6 +153,11 @@ void rmBaseModel::Rotate(glm::vec3 axis,float angle){
 
 void rmBaseModel::Scale(glm::vec3 vec){
 	scaleMatrix = scale(scaleMatrix, vec);
+}
+
+glm::mat4 rmBaseModel::get_mv_matrix(std::shared_ptr<ViewManager> _camera_ptr, glm::mat4 &_model_M){
+    // Get the model-view matrix
+    return (_camera_ptr->GetViewMatrix() * _camera_ptr->GetModelMatrix() * _model_M);
 }
 
 std::string rmBaseModel::get_full_Assets_path(std::string Assets_name_in){

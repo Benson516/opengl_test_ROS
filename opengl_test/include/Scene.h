@@ -8,6 +8,7 @@
 
 //
 #include "ViewManager.h"
+#include <ROS_ICLU3_v0.hpp>
 
 // Render models
 #include "rmBaseModel.h"
@@ -22,6 +23,7 @@ public:
     //
 	void Render();
 	void Update(float dt);
+    void Update(ROS_INTERFACE &ros_interface);
     std::shared_ptr<ViewManager> GetCamera(){ return _camera_ptr; }
     //
     void MouseEvent(int button,int state,int x,int y);

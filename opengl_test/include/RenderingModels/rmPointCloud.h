@@ -6,14 +6,18 @@
 class rmPointCloud : public rmBaseModel
 {
 public:
-    rmPointCloud(std::string _path_Assets_in);
+    rmPointCloud(std::string _path_Assets_in, int _ROS_topic_id_in);
     //
 	void Update(float dt);
+    void Update(ROS_INTERFACE &ros_interface);
 	void Render(std::shared_ptr<ViewManager> _camera_ptr);
 
 protected:
     void Init();
     virtual void LoadModel();
+    //
+    int _ROS_topic_id;
+    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > pc_out_ptr;
 
 private:
     // model info

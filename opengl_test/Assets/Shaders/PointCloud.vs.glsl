@@ -12,17 +12,7 @@ flat out vec4 starColor;
 
 void main(void)
 {
-	// vec4 newVertex = position;
-
-    /*
-    // For start only
-	newVertex.z += time;
-	newVertex.z = fract(newVertex.z);
-	float size = (20.0 * newVertex.z * newVertex.z);
-    */
     vec4 newVertex = mv_matrix * position;
-
-
     float size = 20.0/( abs(newVertex.z) );
     // float size = 20.0/( length(newVertex.xyz) ); //20.0/( abs(newVertex.z) );
     // size = smoothstep(1.0, 800.0, size);

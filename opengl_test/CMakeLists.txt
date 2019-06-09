@@ -158,5 +158,5 @@ target_link_libraries(ViewManager ${ALL_LIBS} Common )
 add_executable(point_sprite src/7.5.Point_Sprite/Point_Sprite.cpp )
 target_link_libraries(point_sprite ROS_interface_1  ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )
 # visualizer2
-add_executable(visualizer2 src/visualizer2_main.cpp src/Scene.cpp src/Shader.cpp ${ALL_RENDER_MODELS})
+add_executable(visualizer2 src/visualizer2_main.cpp include/ROS_ICLU3_v0.cpp src/Scene.cpp src/Shader.cpp ${ALL_RENDER_MODELS})
 target_link_libraries(visualizer2 ROS_interface_1  ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )

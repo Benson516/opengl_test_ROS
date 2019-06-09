@@ -6,6 +6,8 @@
 #include "Common.h"
 #include "Shader.h"
 #include "ViewManager.h"
+//
+#include <ROS_ICLU3_v0.hpp>
 
 
 class rmBaseModel{
@@ -18,12 +20,15 @@ public:
 	~rmBaseModel();
     //
 	virtual void Update(float dt);
+    virtual void Update(ROS_INTERFACE &ros_interface);
 	virtual void Render(std::shared_ptr<ViewManager> _camera_ptr);
 
-    // Utilities
+    // Matrix operation
 	void Translate(glm::vec3 vec);
 	void Rotate(glm::vec3 axis, float angle);
 	void Scale(glm::vec3 vec);
+    glm::mat4 get_mv_matrix(std::shared_ptr<ViewManager> _camera_ptr, glm::mat4 &_model_M);
+    // Utilities
     std::string get_full_Assets_path(std::string Assets_name_in);
     std::string get_full_Shader_path(std::string Shader_name_in);
 
