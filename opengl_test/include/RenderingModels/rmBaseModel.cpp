@@ -1,72 +1,61 @@
-#include "BaseModel.h"
-#include "Scene.h"
+#include "rmBaseModel.h"
 
-using namespace glm;
 
-BaseModel::BaseModel(){
+rmBaseModel::rmBaseModel(){
+    // The derived class will call this instead of the other constructor if we don't add the constructor in field of derived class.
 }
-
-BaseModel::BaseModel(char* modelFile,char* textFile){
-	objName = modelFile;
-	textName = textFile;
+rmBaseModel::rmBaseModel(std::string _path_Assets_in){
+    _path_Assets = _path_Assets_in;
+    _path_Shaders = _path_Assets + "Shaders/";
 	Init();
 }
-BaseModel::BaseModel(std::string path_in, std::string modelFile, std::string textFile){
-    _path = path_in;
-    objName = path_in + modelFile;
-    textName = path_in + textFile;
+rmBaseModel::rmBaseModel(std::string _path_Assets_in, std::string modelFile, std::string textFile){
+    _path_Assets = _path_Assets_in;
+    _path_Shaders = _path_Assets + "Shaders/";
+    objName = modelFile;
+    textName = textFile;
 	Init();
 }
-
-BaseModel::~BaseModel(){
+rmBaseModel::~rmBaseModel(){
 
 }
 
-void BaseModel::Init(){
-	program = new ShaderProgram();
-	program->CreateProgram();
-	Shader* vs = new Shader();
-	Shader* fs = new Shader();
+void rmBaseModel::Init(){
+
     //
-    std::string path_vs("BaseModel.vs.glsl");
-    std::string path_fs("BaseModel.fs.glsl");
-    path_vs = _path + path_vs;
-    path_fs = _path + path_fs;
-    // test
-    std::cout << "path_vs = <" << path_vs << ">\n";
-    std::cout << "path_fs = <" << path_fs << ">\n";
+	_program_ptr.reset( new ShaderProgram() );
+    // Load shaders
+    _program_ptr->AttachShader(get_full_Shader_path("BaseModel.vs.glsl"), GL_VERTEX_SHADER);
+    _program_ptr->AttachShader(get_full_Shader_path("BaseModel.fs.glsl"), GL_FRAGMENT_SHADER);
+    // Link _program_ptr
+	_program_ptr->LinkProgram();
     //
-	vs->LoadShader(path_vs.c_str(), GL_VERTEX_SHADER);
-	fs->LoadShader(path_fs.c_str(), GL_FRAGMENT_SHADER);
 
-	program->AttachShader(vs->GetID());
-	program->AttachShader(fs->GetID());
-	program->LinkProgram();
+	// Cache uniform variable id
+	uniforms.proj_matrix = glGetUniformLocation(_program_ptr->GetID(), "proj_matrix");
+	uniforms.mv_matrix = glGetUniformLocation(_program_ptr->GetID(), "mv_matrix");
 
-	//init model matrix
-	m_shape.model = mat4();
-	translateMatrix = mat4();
-	rotateMatrix = mat4();
-	scaleMatrix = mat4();
+    // Init model matrices
+	m_shape.model = glm::mat4();
+	translateMatrix = glm::mat4();
+	rotateMatrix = glm::mat4();
+	scaleMatrix = glm::mat4();
 
-	//Cache uniform variable id
-	uniforms.proj_matrix = glGetUniformLocation(program->GetID(), "um4p");
-	uniforms.mv_matrix = glGetUniformLocation(program->GetID(), "um4mv");
-
-	program->UseProgram();
+	// _program_ptr->UseProgram();
 	///////////////////////////
 
-	//Load model to shader program
+	//Load model to shader _program_ptr
 	LoadModel();
 }
 
-void BaseModel::LoadModel(){
+void rmBaseModel::LoadModel(){
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
 
 	std::string err;
 
-	bool ret = tinyobj::LoadObj(shapes, materials, err, objName.c_str());
+    std::cout << "Start loading <" << objName << ">\n";
+	bool ret = tinyobj::LoadObj(shapes, materials, err, get_full_Assets_path(objName).c_str());
 	if (err.size()>0)
 	{
 		printf("Load Models Fail! Please check the solution path");
@@ -116,7 +105,8 @@ void BaseModel::LoadModel(){
 	*/
 
 	//Load texture data from file
-	TextureData tdata = Common::Load_png(textName.c_str());
+    std::cout << "start loading <" << textName << ">\n";
+	TextureData tdata = Common::Load_png(get_full_Assets_path(textName).c_str());
 
 	//Generate empty texture
 	glGenTextures(1, &m_shape.m_texture);
@@ -132,32 +122,53 @@ void BaseModel::LoadModel(){
     std::cout << "Load texture success!\n";
 }
 
-void BaseModel::Update(float dt){
-
+void rmBaseModel::Update(float dt){
+    // Update the data (uniform variables) here
 }
-void BaseModel::Render(){
+void rmBaseModel::Update(ROS_INTERFACE &ros_interface){
+    // Update the data (uniform variables) here
+}
+void rmBaseModel::Render(std::shared_ptr<ViewManager> _camera_ptr){
 	//Update shaders' input variable
 	///////////////////////////
 	glBindVertexArray(m_shape.vao);
-	program->UseProgram();
+	_program_ptr->UseProgram();
 
 	m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
 	glBindTexture(GL_TEXTURE_2D, m_shape.m_texture);
-	glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr(Scene::GetCamera()->GetViewMatrix() * Scene::GetCamera()->GetModelMatrix() * m_shape.model));
-	glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(Scene::GetCamera()->GetProjectionMatrix()));
+	glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr(get_mv_matrix(_camera_ptr, m_shape.model)));
+	glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
 
 	glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
 	///////////////////////////
 }
 
-void BaseModel::Translate(glm::vec3 vec){
+void rmBaseModel::Translate(glm::vec3 vec){
 	translateMatrix = translate(translateMatrix, vec);
 }
 
-void BaseModel::Rotate(glm::vec3 axis,float angle){
+void rmBaseModel::Rotate(glm::vec3 axis,float angle){
 	rotateMatrix = rotate(rotateMatrix, angle, axis);
 }
 
-void BaseModel::Scale(glm::vec3 vec){
+void rmBaseModel::Scale(glm::vec3 vec){
 	scaleMatrix = scale(scaleMatrix, vec);
+}
+
+glm::mat4 rmBaseModel::get_mv_matrix(std::shared_ptr<ViewManager> _camera_ptr, glm::mat4 &_model_M){
+    // Get the model-view matrix
+    return (_camera_ptr->GetViewMatrix() * _camera_ptr->GetModelMatrix() * _model_M);
+}
+
+std::string rmBaseModel::get_full_Assets_path(std::string Assets_name_in){
+    std::string full_p;
+    full_p = _path_Assets + Assets_name_in;
+    std::cout << "Assets = <" << full_p << ">\n";
+    return full_p;
+}
+std::string rmBaseModel::get_full_Shader_path(std::string Shader_name_in){
+    std::string full_p;
+    full_p = _path_Shaders + Shader_name_in;
+    std::cout << "shader = <" << full_p << ">\n";
+    return full_p;
 }

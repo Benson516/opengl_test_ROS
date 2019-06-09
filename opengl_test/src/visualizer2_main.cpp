@@ -18,7 +18,7 @@ using namespace cv;
 using namespace glm;
 using namespace std;
 
-
+//
 #define __DEBUG__
 #define __OPENCV_WINDOW__
 
@@ -29,7 +29,7 @@ using namespace std;
 // ROS_interface for ICLU3, ver.0
 ROS_ICLU3_V0 ros_api;
 // The scene for rendering
-Scene *scene_ptr;
+std::shared_ptr<Scene> scene_ptr;
 
 
 
@@ -54,7 +54,7 @@ void leave_main_loop () {
 
 
 // float	aspect;
-float	windows_init_width = 600;
+float	windows_init_width = 800;
 float   windows_init_height = 600;
 float	timer_interval = 16.0f;
 /*
@@ -69,11 +69,13 @@ float	timer_interval = 16.0f;
 #ifdef __OPENCV_WINDOW__
     #define NUM_IMAGE 9
     vector<string> window_names;
+    // Declare outside the loop to avoid periodically construction and destruction.
+    vector< std::shared_ptr< cv::Mat > > image_out_ptr_list(9);
 #endif
 void cv_windows_setup(){
     // Showing Image by cv show
-    int num_image = NUM_IMAGE;
 #ifdef __OPENCV_WINDOW__
+    int num_image = NUM_IMAGE;
     // OpenCV windows
     for (size_t i=0; i < num_image; ++i){
         std::stringstream _ss_window_name;
@@ -94,7 +96,7 @@ void My_Init()
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
-	scene_ptr = new Scene(ros_api.get_pkg_path());
+	scene_ptr.reset(new Scene(ros_api.get_pkg_path()) );
 }
 
 // GLUT callback. Called to draw the scene.
@@ -102,6 +104,7 @@ auto start_old = std::chrono::high_resolution_clock::now();
 //
 void My_Display()
 {
+    // std::cout << "in My_Display()\n";
     auto start = std::chrono::high_resolution_clock::now();
     // Evaluation
     //=============================================================//
@@ -117,15 +120,23 @@ void My_Display()
         // exit(0);
     }
     // Update data
-    bool is_updated = ros_api.update();
+    // bool is_updated = ros_api.update();
+    scene_ptr->Update(ros_api.ros_interface);
     //---------------------------------//
     // end ROS_interface
 
 
     #ifdef __OPENCV_WINDOW__
-        for (size_t i=0; i < ros_api.num_Image; ++i){
-            if (ros_api.got_Image[i]){
-                imshow(window_names[i], *ros_api.Image_ptr_list[i]);
+        // Image
+        int num_image = NUM_IMAGE;
+        int image_topic_id = int(MSG_ID::camera_0);
+        vector<bool> is_image_updated(num_image, false);
+        for (size_t i=0; i < num_image; ++i){
+            is_image_updated[i] = ros_api.ros_interface.get_Image( (image_topic_id+i), image_out_ptr_list[i]);
+        }
+        for (size_t i=0; i < num_image; ++i){
+            if (is_image_updated[i]){
+                imshow(window_names[i], *image_out_ptr_list[i]);
                 waitKey(1);
             }
         }
@@ -134,6 +145,7 @@ void My_Display()
     // OpenGL, GLUT
     //---------------------------------//
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	scene_ptr->Render();
     glutSwapBuffers();
     //---------------------------------//
@@ -157,16 +169,21 @@ void My_Display()
 //Call to resize the window
 void My_Reshape(int width, int height)
 {
+    glViewport(0, 0, width, height);
 	scene_ptr->GetCamera()->SetWindowSize(width, height);
-	glViewport(0, 0, width, height);
 }
 
 //Timer event
 void My_Timer(int val)
 {
-	scene_ptr->Update(timer_interval);
+    glutTimerFunc(timer_interval, My_Timer, val);
+    // test
+    // std::cout << "in My_Timer()\n";
+    // std::this_thread::sleep_for( std::chrono::milliseconds(100) );
+    //
+    scene_ptr->Update(timer_interval);
 	glutPostRedisplay();
-	glutTimerFunc(timer_interval, My_Timer, val);
+	// glutTimerFunc(timer_interval, My_Timer, val);
 }
 
 //Mouse event
