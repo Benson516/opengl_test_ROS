@@ -12,6 +12,10 @@
 // ROS libraries
 //--------------------------------------------//
 #include <ros/ros.h>
+// tf2
+#include <tf2_ros/transform_listener.h>
+#include <geometry_msgs/TransformStamped.h>
+
 // MSG: string
 #include <std_msgs/String.h>
 
