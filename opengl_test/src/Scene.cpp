@@ -18,7 +18,7 @@ Scene::Scene(std::string pkg_path_in):
 	_rm_BaseModel.push_back(box);
 
     // PointCloud
-    _rm_PointCloud.push_back( std::shared_ptr<rmPointCloud>(new rmPointCloud(_Assets_path) ) );
+    _rm_BaseModel.push_back( std::shared_ptr<rmPointCloud>(new rmPointCloud(_Assets_path) ) );
 }
 
 void Scene::Render(){

@@ -2,6 +2,12 @@
 
 
 rmBaseModel::rmBaseModel(){
+    // The derived class will call this instead of the other constructor if we don't add the constructor in field of derived class.
+}
+rmBaseModel::rmBaseModel(std::string _path_Assets_in){
+    _path_Assets = _path_Assets_in;
+    _path_Shaders = _path_Assets + "Shaders/";
+	Init();
 }
 rmBaseModel::rmBaseModel(std::string _path_Assets_in, std::string modelFile, std::string textFile){
     _path_Assets = _path_Assets_in;
@@ -25,15 +31,15 @@ void rmBaseModel::Init(){
 	_program_ptr->LinkProgram();
     //
 
-	// Init model matrix
+	// Cache uniform variable id
+	uniforms.proj_matrix = glGetUniformLocation(_program_ptr->GetID(), "proj_matrix");
+	uniforms.mv_matrix = glGetUniformLocation(_program_ptr->GetID(), "mv_matrix");
+
+    // Init model matrices
 	m_shape.model = glm::mat4();
 	translateMatrix = glm::mat4();
 	rotateMatrix = glm::mat4();
 	scaleMatrix = glm::mat4();
-
-	// Cache uniform variable id
-	uniforms.proj_matrix = glGetUniformLocation(_program_ptr->GetID(), "proj_matrix");
-	uniforms.mv_matrix = glGetUniformLocation(_program_ptr->GetID(), "mv_matrix");
 
 	// _program_ptr->UseProgram();
 	///////////////////////////

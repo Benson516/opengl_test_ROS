@@ -13,6 +13,7 @@ class rmBaseModel{
 
 public:
 	rmBaseModel();
+    rmBaseModel(std::string _path_Assets_in);
     rmBaseModel(std::string _path_Assets_in, std::string modelFile, std::string textFile);
 	~rmBaseModel();
     //
@@ -31,6 +32,7 @@ protected:
     std::string _path_Assets;
     std::string _path_Shaders;
 	std::shared_ptr<ShaderProgram> _program_ptr;
+    //
 	//
     virtual void Init();
     virtual void LoadModel();
