@@ -3,30 +3,33 @@
 // using std::vector;
 // using std::string;
 
-
+#define TOTAL_NUM_THREAD_FOR_ROS_CB     6 // Use 6 threads
 
 // Constructors
 ROS_INTERFACE::ROS_INTERFACE():
     _is_started(false),
     _num_topics(0),
-    _msg_type_2_topic_params( size_t(MSG::M_TYPE::NUM_MSG_TYPE) )
+    _msg_type_2_topic_params( size_t(MSG::M_TYPE::NUM_MSG_TYPE) ),
     // The temporary containers
     // _cloud_tmp_ptr (new pcl::PointCloud<pcl::PointXYZI>)
+    _ref_frame("map"), _stationary_frame("map")
 {
     //
-    _num_ros_cb_thread = 6; // Use 6 threads
+    _num_ros_cb_thread = TOTAL_NUM_THREAD_FOR_ROS_CB;
     //
     // ros::init(argc, argv, "ROS_interface", ros::init_options::AnonymousName);
+    // Remember to call setup_node()
 }
 ROS_INTERFACE::ROS_INTERFACE(int argc, char **argv):
     _is_started(false),
     _num_topics(0),
-    _msg_type_2_topic_params( size_t(MSG::M_TYPE::NUM_MSG_TYPE) )
+    _msg_type_2_topic_params( size_t(MSG::M_TYPE::NUM_MSG_TYPE) ),
     // The temporary containers
     // _cloud_tmp_ptr (new pcl::PointCloud<pcl::PointXYZI>)
+    _ref_frame("map"), _stationary_frame("map")
 {
     //
-    _num_ros_cb_thread = 6; // Use 6 threads
+    _num_ros_cb_thread = TOTAL_NUM_THREAD_FOR_ROS_CB;
     //
     ros::init(argc, argv, "ROS_interface", ros::init_options::AnonymousName);
 }
@@ -47,10 +50,20 @@ bool ROS_INTERFACE::setup_node(int argc, char **argv, std::string node_name_in){
 // Setting up topics
 //----------------------------------------------------------------//
 // Method 1: use add_a_topic to add a single topic one at a time
-bool ROS_INTERFACE::add_a_topic(const std::string &name_in, int type_in, bool is_input_in, size_t ROS_queue_in, size_t buffer_length_in){
+bool ROS_INTERFACE::add_a_topic(
+    const std::string &name_in,
+    int type_in,
+    bool is_input_in,
+    size_t ROS_queue_in,
+    size_t buffer_length_in,
+    std::string frame_id_in,
+    bool is_transform_in,
+    std::string to_frame_in
+)
+{
     // Add a topic
     size_t idx_new = _topic_param_list.size();
-    _topic_param_list.push_back( MSG::T_PARAMS(name_in, type_in, is_input_in, ROS_queue_in, buffer_length_in, idx_new) );
+    _topic_param_list.push_back( MSG::T_PARAMS(name_in, type_in, is_input_in, ROS_queue_in, buffer_length_in, idx_new, frame_id_in, is_transform_in, to_frame_in) );
     // Parsing parameters
     //----------------------------//
     _num_topics = _topic_param_list.size();
@@ -189,7 +202,12 @@ void ROS_INTERFACE::_ROS_worker(){
     spinner.start();
     _is_started = true; // The flag for informing the other part of system that the ROS has begun.
     std::cout << "ros_iterface started\n";
-    //
+
+    // tf2
+    tfListener_ptr.reset( new tf2_ros::TransformListener(tfBuffer) );
+    tfBrocaster_ptr.reset( new tf2_ros::TransformBroadcaster() );
+
+    // Loop forever
     ros::waitForShutdown();
 
 
@@ -238,7 +256,11 @@ void ROS_INTERFACE::_ROS_worker(){
     std::cout << "End of ros_iterface\n";
 }
 
-
+// Set the transformation reference for all the transformation
+bool ROS_INTERFACE::set_ref_frame(std::string ref_frame_in){
+    _ref_frame = ref_frame_in;
+    return true;
+}
 
 
 
@@ -444,6 +466,30 @@ bool ROS_INTERFACE::get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl:
     int _tid = _topic_tid_list[topic_id];
     //------------------------------------//
     return ( buffer_list_ITRIPointCloud[_tid].front(content_out_ptr, true) );
+}
+bool ROS_INTERFACE::get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, geometry_msgs::TransformStamped &_tfStamped_out){
+    // Advanced method with ros::tf2
+    // Type_id
+    //------------------------------------//
+    int _tid = _topic_tid_list[topic_id];
+    //------------------------------------//
+    bool result = ( buffer_list_ITRIPointCloud[_tid].front(content_out_ptr, true) );
+    if (!result)
+        return false;
+    // else, got the content's stamp
+    ros::Time _msg_stamp = toROStime( buffer_list_ITRIPointCloud[_tid].get_stamp() );
+    // tf2
+    std::string _frame_id = _topic_param_list[topic_id].frame_id; // Note: this might be empty, which will be catched by exception.
+    // geometry_msgs::TransformStamped _tfStamped_out;
+    try{
+      // _tfStamped_out = tfBuffer.lookupTransform(_ref_frame, _frame_id, ros::Time(0));
+      _tfStamped_out = tfBuffer.lookupTransform(_ref_frame, _frame_id, _msg_stamp);
+      // _tfStamped_out = tfBuffer.lookupTransform(_ref_frame, ros::Time::now(), _frame_id, _msg_stamp, _stationary_frame, ros::Duration(0.5));
+    }
+    catch (tf2::TransformException &ex) {
+      ROS_WARN("%s",ex.what());
+    }
+    return true;
 }
 bool ROS_INTERFACE::send_ITRIPointCloud(const int topic_id, const pcl::PointCloud<pcl::PointXYZI> &content_in){
     // pub_subs_id

@@ -69,18 +69,66 @@ namespace MSG{
         bool is_input; // if not, it's output
         size_t ROS_queue; // The lengh of the ROS queue
         size_t buffer_length; // The buffer length setting for the SPSC buffer used for this topic
+        //
+        std::string frame_id; // The frame of which the data is represented at.
+        bool is_transform; // Indicate that whether this topic is about a transform or not.
+        std::string to_frame; // Not necessary, only needed when the topic is about a transformation.
 
         //
         int topic_id; // The topic_id for backward indexing. This is assigned by ROS_INTERFACE, according to the order of adding sequence
         //
-        T_PARAMS(): type(0), is_input(false), ROS_queue(10), buffer_length(1), topic_id(-1)
+        T_PARAMS():
+            name(""),
+            type(0),
+            is_input(false),
+            ROS_queue(10),
+            buffer_length(1),
+            topic_id(-1),
+            frame_id(""),
+            is_transform(false),
+            to_frame("")
         {}
-        T_PARAMS(const std::string &name_in, int type_in, bool is_input_in, size_t ROS_queue_in, size_t buffer_length_in):
-            name(name_in), type(type_in), is_input(is_input_in), ROS_queue(ROS_queue_in), buffer_length(buffer_length_in), topic_id(-1)
+        T_PARAMS(
+            const std::string &name_in,
+            int type_in,
+            bool is_input_in,
+            size_t ROS_queue_in,
+            size_t buffer_length_in,
+            std::string frame_id_in="",
+            bool is_transform_in=false,
+            std::string to_frame_in=""
+        ):
+            name(name_in),
+            type(type_in),
+            is_input(is_input_in),
+            ROS_queue(ROS_queue_in),
+            buffer_length(buffer_length_in),
+            topic_id(-1),
+            frame_id(frame_id_in),
+            is_transform(is_transform_in),
+            to_frame(to_frame_in)
         {}
-        // The following constructor is not for user
-        T_PARAMS(const std::string &name_in, int type_in, bool is_input_in, size_t ROS_queue_in, size_t buffer_length_in, size_t topic_id_in):
-            name(name_in), type(type_in), is_input(is_input_in), ROS_queue(ROS_queue_in), buffer_length(buffer_length_in), topic_id(topic_id_in)
+        // The following constructor is not for user (additional topic_id to be set)
+        T_PARAMS(
+            const std::string &name_in,
+            int type_in,
+            bool is_input_in,
+            size_t ROS_queue_in,
+            size_t buffer_length_in,
+            size_t topic_id_in,
+            std::string frame_id_in="",
+            bool is_transform_in=false,
+            std::string to_frame_in=""
+        ):
+            name(name_in),
+            type(type_in),
+            is_input(is_input_in),
+            ROS_queue(ROS_queue_in),
+            buffer_length(buffer_length_in),
+            topic_id(topic_id_in),
+            frame_id(frame_id_in),
+            is_transform(is_transform_in),
+            to_frame(to_frame_in)
         {}
     };
 }// end of the namespace MSG
@@ -101,13 +149,25 @@ public:
     // Setting up topics
     // Method 1: use add_a_topic to add a single topic one at a time
     // Method 2: use load_topics to load all topics
-    bool add_a_topic(const std::string &name_in, int type_in, bool is_input_in, size_t ROS_queue_in, size_t buffer_length_in);
+    bool add_a_topic(
+        const std::string &name_in,
+        int type_in, bool is_input_in,
+        size_t ROS_queue_in,
+        size_t buffer_length_in,
+        std::string frame_id_in="",
+        bool is_transform_in=false,
+        std::string to_frame_in=""
+    );
     bool load_topics(const std::vector<MSG::T_PARAMS> &topic_param_list_in);
     // Really start the ROS thread
     bool start();
 
     // Check if the ROS is started
     bool is_running();
+
+    // Utilities
+    inline ros::Time        toROStime(const TIME_STAMP::Time & time_in){return ros::Time(time_in.sec, time_in.nsec); }
+    inline TIME_STAMP::Time fromROStime(const ros::Time & rostime_in){return TIME_STAMP::Time(rostime_in.sec, rostime_in.nsec);}
 
     // Getting methods for each type of message
     // The topic_id should be the "global id"
@@ -127,6 +187,13 @@ public:
     bool send_ITRIPointCloud(const int topic_id, const pcl::PointCloud<pcl::PointXYZI> &content_in);
     //---------------------------------------------------------//
 
+
+    // Advanced getting methods: get transformations
+    //---------------------------------------------------------//
+    bool set_ref_frame(std::string ref_frame_in);
+    bool get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, geometry_msgs::TransformStamped &_tfStamped_out);
+    //---------------------------------------------------------//
+
 private:
     bool _is_started;
     size_t _num_topics;
@@ -139,9 +206,11 @@ private:
 
     // ROS tf2
     tf2_ros::Buffer tfBuffer;
-    // tf2_ros::TransformListener tfListener;
-    // tf2_ros::TransformBroadcaster tfBrocaster;
-    geometry_msgs::TransformStamped _tfStamped;
+    std::shared_ptr<tf2_ros::TransformListener> tfListener_ptr;
+    std::shared_ptr<tf2_ros::TransformBroadcaster> tfBrocaster_ptr;
+    std::string _ref_frame; // The frame_id of the frame which all other data will be represented on. This frame_id can be dynamically changed and got a global effect on all the transformation.
+    std::string _stationary_frame; // The frame that is used for time-traveling.
+    // geometry_msgs::TransformStamped _tfStamped;
     // bool _send_tf(geometry_msgs::TransformStamped _tfStamped_in);
     // bool _get_tf(std::string at_fram, std::string base_frame, geometry_msgs::TransformStamped _tfStamped_out);
 

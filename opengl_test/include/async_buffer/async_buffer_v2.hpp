@@ -229,7 +229,7 @@ public:
     // Advanced operations
     //-----------------------------------------------//
     // Time stamp
-    TIME_STAMP::Time get_stamp(); // Note: use this function right after using any one of the "front" method
+    TIME_STAMP::Time get_stamp(void){return _stamp_out;} // Note: use this function right after using any one of the "front" method
     //-----------------------------------------------//
 
 
