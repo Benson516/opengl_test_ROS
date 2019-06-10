@@ -283,7 +283,18 @@ bool ROS_INTERFACE::set_ref_frame(std::string ref_frame_in){
     return true;
 }
 
-
+geometry_msgs::TransformStamped ROS_INTERFACE::get_tf(std::string base_fram, std::string to_frame, bool & is_sucessed){
+    geometry_msgs::TransformStamped _tf_out;
+    is_sucessed = false;
+    try{
+      _tf_out = tfBuffer.lookupTransform(base_fram, to_frame, ros::Time(0));
+      is_sucessed = true;
+    }
+    catch (tf2::TransformException &ex) {
+      ROS_WARN("%s",ex.what());
+    }
+    return _tf_out;
+}
 
 // Callbacks and public methods of each message type
 //---------------------------------------------------------------//
@@ -544,9 +555,10 @@ bool ROS_INTERFACE::get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl:
     std::string _frame_id = _topic_param_list[topic_id].frame_id; // Note: this might be empty, which will be catched by exception.
     // geometry_msgs::TransformStamped _tfStamped_out;
     try{
-      // _tfStamped_out = tfBuffer.lookupTransform(_ref_frame, _frame_id, ros::Time(0));
-      _tfStamped_out = tfBuffer.lookupTransform(_ref_frame, _frame_id, _msg_stamp);
+      _tfStamped_out = tfBuffer.lookupTransform(_ref_frame, _frame_id, ros::Time(0));
+      // _tfStamped_out = tfBuffer.lookupTransform(_ref_frame, _frame_id, _msg_stamp);
       // _tfStamped_out = tfBuffer.lookupTransform(_ref_frame, ros::Time::now(), _frame_id, _msg_stamp, _stationary_frame, ros::Duration(0.5));
+      std::cout << "Got transform\n";
     }
     catch (tf2::TransformException &ex) {
       ROS_WARN("%s",ex.what());

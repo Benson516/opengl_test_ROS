@@ -36,6 +36,14 @@ void Scene::Update(float dt){
 	}
 }
 void Scene::Update(ROS_INTERFACE &ros_interface){
+    /*
+    // Camera
+    bool is_sucessed = false;
+    glm::mat4 _mat_out = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("map", "base", is_sucessed) );
+    if (is_sucessed){
+        _camera_ptr->SetCameraModel(_mat_out);
+    }
+    */
     // rmBaseModel
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
 		_rm_BaseModel[i]->Update(ros_interface);

@@ -171,6 +171,7 @@ public:
     inline ros::Time        toROStime(const TIME_STAMP::Time & time_in){return ros::Time(time_in.sec, time_in.nsec); }
     inline TIME_STAMP::Time fromROStime(const ros::Time & rostime_in){return TIME_STAMP::Time(rostime_in.sec, rostime_in.nsec);}
 
+
     // Getting methods for each type of message
     // The topic_id should be the "global id"
     //---------------------------------------------------------//
@@ -193,6 +194,7 @@ public:
     // Advanced getting methods: get transformations
     //---------------------------------------------------------//
     bool set_ref_frame(std::string ref_frame_in);
+    geometry_msgs::TransformStamped get_tf(std::string base_fram, std::string to_frame, bool & is_sucessed);
     bool get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, geometry_msgs::TransformStamped &_tfStamped_out);
     //---------------------------------------------------------//
 
@@ -214,7 +216,7 @@ private:
     std::string _stationary_frame; // The frame that is used for time-traveling.
     // geometry_msgs::TransformStamped _tfStamped;
     // bool _send_tf(geometry_msgs::TransformStamped _tfStamped_in);
-    // bool _get_tf(std::string at_fram, std::string base_frame, geometry_msgs::TransformStamped _tfStamped_out);
+    // bool get_tf(std::string base_fram, std::string to_frame, geometry_msgs::TransformStamped & _tfStamped_out);
 
     // List of topics parameters
     // TODO: make a containner to contain the following things in a single object for each topic

@@ -34,7 +34,8 @@ ViewManager::ViewManager()
 mat4 ViewManager::GetModelMatrix() {
 	// return translationMatrix * rotationMatrix;
     // test
-    return tansformMatrix;
+    // return tansformMatrix;
+    return tansformMatrix*camera_model_inv;
 }
 
 /**
@@ -409,6 +410,11 @@ void ViewManager::SetRotation(float x, float y, float z)
     tansformMatrix = _delta_rot*tansformMatrix;
 }
 
+
+void ViewManager::SetCameraModel(glm::mat4 camera_model_in){
+    camera_model_inv = inverse(camera_model_in);
+}
+
 /**
 * 重設相機的設定。
 */
@@ -423,6 +429,8 @@ void ViewManager::Reset()
     // test
     // tansformMatrix = mat4(1.0);
     tansformMatrix = rotationMatrix*mat4(1.0);
+    //
+    camera_model_inv = mat4(1.0);
 }
 
 /**

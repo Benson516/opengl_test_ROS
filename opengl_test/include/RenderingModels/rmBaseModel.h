@@ -31,6 +31,7 @@ public:
     // Utilities
     std::string get_full_Assets_path(std::string Assets_name_in);
     std::string get_full_Shader_path(std::string Shader_name_in);
+    static glm::mat4 ROStf2GLMmatrix(const geometry_msgs::TransformStamped &ros_tf);
 
 protected:
 

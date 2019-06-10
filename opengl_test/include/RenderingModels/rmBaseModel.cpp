@@ -172,3 +172,11 @@ std::string rmBaseModel::get_full_Shader_path(std::string Shader_name_in){
     std::cout << "shader = <" << full_p << ">\n";
     return full_p;
 }
+glm::mat4 rmBaseModel::ROStf2GLMmatrix(const geometry_msgs::TransformStamped &ros_tf){
+    glm::quat _rot_q(ros_tf.transform.rotation.w, ros_tf.transform.rotation.x, ros_tf.transform.rotation.y, ros_tf.transform.rotation.z);
+    glm::mat4 _rot_m = glm::toMat4(_rot_q);
+    glm::vec3 _trans_v(ros_tf.transform.translation.x, ros_tf.transform.translation.y, ros_tf.transform.translation.z);
+    glm::mat4 _trans_m(1.0);
+    _trans_m = translate(_trans_m, _trans_v);
+    return (_trans_m * _rot_m);
+}
