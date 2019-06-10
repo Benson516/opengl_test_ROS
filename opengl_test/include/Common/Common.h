@@ -94,6 +94,9 @@ public:
 	static TextureData Load_png(const char* path);
 	static char** LoadShaderSource(const char* file);
 	static void FreeShaderSource(char** srcp);
+    static void print_out_mat4(glm::mat4 & m_in); // test
 };
+
+
 
 #endif  // COMMON_H

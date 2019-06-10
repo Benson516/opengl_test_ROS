@@ -36,12 +36,16 @@ void Scene::Update(float dt){
 	}
 }
 void Scene::Update(ROS_INTERFACE &ros_interface){
-    /*
+    // Update the "_current_slice_time"
+    ros_interface.update_current_slice_time("map", "base");
+    // ros_interface.set_ref_frame("base");
     // Camera
+    /*
     bool is_sucessed = false;
-    glm::mat4 _mat_out = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("map", "base", is_sucessed) );
+    glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("base", "map", is_sucessed) );
     if (is_sucessed){
-        _camera_ptr->SetCameraModel(_mat_out);
+        std::cout << "Got the camera tf\n";
+        _camera_ptr->SetInvCameraModel(_tf_world_by_base);
     }
     */
     // rmBaseModel

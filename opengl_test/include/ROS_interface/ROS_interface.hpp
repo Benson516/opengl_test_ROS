@@ -193,7 +193,8 @@ public:
 
     // Advanced getting methods: get transformations
     //---------------------------------------------------------//
-    bool set_ref_frame(std::string ref_frame_in);
+    bool set_ref_frame(const std::string & ref_frame_in);
+    bool update_current_slice_time(const std::string &ref_frame_in, const std::string &to_frame_in);
     geometry_msgs::TransformStamped get_tf(std::string base_fram, std::string to_frame, bool & is_sucessed);
     bool get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, geometry_msgs::TransformStamped &_tfStamped_out);
     //---------------------------------------------------------//
@@ -214,6 +215,9 @@ private:
     std::shared_ptr<tf2_ros::TransformBroadcaster> tfBrocaster_ptr;
     std::string _ref_frame; // The frame_id of the frame which all other data will be represented on. This frame_id can be dynamically changed and got a global effect on all the transformation.
     std::string _stationary_frame; // The frame that is used for time-traveling.
+    // The frame time
+    bool _is_using_current_slice_time;
+    ros::Time   _current_slice_time; // The newest time slice for sampling output, which is used to unify all the transform in one sampling.
     // geometry_msgs::TransformStamped _tfStamped;
     // bool _send_tf(geometry_msgs::TransformStamped _tfStamped_in);
     // bool get_tf(std::string base_fram, std::string to_frame, geometry_msgs::TransformStamped & _tfStamped_out);

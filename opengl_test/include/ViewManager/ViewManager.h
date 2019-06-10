@@ -51,6 +51,7 @@ public:
 	void SetWindowSize(int width, int height);
     //
     void SetCameraModel(glm::mat4 camera_model_in);
+    void SetInvCameraModel(glm::mat4 camera_model_inv_in);
 
     bool ToggleOrtho() { return ortho = !ortho; }
     void Zoom(float distance);

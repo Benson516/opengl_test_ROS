@@ -55,7 +55,7 @@ mat4 ViewManager::GetProjectionMatrix(float aspect)
 	float nearVal;
 	float farVal;
 	nearVal = 0.1f;
-	farVal = 500.0f;
+	farVal = 5000.0f; // 500.0f;
 	if (ortho) {
 		float size = orthoScale * zoom;
 		projMatrix = glm::ortho(-aspect * size, aspect * size, -size, size, nearVal, farVal);
@@ -414,6 +414,9 @@ void ViewManager::SetRotation(float x, float y, float z)
 void ViewManager::SetCameraModel(glm::mat4 camera_model_in){
     camera_model_inv = inverse(camera_model_in);
 }
+void ViewManager::SetInvCameraModel(glm::mat4 camera_model_inv_in){
+    camera_model_inv = camera_model_inv_in;
+}
 
 /**
 * 重設相機的設定。
@@ -431,6 +434,8 @@ void ViewManager::Reset()
     tansformMatrix = rotationMatrix*mat4(1.0);
     //
     camera_model_inv = mat4(1.0);
+    // test
+    camera_model_inv = inverse(translate(glm::mat4(1.0), glm::vec3(69,-1396,6.67)));
 }
 
 /**
