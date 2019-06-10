@@ -6,7 +6,12 @@ ROS_ICLU3_V0::ROS_ICLU3_V0():
     num_Image(0), num_ITRIPointCloud(0)
 {
     // TODO: replace the following hardcoded path to an auto-detected one
-    path_pkg = "/home/benson516_itri/catkin_ws/src/opengl_test_ROS/opengl_test/";
+    // path_pkg = "/home/benson516_itri/catkin_ws/src/opengl_test_ROS/opengl_test/";
+    path_pkg = ros::package::getPath("opengl_test");
+    if (path_pkg.back() != '/'){
+        path_pkg += "/";
+    }
+    std::cout << "path_pkg = <" << path_pkg << ">\n";
 }
 
 // Setup node and start

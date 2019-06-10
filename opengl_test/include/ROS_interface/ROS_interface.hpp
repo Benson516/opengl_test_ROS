@@ -130,13 +130,20 @@ public:
 private:
     bool _is_started;
     size_t _num_topics;
-
     size_t _num_ros_cb_thread;
 
     // Although we only use "one" thread, by using this container,
     // we can start the thread later by push_back element
     std::vector<std::thread> _thread_list;
     void _ROS_worker();
+
+    // ROS tf2
+    tf2_ros::Buffer tfBuffer;
+    // tf2_ros::TransformListener tfListener;
+    // tf2_ros::TransformBroadcaster tfBrocaster;
+    geometry_msgs::TransformStamped _tfStamped;
+    // bool _send_tf(geometry_msgs::TransformStamped _tfStamped_in);
+    // bool _get_tf(std::string at_fram, std::string base_frame, geometry_msgs::TransformStamped _tfStamped_out);
 
     // List of topics parameters
     // TODO: make a containner to contain the following things in a single object for each topic

@@ -242,8 +242,7 @@ void ROS_INTERFACE::_ROS_worker(){
 
 
 
-
-// Callbacks and public method of each message type
+// Callbacks and public methods of each message type
 //---------------------------------------------------------------//
 
 // String
