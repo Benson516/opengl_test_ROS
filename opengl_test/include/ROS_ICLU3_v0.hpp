@@ -9,6 +9,8 @@
 
 // nickname for topic_id
 enum class MSG_ID{
+    // tfGeoPoseStamped
+    ego_pose_0,
     // Image
 #ifdef __SUB_IMAGES__
     camera_0,

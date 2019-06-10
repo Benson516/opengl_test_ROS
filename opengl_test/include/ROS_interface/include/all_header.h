@@ -21,6 +21,9 @@
 // MSG: string
 #include <std_msgs/String.h>
 
+// MSG: GeoPoseStamped
+#include <geometry_msgs/PoseStamped.h>
+
 // MSG: Image
 // #include "opencv2/opencv.hpp"
 #include <opencv2/highgui/highgui.hpp>

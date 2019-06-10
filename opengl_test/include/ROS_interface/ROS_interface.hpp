@@ -58,6 +58,7 @@ namespace MSG{
     // Note: the type of the enum is defaultly int
     enum class M_TYPE{
         String,
+        tfGeoPoseStamped,
         Image,
         ITRIPointCloud,
         NUM_MSG_TYPE
@@ -151,7 +152,8 @@ public:
     // Method 2: use load_topics to load all topics
     bool add_a_topic(
         const std::string &name_in,
-        int type_in, bool is_input_in,
+        int type_in,
+        bool is_input_in,
         size_t ROS_queue_in,
         size_t buffer_length_in,
         std::string frame_id_in="",
@@ -267,6 +269,10 @@ private:
     // String
     std::vector< async_buffer<std::string> > buffer_list_String;
 
+    // tfGeoPoseStamped
+    // Note: tf topic don't go through SPSC buffer, they go through tf2 buffer.
+    std::vector< async_buffer<geometry_msgs::PoseStamped> > buffer_list_tfGeoPoseStamped;
+
     // Image (converted to cv::Mat in callback)
     std::vector< async_buffer<cv::Mat> > buffer_list_Image;
     // Note: if _T is the opencv Mat,
@@ -288,6 +294,9 @@ private:
     // String
     void _String_CB(const std_msgs::String::ConstPtr& msg, const MSG::T_PARAMS & params);
     // bool _String_pub();
+
+    // tfGeoPoseStamped
+    void _tfGeoPoseStamped_CB(const geometry_msgs::PoseStamped::ConstPtr& msg, const MSG::T_PARAMS & params);
 
     // Image
     void _Image_CB(const sensor_msgs::ImageConstPtr& msg, const MSG::T_PARAMS & params);

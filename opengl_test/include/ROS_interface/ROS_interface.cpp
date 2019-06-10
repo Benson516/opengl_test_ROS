@@ -156,6 +156,25 @@ void ROS_INTERFACE::_ROS_worker(){
         }
     }
 
+    // tfGeoPoseStamped
+    _msg_type = int(MSG::M_TYPE::tfGeoPoseStamped);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        // Note: tf topic don't go through SPSC buffer, they go through tf2 buffer.
+        buffer_list_tfGeoPoseStamped.push_back( async_buffer<geometry_msgs::PoseStamped>( _tmp_params.buffer_length ) );
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe<geometry_msgs::PoseStamped>( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_tfGeoPoseStamped_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise<geometry_msgs::PoseStamped>( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
+
     // Image
     _msg_type = int(MSG::M_TYPE::Image);
     for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
@@ -196,6 +215,8 @@ void ROS_INTERFACE::_ROS_worker(){
     }
 
     //----------------------------------//
+
+
 
     // Start spinning and loop to the end
     ros::AsyncSpinner spinner(_num_ros_cb_thread); // Use ? threads
@@ -276,7 +297,7 @@ void ROS_INTERFACE::_String_CB(const std_msgs::String::ConstPtr& msg, const MSG:
     int _tid = _topic_tid_list[params.topic_id];
     //------------------------------------//
     //
-    string _tmp_s;
+    std::string _tmp_s;
     _tmp_s = msg->data;
     bool result = buffer_list_String[ _tid ].put( _tmp_s);
 
@@ -355,6 +376,47 @@ bool ROS_INTERFACE::send_string(const int topic_id, const std::string &content_i
     }
 */
 
+}
+//---------------------------------------------------------------//
+
+
+// tfGeoPoseStamped
+//---------------------------------------------------------------//
+void ROS_INTERFACE::_tfGeoPoseStamped_CB(const geometry_msgs::PoseStamped::ConstPtr& msg, const MSG::T_PARAMS & params){
+    // Type_id
+    //------------------------------------//
+    int _tid = _topic_tid_list[params.topic_id];
+    //------------------------------------//
+    if(params.is_transform){
+        geometry_msgs::TransformStamped _send_tf;
+        //
+        /*
+        ros::Time _now = ros::Time::now();
+        ros::Duration _delta = _now - msg->header.stamp;
+        std::cout << "_now = " << _now.sec << ", " << _now.nsec << "\n";
+        std::cout << "stamp = " << msg->header.stamp.sec << ", " << msg->header.stamp.nsec << "\n";
+        std::cout << "_delta = " << _delta.sec << ", " << _delta.nsec << "\n";
+        std::cout << "_delta (day) = " << _delta.toSec()/86400.0 << "\n";
+        */
+        //
+        _send_tf.header.stamp = ros::Time::now(); // msg->header.stamp
+        _send_tf.header.frame_id = params.frame_id;
+        _send_tf.child_frame_id = params.to_frame;
+        _send_tf.transform.translation.x = msg->pose.position.x;
+        _send_tf.transform.translation.y = msg->pose.position.y;
+        _send_tf.transform.translation.z = msg->pose.position.z;
+        _send_tf.transform.rotation.x = msg->pose.orientation.x;
+        _send_tf.transform.rotation.y = msg->pose.orientation.y;
+        _send_tf.transform.rotation.z = msg->pose.orientation.z;
+        _send_tf.transform.rotation.w = msg->pose.orientation.w;
+        tfBrocaster_ptr->sendTransform(_send_tf);
+        return;
+    }
+    // else
+    bool result = buffer_list_tfGeoPoseStamped[ _tid ].put( *msg);
+    if (!result){
+        std::cout << params.name << ": buffer full.\n";
+    }
 }
 //---------------------------------------------------------------//
 
