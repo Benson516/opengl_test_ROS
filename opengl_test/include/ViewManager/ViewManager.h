@@ -49,6 +49,9 @@ public:
     void SetRotation(float theta, float phi);
     void SetRotation(float x, float y, float z);
 	void SetWindowSize(int width, int height);
+    //
+    void SetCameraModel(glm::mat4 camera_model_in);
+    void SetInvCameraModel(glm::mat4 camera_model_inv_in);
 
     bool ToggleOrtho() { return ortho = !ortho; }
     void Zoom(float distance);
@@ -64,6 +67,7 @@ private:
 
 	glm::mat4 translationMatrix;	///< 紀錄Translate動作的Matrix。
 	glm::mat4 rotationMatrix;		///< 紀錄Rotation動作的Matrix。
+    glm::mat4 camera_model_inv;     // test, camera_model^-1
     glm::mat4 tansformMatrix;       // test, T*R
 	glm::mat4 viewMatrix;			///< 紀錄ViewMatrix。
 	glm::mat4 projMatrix;			///< 紀錄projMatrix。

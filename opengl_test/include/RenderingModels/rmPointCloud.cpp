@@ -24,7 +24,7 @@ void rmPointCloud::Init(){
 	uniforms.mv_matrix = glGetUniformLocation(_program_ptr->GetID(), "mv_matrix");
 
     // Init model matrices
-	m_shape.model = glm::mat4();
+	m_shape.model = glm::mat4(1.0);
 
     //Load model to shader _program_ptr
 	LoadModel();
@@ -87,7 +87,21 @@ void rmPointCloud::Update(ROS_INTERFACE &ros_interface){
     // Update the data (uniform variables) here
     glBindVertexArray(m_shape.vao);
     glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
-    bool pc_result = ros_interface.get_ITRIPointCloud( _ROS_topic_id, pc_out_ptr);
+
+    // bool pc_result = ros_interface.get_ITRIPointCloud( _ROS_topic_id, pc_out_ptr);
+
+    // test, use transform
+    ros::Time msg_time;
+    bool pc_result = ros_interface.get_ITRIPointCloud( _ROS_topic_id, pc_out_ptr, msg_time);
+
+    // Note: We get the transform update even if there is no new content in for maximum smoothness
+    //      (the tf will update even there is no data)
+    bool tf_successed = false;
+    glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, false));
+    // glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, true, msg_time));
+    m_shape.model = _model_tf;
+    // Common::print_out_mat4(_model_tf);
+
     if (pc_result){
         star_t * star = (star_t *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _num_points * sizeof(star_t), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
         // num_points = pc_out.width;

@@ -214,16 +214,22 @@ public:
 
 
 
-    // Queue operations
+    // Basic queue operations
     //-----------------------------------------------//
     // Put, overloading
-    bool    put(const _T & element_in, bool is_droping=true);  // Copy the data in, slow
-    bool    put(std::shared_ptr<_T> & element_in_ptr, bool is_droping=true);  // Exchanging the data, fast
+    bool    put(const _T & element_in, bool is_droping=true, TIME_STAMP::Time stamp_in=TIME_STAMP::Time::now());  // Copy the data in, slow
+    bool    put(std::shared_ptr<_T> & element_in_ptr, bool is_droping=true, TIME_STAMP::Time stamp_in=TIME_STAMP::Time::now());  // Exchanging the data, fast
     // Front, overloading
     bool    front(_T & content_out, bool is_poping=false);  // Copy the data out, slow
     bool    front(std::shared_ptr<_T> & content_out_ptr, bool is_poping=false);  // If is_poping, exchanging the data out, fast; if not is_poping, share the content (Note: this may not be safe!!)
     // pop
     bool    pop();    // Only move the index, fast
+    //-----------------------------------------------//
+
+    // Advanced operations
+    //-----------------------------------------------//
+    // Time stamp
+    TIME_STAMP::Time get_stamp(void){return _stamp_out;} // Note: use this function right after using any one of the "front" method
     //-----------------------------------------------//
 
 
@@ -239,9 +245,9 @@ private:
     // Parameters
     int _dl_len;
 
-    // The container
-    std::vector<double> _stamp_list; // time stamp (sec.) of each element
+    // The containers
     std::vector< std::shared_ptr<_T> > _data_ptr_list; //
+    std::vector<TIME_STAMP::Time> _stamp_list; // time stamp (sec.) of each element
 
 
     // The indicators
@@ -251,6 +257,9 @@ private:
     // Auxiliary container
     _T _empty_element;
     std::shared_ptr<_T> _tmp_output_ptr;
+    TIME_STAMP::Time _stamp_out;
+
+    // Flags
     bool _got_front_but_no_pop;
 
     // Function pointer for _copy_func
@@ -419,7 +428,7 @@ async_buffer<_T>::async_buffer(size_t buffer_length_in, _T place_holder_element)
 
 //
 //
-template <class _T> bool async_buffer<_T>::put(const _T & element_in, bool is_droping){
+template <class _T> bool async_buffer<_T>::put(const _T & element_in, bool is_droping, TIME_STAMP::Time stamp_in){
 
     // To lock the write for ensuring only one producer a time
     //-------------------------------------------------------//
@@ -451,6 +460,9 @@ template <class _T> bool async_buffer<_T>::put(const _T & element_in, bool is_dr
         _idx_write_tmp = _idx_write;
     }
 
+    // Assign time "now" (can put this line right after getting the index)
+    _stamp_list[_idx_write_tmp] = stamp_in;
+    //
 
     // Fill the pointer!
     if (!_data_ptr_list[_idx_write_tmp]){
@@ -468,7 +480,7 @@ template <class _T> bool async_buffer<_T>::put(const _T & element_in, bool is_dr
     _set_index_write( _increase_idx(_idx_write_tmp) );
     return _all_is_well;
 }
-template <class _T> bool async_buffer<_T>::put(std::shared_ptr<_T> & element_in_ptr, bool is_droping){
+template <class _T> bool async_buffer<_T>::put(std::shared_ptr<_T> & element_in_ptr, bool is_droping, TIME_STAMP::Time stamp_in){
 
     // To lock the write for ensuring only one producer a time
     //-------------------------------------------------------//
@@ -508,6 +520,11 @@ template <class _T> bool async_buffer<_T>::put(std::shared_ptr<_T> & element_in_
         std::lock_guard<std::mutex> _lock(*_mlock_idx_write);
         _idx_write_tmp = _idx_write;
     }
+
+    // Assign time "now" (can put this line right after getting the index)
+    _stamp_list[_idx_write_tmp] = stamp_in;
+    //
+    // std::cout << "stamp_in = " << stamp_in.sec << "\n";
 
 
     //---------------------------------------------------------//
@@ -570,6 +587,10 @@ template <class _T> bool async_buffer<_T>::front(_T & content_out, bool is_popin
         _idx_read_tmp = _idx_read;
     }
 
+    // Store the stamp (can put this line right after getting the index)
+    _stamp_out = _stamp_list[_idx_read_tmp];
+    //
+
 
     // Fill the pointer!
     if (!_data_ptr_list[_idx_read_tmp]){
@@ -586,14 +607,11 @@ template <class _T> bool async_buffer<_T>::front(_T & content_out, bool is_popin
             // _got_front_but_no_pop = true;
             // --- No need to get element from the buffer again
             _copy_func(content_out, *_tmp_output_ptr); // instance <-- *ptr
-            return true;
         }else{
             _got_front_but_no_pop = true;
             _tmp_output_ptr.swap(_data_ptr_list[_idx_read_tmp]);
             _copy_func(content_out, *_tmp_output_ptr); // instance <-- *ptr
-            return true;
         }
-        return true;
     }else{
         // Reset the flag for front
         _got_front_but_no_pop = false;
@@ -612,9 +630,9 @@ template <class _T> bool async_buffer<_T>::front(_T & content_out, bool is_popin
         // Note: the copy method may not sussess if _T is "Mat" from opencv
         //       be sure to use IMG.clone() mwthod outside this function.
         // The following operation might be time consumming
-        return true;
     }
     //
+    return true;
 }
 
 template <class _T> bool async_buffer<_T>::front(std::shared_ptr<_T> & content_out_ptr, bool is_poping){
@@ -640,6 +658,9 @@ template <class _T> bool async_buffer<_T>::front(std::shared_ptr<_T> & content_o
         _idx_read_tmp = _idx_read;
     }
 
+    // Store the stamp (can put this line right after getting the index)
+    _stamp_out = _stamp_list[_idx_read_tmp];
+    //
 
     // Fill the pointer!
     if (!_data_ptr_list[_idx_read_tmp]){
@@ -656,12 +677,10 @@ template <class _T> bool async_buffer<_T>::front(std::shared_ptr<_T> & content_o
             // _got_front_but_no_pop = true;
             // --- No need to get element from the buffer again
             content_out_ptr = _tmp_output_ptr; // Share content with _tmp_output_ptr
-            return true;
         }else{
             _got_front_but_no_pop = true;
             _tmp_output_ptr.swap(_data_ptr_list[_idx_read_tmp]);
             content_out_ptr = _tmp_output_ptr; // Share content with _tmp_output_ptr
-            return true;
         }
     }else{
         // Reset the flag for front
@@ -669,7 +688,6 @@ template <class _T> bool async_buffer<_T>::front(std::shared_ptr<_T> & content_o
         //
 
         // We need to exchange the data first before we move the index (delete)
-
         //---------------------------------------------------------//
         // Check if the content_out_ptr is null
         if (!content_out_ptr){
@@ -708,9 +726,9 @@ template <class _T> bool async_buffer<_T>::front(std::shared_ptr<_T> & content_o
         // Note: the copy method may not sussess if _T is "Mat" from opencv
         //       be sure to use IMG.clone() mwthod outside this function.
         // The following operation might be time consumming
-        return true;
     }
     //
+    return true;
 }
 
 

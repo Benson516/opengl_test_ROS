@@ -3,30 +3,37 @@
 // using std::vector;
 // using std::string;
 
-
+#define TOTAL_NUM_THREAD_FOR_ROS_CB     6 // Use 6 threads
 
 // Constructors
 ROS_INTERFACE::ROS_INTERFACE():
     _is_started(false),
     _num_topics(0),
-    _msg_type_2_topic_params( size_t(MSG::M_TYPE::NUM_MSG_TYPE) )
+    _msg_type_2_topic_params( size_t(MSG::M_TYPE::NUM_MSG_TYPE) ),
     // The temporary containers
     // _cloud_tmp_ptr (new pcl::PointCloud<pcl::PointXYZI>)
+    _ref_frame("map"), _stationary_frame("map"),
+    _is_using_current_slice_time(false),
+    _current_slice_time(ros::Time(0))
 {
     //
-    _num_ros_cb_thread = 6; // Use 6 threads
+    _num_ros_cb_thread = TOTAL_NUM_THREAD_FOR_ROS_CB;
     //
     // ros::init(argc, argv, "ROS_interface", ros::init_options::AnonymousName);
+    // Remember to call setup_node()
 }
 ROS_INTERFACE::ROS_INTERFACE(int argc, char **argv):
     _is_started(false),
     _num_topics(0),
-    _msg_type_2_topic_params( size_t(MSG::M_TYPE::NUM_MSG_TYPE) )
+    _msg_type_2_topic_params( size_t(MSG::M_TYPE::NUM_MSG_TYPE) ),
     // The temporary containers
     // _cloud_tmp_ptr (new pcl::PointCloud<pcl::PointXYZI>)
+    _ref_frame("map"), _stationary_frame("map"),
+    _is_using_current_slice_time(false),
+    _current_slice_time(ros::Time(0))
 {
     //
-    _num_ros_cb_thread = 6; // Use 6 threads
+    _num_ros_cb_thread = TOTAL_NUM_THREAD_FOR_ROS_CB;
     //
     ros::init(argc, argv, "ROS_interface", ros::init_options::AnonymousName);
 }
@@ -47,10 +54,20 @@ bool ROS_INTERFACE::setup_node(int argc, char **argv, std::string node_name_in){
 // Setting up topics
 //----------------------------------------------------------------//
 // Method 1: use add_a_topic to add a single topic one at a time
-bool ROS_INTERFACE::add_a_topic(const std::string &name_in, int type_in, bool is_input_in, size_t ROS_queue_in, size_t buffer_length_in){
+bool ROS_INTERFACE::add_a_topic(
+    const std::string &name_in,
+    int type_in,
+    bool is_input_in,
+    size_t ROS_queue_in,
+    size_t buffer_length_in,
+    std::string frame_id_in,
+    bool is_transform_in,
+    std::string to_frame_in
+)
+{
     // Add a topic
     size_t idx_new = _topic_param_list.size();
-    _topic_param_list.push_back( MSG::T_PARAMS(name_in, type_in, is_input_in, ROS_queue_in, buffer_length_in, idx_new) );
+    _topic_param_list.push_back( MSG::T_PARAMS(name_in, type_in, is_input_in, ROS_queue_in, buffer_length_in, idx_new, frame_id_in, is_transform_in, to_frame_in) );
     // Parsing parameters
     //----------------------------//
     _num_topics = _topic_param_list.size();
@@ -143,6 +160,25 @@ void ROS_INTERFACE::_ROS_worker(){
         }
     }
 
+    // tfGeoPoseStamped
+    _msg_type = int(MSG::M_TYPE::tfGeoPoseStamped);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        // Note: tf topic don't go through SPSC buffer, they go through tf2 buffer.
+        buffer_list_tfGeoPoseStamped.push_back( async_buffer<geometry_msgs::PoseStamped>( _tmp_params.buffer_length ) );
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe<geometry_msgs::PoseStamped>( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_tfGeoPoseStamped_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise<geometry_msgs::PoseStamped>( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
+
     // Image
     _msg_type = int(MSG::M_TYPE::Image);
     for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
@@ -184,12 +220,19 @@ void ROS_INTERFACE::_ROS_worker(){
 
     //----------------------------------//
 
+
+
     // Start spinning and loop to the end
     ros::AsyncSpinner spinner(_num_ros_cb_thread); // Use ? threads
     spinner.start();
     _is_started = true; // The flag for informing the other part of system that the ROS has begun.
     std::cout << "ros_iterface started\n";
-    //
+
+    // tf2
+    tfListener_ptr.reset( new tf2_ros::TransformListener(tfBuffer) );
+    tfBrocaster_ptr.reset( new tf2_ros::TransformBroadcaster() );
+
+    // Loop forever
     ros::waitForShutdown();
 
 
@@ -238,12 +281,91 @@ void ROS_INTERFACE::_ROS_worker(){
     std::cout << "End of ros_iterface\n";
 }
 
+// Set the transformation reference for all the transformation
+bool ROS_INTERFACE::set_ref_frame(const std::string &ref_frame_in){
+    _ref_frame = ref_frame_in;
+    return true;
+}
+bool ROS_INTERFACE::update_current_slice_time(const std::string &ref_frame_in, const std::string &to_frame_in){
+    ros::Time _common_time;
+    std::string err_str;
+    tfBuffer._getLatestCommonTime(tfBuffer._lookupFrameNumber(ref_frame_in), tfBuffer._lookupFrameNumber(to_frame_in), _common_time, &err_str);
+    std::cout << "_common_time = " << _common_time.sec << ", " << _common_time.nsec << "\n";
+    if (_common_time > _current_slice_time){
+        _current_slice_time = _common_time;
+        _is_using_current_slice_time = true;
+    }
+    std::cout << "err_str = <" << err_str << ">\n";
+    return true;
+}
+ros::Time ROS_INTERFACE::get_current_slice_time(){
+    return _current_slice_time;
+}
+
+// Get tf
+//------------------------------------------//
+bool ROS_INTERFACE::get_tf(std::string base_fram, std::string to_frame, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling, ros::Time lookup_stamp){
+    bool is_sucessed = false;
+    if (!is_time_traveling){
+        try{
+          tf_out = tfBuffer.lookupTransform(base_fram, to_frame, ros::Time(0));
+          is_sucessed = true;
+        }
+        catch (tf2::TransformException &ex) {
+          ROS_WARN("%s",ex.what());
+        }
+    }else{
+        // Using time-traveling going through _stationary_frame
+        try{
+            ros::Time _common_time;
+            if(_is_using_current_slice_time){
+                _common_time = _current_slice_time;
+            }else{
+                std::string err_str;
+                tfBuffer._getLatestCommonTime(tfBuffer._lookupFrameNumber(base_fram), tfBuffer._lookupFrameNumber(_stationary_frame), _common_time, &err_str);
+            }
+            // std::cout << "err_str = <" << err_str << ">\n";
+            if (lookup_stamp > _common_time){
+                lookup_stamp = _common_time;
+            }
+            tf_out = tfBuffer.lookupTransform(base_fram, _common_time, to_frame, lookup_stamp, _stationary_frame, ros::Duration(0.2));
+            std::cout << "Got transform\n";
+            is_sucessed = true;
+        }
+        catch (tf2::TransformException &ex) {
+            ROS_WARN("%s",ex.what());
+        }
+    }
+    return is_sucessed;
+}
+geometry_msgs::TransformStamped ROS_INTERFACE::get_tf(std::string base_fram, std::string to_frame, bool & is_sucessed, bool is_time_traveling, ros::Time lookup_stamp){
+    geometry_msgs::TransformStamped _tf_out;
+    is_sucessed = get_tf(base_fram, to_frame, _tf_out, is_time_traveling, lookup_stamp);
+    return _tf_out;
+}
+bool ROS_INTERFACE::get_tf(const int topic_id, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling, ros::Time lookup_stamp){
+    // Get the topic param by topic_id
+    //------------------------------------//
+    MSG::T_PARAMS _param = _topic_param_list[topic_id];
+    //------------------------------------//
+    return get_tf(_ref_frame, _param.frame_id, tf_out, is_time_traveling, lookup_stamp);
+}
+geometry_msgs::TransformStamped ROS_INTERFACE::get_tf(const int topic_id, bool & is_sucessed, bool is_time_traveling, ros::Time lookup_stamp){
+    // Get the topic param by topic_id
+    //------------------------------------//
+    MSG::T_PARAMS _param = _topic_param_list[topic_id];
+    //------------------------------------//
+    return get_tf(_ref_frame, _param.frame_id, is_sucessed, is_time_traveling, lookup_stamp);
+}
+//------------------------------------------//
+// end Get tf
 
 
 
 
 
-// Callbacks and public method of each message type
+
+// Callbacks and public methods of each message type
 //---------------------------------------------------------------//
 
 // String
@@ -255,7 +377,7 @@ void ROS_INTERFACE::_String_CB(const std_msgs::String::ConstPtr& msg, const MSG:
     int _tid = _topic_tid_list[params.topic_id];
     //------------------------------------//
     //
-    string _tmp_s;
+    std::string _tmp_s;
     _tmp_s = msg->data;
     bool result = buffer_list_String[ _tid ].put( _tmp_s);
 
@@ -334,6 +456,48 @@ bool ROS_INTERFACE::send_string(const int topic_id, const std::string &content_i
     }
 */
 
+}
+//---------------------------------------------------------------//
+
+
+// tfGeoPoseStamped
+//---------------------------------------------------------------//
+void ROS_INTERFACE::_tfGeoPoseStamped_CB(const geometry_msgs::PoseStamped::ConstPtr& msg, const MSG::T_PARAMS & params){
+    // Type_id
+    //------------------------------------//
+    int _tid = _topic_tid_list[params.topic_id];
+    //------------------------------------//
+    if(params.is_transform){
+        geometry_msgs::TransformStamped _send_tf;
+        //
+        /*
+        ros::Time _now = ros::Time::now();
+        ros::Duration _delta = _now - msg->header.stamp;
+        std::cout << "_now = " << _now.sec << ", " << _now.nsec << "\n";
+        std::cout << "stamp = " << msg->header.stamp.sec << ", " << msg->header.stamp.nsec << "\n";
+        std::cout << "_delta = " << _delta.sec << ", " << _delta.nsec << "\n";
+        std::cout << "_delta (day) = " << _delta.toSec()/86400.0 << "\n";
+        */
+        //
+        _send_tf.header.stamp = toROStime(TIME_STAMP::Time::now()); // <- The TIME_STAMP::Time::now() is much precise than ros::Time::now(); // msg->header.stamp
+        _send_tf.header.frame_id = params.frame_id;
+        _send_tf.child_frame_id = params.to_frame;
+        _send_tf.transform.translation.x = msg->pose.position.x;
+        _send_tf.transform.translation.y = msg->pose.position.y;
+        _send_tf.transform.translation.z = msg->pose.position.z;
+        _send_tf.transform.rotation.x = msg->pose.orientation.x;
+        _send_tf.transform.rotation.y = msg->pose.orientation.y;
+        _send_tf.transform.rotation.z = msg->pose.orientation.z;
+        _send_tf.transform.rotation.w = msg->pose.orientation.w;
+        tfBrocaster_ptr->sendTransform(_send_tf);
+        std::cout << "Recieve the tf\n";
+        return;
+    }
+    // else
+    bool result = buffer_list_tfGeoPoseStamped[ _tid ].put( *msg);
+    if (!result){
+        std::cout << params.name << ": buffer full.\n";
+    }
 }
 //---------------------------------------------------------------//
 
@@ -445,6 +609,51 @@ bool ROS_INTERFACE::get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl:
     int _tid = _topic_tid_list[topic_id];
     //------------------------------------//
     return ( buffer_list_ITRIPointCloud[_tid].front(content_out_ptr, true) );
+}
+bool ROS_INTERFACE::get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp){
+    // Advanced method with ros::tf2
+    // Type_id
+    //------------------------------------//
+    int _tid = _topic_tid_list[topic_id];
+    //------------------------------------//
+    bool result = ( buffer_list_ITRIPointCloud[_tid].front(content_out_ptr, true) );
+    // if (!result)
+    //     return false;
+    // Note: even if we don't get the new content, we do the transform.
+    // Got the content's stamp
+    msg_stamp = toROStime( buffer_list_ITRIPointCloud[_tid].get_stamp() );
+    /*
+    // tf2
+    std::string _frame_id = _topic_param_list[topic_id].frame_id; // Note: this might be empty, which will be catched by exception.
+    // geometry_msgs::TransformStamped _tfStamped_out;
+    try{
+        // _tfStamped_out = tfBuffer.lookupTransform(_ref_frame, _frame_id, ros::Time(0));
+        // _tfStamped_out = tfBuffer.lookupTransform(_ref_frame, _frame_id, _msg_stamp);
+        ros::Time _common_time;
+        if(_is_using_current_slice_time){
+            _common_time = _current_slice_time;
+        }else{
+            std::string err_str;
+            tfBuffer._getLatestCommonTime(tfBuffer._lookupFrameNumber(_ref_frame), tfBuffer._lookupFrameNumber(_frame_id), _common_time, &err_str);
+            // tfBuffer._getLatestCommonTime(tfBuffer._lookupFrameNumber(_ref_frame), tfBuffer._lookupFrameNumber(_stationary_frame), _common_time, &err_str);
+        }
+        // std::cout << "err_str = <" << err_str << ">\n";
+        std::cout << "_common_time = " << _common_time.sec << ", " << _common_time.nsec << "\n";
+        if (_msg_stamp > _common_time){
+            std::cout << "_msg_stamp > _common_time\n";
+            _msg_stamp = _common_time;
+        }else{
+            std::cout << "_msg_stamp <= _common_time\n";
+        }
+        _tfStamped_out = tfBuffer.lookupTransform(_ref_frame, _common_time, _frame_id, _msg_stamp, _stationary_frame, ros::Duration(0.2));
+        std::cout << "Got transform\n";
+    }
+    catch (tf2::TransformException &ex) {
+        ROS_WARN("%s",ex.what());
+        return false;
+    }
+    */
+    return result;
 }
 bool ROS_INTERFACE::send_ITRIPointCloud(const int topic_id, const pcl::PointCloud<pcl::PointXYZI> &content_in){
     // pub_subs_id

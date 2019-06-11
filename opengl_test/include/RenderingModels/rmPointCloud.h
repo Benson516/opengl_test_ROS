@@ -18,6 +18,7 @@ protected:
     //
     int _ROS_topic_id;
     std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > pc_out_ptr;
+    // ros::Time msg_time;
 
 private:
     // model info

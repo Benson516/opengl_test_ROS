@@ -23,6 +23,7 @@
 #include "../include/GLM/glm/gtc/type_ptr.hpp"
 #include "../include/GLM/glm/gtx/rotate_vector.hpp"
 #include "../include/GLM/glm/gtx/norm.hpp"
+#include "../include/GLM/glm/gtx/quaternion.hpp"
 
 //
 /*
@@ -93,6 +94,9 @@ public:
 	static TextureData Load_png(const char* path);
 	static char** LoadShaderSource(const char* file);
 	static void FreeShaderSource(char** srcp);
+    static void print_out_mat4(glm::mat4 & m_in); // test
 };
+
+
 
 #endif  // COMMON_H

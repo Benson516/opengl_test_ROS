@@ -6,7 +6,12 @@ ROS_ICLU3_V0::ROS_ICLU3_V0():
     num_Image(0), num_ITRIPointCloud(0)
 {
     // TODO: replace the following hardcoded path to an auto-detected one
-    path_pkg = "/home/benson516_itri/catkin_ws/src/opengl_test_ROS/opengl_test/";
+    // path_pkg = "/home/benson516_itri/catkin_ws/src/opengl_test_ROS/opengl_test/";
+    path_pkg = ros::package::getPath("opengl_test");
+    if (path_pkg.back() != '/'){
+        path_pkg += "/";
+    }
+    std::cout << "path_pkg = <" << path_pkg << ">\n";
 }
 
 // Setup node and start
@@ -70,22 +75,24 @@ bool ROS_ICLU3_V0::update(){
 bool ROS_ICLU3_V0::_set_up_topics(){
     {
         using MSG::M_TYPE;
+        // tfGeoPoseStamped
+        ros_interface.add_a_topic("current_pose", int(M_TYPE::tfGeoPoseStamped), true, 10, 1, "map", true, "base");
         // Image
 #ifdef __SUB_IMAGES__
-        ros_interface.add_a_topic("/camera/1/0/image_sync", int(M_TYPE::Image), true, 1, 3);
-        ros_interface.add_a_topic("/camera/1/1/image_sync", int(M_TYPE::Image), true, 1, 3);
-        ros_interface.add_a_topic("/camera/1/2/image_sync", int(M_TYPE::Image), true, 1, 3);
-        ros_interface.add_a_topic("/camera/0/2/image_sync", int(M_TYPE::Image), true, 1, 3);
-        ros_interface.add_a_topic("/camera/2/0/image", int(M_TYPE::Image), true, 1, 3);
-        ros_interface.add_a_topic("/camera/2/1/image", int(M_TYPE::Image), true, 1, 3);
-        ros_interface.add_a_topic("/camera/0/0/image", int(M_TYPE::Image), true, 1, 3);
-        ros_interface.add_a_topic("/camera/0/1/image", int(M_TYPE::Image), true, 1, 3);
-        ros_interface.add_a_topic("/camera/2/2/image", int(M_TYPE::Image), true, 1, 3);
+        ros_interface.add_a_topic("camera/1/0/image_sync", int(M_TYPE::Image), true, 1, 3);
+        ros_interface.add_a_topic("camera/1/1/image_sync", int(M_TYPE::Image), true, 1, 3);
+        ros_interface.add_a_topic("camera/1/2/image_sync", int(M_TYPE::Image), true, 1, 3);
+        ros_interface.add_a_topic("camera/0/2/image_sync", int(M_TYPE::Image), true, 1, 3);
+        ros_interface.add_a_topic("camera/2/0/image", int(M_TYPE::Image), true, 1, 3);
+        ros_interface.add_a_topic("camera/2/1/image", int(M_TYPE::Image), true, 1, 3);
+        ros_interface.add_a_topic("camera/0/0/image", int(M_TYPE::Image), true, 1, 3);
+        ros_interface.add_a_topic("camera/0/1/image", int(M_TYPE::Image), true, 1, 3);
+        ros_interface.add_a_topic("camera/2/2/image", int(M_TYPE::Image), true, 1, 3);
         num_Image = 9; // Hand coded for now..
 #endif // __SUB_IMAGES__
         // ITRIPointCloud
 #ifdef __SUB_POINT_CLOUD__
-        ros_interface.add_a_topic("LidFrontLeft_sync", int(M_TYPE::ITRIPointCloud), true, 5, 5);
+        ros_interface.add_a_topic("LidFrontLeft_sync", int(M_TYPE::ITRIPointCloud), true, 5, 5, "base");
         num_ITRIPointCloud = 1; // Hand coded for now..
 #endif // __SUB_POINT_CLOUD__
     }

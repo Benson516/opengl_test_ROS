@@ -116,6 +116,16 @@ void Common::FreeShaderSource(char** srcp)
 	delete srcp;
 }
 
+void Common::print_out_mat4(glm::mat4 & m_in){
+    std::cout << "the mat4 = \n";
+    for (size_t i=0; i<4; ++i){
+        for (size_t j=0; j<4; ++j){
+            std::cout << m_in[j][i] << "\t";
+        }
+        std::cout << "\n";
+    }
+}
+
 glm::mat4 _Shape::getTransformationMatrix()
 {
 	glm::mat4 transformationMatrix = glm::mat4(1.0f);

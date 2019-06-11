@@ -12,8 +12,17 @@
 // ROS libraries
 //--------------------------------------------//
 #include <ros/ros.h>
+#include <ros/package.h>
+// tf2
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2_ros/transform_listener.h>
+#include <geometry_msgs/TransformStamped.h>
+
 // MSG: string
 #include <std_msgs/String.h>
+
+// MSG: GeoPoseStamped
+#include <geometry_msgs/PoseStamped.h>
 
 // MSG: Image
 // #include "opencv2/opencv.hpp"
