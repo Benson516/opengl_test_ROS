@@ -13,6 +13,7 @@
 // Render models
 #include "rmBaseModel.h"
 #include "rmPointCloud.h"
+#include "rmLidarBoundingBox.h"
 
 //
 

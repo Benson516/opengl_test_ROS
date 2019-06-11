@@ -1,0 +1,62 @@
+#ifndef RM_LIDARBOUNDINGBOX_H
+#define RM_LIDARBOUNDINGBOX_H
+
+#include "rmBaseModel.h"
+
+class rmLidarBoundingBox : public rmBaseModel
+{
+public:
+    rmLidarBoundingBox(std::string _path_Assets_in, int _ROS_topic_id_in);
+    //
+	void Update(float dt);
+    void Update(ROS_INTERFACE &ros_interface);
+	void Render(std::shared_ptr<ViewManager> _camera_ptr);
+
+protected:
+    void Init();
+    virtual void LoadModel();
+    //
+    int _ROS_topic_id;
+    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > pc_out_ptr;
+    // ros::Time msg_time;
+
+private:
+    // model info
+    struct Shape{
+        GLuint vao;
+        GLuint vbo;
+        int indexCount;
+        GLuint m_texture;
+
+        glm::mat4 model;
+    };
+    Shape m_shape;
+
+    // The structure for point
+    struct star_t
+	{
+		glm::vec3     position;
+		glm::vec3     color;
+	};
+    long long _num_points;
+
+    //uniform id
+	struct
+	{
+		GLint  mv_matrix;
+		GLint  proj_matrix;
+	} uniforms;
+
+    static inline float random_float()
+    {
+        static unsigned int seed = 0x13371337;
+    	float res;
+    	unsigned int tmp;
+    	seed *= 16807;
+    	tmp = seed ^ (seed >> 4) ^ (seed << 15);
+    	*((unsigned int *)&res) = (tmp >> 9) | 0x3F800000;
+    	return (res - 1.0f);
+    }
+};
+
+#endif // RM_LIDARBOUNDINGBOX_H
