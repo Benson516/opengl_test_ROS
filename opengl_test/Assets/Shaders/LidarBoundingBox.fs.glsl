@@ -2,14 +2,12 @@
 
 out vec4 color;
 
-uniform sampler2D tex_star;
-flat in vec4 starColor;
+in VS_OUT
+{
+	vec4 color;
+} fs_in;
 
 void main(void)
 {
-	color = starColor * texture(tex_star, gl_PointCoord);
-	if (color.a < 0.1)
-	   color.a = 0.1;
-       // discard;
-    // color.a = 0.6;
+	color = fs_in.color;
 }

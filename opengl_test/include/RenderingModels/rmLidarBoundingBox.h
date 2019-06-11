@@ -3,6 +3,23 @@
 
 #include "rmBaseModel.h"
 
+namespace rmLidarBoundingBox_ns{
+    const GLshort box_idx_data[] = {
+        0,1,2,
+        2,3,0,
+        5,6,2,
+        2,1,5,
+        3,2,6,
+        6,7,3,
+        4,5,1,
+        1,0,4,
+        6,5,4,
+        4,7,6,
+        4,0,3,
+        3,7,4,
+    };
+}
+
 class rmLidarBoundingBox : public rmBaseModel
 {
 public:
@@ -25,20 +42,31 @@ private:
     struct Shape{
         GLuint vao;
         GLuint vbo;
-        int indexCount;
+        GLuint ebo;
         GLuint m_texture;
+        //
+        int indexCount;
 
         glm::mat4 model;
     };
     Shape m_shape;
 
     // The structure for point
-    struct star_t
+    struct vertex_p_c
 	{
 		glm::vec3     position;
 		glm::vec3     color;
 	};
-    long long _num_points;
+    int _num_vertex_idx_per_box;
+    long long _max_num_vertex_idx;
+    int _num_vertex_per_box;
+    long long _max_num_vertex;
+    long long _max_num_box;
+
+
+
+    // The box
+    float box_half_size = 1.0f;
 
     //uniform id
 	struct
@@ -47,16 +75,20 @@ private:
 		GLint  proj_matrix;
 	} uniforms;
 
-    static inline float random_float()
-    {
-        static unsigned int seed = 0x13371337;
-    	float res;
-    	unsigned int tmp;
-    	seed *= 16807;
-    	tmp = seed ^ (seed >> 4) ^ (seed << 15);
-    	*((unsigned int *)&res) = (tmp >> 9) | 0x3F800000;
-    	return (res - 1.0f);
+    std::vector<vertex_p_c> box_template;
+
+    inline void generate_box_template(){
+        box_template.resize(8);
+        box_template[0].position = glm::vec3(0.0f, 0.0f, 0.0f);
+        box_template[1].position = glm::vec3(0.0f, 0.0f, 1.0f);
+        box_template[2].position = glm::vec3(1.0f, 0.0f, 1.0f);
+        box_template[3].position = glm::vec3(1.0f, 0.0f, 0.0f);
+        box_template[4].position = glm::vec3(0.0f, 1.0f, 0.0f);
+        box_template[5].position = glm::vec3(0.0f, 1.0f, 1.0f);
+        box_template[6].position = glm::vec3(1.0f, 1.0f, 1.0f);
+        box_template[7].position = glm::vec3(1.0f, 1.0f, 0.0f);
     }
+
 };
 
 #endif // RM_LIDARBOUNDINGBOX_H

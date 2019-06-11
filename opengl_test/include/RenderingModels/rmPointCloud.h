@@ -25,20 +25,21 @@ private:
     struct Shape{
         GLuint vao;
         GLuint vbo;
-        int indexCount;
         GLuint m_texture;
+        //
+        int indexCount;
 
         glm::mat4 model;
     };
     Shape m_shape;
 
     // The structure for point
-    struct star_t
+    struct vertex_p_c
 	{
 		glm::vec3     position;
 		glm::vec3     color;
 	};
-    long long _num_points;
+    long long _max_num_vertex;
 
     //uniform id
 	struct

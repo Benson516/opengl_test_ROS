@@ -50,12 +50,12 @@ private:
         GLuint vbo;
         GLuint vboTex;
         GLuint ebo;
-
         GLuint p_normal;
+        GLuint m_texture;
+        //
         int materialId;
         int indexCount;
-        GLuint m_texture;
-
+    
         glm::mat4 model;
     };
     Shape m_shape;

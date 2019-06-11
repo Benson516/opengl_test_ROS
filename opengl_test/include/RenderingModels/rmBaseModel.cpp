@@ -72,8 +72,9 @@ void rmBaseModel::LoadModel(){
 		glGenVertexArrays(1, &m_shape.vao);
 		glBindVertexArray(m_shape.vao);
 
-		glGenBuffers(3, &m_shape.vbo);
-		glGenBuffers(1, &m_shape.p_normal);
+		glGenBuffers(3, &m_shape.vbo); // <-- Note: The 2nd arg. of glGenBuffers() should be the array, this operation will save buffer name to vbo, vboTex, and ebo
+        // Hoever, the above usage is not recommanded...
+        glGenBuffers(1, &m_shape.p_normal);
 		glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo);
 		glBufferData(GL_ARRAY_BUFFER, shapes[i].mesh.positions.size() * sizeof(float) + shapes[i].mesh.normals.size() * sizeof(float), NULL, GL_STATIC_DRAW);
 

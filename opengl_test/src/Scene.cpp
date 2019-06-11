@@ -22,6 +22,7 @@ Scene::Scene(std::string pkg_path_in):
 }
 
 void Scene::Render(){
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	for (int i = 0; i < _rm_BaseModel.size(); i++){

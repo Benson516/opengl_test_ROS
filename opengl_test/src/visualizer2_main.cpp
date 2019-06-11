@@ -54,8 +54,8 @@ void leave_main_loop () {
 
 
 // float	aspect;
-float	windows_init_width = 800;
-float   windows_init_height = 600;
+float	windows_width = 800;
+float   windows_height = 600;
 float	timer_interval = 16.0f;
 /*
 #define MENU_Sale 1
@@ -145,8 +145,11 @@ void My_Display()
     // OpenGL, GLUT
     //---------------------------------//
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glViewport(0, 0, windows_width, windows_height); // <-- move to Draw()
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	scene_ptr->Render();
+
     glutSwapBuffers();
     //---------------------------------//
 
@@ -169,8 +172,10 @@ void My_Display()
 //Call to resize the window
 void My_Reshape(int width, int height)
 {
-    glViewport(0, 0, width, height);
-	scene_ptr->GetCamera()->SetWindowSize(width, height);
+    windows_width = width;
+    windows_height = height;
+    // glViewport(0, 0, windows_width, windows_height); // <-- move to Draw()
+	scene_ptr->GetCamera()->SetWindowSize(windows_width, windows_height);
 }
 
 //Timer event
@@ -272,7 +277,7 @@ int main(int argc, char *argv[])
 #endif
 
 	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(windows_init_width, windows_init_height);
+	glutInitWindowSize(windows_width, windows_height);
 	glutCreateWindow("Visualizer2"); // You cannot use OpenGL functions before this line; The OpenGL context must be created first by glutCreateWindow()!
 #ifdef _MSC_VER // Compiler for VisualStudio
 	glewInit();
