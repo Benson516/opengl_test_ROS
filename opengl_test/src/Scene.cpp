@@ -38,16 +38,23 @@ void Scene::Update(float dt){
 void Scene::Update(ROS_INTERFACE &ros_interface){
     // Update the "_current_slice_time"
     ros_interface.update_current_slice_time("map", "base");
-    // ros_interface.set_ref_frame("base");
-    // Camera
+    ros_interface.set_ref_frame("base");
+
     /*
+    // Camera
     bool is_sucessed = false;
-    glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("base", "map", is_sucessed) );
+    glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("base", "map", is_sucessed, false) );
+    // glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("base", "map", is_sucessed, true) );
     if (is_sucessed){
         std::cout << "Got the camera tf\n";
         _camera_ptr->SetInvCameraModel(_tf_world_by_base);
     }
     */
+
+
+
+
+
     // rmBaseModel
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
 		_rm_BaseModel[i]->Update(ros_interface);
@@ -66,6 +73,7 @@ void Scene::KeyBoardEvent(int key){
 void Scene::KeyBoardEvent(unsigned char key){
 	_camera_ptr->keyEvents(key);
 
+    /*
 	switch (key)
 	{
 	case 'z':
@@ -87,6 +95,7 @@ void Scene::KeyBoardEvent(unsigned char key){
 	default:
 		break;
 	}
+    */
 }
 
 void Scene::MenuEvent(int item){

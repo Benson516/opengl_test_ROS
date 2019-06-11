@@ -435,7 +435,7 @@ void ViewManager::Reset()
     //
     camera_model_inv = mat4(1.0);
     // test
-    camera_model_inv = inverse(translate(glm::mat4(1.0), glm::vec3(69,-1396,6.67)));
+    // camera_model_inv = inverse(translate(glm::mat4(1.0), glm::vec3(69,-1396,6.67)));
 }
 
 /**
