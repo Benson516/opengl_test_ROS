@@ -44,12 +44,14 @@ void Scene::Update(ROS_INTERFACE &ros_interface){
     // Camera
     bool is_sucessed = false;
     glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("base", "map", is_sucessed, false) );
-    // glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("base", "map", is_sucessed, true) );
+    // glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("base", "map", is_sucessed, true ) );
     if (is_sucessed){
         std::cout << "Got the camera tf\n";
         _camera_ptr->SetInvCameraModel(_tf_world_by_base);
     }
     */
+
+
 
 
 
