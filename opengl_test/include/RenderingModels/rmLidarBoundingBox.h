@@ -4,7 +4,7 @@
 #include "rmBaseModel.h"
 
 namespace rmLidarBoundingBox_ns{
-    const GLshort box_idx_data[] = {
+    const GLuint box_idx_data[] = {
         0,1,2,
         2,3,0,
         5,6,2,

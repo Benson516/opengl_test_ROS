@@ -164,7 +164,7 @@ void My_Display()
     long long period_us = std::chrono::duration_cast<std::chrono::microseconds>(period).count();
     // std::cout << "execution time (ms): " << elapsed_us*0.001 << ",\t";
     // std::cout << "loop period (ms): " << period_us*0.001;
-    std::cout << "---\n";
+    // std::cout << "---\n";
 #endif
 }
 // end My_Display()

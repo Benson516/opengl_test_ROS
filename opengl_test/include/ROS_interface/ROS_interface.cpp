@@ -290,12 +290,12 @@ bool ROS_INTERFACE::update_current_slice_time(const std::string &ref_frame_in, c
     ros::Time _common_time;
     std::string err_str;
     tfBuffer._getLatestCommonTime(tfBuffer._lookupFrameNumber(ref_frame_in), tfBuffer._lookupFrameNumber(to_frame_in), _common_time, &err_str);
-    std::cout << "_common_time = " << _common_time.sec << ", " << _common_time.nsec << "\n";
+    // std::cout << "_common_time = " << _common_time.sec << ", " << _common_time.nsec << "\n";
     if (_common_time > _current_slice_time){
         _current_slice_time = _common_time;
         _is_using_current_slice_time = true;
     }
-    std::cout << "err_str = <" << err_str << ">\n";
+    // std::cout << "err_str = <" << err_str << ">\n";
     return true;
 }
 ros::Time ROS_INTERFACE::get_current_slice_time(){
@@ -490,7 +490,7 @@ void ROS_INTERFACE::_tfGeoPoseStamped_CB(const geometry_msgs::PoseStamped::Const
         _send_tf.transform.rotation.z = msg->pose.orientation.z;
         _send_tf.transform.rotation.w = msg->pose.orientation.w;
         tfBrocaster_ptr->sendTransform(_send_tf);
-        std::cout << "Recieve the tf\n";
+        // std::cout << "Recieve the tf\n";
         return;
     }
     // else

@@ -19,6 +19,8 @@ Scene::Scene(std::string pkg_path_in):
 
     // PointCloud
     _rm_BaseModel.push_back( std::shared_ptr<rmPointCloud>(new rmPointCloud(_Assets_path, int(MSG_ID::point_cloud_1)) ) );
+    // Lidar bounding box
+    _rm_BaseModel.push_back( std::shared_ptr<rmLidarBoundingBox>(new rmLidarBoundingBox(_Assets_path, int(MSG_ID::point_cloud_1)) ) );
 }
 
 void Scene::Render(){
