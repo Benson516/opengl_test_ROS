@@ -97,6 +97,12 @@ void My_Init()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	scene_ptr.reset(new Scene(ros_api.get_pkg_path()) );
+
+    // Enable depth test
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+	glDepthFunc(GL_LEQUAL);
+	glDepthRange(0.0f, 1.0f);
 }
 
 // GLUT callback. Called to draw the scene.
@@ -144,12 +150,13 @@ void My_Display()
 
     // OpenGL, GLUT
     //---------------------------------//
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     glViewport(0, 0, windows_width, windows_height); // <-- move to Draw()
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	scene_ptr->Render();
 
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearDepth(1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	scene_ptr->Render();
     glutSwapBuffers();
     //---------------------------------//
 
