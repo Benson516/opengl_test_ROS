@@ -61,6 +61,7 @@ namespace MSG{
         tfGeoPoseStamped,
         Image,
         ITRIPointCloud,
+        ITRI3DBoundingBox,
         NUM_MSG_TYPE
     };
 
@@ -180,6 +181,8 @@ public:
     bool get_Image(const int topic_id, std::shared_ptr<cv::Mat> & content_out_ptr);
     bool get_ITRIPointCloud(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out);
     bool get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr);
+    bool get_ITRI3DBoundingBox(const int topic_id, msgs::LidRoi & content_out);
+    bool get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::LidRoi > & content_out_ptr);
     //---------------------------------------------------------//
 
     // Sending methods for each type of message
@@ -188,6 +191,7 @@ public:
     bool send_string(const int topic_id, const std::string &content_in);
     bool send_Image(const int topic_id, const cv::Mat &content_in);
     bool send_ITRIPointCloud(const int topic_id, const pcl::PointCloud<pcl::PointXYZI> &content_in);
+    bool send_ITRI3DBoundingBox(const int topic_id, const msgs::LidRoi &content_in);
     //---------------------------------------------------------//
 
 
@@ -203,6 +207,7 @@ public:
     geometry_msgs::TransformStamped get_tf(const int topic_id, bool & is_sucessed, bool is_time_traveling=false, ros::Time lookup_stamp=ros::Time::now());
     //
     bool get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp);
+    bool get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::LidRoi > & content_out_ptr, ros::Time &msg_stamp);
     //---------------------------------------------------------//
 
 private:
@@ -298,6 +303,9 @@ private:
 
     // ITRIPointCloud ( converted to pcl::PointCloud<pcl::PointXYZI> in callback)
     std::vector< async_buffer< pcl::PointCloud<pcl::PointXYZI> > > buffer_list_ITRIPointCloud;
+
+    // ITRI3DBoundingBox
+    std::vector< async_buffer<msgs::LidRoi> > buffer_list_ITRI3DBoundingBox;
     //---------------------------------------------------------//
 
 
@@ -316,6 +324,9 @@ private:
     // ITRIPointCloud
     void _ITRIPointCloud_CB(const msgs::PointCloud::ConstPtr& msg, const MSG::T_PARAMS & params);
     std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > _cloud_tmp_ptr; // tmp cloud
+
+    // ITRI3DBoundingBox
+    void _ITRI3DBoundingBox_CB(const msgs::LidRoi::ConstPtr& msg, const MSG::T_PARAMS & params);
     //---------------------------------------------------------//
 
 }; // end of the class ROS_INTERFACE

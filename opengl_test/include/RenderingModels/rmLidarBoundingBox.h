@@ -34,7 +34,7 @@ protected:
     virtual void LoadModel();
     //
     int _ROS_topic_id;
-    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > pc_out_ptr;
+    std::shared_ptr< msgs::LidRoi > box3d_out_ptr;
     // ros::Time msg_time;
 
 private:

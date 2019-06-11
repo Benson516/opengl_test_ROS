@@ -218,6 +218,24 @@ void ROS_INTERFACE::_ROS_worker(){
         }
     }
 
+    // ITRI3DBoundingBox
+    _msg_type = int(MSG::M_TYPE::ITRI3DBoundingBox);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        buffer_list_ITRI3DBoundingBox.push_back( async_buffer<msgs::LidRoi>( _tmp_params.buffer_length ) );
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe<msgs::LidRoi>( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_ITRI3DBoundingBox_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise<msgs::LidRoi>( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
+
     //----------------------------------//
 
 
@@ -675,6 +693,56 @@ bool ROS_INTERFACE::send_ITRIPointCloud(const int topic_id, const pcl::PointClou
         msg.pointCloud[i].intensity = content_in.points[i].intensity;
     }
     //-------------------------//
+    _publisher_list[ _ps_id ].publish(msg);
+}
+//---------------------------------------------------------------//
+
+
+// ITRIPointCloud
+//---------------------------------------------------------------//
+// input
+void ROS_INTERFACE::_ITRI3DBoundingBox_CB(const msgs::LidRoi::ConstPtr& msg, const MSG::T_PARAMS & params){
+    // Type_id
+    //------------------------------------//
+    int _tid = _topic_tid_list[params.topic_id];
+    //------------------------------------//
+    //
+    bool result = buffer_list_ITRI3DBoundingBox[ _tid ].put( *msg);
+    if (!result){
+        std::cout << params.name << ": buffer full.\n";
+    }
+}
+bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, msgs::LidRoi & content_out){
+    // Type_id
+    //------------------------------------//
+    int _tid = _topic_tid_list[topic_id];
+    //------------------------------------//
+    return ( buffer_list_ITRI3DBoundingBox[_tid].front(content_out, true) );
+}
+bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::LidRoi > & content_out_ptr){
+    // Type_id
+    //------------------------------------//
+    int _tid = _topic_tid_list[topic_id];
+    //------------------------------------//
+    return ( buffer_list_ITRI3DBoundingBox[_tid].front(content_out_ptr, true) );
+}
+bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::LidRoi > & content_out_ptr, ros::Time &msg_stamp){
+    // Type_id
+    //------------------------------------//
+    int _tid = _topic_tid_list[topic_id];
+    //------------------------------------//
+    bool result = buffer_list_ITRI3DBoundingBox[_tid].front(content_out_ptr, true);
+    msg_stamp = toROStime( buffer_list_ITRI3DBoundingBox[_tid].get_stamp() );
+    return result;
+}
+bool ROS_INTERFACE::send_ITRI3DBoundingBox(const int topic_id, const msgs::LidRoi &content_in){
+    // pub_subs_id
+    //------------------------------------//
+    int _ps_id = _pub_subs_id_list[topic_id];
+    //------------------------------------//
+    // Content of the message
+    msgs::LidRoi msg;
+    msg = content_in;
     _publisher_list[ _ps_id ].publish(msg);
 }
 //---------------------------------------------------------------//

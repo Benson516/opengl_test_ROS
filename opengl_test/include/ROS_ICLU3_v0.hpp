@@ -22,11 +22,12 @@ enum class MSG_ID{
     camera_6,
     camera_7,
     camera_8,
-#endif
+#endif // __SUB_IMAGES__
     // ITRIPointCloud
 #ifdef __SUB_POINT_CLOUD__
     point_cloud_1,
-#endif // __SUB_IMAGES__
+#endif
+    lidar_bounding_box_1,
 };
 
 

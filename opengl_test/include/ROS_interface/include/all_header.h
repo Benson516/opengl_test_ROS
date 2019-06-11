@@ -36,6 +36,8 @@
 
 // MSG: ITRIPointCloud
 #include <msgs/PointCloud.h>
+// MSG: ITRI3DBoundingBox
+#include <msgs/LidRoi.h>
 //--------------------------------------------//
 
 // Core libraries

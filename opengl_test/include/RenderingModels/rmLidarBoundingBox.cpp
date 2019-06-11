@@ -101,6 +101,44 @@ void rmLidarBoundingBox::Update(float dt){
 }
 void rmLidarBoundingBox::Update(ROS_INTERFACE &ros_interface){
     // Update the data (uniform variables) here
+    // Update the data (uniform variables) here
+    glBindVertexArray(m_shape.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
+    // bool pc_result = ros_interface.get_ITRI3DBoundingBox( _ROS_topic_id, box3d_out_ptr);
+
+    // test, use transform
+    ros::Time msg_time;
+    bool pc_result = ros_interface.get_ITRI3DBoundingBox( _ROS_topic_id, box3d_out_ptr, msg_time);
+
+    // Note: We get the transform update even if there is no new content in for maximum smoothness
+    //      (the tf will update even there is no data)
+    bool tf_successed = false;
+    glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, false));
+    // glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, true, msg_time));
+    m_shape.model = _model_tf;
+    // Common::print_out_mat4(_model_tf);
+
+    if (pc_result){
+        size_t num_box = box3d_out_ptr->lidRoiBox.size();
+
+        m_shape.indexCount = num_box*_num_vertex_idx_per_box;
+        size_t offset_point = sizeof(msgs::PointXYZ);
+        // vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+        vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, m_shape.indexCount * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+    	for (size_t i = 0; i < num_box; i++)
+    	{
+            auto * _point_ptr = &(box3d_out_ptr->lidRoiBox[i].p0);
+            for (size_t _j=0; _j < _num_vertex_per_box; ++_j){
+                vertex_ptr[i*8+_j].position[0] = (_point_ptr + _j*offset_point)->x;
+        		vertex_ptr[i*8+_j].position[1] = (_point_ptr + _j*offset_point)->y;
+        		vertex_ptr[i*8+_j].position[2] = (_point_ptr + _j*offset_point)->z;
+        		vertex_ptr[i*8+_j].color[0] = 1.0f; // If we don't keep udating the color, the color will be lost when resizing the window.
+        		vertex_ptr[i*8+_j].color[1] = 1.0f;
+        		vertex_ptr[i*8+_j].color[2] = 1.0f;
+            }
+    	}
+    	glUnmapBuffer(GL_ARRAY_BUFFER);
+    }
 }
 void rmLidarBoundingBox::Render(std::shared_ptr<ViewManager> _camera_ptr){
 
