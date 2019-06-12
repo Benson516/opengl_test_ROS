@@ -5,8 +5,7 @@ uniform sampler2D tex;
 out vec4 color;
 
 
-in VS_OUT
-{
+in VS_OUT{
     vec4 color_transform;
     float alpha;
 	vec2 texcoord;

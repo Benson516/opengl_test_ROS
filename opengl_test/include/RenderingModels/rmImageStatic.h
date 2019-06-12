@@ -17,6 +17,10 @@ public:
     void Update(ROS_INTERFACE &ros_interface);
 	void Render(std::shared_ptr<ViewManager> _camera_ptr);
 
+    // Color transform
+    float _alpha;
+    glm::vec4 _color_transform;
+
 protected:
     void Init();
     virtual void LoadModel();
@@ -37,7 +41,7 @@ private:
     };
     Shape m_shape;
 
-    // 
+    //
     std::string textName;
 
 
@@ -46,6 +50,9 @@ private:
 	{
 		GLint  mv_matrix;
 		GLint  proj_matrix;
+        //
+        GLint  color_transform;
+		GLint  alpha;
 	} uniforms;
 
 

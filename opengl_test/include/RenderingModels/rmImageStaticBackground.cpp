@@ -35,7 +35,7 @@ void rmImageStaticBackground::Init(){
     //
 
     // Initialize variables
-    _alpha = 0.8;
+    _alpha = 1.0; // 0.7;
     _color_transform = glm::vec4(1.0f);
     //
 

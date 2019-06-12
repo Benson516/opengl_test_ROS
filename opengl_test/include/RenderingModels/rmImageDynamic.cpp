@@ -34,12 +34,19 @@ void rmImageDynamic::Init(){
 	_program_ptr->LinkProgram();
     //
 
+    // Initialize variables
+    // Init model matrices
+	m_shape.model = glm::mat4(1.0);
+    // Colors
+    _alpha = 0.7;
+    _color_transform = glm::vec4(1.0f);
+    //
+
     // Cache uniform variable id
 	uniforms.proj_matrix = glGetUniformLocation(_program_ptr->GetID(), "proj_matrix");
 	uniforms.mv_matrix = glGetUniformLocation(_program_ptr->GetID(), "mv_matrix");
-
-    // Init model matrices
-	m_shape.model = glm::mat4(1.0);
+    uniforms.color_transform = glGetUniformLocation(_program_ptr->GetID(), "color_transform");
+	uniforms.alpha = glGetUniformLocation(_program_ptr->GetID(), "alpha");
 
     //Load model to shader _program_ptr
 	LoadModel();
@@ -118,6 +125,9 @@ void rmImageDynamic::Render(std::shared_ptr<ViewManager> _camera_ptr){
     // The transformation matrices and projection matrices
     glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
+    //
+    glUniform1f(uniforms.alpha, _alpha);
+    glUniform4fv(uniforms.color_transform, 1, value_ptr(_color_transform) );
 
     // glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_shape.m_texture);
