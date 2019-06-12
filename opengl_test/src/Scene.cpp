@@ -31,6 +31,12 @@ Scene::Scene(std::string pkg_path_in):
     image_board_1_ptr->Scale( glm::vec3(3.5f));
     image_board_1_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _rm_BaseModel.push_back( image_board_1_ptr );
+
+    // Back ground image rmImageStaticBackGround
+    std::shared_ptr<rmImageStaticBackGround> _image_background_ptr(new rmImageStaticBackGround(_Assets_path, "view_1.jpg") );
+    _image_background_ptr->_alpha = 1.0;
+    _image_background_ptr->_color_transform = glm::vec4(0.1f);
+    _rm_BaseModel.push_back( _image_background_ptr );
 }
 
 void Scene::Render(){

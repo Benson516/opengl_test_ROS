@@ -15,6 +15,7 @@
 #include "rmPointCloud.h"
 #include "rmLidarBoundingBox.h"
 #include "rmImageStatic.h"
+#include "rmImageStaticBackGround.h"
 
 //
 
