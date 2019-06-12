@@ -6,7 +6,7 @@ rmPointCloud::rmPointCloud(std::string _path_Assets_in, int _ROS_topic_id_in):
 {
     _path_Assets = _path_Assets_in;
     _path_Shaders = _path_Assets + "Shaders/";
-    _max_num_vertex = 100000;
+    _max_num_vertex = 5000000; // 5*10^6 // 100000;
 	Init();
 }
 void rmPointCloud::Init(){
@@ -103,6 +103,9 @@ void rmPointCloud::Update(ROS_INTERFACE &ros_interface){
 
     if (pc_result){
         m_shape.indexCount = pc_out_ptr->width;
+        if (m_shape.indexCount > _max_num_vertex){
+            m_shape.indexCount = _max_num_vertex;
+        }
         // vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
         vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, m_shape.indexCount * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     	for (size_t i = 0; i < m_shape.indexCount; i++)
