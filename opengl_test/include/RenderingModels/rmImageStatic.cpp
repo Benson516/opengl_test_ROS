@@ -71,12 +71,14 @@ void rmImageStatic::LoadModel(){
     // Texture
 	// glEnable(GL_TEXTURE_2D);
 	// glActiveTexture(GL_TEXTURE0);
-    //Load texture data from file
-    std::cout << "start loading <" << textName << ">\n";
-	TextureData tdata = Common::Load_png(get_full_Assets_path(textName).c_str());
-	glGenTextures(1, &m_shape.m_texture);
+    glGenTextures(1, &m_shape.m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_shape.m_texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, tdata.width, tdata.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata.data);
+    if (textName != ""){
+        //Load texture data from file
+        std::cout << "start loading <" << textName << ">\n";
+    	TextureData tdata = Common::Load_png(get_full_Assets_path(textName).c_str());
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, tdata.width, tdata.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata.data);
+    }
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

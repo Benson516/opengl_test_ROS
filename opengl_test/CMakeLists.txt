@@ -131,6 +131,7 @@ set(ALL_RENDER_MODELS
     ${RENDER_MODEL_PATH}rmImageStatic.cpp
     ${RENDER_MODEL_PATH}rmImageStaticBackground.cpp
     ${RENDER_MODEL_PATH}rmImageDynamic.cpp
+    ${RENDER_MODEL_PATH}rmImageDynamicBackground.cpp
 )
 
 # Libraries

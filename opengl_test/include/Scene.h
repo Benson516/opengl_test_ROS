@@ -17,6 +17,7 @@
 #include "rmImageStatic.h"
 #include "rmImageStaticBackground.h"
 #include "rmImageDynamic.h"
+#include "rmImageDynamicBackground.h"
 
 //
 

@@ -1,4 +1,4 @@
-#include "rmImageDynamic.h"
+#include "rmImageDynamicBackground.h"
 
 static const GLfloat window_positions[] =
 {
@@ -10,49 +10,44 @@ static const GLfloat window_positions[] =
 };
 
 
-rmImageDynamic::rmImageDynamic(std::string _path_Assets_in, std::string image_file_in)
+rmImageDynamicBackground::rmImageDynamicBackground(std::string _path_Assets_in, std::string image_file_in)
 {
     _path_Assets = _path_Assets_in;
     _path_Shaders = _path_Assets + "Shaders/";
     textName = image_file_in;
 	Init();
 }
-rmImageDynamic::rmImageDynamic(std::string _path_Assets_in, int _ROS_topic_id_in):
+rmImageDynamicBackground::rmImageDynamicBackground(std::string _path_Assets_in, int _ROS_topic_id_in):
     _ROS_topic_id(_ROS_topic_id_in)
 {
     _path_Assets = _path_Assets_in;
     _path_Shaders = _path_Assets + "Shaders/";
 	Init();
 }
-void rmImageDynamic::Init(){
+void rmImageDynamicBackground::Init(){
     //
 	_program_ptr.reset( new ShaderProgram() );
     // Load shaders
-    _program_ptr->AttachShader(get_full_Shader_path("ImageDynamic.vs.glsl"), GL_VERTEX_SHADER);
-    _program_ptr->AttachShader(get_full_Shader_path("ImageDynamic.fs.glsl"), GL_FRAGMENT_SHADER);
+    _program_ptr->AttachShader(get_full_Shader_path("ImageDynamicBackground.vs.glsl"), GL_VERTEX_SHADER);
+    _program_ptr->AttachShader(get_full_Shader_path("ImageDynamicBackground.fs.glsl"), GL_FRAGMENT_SHADER);
     // Link _program_ptr
 	_program_ptr->LinkProgram();
     //
 
     // Initialize variables
-    // Init model matrices
-	m_shape.model = glm::mat4(1.0);
-    // Colors
-    _alpha = 0.7;
+    _alpha = 1.0; // 0.7;
     _color_transform = glm::vec4(1.0f);
     //
 
     // Cache uniform variable id
-	uniforms.proj_matrix = glGetUniformLocation(_program_ptr->GetID(), "proj_matrix");
-	uniforms.mv_matrix = glGetUniformLocation(_program_ptr->GetID(), "mv_matrix");
-    uniforms.color_transform = glGetUniformLocation(_program_ptr->GetID(), "color_transform");
+	uniforms.color_transform = glGetUniformLocation(_program_ptr->GetID(), "color_transform");
 	uniforms.alpha = glGetUniformLocation(_program_ptr->GetID(), "alpha");
 
     //Load model to shader _program_ptr
 	LoadModel();
 
 }
-void rmImageDynamic::LoadModel(){
+void rmImageDynamicBackground::LoadModel(){
     glGenVertexArrays(1, &m_shape.vao);
 	glBindVertexArray(m_shape.vao);
 
@@ -86,11 +81,10 @@ void rmImageDynamic::LoadModel(){
     std::cout << "Load texture success!\n";
 
 }
-void rmImageDynamic::Update(float dt){
+void rmImageDynamicBackground::Update(float dt){
     // Update the data (uniform variables) here
 }
-void rmImageDynamic::Update(ROS_INTERFACE &ros_interface){
-
+void rmImageDynamicBackground::Update(ROS_INTERFACE &ros_interface){
     // Update the data (uniform variables) here
     glBindVertexArray(m_shape.vao);
     glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
@@ -114,21 +108,15 @@ void rmImageDynamic::Update(ROS_INTERFACE &ros_interface){
         // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, flipped_image.width, flipped_image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, flipped_image.data);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, flipped_image.cols, flipped_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, flipped_image.data);
     }
-
-
 }
-void rmImageDynamic::Render(std::shared_ptr<ViewManager> _camera_ptr){
+void rmImageDynamicBackground::Render(std::shared_ptr<ViewManager> _camera_ptr){
 
     glBindVertexArray(m_shape.vao);
 	_program_ptr->UseProgram();
 
-    m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
-    // The transformation matrices and projection matrices
-    glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
-    glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
-    //
     glUniform1f(uniforms.alpha, _alpha);
     glUniform4fv(uniforms.color_transform, 1, value_ptr(_color_transform) );
+
 
     // glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_shape.m_texture);
