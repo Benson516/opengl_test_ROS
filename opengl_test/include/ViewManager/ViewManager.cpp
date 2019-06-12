@@ -7,6 +7,17 @@ using namespace glm;
 */
 ViewManager::ViewManager()
 {
+    // The window
+    w_width       = 10;
+    w_height      = 10;
+    // The viewport
+    v_ld_corner_x = 0;
+    v_ld_corner_y = 0;
+    v_width       = w_width;
+    v_height      = w_height;
+
+
+    // Flags
 	ortho = false;
 	zoom = 1.0f;
 	moveSpeed = 10.0f;
@@ -181,15 +192,15 @@ void ViewManager::keyEvents(unsigned char key) {
 * @param x 輸入的時, 滑鼠在畫面的x座標值。
 * @param y 輸入的時, 滑鼠在畫面的y座標值。
 */
-void ViewManager::mouseEvents(int button, int state, int x, int y) {
+void ViewManager::mouseEvents(int button, int state, int x_cv_g, int y_cv_g) {
 
 	if (state == GLUT_UP)
 	{
-		mouseReleaseEvent(button, x, y);
+		mouseReleaseEvent(button, x_cv_g, y_cv_g);
 	}
 	else if (state == GLUT_DOWN)
 	{
-		mousePressEvent(button, x, y);
+		mousePressEvent(button, x_cv_g, y_cv_g);
 	}
 
 	//處理滑鼠中鍵向上滾動時
@@ -210,30 +221,40 @@ void ViewManager::mouseEvents(int button, int state, int x, int y) {
 * @param x 輸入的時, 滑鼠在畫面的x座標值。
 * @param y 輸入的時, 滑鼠在畫面的y座標值。
 */
-void ViewManager::mousePressEvent(int button, int x, int y)
+void ViewManager::mousePressEvent(int button, int x_cv_g, int y_cv_g)
 {
+    // std::cout << "(x_cv_g, y_cv_g) = " << x_cv_g << ", " << y_cv_g << "\n";
+    int x_cv_l, y_cv_l;
+    convert_global_cv_coor_to_local_cv_coor(x_cv_g, y_cv_g, x_cv_l, y_cv_l);
+    // Note: the (x_cv_l,y_cv_l) in mouse is using the "image-coordinate", not the "opengl-coordinate"
+    // Out of boundery
+    // std::cout << "(x_cv_l, y_cv_l) = " << x_cv_l << ", " << y_cv_l << "\n";
+    if (is_mouse_out_of_bound(x_cv_l, y_cv_l)){
+        return;
+    }
+
 	if (button == GLUT_LEFT_BUTTON)
 	{
 		//紀錄現在左鍵被按住
 		lmbDown = true;
-		lmbDownCoord = vec2(x, y);
+		lmbDownCoord = vec2(x_cv_l, y_cv_l);
 		// mat4 invrtRot = inverse(rotationMatrix);
         // test
         // mat4 invrtRot = inverse(tansformMatrix);
 		// rotateYAxis = (invrtRot * vec4(0, 1, 0, 0)).xyz();
 		// rotateXAxis = (invrtRot * vec4(1, 0, 0, 0)).xyz();
 	}
-	else if (button == GLUT_MIDDLE_BUTTON)
+	if (button == GLUT_MIDDLE_BUTTON)
 	{
 		//紀錄現在中鍵被按住
 		midDown = true;
-		midDownCoord = vec2(x, y);
+		midDownCoord = vec2(x_cv_l, y_cv_l);
 	}
     if (button == GLUT_RIGHT_BUTTON)
 	{
 		//紀錄現在左鍵被按住
 		rmbDown = true;
-		rmbDownCoord = vec2(x, y);
+		rmbDownCoord = vec2(x_cv_l, y_cv_l);
 	}
 }
 
@@ -243,16 +264,21 @@ void ViewManager::mousePressEvent(int button, int x, int y)
 * @param x 輸入的時, 滑鼠在畫面的x座標值。
 * @param y 輸入的時, 滑鼠在畫面的y座標值。
 */
-void ViewManager::mouseReleaseEvent(int button, int x, int y)
+void ViewManager::mouseReleaseEvent(int button, int x_cv_g, int y_cv_g)
 {
+    /*
+    int x_cv_l, y_cv_l;
+    convert_global_cv_coor_to_local_cv_coor(x_cv_g, y_cv_g, x_cv_l, y_cv_l);
+    */
+
 	if (button == GLUT_LEFT_BUTTON)
 	{
 		lmbDown = false;
 	}
-	else if (button == GLUT_MIDDLE_BUTTON || button == 3 || button == 4) {
+    if (button == GLUT_MIDDLE_BUTTON || button == 3 || button == 4) {
 		midDown = false;
 	}
-    else if (button == GLUT_RIGHT_BUTTON)
+    if (button == GLUT_RIGHT_BUTTON)
 	{
 		rmbDown = false;
 	}
@@ -263,18 +289,21 @@ void ViewManager::mouseReleaseEvent(int button, int x, int y)
 * @param x 滑鼠在畫面的x座標值。
 * @param y 滑鼠在畫面的y座標值。
 */
-void ViewManager::mouseMoveEvent(int x, int y)
+void ViewManager::mouseMoveEvent(int x_cv_g, int y_cv_g)
 {
+    int x_cv_l, y_cv_l;
+    convert_global_cv_coor_to_local_cv_coor(x_cv_g, y_cv_g, x_cv_l, y_cv_l);
+
 	if (lmbDown)
 	{
 		/*
 		* 當滑鼠左鍵按住,進行拖曳時的時候
 		* 計算移動的向量,進行相機的旋轉
 		*/
-		vec2 coord = vec2(x, y);
+		vec2 coord = vec2(x_cv_l, y_cv_l);
 		vec2 diff = coord - lmbDownCoord;
 		float factor = 0.002f;
-		// vec3 rotateAxis = (diff.x * factor)*rotateYAxis + (diff.y * factor)*rotateXAxis;
+		// vec3 rotateAxis = (diff.x_cv_l * factor)*rotateYAxis + (diff.y * factor)*rotateXAxis;
         vec3 rotateAxis = (diff.x * factor)*vec3(0,1,0) + (diff.y * factor)*vec3(1,0,0);
         double _n = l2Norm(rotateAxis);
 		// rotateAxis = normalize(rotateAxis); // <-- no need to do this, since the rotate will ignore the norm of the axis
@@ -288,14 +317,14 @@ void ViewManager::mouseMoveEvent(int x, int y)
 	}
 	else if (midDown)
 	{
-		vec2 coord = vec2(x, y);
+		vec2 coord = vec2(x_cv_l, y_cv_l);
 		vec2 diff = coord - midDownCoord;
 
 		vec4 up = vec4(0, 1, 0, 0);
 		vec4 right = vec4(1, 0, 0, 0);
 
-		vec3 diffUp = up.xyz() * diff.y / (float)w_height;
-		vec3 diffRight = right.xyz() * diff.x / (float)w_width;
+		vec3 diffUp = up.xyz() * diff.y / (float)v_height;
+		vec3 diffRight = right.xyz() * diff.x / (float)v_width;
 
 		// translationMatrix = translate(translationMatrix, (-diffUp + diffRight) * zoom * 3.0f);
         // test
@@ -305,11 +334,11 @@ void ViewManager::mouseMoveEvent(int x, int y)
         //
 		midDownCoord = coord;
 	}else if (rmbDown){
-        vec2 coord = vec2(x, y);
+        vec2 coord = vec2(x_cv_l, y_cv_l);
         // std::cout << "coord = " << coord.x << ", " << coord.y << "\n";
 		vec2 diff = coord - rmbDownCoord;
         //
-        vec2 _central = vec2(w_width/2, w_height/2);
+        vec2 _central = vec2(v_width/2, v_height/2) + glm::vec2(v_ld_corner_x,v_ld_corner_y);
         float factor = 0.002f;
         //
         vec3 _axis = cross(vec3(diff,0)*factor, vec3(coord - _central,0)*factor);
@@ -358,9 +387,21 @@ void ViewManager::Zoom(float distance)
 * @param height 螢幕的高。
 */
 void ViewManager::SetWindowSize(int width, int height) {
-	w_width = width;
-	w_height = height;
+	v_width = width;
+	v_height = height;
+    w_width = width;
+    w_height = height;
     aspect = width * 1.0/height;
+	projMatrix = GetProjectionMatrix();
+}
+void ViewManager::SetWindowSize(int ld_corner_x, int ld_corner_y, int viewport_width, int viewport_height, int full_window_width, int full_window_height){
+    v_ld_corner_x = ld_corner_x;
+    v_ld_corner_y = ld_corner_y;
+    v_width = viewport_width;
+	v_height = viewport_height;
+    w_width = full_window_width;
+    w_height = full_window_height;
+    aspect = viewport_width * 1.0/viewport_height;
 	projMatrix = GetProjectionMatrix();
 }
 
@@ -449,8 +490,8 @@ void ViewManager::Translate(vec3 vec) {
 	vec4 right = vec4(1, 0, 0, 0);
 	vec4 forward = vec4(0, 0, 1, 0);
 
-	vec3 diffUp = up.xyz() * diff.y / (float)w_height;
-	vec3 diffRight = right.xyz() * diff.x / (float)w_width;
+	vec3 diffUp = up.xyz() * diff.y / (float)v_height;
+	vec3 diffRight = right.xyz() * diff.x / (float)v_width;
 	vec3 diffForward = forward.xyz() * diff.z;
 
 	translationMatrix = translate(translationMatrix, (-diffUp + diffRight + diffForward) * zoom * 3.0f);
@@ -458,4 +499,21 @@ void ViewManager::Translate(vec3 vec) {
     glm::mat4 _delta_trans(1.0);
     _delta_trans = translate(_delta_trans, (-diffUp + diffRight + diffForward) * zoom * 3.0f);
     tansformMatrix = _delta_trans*tansformMatrix;
+}
+
+
+
+
+bool ViewManager::is_mouse_out_of_bound(int x_cv_l, int y_cv_l){
+    int x_gl = x_cv_l;
+    int y_gl = v_height - y_cv_l;
+    if (x_gl < 0 || y_gl < 0 || x_gl >= v_width || y_gl >= v_height){
+        std::cout << "Out of bound.\n";
+        return true;
+    }
+    return false;
+}
+void ViewManager::convert_global_cv_coor_to_local_cv_coor(int x_cv_g, int y_cv_g, int &x_cv_l, int & y_cv_l){
+    x_cv_l = x_cv_g - v_ld_corner_x;
+    y_cv_l = y_cv_g - (w_height - (v_ld_corner_y + v_height));
 }

@@ -48,7 +48,8 @@ public:
 	void SetZoom(float value);
     void SetRotation(float theta, float phi);
     void SetRotation(float x, float y, float z);
-	void SetWindowSize(int width, int height);
+	void SetWindowSize(int viewport_width, int viewport_height);
+    void SetWindowSize(int ld_corner_x, int ld_corner_y, int viewport_width, int viewport_height, int full_window_width, int full_window_height);
     //
     void SetCameraModel(glm::mat4 camera_model_in);
     void SetInvCameraModel(glm::mat4 camera_model_inv_in);
@@ -56,6 +57,9 @@ public:
     bool ToggleOrtho() { return ortho = !ortho; }
     void Zoom(float distance);
     void Reset();
+
+    bool is_mouse_out_of_bound(int x_cv, int y_cv);
+    void convert_global_cv_coor_to_local_cv_coor(int x_cv_g, int y_cv_g, int &x_cv_l, int & y_cv_l);
 
 
 private:
@@ -84,8 +88,16 @@ private:
 	glm::vec2 midDownCoord;			///< 紀錄滑鼠中鍵點擊時的座標。
     glm::vec2 rmbDownCoord;			///< 紀錄滑鼠左鍵點擊時的座標。
 
-	int w_width;					///< 紀錄螢幕的寬。
-	int w_height;					///< 紀錄螢幕的高。
+    // The window
+    int w_width;					// The width of the window
+	int w_height;					// The height of the window
+    // The viewport
+    int v_ld_corner_x;              // The left-down corner of the current viewport
+    int v_ld_corner_y;              // The left-down corner of the current viewport
+    int v_width;                    // The viewport width
+    int v_height;                   // The viewport height
+
+
 	float wheel_val;				///< 紀錄滾輪的值。
 };
 
