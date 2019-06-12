@@ -22,8 +22,8 @@ void main(void)
     // vec4 color_ = size * color * 1.0;
     // color_.r = 0.0;
     // color_.g = 0.0;
-    // color_.a = 0.6;
-    color_.a = 0.8;
+    color_.a = 0.6;
+    // color_.a = 0.8;
     starColor = color_;
 
     newVertex = proj_matrix * newVertex;
