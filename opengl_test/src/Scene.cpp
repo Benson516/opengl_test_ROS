@@ -8,8 +8,6 @@ Scene::Scene(std::string pkg_path_in):
 {
 	_camera_ptr.reset(new ViewManager());
 
-
-
     // BaseModel
 	std::shared_ptr<rmBaseModel> bottle( new rmBaseModel(_Assets_path, "Potion_bottle.obj", "bottle_mana.png") );
 	std::shared_ptr<rmBaseModel> box( new rmBaseModel(_Assets_path, "box_realistic.obj", "box_texture_color.png") );
@@ -24,6 +22,15 @@ Scene::Scene(std::string pkg_path_in):
 
     // Lidar bounding box
     _rm_BaseModel.push_back( std::shared_ptr<rmLidarBoundingBox>(new rmLidarBoundingBox(_Assets_path, int(MSG_ID::lidar_bounding_box_1)) ) );
+
+    // static image
+    std::shared_ptr<rmImageStatic> image_board_1_ptr(new rmImageStatic(_Assets_path, "clownfish4.png") );
+    image_board_1_ptr->Translate(glm::vec3(0.0f, 0.0f, 3.0f));
+    image_board_1_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
+    image_board_1_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
+    image_board_1_ptr->Scale( glm::vec3(3.5f));
+    image_board_1_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    _rm_BaseModel.push_back( image_board_1_ptr );
 }
 
 void Scene::Render(){

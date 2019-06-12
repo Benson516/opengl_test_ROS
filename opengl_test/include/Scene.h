@@ -14,6 +14,7 @@
 #include "rmBaseModel.h"
 #include "rmPointCloud.h"
 #include "rmLidarBoundingBox.h"
+#include "rmImageStatic.h"
 
 //
 
