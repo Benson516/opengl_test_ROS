@@ -1,5 +1,5 @@
-#ifndef RM_IMAGE_STATIC_BACK_GROUND_H
-#define RM_IMAGE_STATIC_BACK_GROUND_H
+#ifndef RM_IMAGE_STATIC_BACKGROUND_H
+#define RM_IMAGE_STATIC_BACKGROUND_H
 
 #include "rmBaseModel.h"
 
@@ -7,11 +7,11 @@
 
 
 
-class rmImageStaticBackGround : public rmBaseModel
+class rmImageStaticBackground : public rmBaseModel
 {
 public:
-    rmImageStaticBackGround(std::string _path_Assets_in, std::string image_file_in);
-    rmImageStaticBackGround(std::string _path_Assets_in, int _ROS_topic_id_in);
+    rmImageStaticBackground(std::string _path_Assets_in, std::string image_file_in);
+    rmImageStaticBackground(std::string _path_Assets_in, int _ROS_topic_id_in);
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
@@ -56,4 +56,4 @@ private:
 
 };
 
-#endif // RM_IMAGE_STATIC_BACK_GROUND_H
+#endif // RM_IMAGE_STATIC_BACKGROUND_H

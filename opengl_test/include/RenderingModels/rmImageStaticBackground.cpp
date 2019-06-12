@@ -1,4 +1,4 @@
-#include "rmImageStaticBackGround.h"
+#include "rmImageStaticBackground.h"
 
 static const GLfloat window_positions[] =
 {
@@ -10,21 +10,21 @@ static const GLfloat window_positions[] =
 };
 
 
-rmImageStaticBackGround::rmImageStaticBackGround(std::string _path_Assets_in, std::string image_file_in)
+rmImageStaticBackground::rmImageStaticBackground(std::string _path_Assets_in, std::string image_file_in)
 {
     _path_Assets = _path_Assets_in;
     _path_Shaders = _path_Assets + "Shaders/";
     textName = image_file_in;
 	Init();
 }
-rmImageStaticBackGround::rmImageStaticBackGround(std::string _path_Assets_in, int _ROS_topic_id_in):
+rmImageStaticBackground::rmImageStaticBackground(std::string _path_Assets_in, int _ROS_topic_id_in):
     _ROS_topic_id(_ROS_topic_id_in)
 {
     _path_Assets = _path_Assets_in;
     _path_Shaders = _path_Assets + "Shaders/";
 	Init();
 }
-void rmImageStaticBackGround::Init(){
+void rmImageStaticBackground::Init(){
     //
 	_program_ptr.reset( new ShaderProgram() );
     // Load shaders
@@ -47,7 +47,7 @@ void rmImageStaticBackGround::Init(){
 	LoadModel();
 
 }
-void rmImageStaticBackGround::LoadModel(){
+void rmImageStaticBackground::LoadModel(){
     glGenVertexArrays(1, &m_shape.vao);
 	glBindVertexArray(m_shape.vao);
 
@@ -79,13 +79,13 @@ void rmImageStaticBackGround::LoadModel(){
     std::cout << "Load texture success!\n";
 
 }
-void rmImageStaticBackGround::Update(float dt){
+void rmImageStaticBackground::Update(float dt){
     // Update the data (uniform variables) here
 }
-void rmImageStaticBackGround::Update(ROS_INTERFACE &ros_interface){
+void rmImageStaticBackground::Update(ROS_INTERFACE &ros_interface){
     // Update the data (uniform variables) here
 }
-void rmImageStaticBackGround::Render(std::shared_ptr<ViewManager> _camera_ptr){
+void rmImageStaticBackground::Render(std::shared_ptr<ViewManager> _camera_ptr){
 
     glBindVertexArray(m_shape.vao);
 	_program_ptr->UseProgram();

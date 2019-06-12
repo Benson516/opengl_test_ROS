@@ -129,7 +129,7 @@ set(ALL_RENDER_MODELS
     ${RENDER_MODEL_PATH}rmPointCloud.cpp
     ${RENDER_MODEL_PATH}rmLidarBoundingBox.cpp
     ${RENDER_MODEL_PATH}rmImageStatic.cpp
-    ${RENDER_MODEL_PATH}rmImageStaticBackGround.cpp
+    ${RENDER_MODEL_PATH}rmImageStaticBackground.cpp
 )
 
 # Libraries
