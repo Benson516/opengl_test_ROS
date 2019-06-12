@@ -127,15 +127,70 @@ void rmLidarBoundingBox::Update(ROS_INTERFACE &ros_interface){
         vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, m_shape.indexCount * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     	for (size_t i = 0; i < num_box; i++)
     	{
+            size_t _j = 0;
             auto * _point_ptr = &(box3d_out_ptr->lidRoiBox[i].p0);
-            for (size_t _j=0; _j < _num_vertex_per_box; ++_j){
-                vertex_ptr[i*8+_j].position[0] = (_point_ptr + _j*offset_point)->x;
-        		vertex_ptr[i*8+_j].position[1] = (_point_ptr + _j*offset_point)->y;
-        		vertex_ptr[i*8+_j].position[2] = (_point_ptr + _j*offset_point)->z;
-        		vertex_ptr[i*8+_j].color[0] = 1.0f; // If we don't keep udating the color, the color will be lost when resizing the window.
-        		vertex_ptr[i*8+_j].color[1] = 1.0f;
-        		vertex_ptr[i*8+_j].color[2] = 1.0f;
-            }
+            vertex_ptr[i*8+_j].position[0] = (_point_ptr)->x;
+            vertex_ptr[i*8+_j].position[1] = (_point_ptr)->y;
+            vertex_ptr[i*8+_j].position[2] = (_point_ptr )->z;
+            vertex_ptr[i*8+_j].color[0] = 1.0f; // If we don't keep udating the color, the color will be lost when resizing the window.
+            vertex_ptr[i*8+_j].color[1] = 1.0f;
+            vertex_ptr[i*8+_j].color[2] = 1.0f;
+            _j++;
+            _point_ptr = &(box3d_out_ptr->lidRoiBox[i].p1);
+            vertex_ptr[i*8+_j].position[0] = (_point_ptr)->x;
+            vertex_ptr[i*8+_j].position[1] = (_point_ptr)->y;
+            vertex_ptr[i*8+_j].position[2] = (_point_ptr )->z;
+            vertex_ptr[i*8+_j].color[0] = 1.0f; // If we don't keep udating the color, the color will be lost when resizing the window.
+            vertex_ptr[i*8+_j].color[1] = 1.0f;
+            vertex_ptr[i*8+_j].color[2] = 1.0f;
+            _j++;
+            _point_ptr = &(box3d_out_ptr->lidRoiBox[i].p2);
+            vertex_ptr[i*8+_j].position[0] = (_point_ptr)->x;
+            vertex_ptr[i*8+_j].position[1] = (_point_ptr)->y;
+            vertex_ptr[i*8+_j].position[2] = (_point_ptr )->z;
+            vertex_ptr[i*8+_j].color[0] = 1.0f; // If we don't keep udating the color, the color will be lost when resizing the window.
+            vertex_ptr[i*8+_j].color[1] = 1.0f;
+            vertex_ptr[i*8+_j].color[2] = 1.0f;
+            _j++;
+            _point_ptr = &(box3d_out_ptr->lidRoiBox[i].p3);
+            vertex_ptr[i*8+_j].position[0] = (_point_ptr)->x;
+            vertex_ptr[i*8+_j].position[1] = (_point_ptr)->y;
+            vertex_ptr[i*8+_j].position[2] = (_point_ptr )->z;
+            vertex_ptr[i*8+_j].color[0] = 1.0f; // If we don't keep udating the color, the color will be lost when resizing the window.
+            vertex_ptr[i*8+_j].color[1] = 1.0f;
+            vertex_ptr[i*8+_j].color[2] = 1.0f;
+            _j++;
+            _point_ptr = &(box3d_out_ptr->lidRoiBox[i].p4);
+            vertex_ptr[i*8+_j].position[0] = (_point_ptr)->x;
+            vertex_ptr[i*8+_j].position[1] = (_point_ptr)->y;
+            vertex_ptr[i*8+_j].position[2] = (_point_ptr )->z;
+            vertex_ptr[i*8+_j].color[0] = 1.0f; // If we don't keep udating the color, the color will be lost when resizing the window.
+            vertex_ptr[i*8+_j].color[1] = 1.0f;
+            vertex_ptr[i*8+_j].color[2] = 1.0f;
+            _j++;
+            _point_ptr = &(box3d_out_ptr->lidRoiBox[i].p5);
+            vertex_ptr[i*8+_j].position[0] = (_point_ptr)->x;
+            vertex_ptr[i*8+_j].position[1] = (_point_ptr)->y;
+            vertex_ptr[i*8+_j].position[2] = (_point_ptr )->z;
+            vertex_ptr[i*8+_j].color[0] = 1.0f; // If we don't keep udating the color, the color will be lost when resizing the window.
+            vertex_ptr[i*8+_j].color[1] = 1.0f;
+            vertex_ptr[i*8+_j].color[2] = 1.0f;
+            _j++;
+            _point_ptr = &(box3d_out_ptr->lidRoiBox[i].p6);
+            vertex_ptr[i*8+_j].position[0] = (_point_ptr)->x;
+            vertex_ptr[i*8+_j].position[1] = (_point_ptr)->y;
+            vertex_ptr[i*8+_j].position[2] = (_point_ptr )->z;
+            vertex_ptr[i*8+_j].color[0] = 1.0f; // If we don't keep udating the color, the color will be lost when resizing the window.
+            vertex_ptr[i*8+_j].color[1] = 1.0f;
+            vertex_ptr[i*8+_j].color[2] = 1.0f;
+            _j++;
+            _point_ptr = &(box3d_out_ptr->lidRoiBox[i].p7);
+            vertex_ptr[i*8+_j].position[0] = (_point_ptr)->x;
+            vertex_ptr[i*8+_j].position[1] = (_point_ptr)->y;
+            vertex_ptr[i*8+_j].position[2] = (_point_ptr )->z;
+            vertex_ptr[i*8+_j].color[0] = 1.0f; // If we don't keep udating the color, the color will be lost when resizing the window.
+            vertex_ptr[i*8+_j].color[1] = 1.0f;
+            vertex_ptr[i*8+_j].color[2] = 1.0f;
     	}
     	glUnmapBuffer(GL_ARRAY_BUFFER);
     }
