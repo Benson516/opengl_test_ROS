@@ -4,7 +4,6 @@ layout(location = 0) in vec4 position;
 layout(location = 1) in vec4 color;
 
 // uniform float time;
-//
 uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
 
@@ -24,6 +23,7 @@ void main(void)
     // color_.r = 0.0;
     // color_.g = 0.0;
     color_.a = 0.6;
+    // color_.a = 0.8;
     starColor = color_;
 
     newVertex = proj_matrix * newVertex;

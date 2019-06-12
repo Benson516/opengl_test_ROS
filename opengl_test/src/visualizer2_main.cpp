@@ -20,7 +20,7 @@ using namespace std;
 
 //
 #define __DEBUG__
-#define __OPENCV_WINDOW__
+// #define __OPENCV_WINDOW__
 
 
 // The following is for point-sprite
@@ -151,6 +151,7 @@ void My_Display()
     // OpenGL, GLUT
     //---------------------------------//
     glViewport(0, 0, windows_width, windows_height); // <-- move to Draw()
+    // glViewport(100, 100, windows_width/2, windows_height/2); // <-- move to Draw()
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth(1.0f);
@@ -182,7 +183,8 @@ void My_Reshape(int width, int height)
     windows_width = width;
     windows_height = height;
     // glViewport(0, 0, windows_width, windows_height); // <-- move to Draw()
-	scene_ptr->GetCamera()->SetWindowSize(windows_width, windows_height);
+    scene_ptr->GetCamera()->SetWindowSize(0, 0, windows_width, windows_height, windows_width, windows_height);
+	// scene_ptr->GetCamera()->SetWindowSize(100, 100, windows_width/2, windows_height/2, windows_width, windows_height);
 }
 
 //Timer event

@@ -39,6 +39,10 @@ protected:
     std::string _path_Shaders;
 	std::shared_ptr<ShaderProgram> _program_ptr;
     //
+    glm::mat4 translateMatrix;
+	glm::mat4 rotateMatrix;
+	glm::mat4 scaleMatrix;
+    //
 	//
     virtual void Init();
     virtual void LoadModel();
@@ -55,17 +59,14 @@ private:
         //
         int materialId;
         int indexCount;
-    
+
         glm::mat4 model;
     };
     Shape m_shape;
     //
     std::string objName;
 	std::string textName;
-    //
-    glm::mat4 translateMatrix;
-	glm::mat4 rotateMatrix;
-	glm::mat4 scaleMatrix;
+
 
     //uniform id
 	struct
