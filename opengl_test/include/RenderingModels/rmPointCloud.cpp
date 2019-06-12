@@ -6,7 +6,7 @@ rmPointCloud::rmPointCloud(std::string _path_Assets_in, int _ROS_topic_id_in):
 {
     _path_Assets = _path_Assets_in;
     _path_Shaders = _path_Assets + "Shaders/";
-    _num_points = 100000;
+    _max_num_vertex = 100000;
 	Init();
 }
 void rmPointCloud::Init(){
@@ -37,35 +37,34 @@ void rmPointCloud::LoadModel(){
 
 	glGenBuffers(1, &m_shape.vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo);
-	// glBufferData(GL_ARRAY_BUFFER, _num_points * sizeof(star_t), NULL, GL_STATIC_DRAW);
-	glBufferData(GL_ARRAY_BUFFER, _num_points * sizeof(star_t), NULL, GL_DYNAMIC_DRAW); // test, change to dynamic draw to assign point cloud
+	// glBufferData(GL_ARRAY_BUFFER, _max_num_vertex * sizeof(vertex_p_c), NULL, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, _max_num_vertex * sizeof(vertex_p_c), NULL, GL_DYNAMIC_DRAW); // test, change to dynamic draw to assign point cloud
 
     // Directly assign data to memory of GPU
     //--------------------------------------------//
-	star_t * star = (star_t *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _num_points * sizeof(star_t), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+	vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 	int i;
-	for (i = 0; i < _num_points; i++)
+	for (i = 0; i < _max_num_vertex; i++)
 	{
-		star[i].position[0] = (random_float() * 2.0f - 1.0f) * 100.0f;
-		star[i].position[1] = (random_float() * 2.0f - 1.0f) * 100.0f;
-		star[i].position[2] = random_float();
-		star[i].color[0] = 1.0f; //  + random_float() * 0.2f;
-		star[i].color[1] = 1.0f; //  + random_float() * 0.2f;
-		star[i].color[2] = 1.0f; //  + random_float() * 0.2f;
+		vertex_ptr[i].position[0] = (random_float() * 2.0f - 1.0f) * 100.0f;
+		vertex_ptr[i].position[1] = (random_float() * 2.0f - 1.0f) * 100.0f;
+		vertex_ptr[i].position[2] = random_float();
+		vertex_ptr[i].color[0] = 1.0f; //  + random_float() * 0.2f;
+		vertex_ptr[i].color[1] = 1.0f; //  + random_float() * 0.2f;
+		vertex_ptr[i].color[2] = 1.0f; //  + random_float() * 0.2f;
 	}
 	glUnmapBuffer(GL_ARRAY_BUFFER);
-    m_shape.indexCount = _num_points;
+    m_shape.indexCount = _max_num_vertex;
     //--------------------------------------------//
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(star_t), NULL);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(star_t), (void *)sizeof(glm::vec3));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_p_c), NULL);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_p_c), (void *)sizeof(glm::vec3));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	glEnable(GL_TEXTURE_2D);
-	glActiveTexture(GL_TEXTURE0);
-
 
     // Texture
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
     //Load texture data from file
     std::string _texture_1("star.png");
     std::cout << "start loading <" << _texture_1 << ">\n";
@@ -103,17 +102,17 @@ void rmPointCloud::Update(ROS_INTERFACE &ros_interface){
     // Common::print_out_mat4(_model_tf);
 
     if (pc_result){
-        star_t * star = (star_t *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _num_points * sizeof(star_t), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-        // num_points = pc_out.width;
         m_shape.indexCount = pc_out_ptr->width;
+        // vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+        vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, m_shape.indexCount * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     	for (size_t i = 0; i < m_shape.indexCount; i++)
     	{
-            star[i].position[0] = pc_out_ptr->points[i].x;
-    		star[i].position[1] = pc_out_ptr->points[i].y;
-    		star[i].position[2] = pc_out_ptr->points[i].z;
-    		star[i].color[0] = 1.0f; // If we don't keep udating the color, the color will be lost when resizing the window.
-    		star[i].color[1] = 1.0f;
-    		star[i].color[2] = 1.0f;
+            vertex_ptr[i].position[0] = pc_out_ptr->points[i].x;
+    		vertex_ptr[i].position[1] = pc_out_ptr->points[i].y;
+    		vertex_ptr[i].position[2] = pc_out_ptr->points[i].z;
+    		vertex_ptr[i].color[0] = 1.0f; // If we don't keep udating the color, the color will be lost when resizing the window.
+    		vertex_ptr[i].color[1] = 1.0f;
+    		vertex_ptr[i].color[2] = 1.0f;
     	}
     	glUnmapBuffer(GL_ARRAY_BUFFER);
     }

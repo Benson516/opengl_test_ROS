@@ -8,6 +8,8 @@ Scene::Scene(std::string pkg_path_in):
 {
 	_camera_ptr.reset(new ViewManager());
 
+
+
     // BaseModel
 	std::shared_ptr<rmBaseModel> bottle( new rmBaseModel(_Assets_path, "Potion_bottle.obj", "bottle_mana.png") );
 	std::shared_ptr<rmBaseModel> box( new rmBaseModel(_Assets_path, "box_realistic.obj", "box_texture_color.png") );
@@ -19,15 +21,23 @@ Scene::Scene(std::string pkg_path_in):
 
     // PointCloud
     _rm_BaseModel.push_back( std::shared_ptr<rmPointCloud>(new rmPointCloud(_Assets_path, int(MSG_ID::point_cloud_1)) ) );
+
+    // Lidar bounding box
+    _rm_BaseModel.push_back( std::shared_ptr<rmLidarBoundingBox>(new rmLidarBoundingBox(_Assets_path, int(MSG_ID::lidar_bounding_box_1)) ) );
 }
 
 void Scene::Render(){
+
+
+
+    glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
 		_rm_BaseModel[i]->Render(_camera_ptr);
 	}
     glDisable(GL_BLEND);
+    // glDisable(GL_DEPTH_TEST);
 }
 void Scene::Update(float dt){
     // rmBaseModel
