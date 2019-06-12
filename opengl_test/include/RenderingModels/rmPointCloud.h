@@ -12,6 +12,8 @@ public:
     void Update(ROS_INTERFACE &ros_interface);
 	void Render(std::shared_ptr<ViewManager> _camera_ptr);
 
+    void set_color(glm::vec3 color_in);
+
 protected:
     void Init();
     virtual void LoadModel();
@@ -28,6 +30,8 @@ private:
         GLuint m_texture;
         //
         int indexCount;
+        //
+        glm::vec3 color;
 
         glm::mat4 model;
     };
