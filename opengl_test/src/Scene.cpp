@@ -26,6 +26,7 @@ Scene::Scene(std::string pkg_path_in):
     // static image
     std::shared_ptr<rmImageStatic> image_board_1_ptr(new rmImageStatic(_Assets_path, "clownfish4.png") );
     image_board_1_ptr->Translate(glm::vec3(5.0f, 0.0f, 3.0f));
+    image_board_1_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     image_board_1_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
     image_board_1_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
     image_board_1_ptr->Scale( glm::vec3(3.5f));
@@ -42,7 +43,9 @@ Scene::Scene(std::string pkg_path_in):
 
     // std::shared_ptr<rmImageDynamic> dynamic_image_board_1_ptr(new rmImageDynamic(_Assets_path, "view_1.jpg") );
     std::shared_ptr<rmImageDynamic> dynamic_image_board_1_ptr(new rmImageDynamic(_Assets_path, int(MSG_ID::camera_0)) );
-    dynamic_image_board_1_ptr->Translate(glm::vec3(0.0f, 0.0f, 3.0f));
+    dynamic_image_board_1_ptr->Translate(glm::vec3(0.0f, -10.0f, 3.0f));
+    dynamic_image_board_1_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), -M_PI/6.0); // view angle
+    dynamic_image_board_1_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     dynamic_image_board_1_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
     dynamic_image_board_1_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
     dynamic_image_board_1_ptr->Scale( glm::vec3(3.5f));

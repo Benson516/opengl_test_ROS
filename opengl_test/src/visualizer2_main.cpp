@@ -20,7 +20,7 @@ using namespace std;
 
 //
 #define __DEBUG__
-#define __OPENCV_WINDOW__
+// #define __OPENCV_WINDOW__
 
 
 // The following is for point-sprite
