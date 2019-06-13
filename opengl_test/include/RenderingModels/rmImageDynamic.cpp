@@ -12,16 +12,14 @@ static const GLfloat window_positions[] =
 
 rmImageDynamic::rmImageDynamic(std::string _path_Assets_in, std::string image_file_in)
 {
-    _path_Assets = _path_Assets_in;
-    _path_Shaders = _path_Assets + "Shaders/";
+    init_paths(_path_Assets_in);
     textName = image_file_in;
 	Init();
 }
 rmImageDynamic::rmImageDynamic(std::string _path_Assets_in, int _ROS_topic_id_in):
     _ROS_topic_id(_ROS_topic_id_in)
 {
-    _path_Assets = _path_Assets_in;
-    _path_Shaders = _path_Assets + "Shaders/";
+    init_paths(_path_Assets_in);
 	Init();
 }
 void rmImageDynamic::Init(){

@@ -1,17 +1,26 @@
 #include "rmBaseModel.h"
 
 
-rmBaseModel::rmBaseModel(){
+rmBaseModel::rmBaseModel():
+    // Note: The following field will be shared across all derived classes
+    //       However, each serived class can modify this on their own.
+    _path_Assets_sub_dir(""),
+    _path_Shaders_sub_dir("Shaders/")
+{
     // The derived class will call this instead of the other constructor if we don't add the constructor in field of derived class.
 }
-rmBaseModel::rmBaseModel(std::string _path_Assets_in){
-    _path_Assets = _path_Assets_in;
-    _path_Shaders = _path_Assets + "Shaders/";
+rmBaseModel::rmBaseModel(std::string _path_Assets_in):
+    _path_Assets_sub_dir(""),
+    _path_Shaders_sub_dir("Shaders/")
+{
+    init_paths(_path_Assets_in);
 	Init();
 }
-rmBaseModel::rmBaseModel(std::string _path_Assets_in, std::string modelFile, std::string textFile){
-    _path_Assets = _path_Assets_in;
-    _path_Shaders = _path_Assets + "Shaders/";
+rmBaseModel::rmBaseModel(std::string _path_Assets_in, std::string modelFile, std::string textFile):
+    _path_Assets_sub_dir(""),
+    _path_Shaders_sub_dir("Shaders/")
+{
+    init_paths(_path_Assets_in);
     objName = modelFile;
     textName = textFile;
 	Init();
@@ -160,7 +169,23 @@ glm::mat4 rmBaseModel::get_mv_matrix(std::shared_ptr<ViewManager> _camera_ptr, g
     // Get the model-view matrix
     return (_camera_ptr->GetViewMatrix() * _camera_ptr->GetModelMatrix() * _model_M);
 }
-
+bool rmBaseModel::init_paths(std::string _path_Assets_in){
+    // Fix the path
+    if (!_path_Assets_in.empty() && _path_Assets_in.back() != '/'){
+        _path_Assets_in += "/";
+    }
+    if (!_path_Assets_sub_dir.empty() && _path_Assets_sub_dir.back() != '/'){
+        _path_Assets_sub_dir += "/";
+    }
+    if (!_path_Shaders_sub_dir.empty() && _path_Shaders_sub_dir.back() != '/'){
+        _path_Shaders_sub_dir += "/";
+    }
+    //
+    _path_Assets = _path_Assets_in + _path_Assets_sub_dir;
+    _path_Shaders = _path_Assets_in + _path_Shaders_sub_dir;
+    //
+    return true;
+}
 std::string rmBaseModel::get_full_Assets_path(std::string Assets_name_in){
     std::string full_p;
     full_p = _path_Assets + Assets_name_in;
