@@ -1,13 +1,25 @@
+#ifndef SCENE_W1_H
+#define SCENE_W1_H
+
 #include "Scene.h"
 
-Scene::Scene(){
+//
 
-}
-Scene::Scene(std::string pkg_path_in)
+class SCENE_W1 : public Scene
+{
+public:
+	SCENE_W1(std::string pkg_path_in);
+
+private:
+
+};
+
+SCENE_W1::SCENE_W1(std::string pkg_path_in)
 {
 	_camera_ptr.reset(new ViewManager());
     _pkg_path = (pkg_path_in);
     _Assets_path = (pkg_path_in + "Assets/");
+
 
     /*
     // Back ground image rmImageStaticBackground
@@ -34,19 +46,27 @@ Scene::Scene(std::string pkg_path_in)
 	_rm_BaseModel.push_back(bottle);
 	_rm_BaseModel.push_back(box);
 
+
+
     // PointCloud
-    std::shared_ptr<rmPointCloud> pc_ptr_1(new rmPointCloud(_Assets_path, int(MSG_ID::point_cloud_1)) );
-    pc_ptr_1->set_color(glm::vec3(1.0f));
-    _rm_BaseModel.push_back( pc_ptr_1 );
-    
+    std::shared_ptr<rmPointCloud> pc_ptr_1;
+    // Map
     pc_ptr_1.reset(new rmPointCloud(_Assets_path, int(MSG_ID::point_cloud_map)) );
     pc_ptr_1->set_color(glm::vec3(0.5f, 0.0f, 0.5f));
     _rm_BaseModel.push_back( pc_ptr_1 );
+    // Raw data
+    pc_ptr_1.reset(new rmPointCloud(_Assets_path, int(MSG_ID::point_cloud_1)) );
+    pc_ptr_1->set_color(glm::vec3(1.0f));
+    _rm_BaseModel.push_back( pc_ptr_1 );
+
 
 
     // Lidar bounding box
     _rm_BaseModel.push_back( std::shared_ptr<rmLidarBoundingBox>(new rmLidarBoundingBox(_Assets_path, int(MSG_ID::lidar_bounding_box_1)) ) );
 
+
+
+    /*
     // static image
     std::shared_ptr<rmImageStatic> image_board_1_ptr(new rmImageStatic(_Assets_path, "clownfish4.png") );
     image_board_1_ptr->Translate(glm::vec3(5.0f, 0.0f, 3.0f));
@@ -56,7 +76,7 @@ Scene::Scene(std::string pkg_path_in)
     image_board_1_ptr->Scale( glm::vec3(3.5f));
     image_board_1_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _rm_BaseModel.push_back( image_board_1_ptr );
-
+    */
 
 
     // std::shared_ptr<rmImageDynamic> dynamic_image_board_1_ptr(new rmImageDynamic(_Assets_path, "view_1.jpg") );
@@ -71,6 +91,7 @@ Scene::Scene(std::string pkg_path_in)
     dynamic_image_board_1_ptr->_alpha = 0.7;
     _rm_BaseModel.push_back( dynamic_image_board_1_ptr );
 
+    /*
     // std::shared_ptr<rmImageDynamic> dynamic_image_board_1_ptr(new rmImageDynamic(_Assets_path, "view_1.jpg") );
     dynamic_image_board_1_ptr.reset(new rmImageDynamic(_Assets_path, int(MSG_ID::camera_2)) );
     dynamic_image_board_1_ptr->Translate(glm::vec3(0.0f, 10.0f, 3.0f));
@@ -82,103 +103,24 @@ Scene::Scene(std::string pkg_path_in)
     dynamic_image_board_1_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     dynamic_image_board_1_ptr->_alpha = 0.7;
     _rm_BaseModel.push_back( dynamic_image_board_1_ptr );
-
-
-
-
-
-}
-
-void Scene::Render(){
-
-
-
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	for (int i = 0; i < _rm_BaseModel.size(); i++){
-		_rm_BaseModel[i]->Render(_camera_ptr);
-	}
-    glDisable(GL_BLEND);
-    // glDisable(GL_DEPTH_TEST);
-}
-void Scene::Update(float dt){
-    // rmBaseModel
-	for (int i = 0; i < _rm_BaseModel.size(); i++){
-		_rm_BaseModel[i]->Update(dt);
-	}
-}
-void Scene::Update(ROS_INTERFACE &ros_interface){
-    // Update the "_current_slice_time"
-    ros_interface.update_current_slice_time("map", "base");
-    ros_interface.set_ref_frame("base");
-
-    /*
-    // Camera
-    bool is_sucessed = false;
-    glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("base", "map", is_sucessed, false) );
-    // glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("base", "map", is_sucessed, true ) );
-    if (is_sucessed){
-        std::cout << "Got the camera tf\n";
-        _camera_ptr->SetInvCameraModel(_tf_world_by_base);
-    }
     */
 
 
-
-
-
-
-
-    // rmBaseModel
-	for (int i = 0; i < _rm_BaseModel.size(); i++){
-		_rm_BaseModel[i]->Update(ros_interface);
-	}
-}
-
-
-void Scene::MouseEvent(int button, int state, int x, int y){
-	_camera_ptr->mouseEvents(button, state, x, y);
-}
-
-void Scene::KeyBoardEvent(int key){
-
-}
-
-void Scene::KeyBoardEvent(unsigned char key){
-	_camera_ptr->keyEvents(key);
-
     /*
-	switch (key)
-	{
-	case 'z':
-	case 'Z':
-		_rm_BaseModel[1]->Rotate(glm::vec3(0,1,0),-0.1f);
-		break;
-	case 'x':
-	case 'X':
-		_rm_BaseModel[1]->Rotate(glm::vec3(0, 1, 0), 0.1f);
-		break;
-	case 'c':
-	case 'C':
-		_rm_BaseModel[1]->Translate(glm::vec3(-0.1, 0, 0));
-		break;
-	case 'v':
-	case 'V':
-		_rm_BaseModel[1]->Translate(glm::vec3(0.1, 0, 0));
-		break;
-	default:
-		break;
-	}
+    // std::shared_ptr<rmImageDynamic> dynamic_image_board_1_ptr(new rmImageDynamic(_Assets_path, "view_1.jpg") );
+    std::shared_ptr<rmImageDynamic> dynamic_image_board_1_ptr(new rmImageDynamic(_Assets_path, int(MSG_ID::camera_3)) );
+    dynamic_image_board_1_ptr->Translate(glm::vec3(-3.0f, 0.0f, 3.0f));
+    dynamic_image_board_1_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), -M_PI/6.0); // view angle
+    dynamic_image_board_1_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
+    dynamic_image_board_1_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
+    dynamic_image_board_1_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
+    dynamic_image_board_1_ptr->Scale( glm::vec3(3.5f));
+    dynamic_image_board_1_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    dynamic_image_board_1_ptr->_alpha = 0.7;
+    _rm_BaseModel.push_back( dynamic_image_board_1_ptr );
     */
+
+
 }
 
-void Scene::MenuEvent(int item){
-
-	if (item == 1){
-		_rm_BaseModel[1]->Scale(glm::vec3(2.0f, 2.0f, 2.0f));
-	}
-	else if (item == 2){
-		_rm_BaseModel[1]->Scale(glm::vec3(0.5f, 0.5f, 0.5f));
-	}
-}
+#endif  // SCENE_W1_H

@@ -24,6 +24,7 @@
 class Scene
 {
 public:
+    Scene();
 	Scene(std::string pkg_path_in);
     //
 	void Render();
@@ -36,7 +37,7 @@ public:
 	void KeyBoardEvent(unsigned char key);
 	void MenuEvent(int item);
 
-private:
+protected:
     std::string _pkg_path;
     std::string _Assets_path;
 	std::shared_ptr<ViewManager> _camera_ptr;

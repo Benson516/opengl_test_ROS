@@ -60,6 +60,7 @@ namespace MSG{
         String,
         tfGeoPoseStamped,
         Image,
+        PointCloud2,
         ITRIPointCloud,
         ITRI3DBoundingBox,
         NUM_MSG_TYPE
@@ -179,6 +180,8 @@ public:
     bool get_String(const int topic_id, std::string & content_out);
     bool get_Image(const int topic_id, cv::Mat & content_out);
     bool get_Image(const int topic_id, std::shared_ptr<cv::Mat> & content_out_ptr);
+    bool get_PointCloud2(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out);
+    bool get_PointCloud2(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr);
     bool get_ITRIPointCloud(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out);
     bool get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr);
     bool get_ITRI3DBoundingBox(const int topic_id, msgs::LidRoi & content_out);
@@ -206,8 +209,18 @@ public:
     bool get_tf(const int topic_id, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling=false, ros::Time lookup_stamp=ros::Time::now());
     geometry_msgs::TransformStamped get_tf(const int topic_id, bool & is_sucessed, bool is_time_traveling=false, ros::Time lookup_stamp=ros::Time::now());
     //
+    bool get_PointCloud2(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp);
     bool get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp);
     bool get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::LidRoi > & content_out_ptr, ros::Time &msg_stamp);
+    //---------------------------------------------------------//
+
+
+    // Combined same buffer-data types
+    //---------------------------------------------------------//
+    // pcl::PointCloud<pcl::PointXYZI>
+    bool get_any_pointcloud(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out);
+    bool get_any_pointcloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr);
+    bool get_any_pointcloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp);
     //---------------------------------------------------------//
 
 private:
@@ -301,6 +314,9 @@ private:
         return true;
     }
 
+    // PointCloud2 ( converted to pcl::PointCloud<pcl::PointXYZI> in callback)
+    std::vector< async_buffer< pcl::PointCloud<pcl::PointXYZI> > > buffer_list_PointCloud2;
+
     // ITRIPointCloud ( converted to pcl::PointCloud<pcl::PointXYZI> in callback)
     std::vector< async_buffer< pcl::PointCloud<pcl::PointXYZI> > > buffer_list_ITRIPointCloud;
 
@@ -321,9 +337,13 @@ private:
     // Image
     void _Image_CB(const sensor_msgs::ImageConstPtr& msg, const MSG::T_PARAMS & params);
 
+    // PointCloud2
+    void _PointCloud2_CB(const sensor_msgs::PointCloud2::ConstPtr& msg, const MSG::T_PARAMS & params);
+    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > _PointCloud2_tmp_ptr; // tmp cloud
+
     // ITRIPointCloud
     void _ITRIPointCloud_CB(const msgs::PointCloud::ConstPtr& msg, const MSG::T_PARAMS & params);
-    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > _cloud_tmp_ptr; // tmp cloud
+    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > _ITRIPointCloud_tmp_ptr; // tmp cloud
 
     // ITRI3DBoundingBox
     void _ITRI3DBoundingBox_CB(const msgs::LidRoi::ConstPtr& msg, const MSG::T_PARAMS & params);

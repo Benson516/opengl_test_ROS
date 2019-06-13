@@ -26,6 +26,7 @@ enum class MSG_ID{
     // ITRIPointCloud
 #ifdef __SUB_POINT_CLOUD__
     point_cloud_1,
+    point_cloud_map,
 #endif
     lidar_bounding_box_1,
 };

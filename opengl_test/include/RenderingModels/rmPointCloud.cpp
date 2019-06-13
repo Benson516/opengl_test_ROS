@@ -6,7 +6,7 @@ rmPointCloud::rmPointCloud(std::string _path_Assets_in, int _ROS_topic_id_in):
 {
     _path_Assets = _path_Assets_in;
     _path_Shaders = _path_Assets + "Shaders/";
-    _max_num_vertex = 100000;
+    _max_num_vertex = 5000000; // 5*10^6 // 100000;
 	Init();
 }
 void rmPointCloud::Init(){
@@ -25,6 +25,7 @@ void rmPointCloud::Init(){
 
     // Init model matrices
 	m_shape.model = glm::mat4(1.0);
+    m_shape.color = glm::vec3(1.0);
 
     //Load model to shader _program_ptr
 	LoadModel();
@@ -49,12 +50,12 @@ void rmPointCloud::LoadModel(){
 		vertex_ptr[i].position[0] = (random_float() * 2.0f - 1.0f) * 100.0f;
 		vertex_ptr[i].position[1] = (random_float() * 2.0f - 1.0f) * 100.0f;
 		vertex_ptr[i].position[2] = random_float();
-		vertex_ptr[i].color[0] = 1.0f; //  + random_float() * 0.2f;
-		vertex_ptr[i].color[1] = 1.0f; //  + random_float() * 0.2f;
-		vertex_ptr[i].color[2] = 1.0f; //  + random_float() * 0.2f;
+        vertex_ptr[i].color[0] = m_shape.color[0]; //
+        vertex_ptr[i].color[1] = m_shape.color[1]; //
+        vertex_ptr[i].color[2] = m_shape.color[2]; //
 	}
 	glUnmapBuffer(GL_ARRAY_BUFFER);
-    m_shape.indexCount = _max_num_vertex;
+    m_shape.indexCount = 0; // 100000; // _max_num_vertex;
     //--------------------------------------------//
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_p_c), NULL);
@@ -87,11 +88,11 @@ void rmPointCloud::Update(ROS_INTERFACE &ros_interface){
     glBindVertexArray(m_shape.vao);
     glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
 
-    // bool pc_result = ros_interface.get_ITRIPointCloud( _ROS_topic_id, pc_out_ptr);
+    // bool pc_result = ros_interface.get_any_pointcloud( _ROS_topic_id, pc_out_ptr);
 
     // test, use transform
     ros::Time msg_time;
-    bool pc_result = ros_interface.get_ITRIPointCloud( _ROS_topic_id, pc_out_ptr, msg_time);
+    bool pc_result = ros_interface.get_any_pointcloud( _ROS_topic_id, pc_out_ptr, msg_time);
 
     // Note: We get the transform update even if there is no new content in for maximum smoothness
     //      (the tf will update even there is no data)
@@ -103,6 +104,9 @@ void rmPointCloud::Update(ROS_INTERFACE &ros_interface){
 
     if (pc_result){
         m_shape.indexCount = pc_out_ptr->width;
+        if (m_shape.indexCount > _max_num_vertex){
+            m_shape.indexCount = _max_num_vertex;
+        }
         // vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
         vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, m_shape.indexCount * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     	for (size_t i = 0; i < m_shape.indexCount; i++)
@@ -110,9 +114,10 @@ void rmPointCloud::Update(ROS_INTERFACE &ros_interface){
             vertex_ptr[i].position[0] = pc_out_ptr->points[i].x;
     		vertex_ptr[i].position[1] = pc_out_ptr->points[i].y;
     		vertex_ptr[i].position[2] = pc_out_ptr->points[i].z;
-    		vertex_ptr[i].color[0] = 1.0f; // If we don't keep udating the color, the color will be lost when resizing the window.
-    		vertex_ptr[i].color[1] = 1.0f;
-    		vertex_ptr[i].color[2] = 1.0f;
+    		// If we don't keep udating the color, the color will be lost when resizing the window.
+            vertex_ptr[i].color[0] = m_shape.color[0]; //
+    		vertex_ptr[i].color[1] = m_shape.color[1]; //
+    		vertex_ptr[i].color[2] = m_shape.color[2]; //
     	}
     	glUnmapBuffer(GL_ARRAY_BUFFER);
     }
@@ -137,4 +142,11 @@ void rmPointCloud::Render(std::shared_ptr<ViewManager> _camera_ptr){
     // Close
     glDisable(GL_POINT_SPRITE);
     //--------------------------------//
+    // _program_ptr->CloseProgram();
+}
+
+
+
+void rmPointCloud::set_color(glm::vec3 color_in){
+    m_shape.color = color_in;
 }

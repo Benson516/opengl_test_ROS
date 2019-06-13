@@ -33,6 +33,7 @@ public:
 	void LinkProgram();
     // On each iteration
 	void UseProgram();
+    void CloseProgram();
     //
     GLuint GetID();
 	void Delete();

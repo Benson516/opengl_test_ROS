@@ -15,6 +15,6 @@ out VS_OUT
 
 void main(void)
 {
-    gl_Position = proj_matrix * mv_matrix * _position;
-    vs_out.color = vec4(0.0, 1.0, 0.0, 0.3) * color;
+    gl_Position = proj_matrix * mv_matrix * position;
+    vs_out.color = vec4(0.29803922, 0.71372549, 0.88235294, 0.5) * color;
 }

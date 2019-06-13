@@ -11,7 +11,7 @@ ROS_INTERFACE::ROS_INTERFACE():
     _num_topics(0),
     _msg_type_2_topic_params( size_t(MSG::M_TYPE::NUM_MSG_TYPE) ),
     // The temporary containers
-    // _cloud_tmp_ptr (new pcl::PointCloud<pcl::PointXYZI>)
+    // _ITRIPointCloud_tmp_ptr (new pcl::PointCloud<pcl::PointXYZI>)
     _ref_frame("map"), _stationary_frame("map"),
     _is_using_current_slice_time(false),
     _current_slice_time(ros::Time(0))
@@ -27,7 +27,7 @@ ROS_INTERFACE::ROS_INTERFACE(int argc, char **argv):
     _num_topics(0),
     _msg_type_2_topic_params( size_t(MSG::M_TYPE::NUM_MSG_TYPE) ),
     // The temporary containers
-    // _cloud_tmp_ptr (new pcl::PointCloud<pcl::PointXYZI>)
+    // _ITRIPointCloud_tmp_ptr (new pcl::PointCloud<pcl::PointXYZI>)
     _ref_frame("map"), _stationary_frame("map"),
     _is_using_current_slice_time(false),
     _current_slice_time(ros::Time(0))
@@ -197,6 +197,24 @@ void ROS_INTERFACE::_ROS_worker(){
             // Publish
             _pub_subs_id_list[_tmp_params.topic_id] = _image_publisher_list.size();
             _image_publisher_list.push_back( _ros_it.advertise( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
+
+    // PointCloud2
+    _msg_type = int(MSG::M_TYPE::PointCloud2);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        buffer_list_PointCloud2.push_back( async_buffer< pcl::PointCloud<pcl::PointXYZI> >( _tmp_params.buffer_length ) );
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe<sensor_msgs::PointCloud2>( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_PointCloud2_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise<sensor_msgs::PointCloud2>( _tmp_params.name, _tmp_params.ROS_queue) );
         }
     }
 
@@ -379,8 +397,57 @@ geometry_msgs::TransformStamped ROS_INTERFACE::get_tf(const int topic_id, bool &
 // end Get tf
 
 
-
-
+// Combined same buffer-data types
+//---------------------------------------------------------//
+bool ROS_INTERFACE::get_any_pointcloud(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out){
+    {
+        using MSG::M_TYPE;
+        switch (_topic_param_list[topic_id].type){
+            case int(M_TYPE::PointCloud2):
+                return get_PointCloud2(topic_id, content_out);
+                break;
+            case int(M_TYPE::ITRIPointCloud):
+                return get_ITRIPointCloud(topic_id, content_out);
+                break;
+            default:
+                return false;
+        }
+        // end switch
+    }
+}
+bool ROS_INTERFACE::get_any_pointcloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr){
+    {
+        using MSG::M_TYPE;
+        switch (_topic_param_list[topic_id].type){
+            case int(M_TYPE::PointCloud2):
+                return get_PointCloud2(topic_id, content_out_ptr);
+                break;
+            case int(M_TYPE::ITRIPointCloud):
+                return get_ITRIPointCloud(topic_id, content_out_ptr);
+                break;
+            default:
+                return false;
+        }
+        // end switch
+    }
+}
+bool ROS_INTERFACE::get_any_pointcloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp){
+    {
+        using MSG::M_TYPE;
+        switch (_topic_param_list[topic_id].type){
+            case int(M_TYPE::PointCloud2):
+                return get_PointCloud2(topic_id, content_out_ptr, msg_stamp);
+                break;
+            case int(M_TYPE::ITRIPointCloud):
+                return get_ITRIPointCloud(topic_id, content_out_ptr, msg_stamp);
+                break;
+            default:
+                return false;
+        }
+        // end switch
+    }
+}
+//---------------------------------------------------------//
 
 
 // Callbacks and public methods of each message type
@@ -571,6 +638,57 @@ bool ROS_INTERFACE::send_Image(const int topic_id, const cv::Mat &content_in){
 }
 //---------------------------------------------------------------//
 
+// PointCloud2
+//---------------------------------------------------------------//
+// input
+void ROS_INTERFACE::_PointCloud2_CB(const sensor_msgs::PointCloud2::ConstPtr& msg, const MSG::T_PARAMS & params){
+    // Type_id
+    //------------------------------------//
+    int _tid = _topic_tid_list[params.topic_id];
+    //------------------------------------//
+    if (!_PointCloud2_tmp_ptr){
+        _PointCloud2_tmp_ptr.reset(new pcl::PointCloud<pcl::PointXYZI>);
+    }
+    //
+    pcl::PCLPointCloud2 pcl_pc;
+    pcl_conversions::toPCL(*msg, pcl_pc);
+    pcl::fromPCLPointCloud2(pcl_pc, *_PointCloud2_tmp_ptr);
+    //
+    std::cout << "=== Load LiDAR Map OK!\n  ";
+
+    // Add to buffer
+    bool result = buffer_list_PointCloud2[ _tid ].put( _PointCloud2_tmp_ptr); // Put in the pointer directly
+    //
+    if (!result){
+        std::cout << params.name << ": buffer full.\n";
+    }
+}
+bool ROS_INTERFACE::get_PointCloud2(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out){
+    // Type_id
+    //------------------------------------//
+    int _tid = _topic_tid_list[topic_id];
+    //------------------------------------//
+    return ( buffer_list_PointCloud2[_tid].front(content_out, true) );
+}
+bool ROS_INTERFACE::get_PointCloud2(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr){
+    // Type_id
+    //------------------------------------//
+    int _tid = _topic_tid_list[topic_id];
+    //------------------------------------//
+    return ( buffer_list_PointCloud2[_tid].front(content_out_ptr, true) );
+}
+bool ROS_INTERFACE::get_PointCloud2(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp){
+    // Advanced method with ros::tf2
+    // Type_id
+    //------------------------------------//
+    int _tid = _topic_tid_list[topic_id];
+    //------------------------------------//
+    bool result = ( buffer_list_PointCloud2[_tid].front(content_out_ptr, true) );
+    msg_stamp = toROStime( buffer_list_PointCloud2[_tid].get_stamp() );
+    return result;
+}
+//---------------------------------------------------------------//
+
 
 // ITRIPointCloud
 //---------------------------------------------------------------//
@@ -584,31 +702,31 @@ void ROS_INTERFACE::_ITRIPointCloud_CB(const msgs::PointCloud::ConstPtr& msg, co
     // Note 1: this have been moved to be a member of the class, so that it won't keep constructing and destructing.
     // Note 2: the pointer changed to use the std::shared_ptr instead of the original boost pointer
 
-    // pcl::PointCloud<pcl::PointXYZI>::Ptr _cloud_tmp_ptr (new pcl::PointCloud<pcl::PointXYZI>);
-    if (!_cloud_tmp_ptr){
-        _cloud_tmp_ptr.reset(new pcl::PointCloud<pcl::PointXYZI>);
+    // pcl::PointCloud<pcl::PointXYZI>::Ptr _ITRIPointCloud_tmp_ptr (new pcl::PointCloud<pcl::PointXYZI>);
+    if (!_ITRIPointCloud_tmp_ptr){
+        _ITRIPointCloud_tmp_ptr.reset(new pcl::PointCloud<pcl::PointXYZI>);
     }
     // Conversion
     //-------------------------//
-    _cloud_tmp_ptr->width = msg->pointCloud.size();
-    // std::cout << "cloud size = " << _cloud_tmp_ptr->width << "\n";
-    _cloud_tmp_ptr->height = 1;
-    _cloud_tmp_ptr->is_dense = false;
+    _ITRIPointCloud_tmp_ptr->width = msg->pointCloud.size();
+    // std::cout << "cloud size = " << _ITRIPointCloud_tmp_ptr->width << "\n";
+    _ITRIPointCloud_tmp_ptr->height = 1;
+    _ITRIPointCloud_tmp_ptr->is_dense = false;
     //
-    // if (_cloud_tmp_ptr->points.size() < msg->pointCloud.size())
-        _cloud_tmp_ptr->points.resize( msg->pointCloud.size() );
+    // if (_ITRIPointCloud_tmp_ptr->points.size() < msg->pointCloud.size())
+        _ITRIPointCloud_tmp_ptr->points.resize( msg->pointCloud.size() );
     // #pragma omp parallel for
-    for (long long i = 0; i < _cloud_tmp_ptr->width; ++i)
+    for (long long i = 0; i < _ITRIPointCloud_tmp_ptr->width; ++i)
     {
-        _cloud_tmp_ptr->points[i].x = msg->pointCloud[i].x;
-        _cloud_tmp_ptr->points[i].y = msg->pointCloud[i].y;
-        _cloud_tmp_ptr->points[i].z = msg->pointCloud[i].z;
-        _cloud_tmp_ptr->points[i].intensity = msg->pointCloud[i].intensity;
+        _ITRIPointCloud_tmp_ptr->points[i].x = msg->pointCloud[i].x;
+        _ITRIPointCloud_tmp_ptr->points[i].y = msg->pointCloud[i].y;
+        _ITRIPointCloud_tmp_ptr->points[i].z = msg->pointCloud[i].z;
+        _ITRIPointCloud_tmp_ptr->points[i].intensity = msg->pointCloud[i].intensity;
     }
     //-------------------------//
     // Add to buffer
-    // bool result = buffer_list_ITRIPointCloud[ _tid ].put( *_cloud_tmp_ptr);
-    bool result = buffer_list_ITRIPointCloud[ _tid ].put( _cloud_tmp_ptr); // Put in the pointer directly
+    // bool result = buffer_list_ITRIPointCloud[ _tid ].put( *_ITRIPointCloud_tmp_ptr);
+    bool result = buffer_list_ITRIPointCloud[ _tid ].put( _ITRIPointCloud_tmp_ptr); // Put in the pointer directly
     //
     if (!result){
         std::cout << params.name << ": buffer full.\n";

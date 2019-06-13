@@ -93,7 +93,8 @@ bool ROS_ICLU3_V0::_set_up_topics(){
         // ITRIPointCloud
 #ifdef __SUB_POINT_CLOUD__
         ros_interface.add_a_topic("LidFrontLeft_sync", int(M_TYPE::ITRIPointCloud), true, 5, 5, "base");
-        num_ITRIPointCloud = 1; // Hand coded for now..
+        ros_interface.add_a_topic("points_map", int(M_TYPE::PointCloud2), true, 5, 5, "map");
+        num_ITRIPointCloud = 2; // Hand coded for now..
 #endif // __SUB_POINT_CLOUD__
         ros_interface.add_a_topic("LidRoi", int(M_TYPE::ITRI3DBoundingBox), true, 10, 5, "base");
     }
