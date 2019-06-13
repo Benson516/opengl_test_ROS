@@ -398,6 +398,18 @@ geometry_msgs::TransformStamped ROS_INTERFACE::get_tf(const int topic_id, bool &
 
 
 
+bool ROS_INTERFACE::get_any_pointcloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp){
+    {
+        using MSG::M_TYPE;
+        if (_topic_param_list[topic_id].type == int(M_TYPE::PointCloud2)){
+            return get_PointCloud2(topic_id, content_out_ptr, msg_stamp);
+        }
+        else if (_topic_param_list[topic_id].type == int(M_TYPE::ITRIPointCloud)){
+            return get_ITRIPointCloud(topic_id, content_out_ptr, msg_stamp);
+        }
+    }
+}
+
 
 
 

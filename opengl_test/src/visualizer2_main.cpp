@@ -4,6 +4,7 @@
 #include "Common.h"
 #include "ViewManager.h"
 #include "Scene.h"
+#include "Scene_w1.h"
 
 // Debug
 #include <iostream>
@@ -30,6 +31,7 @@ using namespace std;
 ROS_ICLU3_V0 ros_api;
 // The scene for rendering
 std::shared_ptr<Scene> scene_ptr;
+// std::shared_ptr<SCENE_W1> scene_ptr;
 
 
 
@@ -97,6 +99,7 @@ void My_Init()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	scene_ptr.reset(new Scene(ros_api.get_pkg_path()) );
+    // scene_ptr.reset(new SCENE_W1(ros_api.get_pkg_path()) );
 
     // Enable depth test
     glEnable(GL_DEPTH_TEST);

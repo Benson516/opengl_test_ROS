@@ -55,7 +55,7 @@ void rmPointCloud::LoadModel(){
         vertex_ptr[i].color[2] = m_shape.color[2]; //
 	}
 	glUnmapBuffer(GL_ARRAY_BUFFER);
-    m_shape.indexCount = 100000; // _max_num_vertex;
+    m_shape.indexCount = 0; // 100000; // _max_num_vertex;
     //--------------------------------------------//
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_p_c), NULL);
@@ -92,7 +92,7 @@ void rmPointCloud::Update(ROS_INTERFACE &ros_interface){
 
     // test, use transform
     ros::Time msg_time;
-    bool pc_result = ros_interface.get_ITRIPointCloud( _ROS_topic_id, pc_out_ptr, msg_time);
+    bool pc_result = ros_interface.get_any_pointcloud( _ROS_topic_id, pc_out_ptr, msg_time);
 
     // Note: We get the transform update even if there is no new content in for maximum smoothness
     //      (the tf will update even there is no data)

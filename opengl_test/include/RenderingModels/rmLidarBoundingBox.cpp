@@ -119,7 +119,7 @@ void rmLidarBoundingBox::Update(ROS_INTERFACE &ros_interface){
     // Common::print_out_mat4(_model_tf);
 
     if (pc_result){
-        size_t num_box = box3d_out_ptr->lidRoiBox.size();
+        long long num_box = box3d_out_ptr->lidRoiBox.size();
         if (num_box > _max_num_box){
             num_box = _max_num_box;
         }
