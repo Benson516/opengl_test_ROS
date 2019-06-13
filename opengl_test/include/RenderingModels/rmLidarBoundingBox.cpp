@@ -120,9 +120,11 @@ void rmLidarBoundingBox::Update(ROS_INTERFACE &ros_interface){
 
     if (pc_result){
         long long num_box = box3d_out_ptr->lidRoiBox.size();
+        /*
         if (num_box > _max_num_box){
             num_box = _max_num_box;
         }
+        */
         m_shape.indexCount = num_box*_num_vertex_idx_per_box;
         size_t offset_point = sizeof(msgs::PointXYZ);
         // vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
