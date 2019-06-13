@@ -15,7 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   message_generation
 #
-  msgs # ITRI package: "msgs"
+  msgs # ITRI ICLU3 msg package for customized message type
 #
   pcl_conversions
   pcl_ros
@@ -24,6 +24,7 @@ find_package(catkin REQUIRED COMPONENTS
   cv_bridge
 )
 
+find_package(msgs REQUIRED)
 find_package(OpenCV REQUIRED)
 #
 find_package(OpenGL REQUIRED)
@@ -72,6 +73,9 @@ catkin_package(
 
 
 
+
+
+
 include_directories(
     # include
     ${catkin_INCLUDE_DIRS}
@@ -90,6 +94,7 @@ include_directories(
     include/TinyOBJ/
     include/Common/
     include/ViewManager/
+    include/Shader/
     include/RenderingModels/
     #
 	external/AntTweakBar-1.16/include/
@@ -112,7 +117,7 @@ add_definitions(${PCL_DEFINITIONS})
 
 
 
-set(ALL_LIBS
+set(ALL_GL_LIBS
 	${OPENGL_LIBRARY}
 	glfw
 	GLEW_1130
@@ -134,6 +139,10 @@ set(ALL_RENDER_MODELS
     ${RENDER_MODEL_PATH}rmImageDynamicBackground.cpp
 )
 
+
+
+
+
 # Libraries
 # ROS interfaces
 #---------------------------------------------------#
@@ -149,19 +158,25 @@ add_library (FILTER_LIB STATIC include/FILTER_LIB/FILTER_LIB.cpp include/FILTER_
 # OpenGL libraries
 #---------------------------------------------------#
 add_library (tiny_obj_loader STATIC include/TinyOBJ/tiny_obj_loader.cpp)
-target_link_libraries(tiny_obj_loader ${ALL_LIBS}  )
+target_link_libraries(tiny_obj_loader ${ALL_GL_LIBS}  )
 
 add_library (Common STATIC include/Common/Common.cpp)
-target_link_libraries(Common ${ALL_LIBS} tiny_obj_loader )
+target_link_libraries(Common ${ALL_GL_LIBS} tiny_obj_loader )
 
 add_library (ViewManager STATIC include/ViewManager/ViewManager.cpp)
-target_link_libraries(ViewManager ${ALL_LIBS} Common )
-#---------------------------------------------------#
+target_link_libraries(ViewManager ${ALL_GL_LIBS} Common )
 
+add_library (Shader STATIC include/Shader/Shader.cpp)
+target_link_libraries(Shader ${ALL_GL_LIBS} Common )
+#---------------------------------------------------#
+set(ALL_GL_UTIL_LIBS
+    ViewManager
+    Shader
+)
 
 # point_sprite
 add_executable(point_sprite src/7.5.Point_Sprite/Point_Sprite.cpp )
-target_link_libraries(point_sprite ROS_interface_1  ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )
+target_link_libraries(point_sprite ROS_interface_1  ${ALL_GL_LIBS} ${ALL_GL_UTIL_LIBS} ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )
 # visualizer2
-add_executable(visualizer2 src/visualizer2_main.cpp include/ROS_ICLU3_v0.cpp src/Scene.cpp src/Shader.cpp ${ALL_RENDER_MODELS})
-target_link_libraries(visualizer2 ROS_interface_1  ${ALL_LIBS} ViewManager ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )
+add_executable(visualizer2 src/visualizer2_main.cpp include/ROS_ICLU3_v0.cpp src/Scene.cpp ${ALL_RENDER_MODELS})
+target_link_libraries(visualizer2 ROS_interface_1  ${ALL_GL_LIBS} ${ALL_GL_UTIL_LIBS} ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )

@@ -8,6 +8,7 @@ void Shader::LoadShader(const char* fileName, int shaderType){
 	glShaderSource(s, 1, source, NULL);
 	Common::FreeShaderSource(source);
 	glCompileShader(s);
+    Common::ShaderLog(s);
 
 	id = s;
 	type = shaderType;
@@ -60,7 +61,9 @@ void ShaderProgram::LinkProgram(){
 void ShaderProgram::UseProgram(){
 	if (linked)glUseProgram(id);
 }
-
+void ShaderProgram::CloseProgram(){
+    glUseProgram(0);
+}
 
 //
 GLuint ShaderProgram::GetID(){

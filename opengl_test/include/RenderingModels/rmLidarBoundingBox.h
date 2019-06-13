@@ -3,22 +3,7 @@
 
 #include "rmBaseModel.h"
 
-namespace rmLidarBoundingBox_ns{
-    const GLuint box_idx_data[] = {
-        0,1,2,
-        2,3,0,
-        5,6,2,
-        2,1,5,
-        3,2,6,
-        6,7,3,
-        4,5,1,
-        1,0,4,
-        6,5,4,
-        4,7,6,
-        4,0,3,
-        3,7,4,
-    };
-}
+
 
 class rmLidarBoundingBox : public rmBaseModel
 {

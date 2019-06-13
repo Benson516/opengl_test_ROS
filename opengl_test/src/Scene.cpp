@@ -38,11 +38,11 @@ Scene::Scene(std::string pkg_path_in)
     std::shared_ptr<rmPointCloud> pc_ptr_1(new rmPointCloud(_Assets_path, int(MSG_ID::point_cloud_1)) );
     pc_ptr_1->set_color(glm::vec3(1.0f));
     _rm_BaseModel.push_back( pc_ptr_1 );
-    /*
+    
     pc_ptr_1.reset(new rmPointCloud(_Assets_path, int(MSG_ID::point_cloud_map)) );
     pc_ptr_1->set_color(glm::vec3(0.5f, 0.0f, 0.5f));
     _rm_BaseModel.push_back( pc_ptr_1 );
-    */
+
 
     // Lidar bounding box
     _rm_BaseModel.push_back( std::shared_ptr<rmLidarBoundingBox>(new rmLidarBoundingBox(_Assets_path, int(MSG_ID::lidar_bounding_box_1)) ) );

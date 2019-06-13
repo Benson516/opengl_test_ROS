@@ -88,7 +88,7 @@ void rmPointCloud::Update(ROS_INTERFACE &ros_interface){
     glBindVertexArray(m_shape.vao);
     glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
 
-    // bool pc_result = ros_interface.get_ITRIPointCloud( _ROS_topic_id, pc_out_ptr);
+    // bool pc_result = ros_interface.get_any_pointcloud( _ROS_topic_id, pc_out_ptr);
 
     // test, use transform
     ros::Time msg_time;
@@ -142,6 +142,7 @@ void rmPointCloud::Render(std::shared_ptr<ViewManager> _camera_ptr){
     // Close
     glDisable(GL_POINT_SPRITE);
     //--------------------------------//
+    // _program_ptr->CloseProgram();
 }
 
 
