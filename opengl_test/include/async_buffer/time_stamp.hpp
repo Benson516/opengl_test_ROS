@@ -85,7 +85,15 @@ namespace TIME_STAMP{
             sec = tp_sec.time_since_epoch().count();
             nsec = duration_cast<nanoseconds>(tp_n - tp_sec).count();
         }
+
+
         // Comparison
+        bool is_zero() const {
+            return ( (sec == 0) && (nsec == 0) );
+        }
+        bool is_negative() const {
+            return (sec < 0);
+        }
         bool equal(const Time &time_B) const {
             return ( (sec == time_B.sec) && (nsec == time_B.nsec) );
         }
@@ -101,6 +109,9 @@ namespace TIME_STAMP{
             else // ==
                 return (nsec >= time_B.nsec);
         }
+        //
+
+        // Math
         Time add(const Time &time_B) const {
             return Time(sec+time_B.sec, nsec+time_B.nsec);
         }
@@ -115,7 +126,18 @@ namespace TIME_STAMP{
             sec -= time_B.sec; nsec -= time_B.nsec;
             _correction();
         }
+        Time abs() const {
+            if (sec < 0){
+                return Time(-sec, -nsec);
+            }
+            return *this;
+        }
         //
+
+
+
+
+        // Operators
         bool operator ==(Time const& time_B){
             return equal(time_B);
         }

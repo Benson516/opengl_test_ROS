@@ -624,6 +624,7 @@ bool ROS_INTERFACE::get_Image(const int topic_id, std::shared_ptr<cv::Mat> & con
     int _tid = _topic_tid_list[topic_id];
     //------------------------------------//
     return ( buffer_list_Image[_tid].front(content_out_ptr, true) );
+    // return ( buffer_list_Image[_tid].front(content_out_ptr, true, ( TIME_STAMP::Time::now() - TIME_STAMP::Time(0.1f) ) ) );
 }
 // output
 bool ROS_INTERFACE::send_Image(const int topic_id, const cv::Mat &content_in){

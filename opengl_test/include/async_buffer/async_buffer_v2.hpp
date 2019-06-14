@@ -75,11 +75,11 @@ public:
     // Basic queue operations
     //-----------------------------------------------//
     // Put, overloading
-    bool    put(const _T & element_in, bool is_droping=true, TIME_STAMP::Time stamp_in=TIME_STAMP::Time::now());  // Copy the data in, slow
-    bool    put(std::shared_ptr<_T> & element_in_ptr, bool is_droping=true, TIME_STAMP::Time stamp_in=TIME_STAMP::Time::now());  // Exchanging the data, fast
+    bool    put(const _T & element_in, bool is_droping=true, const TIME_STAMP::Time &stamp_in=TIME_STAMP::Time::now());  // Copy the data in, slow
+    bool    put(std::shared_ptr<_T> & element_in_ptr, bool is_droping=true, const TIME_STAMP::Time &stamp_in=TIME_STAMP::Time::now());  // Exchanging the data, fast
     // Front, overloading
-    bool    front(_T & content_out, bool is_poping=false);  // Copy the data out, slow
-    bool    front(std::shared_ptr<_T> & content_out_ptr, bool is_poping=false);  // If is_poping, exchanging the data out, fast; if not is_poping, share the content (Note: this may not be safe!!)
+    bool    front(_T & content_out, bool is_poping=false, const TIME_STAMP::Time &stamp_req=TIME_STAMP::Time() );  // Copy the data out, slow
+    bool    front(std::shared_ptr<_T> & content_out_ptr, bool is_poping=false, const TIME_STAMP::Time &stamp_req=TIME_STAMP::Time());  // If is_poping, exchanging the data out, fast; if not is_poping, share the content (Note: this may not be safe!!)
     // pop
     bool    pop();    // Only move the index, fast
     //-----------------------------------------------//
@@ -107,9 +107,17 @@ private:
     std::vector< std::shared_ptr<_T> > _data_ptr_list; //
     std::vector<TIME_STAMP::Time> _stamp_list; // time stamp (sec.) of each element
 
+    // Pointer operations
     inline void _fill_in_ptr_if_empty(std::shared_ptr<_T> & _ptr_in){
-        if (!_ptr_in){  _ptr_in.reset( new _T(_empty_element) );   }
+        if (!_ptr_in){  _ptr_in.reset( new _T(_empty_element) );  }
     }
+    inline bool is_ptr_shared(const std::shared_ptr<_T> & _ptr_in){
+        return ( _ptr_in && !_ptr_in.unique() );
+    }
+    inline void _reset_ptr_if_shared(std::shared_ptr<_T> & _ptr_in){
+        if (is_ptr_shared(_ptr_in)){    _ptr_in.reset( new _T(_empty_element) );    }
+    }
+
 
     // The indicators
     int _idx_write;
@@ -157,6 +165,44 @@ private:
     }
 
 
+    // Time searching
+    /*
+    inline int get_idx_of_closest_stamp(int _idx_read_tmp, const TIME_STAMP::Time &stamp_req){
+        int _idx_write_tmp = _get_index_write();
+        int _closest_idx = _idx_read_tmp;
+        TIME_STAMP::Time _min_delta_t;
+        bool _is_first = true;
+        for( int _idx_read_search = _idx_read_tmp; (_idx_read_search != _idx_write_tmp) ; _idx_read_search = _increase_idx(_idx_read_search)){
+            TIME_STAMP::Time _delta_t = (stamp_req - _stamp_list[_idx_read_search]).abs();
+            if (_is_first || _delta_t < _min_delta_t){
+            // if (_is_first || (_delta_t < _min_delta_t && stamp_req >= _stamp_list[_idx_read_tmp]) ){
+                _is_first = false;
+                _min_delta_t = _delta_t;
+                _closest_idx = _idx_read_search;
+            }
+        }
+        //
+        return _closest_idx;
+    }
+    */
+    inline int get_idx_of_closest_stamp(int _idx_read_tmp, const TIME_STAMP::Time &stamp_req){
+        int _idx_write_tmp = _get_index_write();
+        int _closest_idx = _decrease_idx(_idx_write_tmp); // _idx_read_tmp;
+        TIME_STAMP::Time _min_delta_t = (stamp_req - _stamp_list[_closest_idx]).abs();
+        for( int _idx_read_search = _idx_read_tmp; (_idx_read_search != _idx_write_tmp) ; _idx_read_search = _increase_idx(_idx_read_search)){
+            TIME_STAMP::Time _delta_t = (stamp_req - _stamp_list[_idx_read_search]).abs();
+            if (_delta_t < _min_delta_t){
+            // if ( _delta_t < _min_delta_t && stamp_req >= _stamp_list[_idx_read_tmp] ){
+                _min_delta_t = _delta_t;
+                _closest_idx = _idx_read_search;
+            }
+        }
+        //
+        return _closest_idx;
+    }
+
+
+
 
     // The default copy function
     // Note: if _T is the opencv Mat,
@@ -173,7 +219,11 @@ private:
     // utilities
     inline int _increase_idx(int idx_in){
         // Calculate the increased index, not setting the index
-        return _correcting_idx(idx_in+1);
+        return _correcting_idx(++idx_in);
+    }
+    inline int _decrease_idx(int idx_in){
+        // Calculate the decreased index, not setting the index
+        return _correcting_idx(--idx_in);
     }
     inline int _correcting_idx(int idx_in){
         // The following equation is to correct the behavior of negative value
@@ -292,7 +342,7 @@ async_buffer<_T>::async_buffer(size_t buffer_length_in, _T place_holder_element)
 
 //
 //
-template <class _T> bool async_buffer<_T>::put(const _T & element_in, bool is_droping, TIME_STAMP::Time stamp_in){
+template <class _T> bool async_buffer<_T>::put(const _T & element_in, bool is_droping, const TIME_STAMP::Time &stamp_in){
 
     // To lock the write for ensuring only one producer a time
     //-------------------------------------------------------//
@@ -338,7 +388,7 @@ template <class _T> bool async_buffer<_T>::put(const _T & element_in, bool is_dr
     _set_index_write( _increase_idx(_idx_write_tmp) );
     return _all_is_well;
 }
-template <class _T> bool async_buffer<_T>::put(std::shared_ptr<_T> & element_in_ptr, bool is_droping, TIME_STAMP::Time stamp_in){
+template <class _T> bool async_buffer<_T>::put(std::shared_ptr<_T> & element_in_ptr, bool is_droping, const TIME_STAMP::Time &stamp_in){
 
     // To lock the write for ensuring only one producer a time
     //-------------------------------------------------------//
@@ -419,7 +469,7 @@ template <class _T> bool async_buffer<_T>::put(std::shared_ptr<_T> & element_in_
 }
 
 
-template <class _T> bool async_buffer<_T>::front(_T & content_out, bool is_poping){
+template <class _T> bool async_buffer<_T>::front(_T & content_out, bool is_poping, const TIME_STAMP::Time &stamp_req){
     // To get an element from the buffer
     // Return false if it's empty
 
@@ -428,43 +478,52 @@ template <class _T> bool async_buffer<_T>::front(_T & content_out, bool is_popin
     std::lock_guard<std::mutex> _lock(*_mlock_read_block);
     //-------------------------------------------------------//
 
-    // If the buffer is empty, we
+    // If the buffer is empty, we return
     if (_is_empty()){
         return false;
     }
     // else
     int _idx_read_tmp = _get_index_read();
 
+
+
+    // Search for closest time stamp
+    //---------------------------//
+    // _idx_read_tmp = ?
+    if (!stamp_req.is_zero()){
+        _idx_read_tmp = get_idx_of_closest_stamp(_idx_read_tmp, stamp_req);
+    }
     // Store the stamp (can put this line right after getting the index)
     _stamp_out = _stamp_list[_idx_read_tmp];
     //
+    //---------------------------//
 
 
     // Fill the pointer
     _fill_in_ptr_if_empty(_data_ptr_list[_idx_read_tmp]);
-    _fill_in_ptr_if_empty(_tmp_output_ptr);
     //
+
 
     // pop?
     if(!is_poping){
+        // Fill the pointer
+        _fill_in_ptr_if_empty(_tmp_output_ptr);
+        //
         if (_got_front_but_no_pop){
             // _got_front_but_no_pop = true;
             // --- No need to get element from the buffer again
             _copy_func(content_out, *_tmp_output_ptr); // instance <-- *ptr
         }else{
             _got_front_but_no_pop = true;
+            // Swap pointer with _tmp_output_ptr
             _tmp_output_ptr.swap(_data_ptr_list[_idx_read_tmp]);
             _copy_func(content_out, *_tmp_output_ptr); // instance <-- *ptr
+            _set_index_read(_idx_read_tmp); // In case that the time searching found a different index
         }
     }else{
         // Reset the flag for front
         _got_front_but_no_pop = false;
         //
-
-        // Search for closest time stamp
-        //---------------------------//
-        // _idx_read_tmp = ?
-        //---------------------------//
 
         // We need to copy the data first before we move the index (delete)
         // Note: the default copy method may not sussess if _T is "Mat" from opencv
@@ -482,7 +541,7 @@ template <class _T> bool async_buffer<_T>::front(_T & content_out, bool is_popin
     return true;
 }
 
-template <class _T> bool async_buffer<_T>::front(std::shared_ptr<_T> & content_out_ptr, bool is_poping){
+template <class _T> bool async_buffer<_T>::front(std::shared_ptr<_T> & content_out_ptr, bool is_poping, const TIME_STAMP::Time &stamp_req){
     // If is_poping, exchanging the data out, fast;
     // if not is_poping, share the content (Note: this may not be safe!!)
 
@@ -494,33 +553,47 @@ template <class _T> bool async_buffer<_T>::front(std::shared_ptr<_T> & content_o
     std::lock_guard<std::mutex> _lock(*_mlock_read_block);
     //-------------------------------------------------------//
 
-    // If the buffer is empty, we
+    // If the buffer is empty, we return
     if (_is_empty()){
         return false;
     }
     // else
     int _idx_read_tmp = _get_index_read();
 
+
+    // Search for closest time stamp
+    //---------------------------//
+    // _idx_read_tmp = ?
+    if (!stamp_req.is_zero()){
+        _idx_read_tmp = get_idx_of_closest_stamp(_idx_read_tmp, stamp_req);
+    }
     // Store the stamp (can put this line right after getting the index)
     _stamp_out = _stamp_list[_idx_read_tmp];
     //
+    //---------------------------//
+
+
 
     // Fill the pointer
     _fill_in_ptr_if_empty(_data_ptr_list[_idx_read_tmp]);
-    _fill_in_ptr_if_empty(_tmp_output_ptr);
     //
 
 
     // pop?
     if(!is_poping){
+        // Fill the pointer
+        _fill_in_ptr_if_empty(_tmp_output_ptr);
+        //
         if (_got_front_but_no_pop){
             // _got_front_but_no_pop = true;
             // --- No need to get element from the buffer again
             content_out_ptr = _tmp_output_ptr; // Share content with _tmp_output_ptr
         }else{
             _got_front_but_no_pop = true;
+            // Swap the pointer with _tmp_output_ptr
             _tmp_output_ptr.swap(_data_ptr_list[_idx_read_tmp]);
             content_out_ptr = _tmp_output_ptr; // Share content with _tmp_output_ptr
+            _set_index_read(_idx_read_tmp); // In case that the time searching found a different index
         }
     }else{
         // Reset the flag for front
@@ -529,13 +602,14 @@ template <class _T> bool async_buffer<_T>::front(std::shared_ptr<_T> & content_o
 
         // We need to exchange the data first before we move the index (delete)
         //---------------------------------------------------------//
+
         // Check if the content_out_ptr is null
         _fill_in_ptr_if_empty(content_out_ptr);
         //
 
-
         // Pre-check: The input pointer should be pure (unique or empty)
-        if (_data_ptr_list[_idx_read_tmp] && !_data_ptr_list[_idx_read_tmp].unique() ){ // Not null and not unique
+        if ( is_ptr_shared(_data_ptr_list[_idx_read_tmp]) ){ // Not null and not unique
+        // if (_data_ptr_list[_idx_read_tmp] && !_data_ptr_list[_idx_read_tmp].unique() ){ // Not null and not unique
             // Copy element
             // Note: the copy method may not sussess if _T is "Mat" from opencv
             //       be sure to use IMG.clone() mwthod for putting an image in.
@@ -549,13 +623,7 @@ template <class _T> bool async_buffer<_T>::front(std::shared_ptr<_T> & content_o
             content_out_ptr.swap(_data_ptr_list[_idx_read_tmp]);
 
             // Post-check: the output pointer should be unique (not empty and not shared)
-            if (!_data_ptr_list[_idx_read_tmp].unique() ){ // Not null and not unique
-                _data_ptr_list[_idx_read_tmp].reset( new _T(_empty_element) ); // Reset the pointer to make it clean.
-                #ifdef __DEGUG__
-                std::cout << "[front pop] output container pointer is not pure.";
-                #endif
-            }
-            //
+            _reset_ptr_if_shared(_data_ptr_list[_idx_read_tmp]);
         }
         //---------------------------------------------------------//
 
@@ -563,10 +631,6 @@ template <class _T> bool async_buffer<_T>::front(std::shared_ptr<_T> & content_o
         // Note: the following function already got a lock,
         // don't use the same lock recursively
         _set_index_read( _increase_idx(_idx_read_tmp) );
-
-        // Note: the copy method may not sussess if _T is "Mat" from opencv
-        //       be sure to use IMG.clone() mwthod outside this function.
-        // The following operation might be time consumming
     }
     //
     return true;
