@@ -31,11 +31,13 @@ SCENE_W1::SCENE_W1(std::string pkg_path_in)
     _rm_BaseModel.push_back( _image_board_ptr );
     */
 
+    /*
     // Back ground image (dynamic) front camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_1), false, false, true) );
     _image_board_ptr->_alpha = 1.0;
     _image_board_ptr->_color_transform = glm::vec4(1.0f);
     _rm_BaseModel.push_back( _image_board_ptr );
+    */
 
     /*
     // Top-level top-centered image (dynamic) <-- "Rear-sight mirror"
@@ -64,12 +66,10 @@ SCENE_W1::SCENE_W1(std::string pkg_path_in)
 
     // PointCloud
     std::shared_ptr<rmPointCloud> pc_ptr_1;
-    /*
     // Map
     pc_ptr_1.reset(new rmPointCloud(_Assets_path, int(MSG_ID::point_cloud_map)) );
     pc_ptr_1->set_color(glm::vec3(0.5f, 0.0f, 0.5f));
     _rm_BaseModel.push_back( pc_ptr_1 );
-    */
     // Raw data
     pc_ptr_1.reset(new rmPointCloud(_Assets_path, int(MSG_ID::point_cloud_1)) );
     pc_ptr_1->set_color(glm::vec3(1.0f));
