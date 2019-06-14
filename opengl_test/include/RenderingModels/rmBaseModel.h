@@ -29,12 +29,16 @@ public:
 	void Scale(glm::vec3 vec);
     glm::mat4 get_mv_matrix(std::shared_ptr<ViewManager> _camera_ptr, glm::mat4 &_model_M);
     // Utilities
+    bool init_paths(std::string _path_Assets_in);
     std::string get_full_Assets_path(std::string Assets_name_in);
     std::string get_full_Shader_path(std::string Shader_name_in);
     static glm::mat4 ROStf2GLMmatrix(const geometry_msgs::TransformStamped &ros_tf);
 
 protected:
-
+    //
+    std::string _path_Assets_sub_dir;
+    std::string _path_Shaders_sub_dir;
+    //
     std::string _path_Assets;
     std::string _path_Shaders;
 	std::shared_ptr<ShaderProgram> _program_ptr;

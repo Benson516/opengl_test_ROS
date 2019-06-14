@@ -323,14 +323,20 @@ void ViewManager::mouseMoveEvent(int x_cv_g, int y_cv_g)
 		vec4 up = vec4(0, 1, 0, 0);
 		vec4 right = vec4(1, 0, 0, 0);
 
+        //
 		vec3 diffUp = up.xyz() * diff.y / (float)v_height;
 		vec3 diffRight = right.xyz() * diff.x / (float)v_width;
 
+        // Method 1: Fix delta_trans
+        // glm::vec3 delta_trans = (-diffUp + diffRight) * zoom * 3.0f;
+        // Method 2: Variable delta_trans
+        glm::vec3 trans_world_at_cam = get_trans_world_at_camera();
+        glm::vec3 delta_trans = (-diffUp + diffRight) * zoom * 3.0f * ( abs( trans_world_at_cam[2] - 12.0f ) + 0.2f)*0.3f;
+
 		// translationMatrix = translate(translationMatrix, (-diffUp + diffRight) * zoom * 3.0f);
         // test
-        glm::mat4 _delta_trans(1.0);
-        _delta_trans = translate(_delta_trans, (-diffUp + diffRight) * zoom * 3.0f);
-        tansformMatrix = _delta_trans*tansformMatrix;
+        glm::mat4 _delta_trans_M = translate(glm::mat4(1.0), delta_trans);
+        tansformMatrix = _delta_trans_M*tansformMatrix;
         //
 		midDownCoord = coord;
 	}else if (rmbDown){
@@ -364,10 +370,16 @@ void ViewManager::wheelEvent(int direction)
 {
 	wheel_val = direction * 15.0f;
 	// Zoom(wheel_val / 120.0f);
+
+    // Method 1: Fix delta trans
+    // glm::vec3 delta_trans = (-wheel_val/120.0f)*vec3(0,0,1);
+
+    // Method 2: variable delta_trans accroding to distance between world and camera (farther get faster)
+    glm::vec3 trans_world_at_cam = get_trans_world_at_camera();
+    glm::vec3 delta_trans = (-wheel_val/120.0f)*vec3(0,0,1) * ( abs( trans_world_at_cam[2] - 12.0f ) + 0.2f)*0.3f;
     // test
-    glm::mat4 _delta_trans(1.0);
-    _delta_trans = translate(_delta_trans, (-wheel_val/120.0f)*vec3(0,0,1));
-    tansformMatrix = _delta_trans*tansformMatrix;
+    glm::mat4 _delta_trans_M = translate(glm::mat4(1.0), delta_trans);
+    tansformMatrix = _delta_trans_M*tansformMatrix;
 }
 
 /**
@@ -496,9 +508,9 @@ void ViewManager::Translate(vec3 vec) {
 
 	translationMatrix = translate(translationMatrix, (-diffUp + diffRight + diffForward) * zoom * 3.0f);
     // test
-    glm::mat4 _delta_trans(1.0);
-    _delta_trans = translate(_delta_trans, (-diffUp + diffRight + diffForward) * zoom * 3.0f);
-    tansformMatrix = _delta_trans*tansformMatrix;
+    glm::mat4 _delta_trans_M(1.0);
+    _delta_trans_M = translate(_delta_trans_M, (-diffUp + diffRight + diffForward) * zoom * 3.0f);
+    tansformMatrix = _delta_trans_M*tansformMatrix;
 }
 
 
@@ -516,4 +528,9 @@ bool ViewManager::is_mouse_out_of_bound(int x_cv_l, int y_cv_l){
 void ViewManager::convert_global_cv_coor_to_local_cv_coor(int x_cv_g, int y_cv_g, int &x_cv_l, int & y_cv_l){
     x_cv_l = x_cv_g - v_ld_corner_x;
     y_cv_l = y_cv_g - (w_height - (v_ld_corner_y + v_height));
+}
+
+// camera pose on view
+glm::vec3 ViewManager::get_trans_world_at_camera(){
+    return tansformMatrix[3].xyz();
 }

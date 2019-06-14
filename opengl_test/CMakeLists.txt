@@ -98,7 +98,7 @@ include_directories(
     include/RenderingModels/
     #
 	external/AntTweakBar-1.16/include/
-	external/glfw-3.1.2/include/
+	# external/glfw-3.1.2/include/
 	external/glm-0.9.7.1/
 	external/glew-1.13.0/include/
 	# external/assimp-3.0.1270/include/
@@ -119,7 +119,7 @@ add_definitions(${PCL_DEFINITIONS})
 
 set(ALL_GL_LIBS
 	${OPENGL_LIBRARY}
-	glfw
+	# glfw
 	GLEW_1130
     ${GLUT_LIBRARY}
 )
@@ -133,10 +133,7 @@ set(ALL_RENDER_MODELS
     ${RENDER_MODEL_PATH}rmBaseModel.cpp
     ${RENDER_MODEL_PATH}rmPointCloud.cpp
     ${RENDER_MODEL_PATH}rmLidarBoundingBox.cpp
-    ${RENDER_MODEL_PATH}rmImageStatic.cpp
-    ${RENDER_MODEL_PATH}rmImageStaticBackground.cpp
-    ${RENDER_MODEL_PATH}rmImageDynamic.cpp
-    ${RENDER_MODEL_PATH}rmImageDynamicBackground.cpp
+    ${RENDER_MODEL_PATH}rmImageBoard.cpp
 )
 
 

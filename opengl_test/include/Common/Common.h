@@ -2,14 +2,14 @@
 #define COMMON_H
 
 #ifdef _MSC_VER
-#include "GLEW/glew.h"
-#include "FreeGLUT/freeglut.h"
-#include <direct.h>
+    #include "GLEW/glew.h"
+    #include "FreeGLUT/freeglut.h"
+    #include <direct.h>
 #else
-// #include <OpenGL/gl3.h>
-#include <GL/glew.h> // <-- Added for Ubuntu, by Benson
-#include <GL/glut.h> // <-- Changed from 'GLUT/glut.h' to 'GL/glut.h' for Ubuntu, by Benson
-#include <unistd.h>
+    // #include <OpenGL/gl3.h>
+    #include <GL/glew.h> // <-- Added for Ubuntu, by Benson
+    #include <GL/glut.h> // <-- Changed from 'GLUT/glut.h' to 'GL/glut.h' for Ubuntu, by Benson
+    #include <unistd.h>
 #endif
 
 #ifndef TINYOBJLOADER_IMPLEMENTATION

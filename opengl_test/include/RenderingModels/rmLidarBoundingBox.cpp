@@ -22,8 +22,7 @@ namespace rmLidarBoundingBox_ns{
 rmLidarBoundingBox::rmLidarBoundingBox(std::string _path_Assets_in, int _ROS_topic_id_in):
     _ROS_topic_id(_ROS_topic_id_in)
 {
-    _path_Assets = _path_Assets_in;
-    _path_Shaders = _path_Assets + "Shaders/";
+    init_paths(_path_Assets_in);
     //
     _num_vertex_idx_per_box = 6*(3*2);
     _num_vertex_per_box = 8;
