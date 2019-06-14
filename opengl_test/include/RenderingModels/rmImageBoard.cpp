@@ -186,7 +186,7 @@ void rmImageBoard::Render(std::shared_ptr<ViewManager> _camera_ptr){
             // Note: the rotation is mainly for z-axis rotation
             // Note 2: The tranalation/rotation/scale is based on the "center" of the image
             m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
-            glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
+            glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( m_shape.model ));
         }else{
             // background
             // Nothing, for saving computation
