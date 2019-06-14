@@ -165,8 +165,7 @@ private:
     }
 
 
-    // Time searching
-    /*
+    // Time searching, find the minimum delta_t in absoulute value
     inline int get_idx_of_closest_stamp(int _idx_read_tmp, const TIME_STAMP::Time &stamp_req){
         int _idx_write_tmp = _get_index_write();
         int _closest_idx = _idx_read_tmp;
@@ -177,22 +176,6 @@ private:
             if (_is_first || _delta_t < _min_delta_t){
             // if (_is_first || (_delta_t < _min_delta_t && stamp_req >= _stamp_list[_idx_read_tmp]) ){
                 _is_first = false;
-                _min_delta_t = _delta_t;
-                _closest_idx = _idx_read_search;
-            }
-        }
-        //
-        return _closest_idx;
-    }
-    */
-    inline int get_idx_of_closest_stamp(int _idx_read_tmp, const TIME_STAMP::Time &stamp_req){
-        int _idx_write_tmp = _get_index_write();
-        int _closest_idx = _decrease_idx(_idx_write_tmp); // _idx_read_tmp;
-        TIME_STAMP::Time _min_delta_t = (stamp_req - _stamp_list[_closest_idx]).abs();
-        for( int _idx_read_search = _idx_read_tmp; (_idx_read_search != _idx_write_tmp) ; _idx_read_search = _increase_idx(_idx_read_search)){
-            TIME_STAMP::Time _delta_t = (stamp_req - _stamp_list[_idx_read_search]).abs();
-            if (_delta_t < _min_delta_t){
-            // if ( _delta_t < _min_delta_t && stamp_req >= _stamp_list[_idx_read_tmp] ){
                 _min_delta_t = _delta_t;
                 _closest_idx = _idx_read_search;
             }
