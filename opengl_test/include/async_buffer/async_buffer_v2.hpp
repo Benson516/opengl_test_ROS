@@ -107,6 +107,9 @@ private:
     std::vector< std::shared_ptr<_T> > _data_ptr_list; //
     std::vector<TIME_STAMP::Time> _stamp_list; // time stamp (sec.) of each element
 
+    inline void _fill_in_ptr_if_empty(std::shared_ptr<_T> & _ptr_in){
+        if (!_ptr_in){  _ptr_in.reset( new _T(_empty_element) );   }
+    }
 
     // The indicators
     int _idx_write;
@@ -137,17 +140,22 @@ private:
 
     // Private methods
     inline void _set_index_write(int idx_write_new){
-        {
-            std::lock_guard<std::mutex> _lock(*_mlock_idx_write);
-            _idx_write = idx_write_new;
-        }
+        std::lock_guard<std::mutex> _lock(*_mlock_idx_write);
+        _idx_write = idx_write_new;
+    }
+    inline int _get_index_write(){
+        std::lock_guard<std::mutex> _lock(*_mlock_idx_write);
+        return _idx_write;
     }
     inline void _set_index_read(int idx_read_new){
-        {
-            std::lock_guard<std::mutex> _lock(*_mlock_idx_read);
-            _idx_read = idx_read_new;
-        }
+        std::lock_guard<std::mutex> _lock(*_mlock_idx_read);
+        _idx_read = idx_read_new;
     }
+    inline int _get_index_read(){
+        std::lock_guard<std::mutex> _lock(*_mlock_idx_read);
+        return _idx_read;
+    }
+
 
 
     // The default copy function
@@ -192,8 +200,6 @@ private:
     bool _is_full();  // // This is a fast method which may return true even when there are some sapces in queue (but not vise versa)
     int _size_est(); // The number of buffered contents. This is a fast method with no mutex but may be incorrect in both direction.
     size_t _size_exact(); // The number of buffered contents. This is a blocking method with mutex, which will return a correct value.
-
-
 
 };
 //------------------------------------------------------//
@@ -312,11 +318,7 @@ template <class _T> bool async_buffer<_T>::put(const _T & element_in, bool is_dr
         //
     }
     // else
-    int _idx_write_tmp;
-    {
-        std::lock_guard<std::mutex> _lock(*_mlock_idx_write);
-        _idx_write_tmp = _idx_write;
-    }
+    int _idx_write_tmp = _get_index_write();
 
     // Assign time "now" (can put this line right after getting the index)
     _stamp_list[_idx_write_tmp] = stamp_in;
@@ -373,11 +375,7 @@ template <class _T> bool async_buffer<_T>::put(std::shared_ptr<_T> & element_in_
         //
     }
     // else
-    int _idx_write_tmp;
-    {
-        std::lock_guard<std::mutex> _lock(*_mlock_idx_write);
-        _idx_write_tmp = _idx_write;
-    }
+    int _idx_write_tmp = _get_index_write();
 
     // Assign time "now" (can put this line right after getting the index)
     _stamp_list[_idx_write_tmp] = stamp_in;
@@ -439,11 +437,7 @@ template <class _T> bool async_buffer<_T>::front(_T & content_out, bool is_popin
         return false;
     }
     // else
-    int _idx_read_tmp;
-    {
-        std::lock_guard<std::mutex> _lock(*_mlock_idx_read);
-        _idx_read_tmp = _idx_read;
-    }
+    int _idx_read_tmp = _get_index_read();
 
     // Store the stamp (can put this line right after getting the index)
     _stamp_out = _stamp_list[_idx_read_tmp];
@@ -451,12 +445,8 @@ template <class _T> bool async_buffer<_T>::front(_T & content_out, bool is_popin
 
 
     // Fill the pointer!
-    if (!_data_ptr_list[_idx_read_tmp]){
-        _data_ptr_list[_idx_read_tmp].reset( new _T(_empty_element) );
-    }
-    if (!_tmp_output_ptr){
-        _tmp_output_ptr.reset( new _T(_empty_element) );
-    }
+    _fill_in_ptr_if_empty(_data_ptr_list[_idx_read_tmp]);
+    _fill_in_ptr_if_empty(_tmp_output_ptr);
     //
 
     // pop?
@@ -510,11 +500,7 @@ template <class _T> bool async_buffer<_T>::front(std::shared_ptr<_T> & content_o
         return false;
     }
     // else
-    int _idx_read_tmp;
-    {
-        std::lock_guard<std::mutex> _lock(*_mlock_idx_read);
-        _idx_read_tmp = _idx_read;
-    }
+    int _idx_read_tmp = _get_index_read();
 
     // Store the stamp (can put this line right after getting the index)
     _stamp_out = _stamp_list[_idx_read_tmp];
@@ -607,11 +593,7 @@ template <class _T> bool async_buffer<_T>::pop(){
         return false;
     }
     // else
-    int _idx_read_tmp;
-    {
-        std::lock_guard<std::mutex> _lock(*_mlock_idx_read);
-        _idx_read_tmp = _idx_read;
-    }
+    int _idx_read_tmp = _get_index_read();
 
     // Note: the following function already got a lock,
     // don't use the same lock recursively
@@ -632,14 +614,8 @@ template <class _T> bool async_buffer<_T>::_is_empty(){
 
     // Cache the "write" first
     int _idx_write_tmp, _idx_read_tmp;
-    {
-        std::lock_guard<std::mutex> _lock_w(*_mlock_idx_write);
-        _idx_write_tmp = _idx_write;
-    }
-    {
-        std::lock_guard<std::mutex> _lock_r(*_mlock_idx_read);
-        _idx_read_tmp = _idx_read;
-    }
+    _idx_write_tmp = _get_index_write();
+    _idx_read_tmp = _get_index_read();
 
     return _is_empty_cal(_idx_write_tmp, _idx_read_tmp);
 }
@@ -650,15 +626,8 @@ template <class _T> bool async_buffer<_T>::_is_full(){
 
     // Cache the "read" first
     int _idx_write_tmp, _idx_read_tmp;
-    {
-        std::lock_guard<std::mutex> _lock_r(*_mlock_idx_read);
-        _idx_read_tmp = _idx_read;
-    }
-    {
-        std::lock_guard<std::mutex> _lock_w(*_mlock_idx_write);
-        _idx_write_tmp = _idx_write;
-    }
-
+    _idx_read_tmp = _get_index_read();
+    _idx_write_tmp = _get_index_write();
 
     return _is_full_cal(_idx_write_tmp, _idx_read_tmp);
 }
@@ -669,14 +638,9 @@ template <class _T> int async_buffer<_T>::_size_est(){
 
     // Cache the "read" first, since the write might change more frequently
     int _idx_write_tmp, _idx_read_tmp;
-    {
-        std::lock_guard<std::mutex> _lock_r(*_mlock_idx_read);
-        _idx_read_tmp = _idx_read;
-    }
-    {
-        std::lock_guard<std::mutex> _lock_w(*_mlock_idx_write);
-        _idx_write_tmp = _idx_write;
-    }
+    _idx_read_tmp = _get_index_read();
+    _idx_write_tmp = _get_index_write();
+
     //
     #ifdef __DEGUG__
         std::cout << "(_idx_write_tmp, _idx_read_tmp) = (" << _idx_write_tmp << ", " << _idx_read_tmp << ") ";
