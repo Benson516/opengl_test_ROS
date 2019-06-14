@@ -324,10 +324,8 @@ template <class _T> bool async_buffer<_T>::put(const _T & element_in, bool is_dr
     _stamp_list[_idx_write_tmp] = stamp_in;
     //
 
-    // Fill the pointer!
-    if (!_data_ptr_list[_idx_write_tmp]){
-        _data_ptr_list[_idx_write_tmp].reset( new _T(_empty_element) );
-    }
+    // Fill the pointer
+    _fill_in_ptr_if_empty(_data_ptr_list[_idx_write_tmp]);
     //
 
     // Note: the copy method may not sussess if _T is "Mat" from opencv
@@ -384,10 +382,8 @@ template <class _T> bool async_buffer<_T>::put(std::shared_ptr<_T> & element_in_
 
 
     //---------------------------------------------------------//
-    // Fill the pointer!
-    if (!_data_ptr_list[_idx_write_tmp]){
-        _data_ptr_list[_idx_write_tmp].reset( new _T(_empty_element) );
-    }
+    // Fill the pointer
+    _fill_in_ptr_if_empty(_data_ptr_list[_idx_write_tmp]);
     //
 
     // Note: the element_in_ptr is shure not to be an empty pointer
@@ -444,7 +440,7 @@ template <class _T> bool async_buffer<_T>::front(_T & content_out, bool is_popin
     //
 
 
-    // Fill the pointer!
+    // Fill the pointer
     _fill_in_ptr_if_empty(_data_ptr_list[_idx_read_tmp]);
     _fill_in_ptr_if_empty(_tmp_output_ptr);
     //
@@ -465,9 +461,15 @@ template <class _T> bool async_buffer<_T>::front(_T & content_out, bool is_popin
         _got_front_but_no_pop = false;
         //
 
-        // We need to copy the data first before we move the index (delete)
-        // Note: if _T is opencv Mat, the following operation won't really copy the data
+        // Search for closest time stamp
+        //---------------------------//
+        // _idx_read_tmp = ?
+        //---------------------------//
 
+        // We need to copy the data first before we move the index (delete)
+        // Note: the default copy method may not sussess if _T is "Mat" from opencv
+        //       be sure to use IMG.clone() method in customized _copy_func() using assign_copy_func() method.
+        // The following operation might be time consumming
         _copy_func(content_out, *_data_ptr_list[_idx_read_tmp]);
         // content_out = std::move(_data_ptr_list[_idx_read_tmp]); // The content in the buffer will disappear.
 
@@ -475,9 +477,6 @@ template <class _T> bool async_buffer<_T>::front(_T & content_out, bool is_popin
         // don't use the same lock recursively
         _set_index_read( _increase_idx(_idx_read_tmp) );
 
-        // Note: the copy method may not sussess if _T is "Mat" from opencv
-        //       be sure to use IMG.clone() mwthod outside this function.
-        // The following operation might be time consumming
     }
     //
     return true;
@@ -506,14 +505,11 @@ template <class _T> bool async_buffer<_T>::front(std::shared_ptr<_T> & content_o
     _stamp_out = _stamp_list[_idx_read_tmp];
     //
 
-    // Fill the pointer!
-    if (!_data_ptr_list[_idx_read_tmp]){
-        _data_ptr_list[_idx_read_tmp].reset( new _T(_empty_element) );
-    }
-    if (!_tmp_output_ptr){
-        _tmp_output_ptr.reset( new _T(_empty_element) );
-    }
+    // Fill the pointer
+    _fill_in_ptr_if_empty(_data_ptr_list[_idx_read_tmp]);
+    _fill_in_ptr_if_empty(_tmp_output_ptr);
     //
+
 
     // pop?
     if(!is_poping){
@@ -534,18 +530,19 @@ template <class _T> bool async_buffer<_T>::front(std::shared_ptr<_T> & content_o
         // We need to exchange the data first before we move the index (delete)
         //---------------------------------------------------------//
         // Check if the content_out_ptr is null
-        if (!content_out_ptr){
-            content_out_ptr.reset( new _T(_empty_element) );
-        }
+        _fill_in_ptr_if_empty(content_out_ptr);
+        //
+
+
         // Pre-check: The input pointer should be pure (unique or empty)
         if (_data_ptr_list[_idx_read_tmp] && !_data_ptr_list[_idx_read_tmp].unique() ){ // Not null and not unique
             // Copy element
             // Note: the copy method may not sussess if _T is "Mat" from opencv
             //       be sure to use IMG.clone() mwthod for putting an image in.
             _copy_func(*content_out_ptr, *_data_ptr_list[_idx_read_tmp]); // *ptr <-- *ptr
-#ifdef __DEGUG__
+            #ifdef __DEGUG__
             std::cout << "[front pop] buffer pointer is not pure.";
-#endif
+            #endif
         }else{
             // The input pointer is pure (unique or null)
             // swapping
@@ -554,9 +551,9 @@ template <class _T> bool async_buffer<_T>::front(std::shared_ptr<_T> & content_o
             // Post-check: the output pointer should be unique (not empty and not shared)
             if (!_data_ptr_list[_idx_read_tmp].unique() ){ // Not null and not unique
                 _data_ptr_list[_idx_read_tmp].reset( new _T(_empty_element) ); // Reset the pointer to make it clean.
-#ifdef __DEGUG__
+                #ifdef __DEGUG__
                 std::cout << "[front pop] output container pointer is not pure.";
-#endif
+                #endif
             }
             //
         }
