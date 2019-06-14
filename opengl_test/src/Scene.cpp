@@ -11,6 +11,8 @@ Scene::Scene(std::string pkg_path_in)
 
     // Image
     std::shared_ptr<rmImageBoard> _image_board_ptr;
+    // PointCloud
+    std::shared_ptr<rmPointCloud> pc_ptr_1;
 
     /*
     // Back ground image (static)
@@ -53,8 +55,7 @@ Scene::Scene(std::string pkg_path_in)
 
 
 
-    // PointCloud
-    std::shared_ptr<rmPointCloud> pc_ptr_1;
+
     // Map
     pc_ptr_1.reset(new rmPointCloud(_Assets_path, int(MSG_ID::point_cloud_map)) );
     pc_ptr_1->set_color(glm::vec3(0.5f, 0.0f, 0.5f));

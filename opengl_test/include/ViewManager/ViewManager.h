@@ -58,6 +58,7 @@ public:
     void Zoom(float distance);
     void Reset();
 
+    // Utilities
     bool is_mouse_out_of_bound(int x_cv, int y_cv);
     void convert_global_cv_coor_to_local_cv_coor(int x_cv_g, int y_cv_g, int &x_cv_l, int & y_cv_l);
 

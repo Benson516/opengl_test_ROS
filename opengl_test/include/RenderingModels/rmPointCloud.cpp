@@ -4,8 +4,7 @@
 rmPointCloud::rmPointCloud(std::string _path_Assets_in, int _ROS_topic_id_in):
     _ROS_topic_id(_ROS_topic_id_in)
 {
-    _path_Assets = _path_Assets_in;
-    _path_Shaders = _path_Assets + "Shaders/";
+    init_paths(_path_Assets_in);
     _max_num_vertex = 5000000; // 5*10^6 // 100000;
 	Init();
 }
@@ -64,14 +63,14 @@ void rmPointCloud::LoadModel(){
 	glEnableVertexAttribArray(1);
 
     // Texture
-	glEnable(GL_TEXTURE_2D);
-	glActiveTexture(GL_TEXTURE0);
+	// glEnable(GL_TEXTURE_2D);
+	// glActiveTexture(GL_TEXTURE0);
+    glGenTextures(1, &m_shape.m_texture);
+	glBindTexture(GL_TEXTURE_2D, m_shape.m_texture);
     //Load texture data from file
     std::string _texture_1("star.png");
     std::cout << "start loading <" << _texture_1 << ">\n";
 	TextureData tdata = Common::Load_png(get_full_Assets_path(_texture_1).c_str());
-	glGenTextures(1, &m_shape.m_texture);
-	glBindTexture(GL_TEXTURE_2D, m_shape.m_texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tdata.width, tdata.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata.data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
