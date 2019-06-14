@@ -108,6 +108,7 @@ SCENE_W1::SCENE_W1(std::string pkg_path_in)
     _image_board_ptr->_alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
 
+    /*
     // Dynamic image, front-left camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_2), true, true, false) );
     _image_board_ptr->Translate(glm::vec3(0.0f, 10.0f, 3.0f));
@@ -119,6 +120,7 @@ SCENE_W1::SCENE_W1(std::string pkg_path_in)
     _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _image_board_ptr->_alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
+    */
 
     /*
     // Dynamic image, front-down camera

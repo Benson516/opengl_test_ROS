@@ -50,7 +50,8 @@ public:
     void SetRotation(float x, float y, float z);
 	void SetWindowSize(int viewport_width, int viewport_height);
     void SetWindowSize(int ld_corner_x, int ld_corner_y, int viewport_width, int viewport_height, int full_window_width, int full_window_height);
-    //
+
+    // Set the camera pose
     void SetCameraModel(glm::mat4 camera_model_in);
     void SetInvCameraModel(glm::mat4 camera_model_inv_in);
 
@@ -58,10 +59,12 @@ public:
     void Zoom(float distance);
     void Reset();
 
-    // Utilities
+    // Mouse
     bool is_mouse_out_of_bound(int x_cv, int y_cv);
     void convert_global_cv_coor_to_local_cv_coor(int x_cv_g, int y_cv_g, int &x_cv_l, int & y_cv_l);
 
+    // camera pose on view (translationMatrix only)
+    glm::vec3 get_trans_world_at_camera();
 
 private:
 	float aspect;					///< 儲存目前視窗的長寬比。
