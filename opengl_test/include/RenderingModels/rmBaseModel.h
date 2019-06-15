@@ -24,10 +24,25 @@ public:
 	virtual void Render(std::shared_ptr<ViewManager> _camera_ptr);
 
     // Matrix operation
-	void Translate(glm::vec3 vec);
-	void Rotate(glm::vec3 axis, float angle);
-	void Scale(glm::vec3 vec);
+    //------------------------------------------------//
+    // Legacy "Pre-" operations
+    void Translate(const glm::vec3 &vec);
+	void Rotate(const glm::vec3 &axis, float angle);
+	void Scale(const glm::vec3 &vec);
+    // "Pre-" operations
+    void preTranslate(const glm::vec3 &vec);
+	void preRotate(const glm::vec3 &axis, float angle);
+	void preScale(const glm::vec3 &vec);
+    // "Post-" operations
+    void postTranslate(const glm::vec3 &vec);
+	void postRotate(const glm::vec3 &axis, float angle);
+	void postScale(const glm::vec3 &vec);
+    //------------------------------------------------//
+
+    // The pose
     glm::mat4 get_mv_matrix(std::shared_ptr<ViewManager> _camera_ptr, glm::mat4 &_model_M);
+
+
     // Utilities
     bool init_paths(std::string _path_Assets_in);
     std::string get_full_Assets_path(std::string Assets_name_in);

@@ -13,8 +13,9 @@ ROS_INTERFACE::ROS_INTERFACE():
     // The temporary containers
     // _ITRIPointCloud_tmp_ptr (new pcl::PointCloud<pcl::PointXYZI>)
     _ref_frame("map"), _stationary_frame("map"),
-    _is_using_current_slice_time(false),
-    _current_slice_time(ros::Time(0))
+    _is_using_latest_tf_common_update_time(false),
+    _latest_tf_common_update_time(ros::Time(0)),
+    _current_slice_time()
 {
     //
     _num_ros_cb_thread = TOTAL_NUM_THREAD_FOR_ROS_CB;
@@ -29,8 +30,9 @@ ROS_INTERFACE::ROS_INTERFACE(int argc, char **argv):
     // The temporary containers
     // _ITRIPointCloud_tmp_ptr (new pcl::PointCloud<pcl::PointXYZI>)
     _ref_frame("map"), _stationary_frame("map"),
-    _is_using_current_slice_time(false),
-    _current_slice_time(ros::Time(0))
+    _is_using_latest_tf_common_update_time(false),
+    _latest_tf_common_update_time(ros::Time(0)),
+    _current_slice_time()
 {
     //
     _num_ros_cb_thread = TOTAL_NUM_THREAD_FOR_ROS_CB;
@@ -322,20 +324,20 @@ bool ROS_INTERFACE::set_ref_frame(const std::string &ref_frame_in){
     _ref_frame = ref_frame_in;
     return true;
 }
-bool ROS_INTERFACE::update_current_slice_time(const std::string &ref_frame_in, const std::string &to_frame_in){
+bool ROS_INTERFACE::update_latest_tf_common_update_time(const std::string &ref_frame_in, const std::string &to_frame_in){
     ros::Time _common_time;
     std::string err_str;
     tfBuffer._getLatestCommonTime(tfBuffer._lookupFrameNumber(ref_frame_in), tfBuffer._lookupFrameNumber(to_frame_in), _common_time, &err_str);
     // std::cout << "_common_time = " << _common_time.sec << ", " << _common_time.nsec << "\n";
-    if (_common_time > _current_slice_time){
-        _current_slice_time = _common_time;
-        _is_using_current_slice_time = true;
+    if (_common_time > _latest_tf_common_update_time){
+        _latest_tf_common_update_time = _common_time;
+        _is_using_latest_tf_common_update_time = true;
     }
     // std::cout << "err_str = <" << err_str << ">\n";
     return true;
 }
-ros::Time ROS_INTERFACE::get_current_slice_time(){
-    return _current_slice_time;
+ros::Time ROS_INTERFACE::get_latest_tf_common_update_time(){
+    return _latest_tf_common_update_time;
 }
 
 // Get tf
@@ -354,8 +356,8 @@ bool ROS_INTERFACE::get_tf(std::string base_fram, std::string to_frame, geometry
         // Using time-traveling going through _stationary_frame
         try{
             ros::Time _common_time;
-            if(_is_using_current_slice_time){
-                _common_time = _current_slice_time;
+            if(_is_using_latest_tf_common_update_time){
+                _common_time = _latest_tf_common_update_time;
             }else{
                 std::string err_str;
                 tfBuffer._getLatestCommonTime(tfBuffer._lookupFrameNumber(base_fram), tfBuffer._lookupFrameNumber(_stationary_frame), _common_time, &err_str);
@@ -767,8 +769,8 @@ bool ROS_INTERFACE::get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl:
         // _tfStamped_out = tfBuffer.lookupTransform(_ref_frame, _frame_id, ros::Time(0));
         // _tfStamped_out = tfBuffer.lookupTransform(_ref_frame, _frame_id, _msg_stamp);
         ros::Time _common_time;
-        if(_is_using_current_slice_time){
-            _common_time = _current_slice_time;
+        if(_is_using_latest_tf_common_update_time){
+            _common_time = _latest_tf_common_update_time;
         }else{
             std::string err_str;
             tfBuffer._getLatestCommonTime(tfBuffer._lookupFrameNumber(_ref_frame), tfBuffer._lookupFrameNumber(_frame_id), _common_time, &err_str);

@@ -153,17 +153,39 @@ void rmBaseModel::Render(std::shared_ptr<ViewManager> _camera_ptr){
 	///////////////////////////
 }
 
-void rmBaseModel::Translate(glm::vec3 vec){
+// Matrix operation
+//------------------------------------------------//
+// Legacy "Pre-" operations
+void rmBaseModel::Translate(const glm::vec3 &vec){
+    preTranslate(vec);
+}
+void rmBaseModel::Rotate(const glm::vec3 &axis, float angle){
+    preRotate(axis, angle);
+}
+void rmBaseModel::Scale(const glm::vec3 &vec){
+    preScale(vec);
+}
+// "Pre-" operations
+void rmBaseModel::preTranslate(const glm::vec3 &vec){
 	translateMatrix = translate(translateMatrix, vec);
 }
-
-void rmBaseModel::Rotate(glm::vec3 axis,float angle){
+void rmBaseModel::preRotate(const glm::vec3 &axis, float angle){
 	rotateMatrix = rotate(rotateMatrix, angle, axis);
 }
-
-void rmBaseModel::Scale(glm::vec3 vec){
+void rmBaseModel::preScale(const glm::vec3 &vec){
 	scaleMatrix = scale(scaleMatrix, vec);
 }
+// "Post-" operations
+void rmBaseModel::postTranslate(const glm::vec3 &vec){
+	translateMatrix = translate(glm::mat4(1.0), vec) * translateMatrix;
+}
+void rmBaseModel::postRotate(const glm::vec3 &axis, float angle){
+	rotateMatrix = rotate(glm::mat4(1.0), angle, axis) * rotateMatrix;
+}
+void rmBaseModel::postScale(const glm::vec3 &vec){
+	scaleMatrix = scale(glm::mat4(1.0), vec) * scaleMatrix;
+}
+//------------------------------------------------//
 
 glm::mat4 rmBaseModel::get_mv_matrix(std::shared_ptr<ViewManager> _camera_ptr, glm::mat4 &_model_M){
     // Get the model-view matrix
