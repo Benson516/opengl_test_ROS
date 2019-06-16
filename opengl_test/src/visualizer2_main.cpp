@@ -142,6 +142,9 @@ void My_Display()
     // Update data
     // bool is_updated = ros_api.update();
     scene_ptr_1->Update(ros_api.ros_interface);
+    scene_ptr_2->Update(ros_api.ros_interface);
+    scene_ptr_3->Update(ros_api.ros_interface);
+    // scene_ptr_4->Update(ros_api.ros_interface);
     //---------------------------------//
     // end ROS_interface
 
@@ -164,12 +167,19 @@ void My_Display()
 
     // OpenGL, GLUT
     //---------------------------------//
-    glViewport(0, 0, windows_width, windows_height); // <-- move to Draw()
+
+    // Note: The following operations are move into the render function of each Scene,
+    //       which means that each Scene will have their saparated window and we should not draw two Scene into one window
+    // glViewport(0, 0, windows_width, windows_height); // <-- move to Draw()
     // glViewport(100, 100, windows_width/2, windows_height/2); // <-- move to Draw()
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClearDepth(1.0f);
+    // glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    // glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	scene_ptr_1->Render();
+    scene_ptr_2->Render();
+    scene_ptr_3->Render();
+    // scene_ptr_4->Render();
 
 
 
@@ -198,8 +208,10 @@ void My_Reshape(int width, int height)
     windows_width = width;
     windows_height = height;
     // glViewport(0, 0, windows_width, windows_height); // <-- move to Draw()
-    scene_ptr_1->GetCamera()->SetWindowSize(0, 0, windows_width, windows_height, windows_width, windows_height);
-	// scene_ptr->GetCamera()->SetWindowSize(100, 100, windows_width/2, windows_height/2, windows_width, windows_height);
+    scene_ptr_1->GetCamera()->SetWindowSize(windows_width, windows_height);
+    scene_ptr_2->GetCamera()->SetWindowSize(windows_width, windows_height);
+    scene_ptr_3->GetCamera()->SetWindowSize(windows_width, windows_height);
+    // scene_ptr_4->GetCamera()->SetWindowSize(windows_width, windows_height);
 }
 
 //Timer event

@@ -31,12 +31,16 @@ public:
 	void Render();
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
-    std::shared_ptr<ViewManager> GetCamera(){ return _camera_ptr; }
+    void Reshape(int full_window_width, int full_window_height);
+
     //
     void MouseEvent(int button,int state,int x,int y);
 	void KeyBoardEvent(int key);
 	void KeyBoardEvent(unsigned char key);
 	void MenuEvent(int item);
+
+    // ViewManager
+    std::shared_ptr<ViewManager> GetCamera(){ return _camera_ptr; }
 
 protected:
     std::string _pkg_path;
@@ -45,7 +49,6 @@ protected:
 
     // Render models
     std::vector< std::shared_ptr<rmBaseModel> > _rm_BaseModel;
-    std::vector< std::shared_ptr<rmPointCloud> > _rm_PointCloud;
 };
 
 #endif  // Scene_H

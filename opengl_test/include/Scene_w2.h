@@ -14,9 +14,22 @@ private:
 
 };
 
+bool cal_viewport_w2(int w, int h, int &cx, int &cy, int &vw, int &vh){
+    double asp = 1.5833333333;
+    int im_w = w/7;
+    int im_h = int(im_w/asp);
+    cx = im_w*2;
+    cy = 0;
+    vw = im_w;
+    vh = im_h;
+    return true;
+}
+
 SCENE_W2::SCENE_W2(std::string pkg_path_in)
 {
 	_camera_ptr.reset(new ViewManager());
+    _camera_ptr->assign_cal_viewport(&cal_viewport_w2);
+
     _pkg_path = (pkg_path_in);
     _Assets_path = (pkg_path_in + "Assets/");
 
