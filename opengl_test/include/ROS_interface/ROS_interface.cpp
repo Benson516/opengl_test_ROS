@@ -435,6 +435,42 @@ geometry_msgs::TransformStamped ROS_INTERFACE::get_tf(const int topic_id, bool &
 
 // Combined same buffer-data types
 //---------------------------------------------------------//
+/*
+bool ROS_INTERFACE::get_any_message(const int topic_id, boost::any & content_out_ptr){
+    {
+        using MSG::M_TYPE;
+
+        switch ( M_TYPE(_topic_param_list[topic_id].type) ){
+            case M_TYPE::String:
+                {std::shared_ptr< std::string> * _ptr_ptr = boost::any_cast< std::shared_ptr< std::string> >( &content_out_ptr );
+                return get_String(topic_id,  *_ptr_ptr);
+                break;}
+            case M_TYPE::tfGeoPoseStamped:
+                {return false;
+                break;}
+            case M_TYPE::Image:
+                {std::shared_ptr<cv::Mat> * _ptr_ptr = boost::any_cast< std::shared_ptr<cv::Mat> >( &content_out_ptr );
+                return get_Image(topic_id, *_ptr_ptr );
+                break;}
+            case M_TYPE::PointCloud2:
+                {std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > * _ptr_ptr = boost::any_cast< std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > >( &content_out_ptr );
+                return get_PointCloud2(topic_id,  *_ptr_ptr);
+                break;}
+            case M_TYPE::ITRIPointCloud:
+                {std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> >  * _ptr_ptr = boost::any_cast< std::shared_ptr< std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > >( &content_out_ptr );
+                return get_ITRIPointCloud(topic_id, *_ptr_ptr );
+                break;}
+            case M_TYPE::ITRI3DBoundingBox:
+                {std::shared_ptr< msgs::LidRoi > *_ptr_ptr = boost::any_cast< std::shared_ptr< msgs::LidRoi > >( &content_out_ptr );
+                return get_ITRI3DBoundingBox(topic_id, *_ptr_ptr );
+                break;}
+            default:
+                return false;
+        }
+        // end switch
+    }
+}
+*/
 bool ROS_INTERFACE::get_any_pointcloud(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out){
     {
         using MSG::M_TYPE;
@@ -512,18 +548,13 @@ bool ROS_INTERFACE::get_String(const int topic_id, std::string & content_out){
     int _tid = _topic_tid_list[topic_id];
     //------------------------------------//
     return ( buffer_list_String[_tid].front(content_out, true, _current_slice_time) );
-    /*
-    // Legacy API
-     std::pair<string,bool> _result_pair = buffer_list_String[_tid].front(true);
-     if (_result_pair.second){
-         // front and pop
-         content_out = _result_pair.first;
-         return true;
-     }else{
-         // empty
-         return false;
-     }
-     */
+}
+bool ROS_INTERFACE::get_String(const int topic_id, std::shared_ptr< std::string> & content_out_ptr){
+    // Type_id
+    //------------------------------------//
+    int _tid = _topic_tid_list[topic_id];
+    //------------------------------------//
+    return ( buffer_list_String[_tid].front(content_out_ptr, true, _current_slice_time) );
 }
 // output
 /*
@@ -639,6 +670,7 @@ void ROS_INTERFACE::_Image_CB(const sensor_msgs::ImageConstPtr& msg, const MSG::
     cv_bridge::CvImagePtr cv_ptr;
     try{
       cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+      // std::cout << "image: (rows, cols) = (" << cv_ptr->image.rows << ", " << cv_ptr->image.cols << ")\n";
     }
     catch (cv_bridge::Exception& e){
       ROS_ERROR("cv_bridge exception: %s", e.what());

@@ -166,8 +166,13 @@ public:
     // Really start the ROS thread
     bool start();
 
+
     // Check if the ROS is started
     bool is_running();
+    // Get topic imformations
+    inline MSG::T_PARAMS get_topic_param(const int topic_id){ return _topic_param_list[topic_id];}
+    inline size_t get_count_of_all_topics(){    return _topic_param_list.size();    }
+    inline size_t get_count_of_a_topic_type(MSG::M_TYPE topic_type){    return (_msg_type_2_topic_params[int(topic_type)].size() );  }
 
     // Utilities
     inline ros::Time        toROStime(const TIME_STAMP::Time & time_in){return ros::Time(time_in.sec, time_in.nsec); }
@@ -178,6 +183,7 @@ public:
     // The topic_id should be the "global id"
     //---------------------------------------------------------//
     bool get_String(const int topic_id, std::string & content_out);
+    bool get_String(const int topic_id, std::shared_ptr< std::string> & content_out_ptr);
     bool get_Image(const int topic_id, cv::Mat & content_out);
     bool get_Image(const int topic_id, std::shared_ptr<cv::Mat> & content_out_ptr);
     bool get_PointCloud2(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out);
@@ -225,6 +231,7 @@ public:
 
     // Combined same buffer-data types
     //---------------------------------------------------------//
+    // bool get_any_message(const int topic_id, boost::any & content_out_ptr);
     // pcl::PointCloud<pcl::PointXYZI>
     bool get_any_pointcloud(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out);
     bool get_any_pointcloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr);

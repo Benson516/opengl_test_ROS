@@ -2,8 +2,7 @@
 
 
 ROS_ICLU3_V0::ROS_ICLU3_V0():
-    _is_initialized(false),
-    num_Image(0), num_ITRIPointCloud(0)
+    _is_initialized(false)
 {
     // TODO: replace the following hardcoded path to an auto-detected one
     // path_pkg = "/home/benson516_itri/catkin_ws/src/opengl_test_ROS/opengl_test/";
@@ -38,33 +37,26 @@ std::string ROS_ICLU3_V0::get_pkg_path(){
 bool ROS_ICLU3_V0::update(){
     bool _updated = false;
     int _type_head_id = 0;
-    // Note: the topics of same types should be added adjacent to each other
-    //       so that the following codes work.
+
 
     // Initialize vectors
     if (!_is_initialized){
-        // Image
-        Image_ptr_list.resize(num_Image);
-        got_Image.resize(num_Image);
-        // ITRIPointCloud
-        ITRIPointCloud_ptr_list.resize(num_ITRIPointCloud);
-        got_ITRIPointCloud.resize(num_ITRIPointCloud);
+        //
+        got_on_any_topic.resize( ros_interface.get_count_of_all_topics() );
+        any_ptr_list.resize( ros_interface.get_count_of_all_topics() );
         //
         _is_initialized = true;
     }
     //
 
-    // Image
-    _type_head_id = int(MSG_ID::camera_0);
-    for (size_t i=0; i < num_Image; ++i){
-        got_Image[i] = ros_interface.get_Image( (_type_head_id+i), Image_ptr_list[i]);
-        _updated |= got_Image[i];
-    }
-    // ITRIPointCloud
-    _type_head_id = int(MSG_ID::point_cloud_1);
-    for (size_t i=0; i < num_ITRIPointCloud; ++i){
-        got_ITRIPointCloud[i] = ros_interface.get_ITRIPointCloud( (_type_head_id+i), ITRIPointCloud_ptr_list[i]);
-        _updated |= got_ITRIPointCloud[i];
+    // All topics
+    for (size_t topic_id=0; topic_id < any_ptr_list.size(); ++topic_id){
+        MSG::T_PARAMS _param = ros_interface.get_topic_param(topic_id);
+        if (_param.is_input){
+            MSG::M_TYPE _type = MSG::M_TYPE(_param.type);
+            // got_on_any_topic[topic_id] = get_any_message(topic_id, any_ptr_list[topic_id] );
+            _updated |= got_on_any_topic[topic_id];
+        }
     }
     //
     return _updated;
@@ -88,15 +80,20 @@ bool ROS_ICLU3_V0::_set_up_topics(){
         ros_interface.add_a_topic("camera/0/0/image", int(M_TYPE::Image), true, 1, 3);
         ros_interface.add_a_topic("camera/0/1/image", int(M_TYPE::Image), true, 1, 3);
         ros_interface.add_a_topic("camera/2/2/image", int(M_TYPE::Image), true, 1, 3);
-        num_Image = 9; // Hand coded for now..
 #endif // __SUB_IMAGES__
         // ITRIPointCloud
 #ifdef __SUB_POINT_CLOUD__
         ros_interface.add_a_topic("LidFrontLeft_sync", int(M_TYPE::ITRIPointCloud), true, 5, 5, "base");
         ros_interface.add_a_topic("points_map", int(M_TYPE::PointCloud2), true, 5, 5, "map");
-        num_ITRIPointCloud = 2; // Hand coded for now..
 #endif // __SUB_POINT_CLOUD__
         ros_interface.add_a_topic("LidRoi", int(M_TYPE::ITRI3DBoundingBox), true, 10, 5, "base");
+
+        /*
+        // Counts
+        num_Image = ros_interface.get_count_of_a_topic_type(M_TYPE::Image);
+        num_ITRIPointCloud = ros_interface.get_count_of_a_topic_type(M_TYPE::ITRIPointCloud);
+        num_ITRIPointCloud += ros_interface.get_count_of_a_topic_type(M_TYPE::PointCloud2);
+        */
     }
     //------------------------------------------------//
 }

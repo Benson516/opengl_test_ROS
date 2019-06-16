@@ -29,6 +29,7 @@ enum class MSG_ID{
     point_cloud_map,
 #endif
     lidar_bounding_box_1,
+    // NUM_TOPICS
 };
 
 
@@ -40,21 +41,9 @@ public:
     std::string path_pkg;
 
 
-
-    // Counters
-    size_t num_Image;
-    size_t num_ITRIPointCloud;
     // Data validation (only be used after calling update)
-    std::vector<bool> got_Image;
-    std::vector<bool> got_ITRIPointCloud;
-    // Data
-    std::vector< std::shared_ptr< cv::Mat > >                           Image_ptr_list;
-    std::vector< std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > >   ITRIPointCloud_ptr_list;
-
-
-    // Data validation (only be used after calling update)
-    std::vector<bool> got_on_any_topic;
-    std::vector< boost::any >  any_ptr_list;
+    std::vector<bool>           got_on_any_topic;
+    std::vector< boost::any >   any_ptr_list;
 
 
     // Methods
