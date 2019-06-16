@@ -856,15 +856,15 @@ int main(int argc, char *argv[])
             ros_interface.add_a_topic(string_topic_names[i], int(M_TYPE::String), true, 1000, 10);
         }
         // Image
-        ros_interface.add_a_topic("/camera/1/0/image_sync", int(M_TYPE::Image), true, 1, 3);
-        ros_interface.add_a_topic("/camera/1/1/image_sync", int(M_TYPE::Image), true, 1, 3);
-        ros_interface.add_a_topic("/camera/1/2/image_sync", int(M_TYPE::Image), true, 1, 3);
-        ros_interface.add_a_topic("/camera/0/2/image_sync", int(M_TYPE::Image), true, 1, 3);
-        ros_interface.add_a_topic("/camera/2/0/image", int(M_TYPE::Image), true, 1, 3);
-        ros_interface.add_a_topic("/camera/2/1/image", int(M_TYPE::Image), true, 1, 3);
-        ros_interface.add_a_topic("/camera/0/0/image", int(M_TYPE::Image), true, 1, 3);
-        ros_interface.add_a_topic("/camera/0/1/image", int(M_TYPE::Image), true, 1, 3);
-        ros_interface.add_a_topic("/camera/2/2/image", int(M_TYPE::Image), true, 1, 3);
+        ros_interface.add_a_topic("/camera/1/0/image_sync", int(M_TYPE::Image), true, 1, 10);
+        ros_interface.add_a_topic("/camera/1/1/image_sync", int(M_TYPE::Image), true, 1, 10);
+        ros_interface.add_a_topic("/camera/1/2/image_sync", int(M_TYPE::Image), true, 1, 10);
+        ros_interface.add_a_topic("/camera/0/2/image_sync", int(M_TYPE::Image), true, 1, 10);
+        ros_interface.add_a_topic("/camera/2/0/image", int(M_TYPE::Image), true, 1, 10);
+        ros_interface.add_a_topic("/camera/2/1/image", int(M_TYPE::Image), true, 1, 10);
+        ros_interface.add_a_topic("/camera/0/0/image", int(M_TYPE::Image), true, 1, 10);
+        ros_interface.add_a_topic("/camera/0/1/image", int(M_TYPE::Image), true, 1, 10);
+        ros_interface.add_a_topic("/camera/2/2/image", int(M_TYPE::Image), true, 1, 10);
         // ITRIPointCloud
 #ifdef __SUB_POINT_CLOUD__
         ros_interface.add_a_topic("LidFrontLeft_sync", int(M_TYPE::ITRIPointCloud), true, 5, 5);

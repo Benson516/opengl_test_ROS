@@ -197,12 +197,20 @@ public:
     bool send_ITRI3DBoundingBox(const int topic_id, const msgs::LidRoi &content_in);
     //---------------------------------------------------------//
 
+    // Method of time-sync for buffer outputs
+    //----------------------------------------------//
+    bool update_current_slice_time();
+    inline ros::Time get_current_slice_time(){ return toROStime(_current_slice_time);  }
+    inline void set_global_delay(const long double & global_delay_in){_global_delay = global_delay_in;}
+    inline long double get_global_delay(){ return _global_delay;}
+    //----------------------------------------------//
+
 
     // Advanced getting methods: get transformations
     //---------------------------------------------------------//
     bool set_ref_frame(const std::string & ref_frame_in);
-    bool update_current_slice_time(const std::string &ref_frame_in, const std::string &to_frame_in);
-    ros::Time get_current_slice_time();
+    bool update_latest_tf_common_update_time(const std::string &ref_frame_in, const std::string &to_frame_in);
+    ros::Time get_latest_tf_common_update_time();
     // Get tf
     bool get_tf(std::string base_fram, std::string to_frame, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling=false, ros::Time lookup_stamp=ros::Time::now() );
     geometry_msgs::TransformStamped get_tf(std::string base_fram, std::string to_frame, bool & is_sucessed, bool is_time_traveling=false, ros::Time lookup_stamp=ros::Time::now());
@@ -240,11 +248,17 @@ private:
     std::string _ref_frame; // The frame_id of the frame which all other data will be represented on. This frame_id can be dynamically changed and got a global effect on all the transformation.
     std::string _stationary_frame; // The frame that is used for time-traveling.
     // The frame time
-    bool _is_using_current_slice_time;
-    ros::Time   _current_slice_time; // The newest time slice for sampling output, which is used to unify all the transform in one sampling.
-    // geometry_msgs::TransformStamped _tfStamped;
-    // bool _send_tf(geometry_msgs::TransformStamped _tfStamped_in);
-    // bool get_tf(std::string base_fram, std::string to_frame, geometry_msgs::TransformStamped & _tfStamped_out);
+    bool _is_using_latest_tf_common_update_time;
+    ros::Time   _latest_tf_common_update_time;
+
+
+    // The synchronized time for "all" buffers output at current "slice" (or sample)
+    //-------------------------------------------------------------------------------//
+    TIME_STAMP::Time _current_slice_time;// The newest time slice for sampling output, which is used to unify all the transform in one sampling.
+    long double _global_delay; // The global delay time for calculating the _current_slice_time relative to the "current" wall time
+    // Which is: _current_slice_time = TIME_STAMP::Time::now() - TIME_STAMP::Time(_global_delay);
+    //-------------------------------------------------------------------------------//
+
 
     // List of topics parameters
     // TODO: make a containner to contain the following things in a single object for each topic
