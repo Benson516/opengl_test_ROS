@@ -61,7 +61,7 @@ using namespace cv;
 
 // Boost
 #include <boost/bind.hpp>
-
+#include <boost/any.hpp> // any type, Note: in c++17, this is also implemented in std::any
 
 
 // PCL

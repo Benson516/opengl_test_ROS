@@ -44,7 +44,7 @@ public:
     // Counters
     size_t num_Image;
     size_t num_ITRIPointCloud;
-    // Data validation (only be use after calling update)
+    // Data validation (only be used after calling update)
     std::vector<bool> got_Image;
     std::vector<bool> got_ITRIPointCloud;
     // Data
@@ -52,6 +52,9 @@ public:
     std::vector< std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > >   ITRIPointCloud_ptr_list;
 
 
+    // Data validation (only be used after calling update)
+    std::vector<bool> got_on_any_topic;
+    std::vector< boost::any >  any_ptr_list;
 
 
     // Methods
