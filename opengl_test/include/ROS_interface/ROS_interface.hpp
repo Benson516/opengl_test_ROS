@@ -231,7 +231,7 @@ public:
 
     // Combined same buffer-data types
     //---------------------------------------------------------//
-    // bool get_any_message(const int topic_id, boost::any & content_out_ptr);
+    bool get_any_message(const int topic_id, boost::any & content_out_ptr);
     // pcl::PointCloud<pcl::PointXYZI>
     bool get_any_pointcloud(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out);
     bool get_any_pointcloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr);
@@ -343,6 +343,9 @@ private:
 
     // ITRI3DBoundingBox
     std::vector< async_buffer<msgs::LidRoi> > buffer_list_ITRI3DBoundingBox;
+
+    // test, buffer -- any
+    std::vector< async_buffer<boost::any> > buffer_any;
     //---------------------------------------------------------//
 
 

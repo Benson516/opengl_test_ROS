@@ -141,6 +141,7 @@ void My_Display()
     }
     // Update data
     // bool is_updated = ros_api.update();
+    //
     scene_ptr_1->Update(ros_api.ros_interface);
     scene_ptr_2->Update(ros_api.ros_interface);
     scene_ptr_3->Update(ros_api.ros_interface);

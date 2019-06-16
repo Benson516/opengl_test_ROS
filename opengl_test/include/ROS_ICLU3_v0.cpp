@@ -36,13 +36,12 @@ std::string ROS_ICLU3_V0::get_pkg_path(){
 // Updating data
 bool ROS_ICLU3_V0::update(){
     bool _updated = false;
-    int _type_head_id = 0;
 
 
     // Initialize vectors
     if (!_is_initialized){
         //
-        got_on_any_topic.resize( ros_interface.get_count_of_all_topics() );
+        got_on_any_topic.resize( ros_interface.get_count_of_all_topics(), false);
         any_ptr_list.resize( ros_interface.get_count_of_all_topics() );
         //
         _is_initialized = true;
@@ -50,14 +49,18 @@ bool ROS_ICLU3_V0::update(){
     //
 
     // All topics
-    for (size_t topic_id=0; topic_id < any_ptr_list.size(); ++topic_id){
+    std::cout << "here\n";
+    for (int topic_id=0; topic_id < any_ptr_list.size(); ++topic_id){
         MSG::T_PARAMS _param = ros_interface.get_topic_param(topic_id);
         if (_param.is_input){
+            std::cout << "here 1\n";
             MSG::M_TYPE _type = MSG::M_TYPE(_param.type);
-            // got_on_any_topic[topic_id] = get_any_message(topic_id, any_ptr_list[topic_id] );
+            got_on_any_topic[topic_id] = ros_interface.get_any_message(topic_id, any_ptr_list[topic_id] );
             _updated |= got_on_any_topic[topic_id];
+            std::cout << "here 2\n";
         }
     }
+    std::cout << "here 3\n";
     //
     return _updated;
 }
