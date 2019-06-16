@@ -148,7 +148,9 @@ void Scene::Update(float dt){
 }
 void Scene::Update(ROS_INTERFACE &ros_interface){
     // Update the "_latest_tf_common_update_time"
-    ros_interface.update_latest_tf_common_update_time("map", "base");
+    // ros_interface.update_latest_tf_common_update_time("map", "base");
+    // ros_interface.set_global_delay(0.3);
+    // ros_interface.update_current_slice_time();
     ros_interface.set_ref_frame("base");
 
     /*
@@ -161,11 +163,6 @@ void Scene::Update(ROS_INTERFACE &ros_interface){
         _camera_ptr->SetInvCameraModel(_tf_world_by_base);
     }
     */
-
-
-
-
-
 
 
     // rmBaseModel

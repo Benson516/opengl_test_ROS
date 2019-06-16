@@ -15,7 +15,7 @@ ROS_INTERFACE::ROS_INTERFACE():
     _ref_frame("map"), _stationary_frame("map"),
     _is_using_latest_tf_common_update_time(false),
     _latest_tf_common_update_time(ros::Time(0)),
-    _current_slice_time()
+    _current_slice_time(), _global_delay(0.1f)
 {
     //
     _num_ros_cb_thread = TOTAL_NUM_THREAD_FOR_ROS_CB;
@@ -32,7 +32,7 @@ ROS_INTERFACE::ROS_INTERFACE(int argc, char **argv):
     _ref_frame("map"), _stationary_frame("map"),
     _is_using_latest_tf_common_update_time(false),
     _latest_tf_common_update_time(ros::Time(0)),
-    _current_slice_time()
+    _current_slice_time(), _global_delay(0.1f)
 {
     //
     _num_ros_cb_thread = TOTAL_NUM_THREAD_FOR_ROS_CB;
@@ -319,6 +319,16 @@ void ROS_INTERFACE::_ROS_worker(){
     std::cout << "End of ros_iterface\n";
 }
 
+
+// Method of time-sync for buffer outputs
+//----------------------------------------------//
+bool ROS_INTERFACE::update_current_slice_time(){
+    _current_slice_time = TIME_STAMP::Time::now() - TIME_STAMP::Time(_global_delay);
+}
+//----------------------------------------------//
+
+
+
 // Set the transformation reference for all the transformation
 bool ROS_INTERFACE::set_ref_frame(const std::string &ref_frame_in){
     _ref_frame = ref_frame_in;
@@ -345,29 +355,53 @@ ros::Time ROS_INTERFACE::get_latest_tf_common_update_time(){
 bool ROS_INTERFACE::get_tf(std::string base_fram, std::string to_frame, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling, ros::Time lookup_stamp){
     bool is_sucessed = false;
     if (!is_time_traveling){
-        try{
-          tf_out = tfBuffer.lookupTransform(base_fram, to_frame, ros::Time(0));
-          is_sucessed = true;
+        if ( !_current_slice_time.is_zero() ){
+            try{
+                tf_out = tfBuffer.lookupTransform(base_fram, to_frame, toROStime(_current_slice_time));
+                is_sucessed = true;
+            }catch (tf2::TransformException &ex) {
+              ROS_WARN("%s",ex.what());
+            }
+            //
+            if (!is_sucessed){
+                try{
+                    tf_out = tfBuffer.lookupTransform(base_fram, to_frame, ros::Time(0));
+                    is_sucessed = true;
+                }catch (tf2::TransformException &ex) {
+                    // ROS_WARN("%s",ex.what());
+                }
+            }
+        }else{
+            try{
+                tf_out = tfBuffer.lookupTransform(base_fram, to_frame, ros::Time(0));
+                is_sucessed = true;
+            }catch (tf2::TransformException &ex) {
+                ROS_WARN("%s",ex.what());
+            }
         }
-        catch (tf2::TransformException &ex) {
-          ROS_WARN("%s",ex.what());
-        }
+
+
+
     }else{
         // Using time-traveling going through _stationary_frame
         try{
             ros::Time _common_time;
             if(_is_using_latest_tf_common_update_time){
                 _common_time = _latest_tf_common_update_time;
+                //
+                if (lookup_stamp > _common_time){
+                    lookup_stamp = _common_time;
+                }
             }else{
+                // The representing time will use the _current_slice_time
+                _common_time = toROStime(_current_slice_time);
+                /*
                 std::string err_str;
                 tfBuffer._getLatestCommonTime(tfBuffer._lookupFrameNumber(base_fram), tfBuffer._lookupFrameNumber(_stationary_frame), _common_time, &err_str);
-            }
-            // std::cout << "err_str = <" << err_str << ">\n";
-            if (lookup_stamp > _common_time){
-                lookup_stamp = _common_time;
+                */
             }
             tf_out = tfBuffer.lookupTransform(base_fram, _common_time, to_frame, lookup_stamp, _stationary_frame, ros::Duration(0.2));
-            std::cout << "Got transform\n";
+            // std::cout << "Got transform\n";
             is_sucessed = true;
         }
         catch (tf2::TransformException &ex) {
@@ -477,7 +511,7 @@ bool ROS_INTERFACE::get_String(const int topic_id, std::string & content_out){
     //------------------------------------//
     int _tid = _topic_tid_list[topic_id];
     //------------------------------------//
-    return ( buffer_list_String[_tid].front(content_out, true) );
+    return ( buffer_list_String[_tid].front(content_out, true, _current_slice_time) );
     /*
     // Legacy API
      std::pair<string,bool> _result_pair = buffer_list_String[_tid].front(true);
@@ -597,6 +631,9 @@ void ROS_INTERFACE::_Image_CB(const sensor_msgs::ImageConstPtr& msg, const MSG::
     int _tid = _topic_tid_list[params.topic_id];
     //------------------------------------//
 
+    TIME_STAMP::Time _time_in;
+    _time_in.set_now();
+
     //
     // Get the (raw) image
     cv_bridge::CvImagePtr cv_ptr;
@@ -607,7 +644,7 @@ void ROS_INTERFACE::_Image_CB(const sensor_msgs::ImageConstPtr& msg, const MSG::
       ROS_ERROR("cv_bridge exception: %s", e.what());
       return;
     }
-    bool result = buffer_list_Image[ _tid ].put( cv_ptr->image);
+    bool result = buffer_list_Image[ _tid ].put( cv_ptr->image, _time_in);
 
     if (!result){
         std::cout << params.name << ": buffer full.\n";
@@ -618,14 +655,14 @@ bool ROS_INTERFACE::get_Image(const int topic_id, cv::Mat & content_out){
     //------------------------------------//
     int _tid = _topic_tid_list[topic_id];
     //------------------------------------//
-    return ( buffer_list_Image[_tid].front(content_out, true) );
+    return ( buffer_list_Image[_tid].front(content_out, true, _current_slice_time) );
 }
 bool ROS_INTERFACE::get_Image(const int topic_id, std::shared_ptr<cv::Mat> & content_out_ptr){
     // Type_id
     //------------------------------------//
     int _tid = _topic_tid_list[topic_id];
     //------------------------------------//
-    return ( buffer_list_Image[_tid].front(content_out_ptr, true) );
+    return ( buffer_list_Image[_tid].front(content_out_ptr, true, _current_slice_time) );
     // return ( buffer_list_Image[_tid].front(content_out_ptr, true, ( TIME_STAMP::Time::now() - TIME_STAMP::Time(0.1f) ) ) );
 }
 // output
@@ -649,6 +686,10 @@ void ROS_INTERFACE::_PointCloud2_CB(const sensor_msgs::PointCloud2::ConstPtr& ms
     //------------------------------------//
     int _tid = _topic_tid_list[params.topic_id];
     //------------------------------------//
+
+    TIME_STAMP::Time _time_in;
+    _time_in.set_now();
+
     if (!_PointCloud2_tmp_ptr){
         _PointCloud2_tmp_ptr.reset(new pcl::PointCloud<pcl::PointXYZI>);
     }
@@ -660,7 +701,7 @@ void ROS_INTERFACE::_PointCloud2_CB(const sensor_msgs::PointCloud2::ConstPtr& ms
     std::cout << "=== Load LiDAR Map OK!\n  ";
 
     // Add to buffer
-    bool result = buffer_list_PointCloud2[ _tid ].put( _PointCloud2_tmp_ptr); // Put in the pointer directly
+    bool result = buffer_list_PointCloud2[ _tid ].put( _PointCloud2_tmp_ptr, _time_in); // Put in the pointer directly
     //
     if (!result){
         std::cout << params.name << ": buffer full.\n";
@@ -671,14 +712,14 @@ bool ROS_INTERFACE::get_PointCloud2(const int topic_id, pcl::PointCloud<pcl::Poi
     //------------------------------------//
     int _tid = _topic_tid_list[topic_id];
     //------------------------------------//
-    return ( buffer_list_PointCloud2[_tid].front(content_out, true) );
+    return ( buffer_list_PointCloud2[_tid].front(content_out, true, _current_slice_time) );
 }
 bool ROS_INTERFACE::get_PointCloud2(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr){
     // Type_id
     //------------------------------------//
     int _tid = _topic_tid_list[topic_id];
     //------------------------------------//
-    return ( buffer_list_PointCloud2[_tid].front(content_out_ptr, true) );
+    return ( buffer_list_PointCloud2[_tid].front(content_out_ptr, true, _current_slice_time) );
 }
 bool ROS_INTERFACE::get_PointCloud2(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp){
     // Advanced method with ros::tf2
@@ -686,7 +727,7 @@ bool ROS_INTERFACE::get_PointCloud2(const int topic_id, std::shared_ptr< pcl::Po
     //------------------------------------//
     int _tid = _topic_tid_list[topic_id];
     //------------------------------------//
-    bool result = ( buffer_list_PointCloud2[_tid].front(content_out_ptr, true) );
+    bool result = ( buffer_list_PointCloud2[_tid].front(content_out_ptr, true, _current_slice_time) );
     msg_stamp = toROStime( buffer_list_PointCloud2[_tid].get_stamp() );
     return result;
 }
@@ -701,6 +742,10 @@ void ROS_INTERFACE::_ITRIPointCloud_CB(const msgs::PointCloud::ConstPtr& msg, co
     //------------------------------------//
     int _tid = _topic_tid_list[params.topic_id];
     //------------------------------------//
+
+    TIME_STAMP::Time _time_in;
+    _time_in.set_now();
+
     // tmp cloud
     // Note 1: this have been moved to be a member of the class, so that it won't keep constructing and destructing.
     // Note 2: the pointer changed to use the std::shared_ptr instead of the original boost pointer
@@ -729,7 +774,7 @@ void ROS_INTERFACE::_ITRIPointCloud_CB(const msgs::PointCloud::ConstPtr& msg, co
     //-------------------------//
     // Add to buffer
     // bool result = buffer_list_ITRIPointCloud[ _tid ].put( *_ITRIPointCloud_tmp_ptr);
-    bool result = buffer_list_ITRIPointCloud[ _tid ].put( _ITRIPointCloud_tmp_ptr); // Put in the pointer directly
+    bool result = buffer_list_ITRIPointCloud[ _tid ].put( _ITRIPointCloud_tmp_ptr, _time_in); // Put in the pointer directly
     //
     if (!result){
         std::cout << params.name << ": buffer full.\n";
@@ -740,14 +785,14 @@ bool ROS_INTERFACE::get_ITRIPointCloud(const int topic_id, pcl::PointCloud<pcl::
     //------------------------------------//
     int _tid = _topic_tid_list[topic_id];
     //------------------------------------//
-    return ( buffer_list_ITRIPointCloud[_tid].front(content_out, true) );
+    return ( buffer_list_ITRIPointCloud[_tid].front(content_out, true, _current_slice_time) );
 }
 bool ROS_INTERFACE::get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr){
     // Type_id
     //------------------------------------//
     int _tid = _topic_tid_list[topic_id];
     //------------------------------------//
-    return ( buffer_list_ITRIPointCloud[_tid].front(content_out_ptr, true) );
+    return ( buffer_list_ITRIPointCloud[_tid].front(content_out_ptr, true, _current_slice_time) );
 }
 bool ROS_INTERFACE::get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp){
     // Advanced method with ros::tf2
@@ -755,7 +800,7 @@ bool ROS_INTERFACE::get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl:
     //------------------------------------//
     int _tid = _topic_tid_list[topic_id];
     //------------------------------------//
-    bool result = ( buffer_list_ITRIPointCloud[_tid].front(content_out_ptr, true) );
+    bool result = ( buffer_list_ITRIPointCloud[_tid].front(content_out_ptr, true, _current_slice_time) );
     // if (!result)
     //     return false;
     // Note: even if we don't get the new content, we do the transform.
@@ -838,21 +883,21 @@ bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, msgs::LidRoi & con
     //------------------------------------//
     int _tid = _topic_tid_list[topic_id];
     //------------------------------------//
-    return ( buffer_list_ITRI3DBoundingBox[_tid].front(content_out, true) );
+    return ( buffer_list_ITRI3DBoundingBox[_tid].front(content_out, true, _current_slice_time) );
 }
 bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::LidRoi > & content_out_ptr){
     // Type_id
     //------------------------------------//
     int _tid = _topic_tid_list[topic_id];
     //------------------------------------//
-    return ( buffer_list_ITRI3DBoundingBox[_tid].front(content_out_ptr, true) );
+    return ( buffer_list_ITRI3DBoundingBox[_tid].front(content_out_ptr, true, _current_slice_time) );
 }
 bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::LidRoi > & content_out_ptr, ros::Time &msg_stamp){
     // Type_id
     //------------------------------------//
     int _tid = _topic_tid_list[topic_id];
     //------------------------------------//
-    bool result = buffer_list_ITRI3DBoundingBox[_tid].front(content_out_ptr, true);
+    bool result = buffer_list_ITRI3DBoundingBox[_tid].front(content_out_ptr, true, _current_slice_time);
     msg_stamp = toROStime( buffer_list_ITRI3DBoundingBox[_tid].get_stamp() );
     return result;
 }

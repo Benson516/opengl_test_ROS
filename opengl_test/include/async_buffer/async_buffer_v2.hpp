@@ -77,11 +77,22 @@ public:
     // Put, overloading
     bool    put(const _T & element_in, bool is_droping=true, const TIME_STAMP::Time &stamp_in=TIME_STAMP::Time::now());  // Copy the data in, slow
     bool    put(std::shared_ptr<_T> & element_in_ptr, bool is_droping=true, const TIME_STAMP::Time &stamp_in=TIME_STAMP::Time::now());  // Exchanging the data, fast
+
     // Front, overloading
     bool    front(_T & content_out, bool is_poping=false, const TIME_STAMP::Time &stamp_req=TIME_STAMP::Time() );  // Copy the data out, slow
     bool    front(std::shared_ptr<_T> & content_out_ptr, bool is_poping=false, const TIME_STAMP::Time &stamp_req=TIME_STAMP::Time());  // If is_poping, exchanging the data out, fast; if not is_poping, share the content (Note: this may not be safe!!)
     // pop
     bool    pop();    // Only move the index, fast
+    //-----------------------------------------------//
+
+    // Wrappers
+    //-----------------------------------------------//
+    inline bool    put(const _T & element_in, const TIME_STAMP::Time &stamp_in){
+        return put(element_in, true, stamp_in);
+    }
+    inline bool    put(std::shared_ptr<_T> & element_in_ptr, const TIME_STAMP::Time &stamp_in){
+        return put(element_in_ptr, true, stamp_in);
+    }
     //-----------------------------------------------//
 
     // Advanced operations
