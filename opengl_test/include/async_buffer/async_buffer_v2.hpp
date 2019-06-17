@@ -19,6 +19,7 @@ The implementation of this queue is based on a circular buffer using fixed-lengt
 #include <utility> // std::pair, std::make_pair
 #include <mutex>
 #include <time_stamp.hpp> // The TIME_STAMP::Time class
+#include <boost/any.hpp> // any type, Note: in c++17, this is also implemented in std::any
 
 // using std::vector;
 
@@ -66,6 +67,7 @@ public:
     //------------------------------------------------------------------//
     bool assign_copy_func(bool (*copy_func_in)(_T & _target, const _T & _source)){
         _copy_func = copy_func_in;
+        return true;
     }
     //------------------------------------------------------------------//
 
@@ -93,6 +95,16 @@ public:
     inline bool    put(std::shared_ptr<_T> & element_in_ptr, const TIME_STAMP::Time &stamp_in){
         return put(element_in_ptr, true, stamp_in);
     }
+    //-----------------------------------------------//
+
+
+    // boost::any wrappers
+    //-----------------------------------------------//
+    // Put in the std::shared_ptr as element_in_ptr
+    bool    put_any(boost::any & element_in_ptr, bool is_droping=true, const TIME_STAMP::Time &stamp_in=TIME_STAMP::Time::now(), bool is_no_copying=true);  // Exchanging the data, fast
+
+    // Put in the std::shared_ptr as content_out_ptr
+    bool    front_any(boost::any & content_out_ptr, bool is_poping=false, const TIME_STAMP::Time &stamp_req=TIME_STAMP::Time());  // If is_poping, exchanging the data out, fast; if not is_poping, share the content (Note: this may not be safe!!)
     //-----------------------------------------------//
 
     // Advanced operations
@@ -440,7 +452,7 @@ template <class _T> bool async_buffer<_T>::put(std::shared_ptr<_T> & element_in_
         //       be sure to use IMG.clone() mwthod for putting an image in.
         _copy_func(*_data_ptr_list[_idx_write_tmp], *element_in_ptr); // *ptr <-- *ptr
 #ifdef __DEGUG__
-        std::cout << "[put] input pointer is not pure.";
+        std::cout << "[put] input pointer is not pure.\n";
 #endif
     }else{
         // The input pointer is pure (unique or null)
@@ -451,7 +463,7 @@ template <class _T> bool async_buffer<_T>::put(std::shared_ptr<_T> & element_in_
         if (!element_in_ptr.unique() ){ // Not not unique (empty or shared)
             element_in_ptr.reset(new _T(_empty_element)); // Reset the pointer to make it clean.
 #ifdef __DEGUG__
-            std::cout << "[put] container pointer is not pure.";
+            std::cout << "[put] container pointer is not pure.\n";
 #endif
         }
         //
@@ -611,7 +623,7 @@ template <class _T> bool async_buffer<_T>::front(std::shared_ptr<_T> & content_o
             //       be sure to use IMG.clone() mwthod for putting an image in.
             _copy_func(*content_out_ptr, *_data_ptr_list[_idx_read_tmp]); // *ptr <-- *ptr
             #ifdef __DEGUG__
-            std::cout << "[front pop] buffer pointer is not pure.";
+            std::cout << "[front pop] buffer pointer is not pure.\n";
             #endif
         }else{
             // The input pointer is pure (unique or null)
@@ -660,7 +672,29 @@ template <class _T> bool async_buffer<_T>::pop(){
 
 
 
-
+// boost::any wrappers
+//-----------------------------------------------//
+template <class _T> bool async_buffer<_T>::put_any(boost::any & element_in_ptr, bool is_droping, const TIME_STAMP::Time &stamp_in, bool is_no_copying){  // Exchanging the data, fast
+    if (element_in_ptr.empty()){
+        element_in_ptr =  std::shared_ptr< _T >();
+    }
+    std::shared_ptr< _T > *_ptr_ptr = boost::any_cast< std::shared_ptr< _T > >( &element_in_ptr );
+    // std::cout << "_ptr_ptr->use_count() = " << _ptr_ptr->use_count() << "\n";
+    if (is_no_copying){
+        return put(*_ptr_ptr, is_droping, stamp_in);
+    }else{
+        return put(*(*_ptr_ptr), is_droping, stamp_in);
+    }
+}
+// Front, overloading
+template <class _T> bool async_buffer<_T>::front_any(boost::any & content_out_ptr, bool is_poping, const TIME_STAMP::Time &stamp_req){  // If is_poping, exchanging the data out, fast; if not is_poping, share the content (Note: this may not be safe!!)
+    if (content_out_ptr.empty()){
+        content_out_ptr =  std::shared_ptr< _T >();
+    }
+    std::shared_ptr< _T > *_ptr_ptr = boost::any_cast< std::shared_ptr< _T > >( &content_out_ptr );
+    return front(*_ptr_ptr, is_poping, stamp_req);
+}
+//-----------------------------------------------//
 
 
 
