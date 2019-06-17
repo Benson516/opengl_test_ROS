@@ -188,10 +188,13 @@ public:
     bool get_Image(const int topic_id, std::shared_ptr<cv::Mat> & content_out_ptr);
     bool get_PointCloud2(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out);
     bool get_PointCloud2(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr);
+    bool get_PointCloud2(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp);
     bool get_ITRIPointCloud(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out);
     bool get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr);
+    bool get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp);
     bool get_ITRI3DBoundingBox(const int topic_id, msgs::LidRoi & content_out);
     bool get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::LidRoi > & content_out_ptr);
+    bool get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::LidRoi > & content_out_ptr, ros::Time &msg_stamp);
     //---------------------------------------------------------//
 
     // Sending methods for each type of message
@@ -202,6 +205,17 @@ public:
     bool send_ITRIPointCloud(const int topic_id, const pcl::PointCloud<pcl::PointXYZI> &content_in);
     bool send_ITRI3DBoundingBox(const int topic_id, const msgs::LidRoi &content_in);
     //---------------------------------------------------------//
+
+
+    // Combined same buffer-data types
+    //---------------------------------------------------------//
+    bool get_any_message(const int topic_id, boost::any & content_out_ptr);
+    // pcl::PointCloud<pcl::PointXYZI>
+    bool get_any_pointcloud(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out);
+    bool get_any_pointcloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr);
+    bool get_any_pointcloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp);
+    //---------------------------------------------------------//
+
 
     // Method of time-sync for buffer outputs
     //----------------------------------------------//
@@ -222,21 +236,13 @@ public:
     geometry_msgs::TransformStamped get_tf(std::string base_fram, std::string to_frame, bool & is_sucessed, bool is_time_traveling=false, ros::Time lookup_stamp=ros::Time::now());
     bool get_tf(const int topic_id, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling=false, ros::Time lookup_stamp=ros::Time::now());
     geometry_msgs::TransformStamped get_tf(const int topic_id, bool & is_sucessed, bool is_time_traveling=false, ros::Time lookup_stamp=ros::Time::now());
-    //
-    bool get_PointCloud2(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp);
-    bool get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp);
-    bool get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::LidRoi > & content_out_ptr, ros::Time &msg_stamp);
+    //---------------------------------------------------------//
+
+    // Message time stamps
+    //---------------------------------------------------------//
     //---------------------------------------------------------//
 
 
-    // Combined same buffer-data types
-    //---------------------------------------------------------//
-    bool get_any_message(const int topic_id, boost::any & content_out_ptr);
-    // pcl::PointCloud<pcl::PointXYZI>
-    bool get_any_pointcloud(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out);
-    bool get_any_pointcloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr);
-    bool get_any_pointcloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp);
-    //---------------------------------------------------------//
 
 private:
     bool _is_started;
@@ -345,7 +351,7 @@ private:
     std::vector< async_buffer<msgs::LidRoi> > buffer_list_ITRI3DBoundingBox;
 
     // test, buffer -- any
-    std::vector< async_buffer<boost::any> > buffer_any;
+    // std::vector< async_buffer<boost::any> > buffer_any;
     //---------------------------------------------------------//
 
 
