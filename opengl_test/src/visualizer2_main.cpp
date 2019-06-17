@@ -4,10 +4,14 @@
 #include "Common.h"
 #include "ViewManager.h"
 #include "Scene.h"
-#include "Scene_w1.h"
-#include "Scene_w2.h"
-#include "Scene_w3.h"
-#include "Scene_w4.h"
+#include "SCENE_W_main.h"
+#include "SCENE_W0.h"
+#include "SCENE_W1.h"
+#include "SCENE_W2.h"
+#include "SCENE_W3.h"
+#include "SCENE_W4.h"
+#include "SCENE_W5.h"
+#include "SCENE_W6.h"
 
 // Debug
 #include <iostream>
@@ -31,13 +35,11 @@ using namespace std;
 #define NUM_POINTCLOUT_MAX 1000000
 
 // ROS_interface for ICLU3, ver.0
-ROS_ICLU3_V0 ros_api;
+ROS_API ros_api;
 // The scene for rendering
+std::vector< std::shared_ptr<Scene> > all_scenes;
 // std::shared_ptr<Scene> scene_ptr;
-std::shared_ptr<SCENE_W1> scene_ptr_1;
-std::shared_ptr<SCENE_W2> scene_ptr_2;
-std::shared_ptr<SCENE_W3> scene_ptr_3;
-std::shared_ptr<SCENE_W4> scene_ptr_4;
+
 
 
 
@@ -107,10 +109,14 @@ void My_Init()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	// scene_ptr.reset(new Scene(ros_api.get_pkg_path()) );
-    scene_ptr_1.reset(new SCENE_W1(ros_api.get_pkg_path()) );
-    scene_ptr_2.reset(new SCENE_W2(ros_api.get_pkg_path()) );
-    scene_ptr_3.reset(new SCENE_W3(ros_api.get_pkg_path()) );
-    scene_ptr_4.reset(new SCENE_W4(ros_api.get_pkg_path()) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W_main(ros_api.get_pkg_path()) ) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W0(ros_api.get_pkg_path()) ) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W1(ros_api.get_pkg_path()) ) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W2(ros_api.get_pkg_path()) ) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W3(ros_api.get_pkg_path()) ) );
+    // all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W4(ros_api.get_pkg_path()) ) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W5(ros_api.get_pkg_path()) ) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W6(ros_api.get_pkg_path()) ) );
 
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
@@ -141,7 +147,16 @@ void My_Display()
     }
     // Update data
     // bool is_updated = ros_api.update();
-    scene_ptr_1->Update(ros_api.ros_interface);
+
+
+    // Update all_scenes
+    //--------------------//
+    for (size_t i=0; i < all_scenes.size(); ++i){
+        all_scenes[i]->Update(ros_api.ros_interface);
+    }
+    //--------------------//
+
+
     //---------------------------------//
     // end ROS_interface
 
@@ -164,15 +179,21 @@ void My_Display()
 
     // OpenGL, GLUT
     //---------------------------------//
-    glViewport(0, 0, windows_width, windows_height); // <-- move to Draw()
+
+    // Note: The following operations are move into the render function of each Scene,
+    //       which means that each Scene will have their saparated window and we should not draw two Scene into one window
+    // glViewport(0, 0, windows_width, windows_height); // <-- move to Draw()
     // glViewport(100, 100, windows_width/2, windows_height/2); // <-- move to Draw()
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClearDepth(1.0f);
+    // glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    // glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	scene_ptr_1->Render();
 
-
-
+    // Render all_scenes
+    //--------------------//
+    for (size_t i=0; i < all_scenes.size(); ++i){
+        all_scenes[i]->Render();
+    }
+    //--------------------//
     glutSwapBuffers();
     //---------------------------------//
 
@@ -198,8 +219,13 @@ void My_Reshape(int width, int height)
     windows_width = width;
     windows_height = height;
     // glViewport(0, 0, windows_width, windows_height); // <-- move to Draw()
-    scene_ptr_1->GetCamera()->SetWindowSize(0, 0, windows_width, windows_height, windows_width, windows_height);
-	// scene_ptr->GetCamera()->SetWindowSize(100, 100, windows_width/2, windows_height/2, windows_width, windows_height);
+
+    // Render all_scenes
+    //--------------------//
+    for (size_t i=0; i < all_scenes.size(); ++i){
+        all_scenes[i]->GetCamera()->SetWindowSize(windows_width, windows_height);
+    }
+    //--------------------//
 }
 
 //Timer event
@@ -209,8 +235,14 @@ void My_Timer(int val)
     // test
     // std::cout << "in My_Timer()\n";
     // std::this_thread::sleep_for( std::chrono::milliseconds(100) );
-    //
-    scene_ptr_1->Update(timer_interval);
+
+    // Update all_scenes
+    //--------------------//
+    for (size_t i=0; i < all_scenes.size(); ++i){
+        all_scenes[i]->Update(timer_interval);
+    }
+    //--------------------//
+
 	glutPostRedisplay();
 	// glutTimerFunc(timer_interval, My_Timer, val);
 }
@@ -218,7 +250,13 @@ void My_Timer(int val)
 //Mouse event
 void My_Mouse(int button, int state, int x, int y)
 {
-	scene_ptr_1->MouseEvent(button, state, x, y);
+
+    // Update all_scenes
+    //--------------------//
+    for (size_t i=0; i < all_scenes.size(); ++i){
+        all_scenes[i]->MouseEvent(button, state, x, y);
+    }
+    //--------------------//
 
     /*
 	if (button == GLUT_LEFT_BUTTON)
@@ -242,13 +280,23 @@ void My_Mouse(int button, int state, int x, int y)
 //Keyboard event
 void My_Keyboard(unsigned char key, int x, int y)
 {
-	scene_ptr_1->KeyBoardEvent(key);
+    // Update all_scenes
+    //--------------------//
+    for (size_t i=0; i < all_scenes.size(); ++i){
+        all_scenes[i]->KeyBoardEvent(key);
+    }
+    //--------------------//
 }
 
 //Special key event
 void My_SpecialKeys(int key, int x, int y)
 {
-	scene_ptr_1->KeyBoardEvent(key);
+    // Update all_scenes
+    //--------------------//
+    for (size_t i=0; i < all_scenes.size(); ++i){
+        all_scenes[i]->KeyBoardEvent(key);
+    }
+    //--------------------//
 }
 
 /*
@@ -268,11 +316,15 @@ void My_Menu(int id)
 }
 */
 
-
-
 void My_Mouse_Moving(int x, int y) {
-	scene_ptr_1->GetCamera()->mouseMoveEvent(x, y);
+    // Update all_scenes
+    //--------------------//
+    for (size_t i=0; i < all_scenes.size(); ++i){
+        all_scenes[i]->GetCamera()->mouseMoveEvent(x, y);
+    }
+    //--------------------//
 }
+
 
 int main(int argc, char *argv[])
 {

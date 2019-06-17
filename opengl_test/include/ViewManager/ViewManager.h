@@ -50,6 +50,9 @@ public:
     void SetRotation(float x, float y, float z);
 	void SetWindowSize(int viewport_width, int viewport_height);
     void SetWindowSize(int ld_corner_x, int ld_corner_y, int viewport_width, int viewport_height, int full_window_width, int full_window_height);
+    //
+    void SwitchGLViewPortAndCleanDraw();
+    //
 
     // Set the camera pose
     void SetCameraModel(glm::mat4 camera_model_in);
@@ -65,6 +68,20 @@ public:
 
     // camera pose on view (translationMatrix only)
     glm::vec3 get_trans_world_at_camera();
+
+
+
+    //------------------------------------------------------------------//
+    bool assign_cal_viewport(
+        bool (*cal_viewport_in)(
+            int full_window_width, int full_window_height,
+            int &ld_corner_x, int &ld_corner_y, int &viewport_width, int &viewport_height
+        )
+    )
+    {
+        _cal_viewport = cal_viewport_in;
+    }
+    //------------------------------------------------------------------//
 
 private:
 	float aspect;					///< 儲存目前視窗的長寬比。
@@ -103,6 +120,28 @@ private:
 
 
 	float wheel_val;				///< 紀錄滾輪的值。
+
+
+
+
+    // Function pointer for _copy_func
+    bool (*_cal_viewport)(
+        int full_window_width, int full_window_height,
+        int &ld_corner_x, int &ld_corner_y, int &viewport_width, int &viewport_height
+    );
+    // Note: static members are belong to class itself not the object
+    static bool _default_cal_viewport(
+        int full_window_width, int full_window_height,
+        int &ld_corner_x, int &ld_corner_y, int &viewport_width, int &viewport_height
+    ){
+        ld_corner_x = 0;
+        ld_corner_y = 0;
+        viewport_width = full_window_width;
+        viewport_height = full_window_height;
+        return true;
+    }
+    //
+    
 };
 
 #endif // _VIEWMANAGER_H_

@@ -1,22 +1,35 @@
-#ifndef SCENE_W1_H
-#define SCENE_W1_H
+#ifndef SCENE_W_MAIN_H
+#define SCENE_W_MAIN_H
 
 #include "Scene.h"
 
 //
 
-class SCENE_W1 : public Scene
+class SCENE_W_main : public Scene
 {
 public:
-	SCENE_W1(std::string pkg_path_in);
+	SCENE_W_main(std::string pkg_path_in);
 
 private:
+    inline static bool cal_viewport_w(int w, int h, int &cx, int &cy, int &vw, int &vh){
+        double asp = 1.5833333333;
+        int im_w = w/7;
+        int im_h = int(im_w/asp);
+        cx = 0;
+        cy = im_h;
+        vw = w;
+        vh = h-im_h;
+        return true;
+    }
 
 };
 
-SCENE_W1::SCENE_W1(std::string pkg_path_in)
+
+SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 {
 	_camera_ptr.reset(new ViewManager());
+    _camera_ptr->assign_cal_viewport(&cal_viewport_w);
+
     _pkg_path = (pkg_path_in);
     _Assets_path = (pkg_path_in + "Assets/");
 
@@ -141,4 +154,4 @@ SCENE_W1::SCENE_W1(std::string pkg_path_in)
 
 }
 
-#endif  // SCENE_W1_H
+#endif  // SCENE_W_MAIN_H

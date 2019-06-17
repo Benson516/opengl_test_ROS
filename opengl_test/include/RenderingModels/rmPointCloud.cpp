@@ -106,6 +106,7 @@ void rmPointCloud::Update(ROS_INTERFACE &ros_interface){
         if (m_shape.indexCount > _max_num_vertex){
             m_shape.indexCount = _max_num_vertex;
         }
+        // std::cout << "pc_out_ptr->header.seq = " << pc_out_ptr->header.seq << "\n";
         // vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
         vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, m_shape.indexCount * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     	for (size_t i = 0; i < m_shape.indexCount; i++)

@@ -5,7 +5,8 @@ using namespace glm;
 /**
 * 建立相機，並進行初始化。
 */
-ViewManager::ViewManager()
+ViewManager::ViewManager():
+    _cal_viewport(&_default_cal_viewport)
 {
     // The window
     w_width       = 10;
@@ -399,11 +400,15 @@ void ViewManager::Zoom(float distance)
 * @param height 螢幕的高。
 */
 void ViewManager::SetWindowSize(int width, int height) {
+    /*
 	v_width = width;
 	v_height = height;
+    */
     w_width = width;
     w_height = height;
-    aspect = width * 1.0/height;
+    _cal_viewport(width, height, v_ld_corner_x, v_ld_corner_y, v_width, v_height);
+
+    aspect = v_width * 1.0/v_height;
 	projMatrix = GetProjectionMatrix();
 }
 void ViewManager::SetWindowSize(int ld_corner_x, int ld_corner_y, int viewport_width, int viewport_height, int full_window_width, int full_window_height){
@@ -413,8 +418,18 @@ void ViewManager::SetWindowSize(int ld_corner_x, int ld_corner_y, int viewport_w
 	v_height = viewport_height;
     w_width = full_window_width;
     w_height = full_window_height;
-    aspect = viewport_width * 1.0/viewport_height;
+    aspect = v_width * 1.0/v_height;
 	projMatrix = GetProjectionMatrix();
+}
+void ViewManager::SwitchGLViewPortAndCleanDraw(){
+    // Switch viewport
+    glViewport(v_ld_corner_x, v_ld_corner_y, v_width, v_height);
+    // Clean draws
+
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearDepth(1.0f);
+    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 }
 
 /**

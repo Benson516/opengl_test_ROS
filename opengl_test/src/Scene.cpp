@@ -1,6 +1,8 @@
 #include "Scene.h"
 
-Scene::Scene(){
+// Default constructor, derived class will call this
+Scene::Scene()
+{
 
 }
 Scene::Scene(std::string pkg_path_in)
@@ -129,6 +131,9 @@ Scene::Scene(std::string pkg_path_in)
 
 void Scene::Render(){
 
+    // test, set viewport and reset screen
+    _camera_ptr->SwitchGLViewPortAndCleanDraw();
+    //
 
 
     glEnable(GL_DEPTH_TEST);
@@ -171,6 +176,9 @@ void Scene::Update(ROS_INTERFACE &ros_interface){
 	}
 }
 
+void Scene::Reshape(int full_window_width, int full_window_height){
+
+}
 
 void Scene::MouseEvent(int button, int state, int x, int y){
 	_camera_ptr->mouseEvents(button, state, x, y);

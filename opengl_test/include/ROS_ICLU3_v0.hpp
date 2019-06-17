@@ -1,5 +1,5 @@
-#ifndef ROS_ICLU3_V0_H
-#define ROS_ICLU3_V0_H
+#ifndef ROS_API_H
+#define ROS_API_H
 
 #include <ROS_interface.hpp>
 
@@ -34,7 +34,7 @@ enum class MSG_ID{
 
 
 
-class ROS_ICLU3_V0{
+class ROS_API{
 public:
     // the ROS_interface
     ROS_INTERFACE ros_interface;
@@ -47,7 +47,7 @@ public:
 
 
     // Methods
-    ROS_ICLU3_V0();
+    ROS_API();
     // Setup node and start
     bool start(int argc, char **argv, std::string node_name_in=std::string("ROS_interface"));
     // Check if the ROS is started
@@ -63,4 +63,4 @@ private:
 };
 
 
-#endif // ROS_ICLU3_V0_H
+#endif // ROS_API_H
