@@ -67,7 +67,7 @@ void leave_main_loop () {
 float	windows_width = 800;
 float   windows_height = 600;
 float	timer_interval = 16.0f;
-float   image_aspect_ratio = 1.33; // 4:3
+
 
 /*
 #define MENU_Sale 1
