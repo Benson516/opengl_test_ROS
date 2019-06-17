@@ -228,8 +228,6 @@ void ViewManager::mousePressEvent(int button, int x_cv_g, int y_cv_g)
     int x_cv_l, y_cv_l;
     convert_global_cv_coor_to_local_cv_coor(x_cv_g, y_cv_g, x_cv_l, y_cv_l);
     // Note: the (x_cv_l,y_cv_l) in mouse is using the "image-coordinate", not the "opengl-coordinate"
-    // Out of boundery
-    // std::cout << "(x_cv_l, y_cv_l) = " << x_cv_l << ", " << y_cv_l << "\n";
     if (is_mouse_out_of_bound(x_cv_l, y_cv_l)){
         return;
     }
@@ -535,7 +533,7 @@ bool ViewManager::is_mouse_out_of_bound(int x_cv_l, int y_cv_l){
     int x_gl = x_cv_l;
     int y_gl = v_height - y_cv_l;
     if (x_gl < 0 || y_gl < 0 || x_gl >= v_width || y_gl >= v_height){
-        std::cout << "Out of bound.\n";
+        // std::cout << "Out of bound.\n";
         return true;
     }
     return false;

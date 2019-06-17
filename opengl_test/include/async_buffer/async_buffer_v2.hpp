@@ -109,6 +109,8 @@ public:
     int size_est(){return _size_est();} // The number of buffered contents. This is a fast method with no mutex but may be incorrect in both direction.
     size_t size_exact(){return _size_exact();} // The number of buffered contents. This is a blocking method with mutex, which will return a correct value.
 
+    // Utilities
+    inline _T get_empty_element(){ return _empty_element;    }
 
 private:
     // Parameters
