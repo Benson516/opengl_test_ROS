@@ -1,7 +1,7 @@
 #include <ROS_ICLU3_v0.hpp>
 
 
-ROS_ICLU3_V0::ROS_ICLU3_V0():
+ROS_API::ROS_API():
     _is_initialized(false)
 {
     // TODO: replace the following hardcoded path to an auto-detected one
@@ -14,7 +14,7 @@ ROS_ICLU3_V0::ROS_ICLU3_V0():
 }
 
 // Setup node and start
-bool ROS_ICLU3_V0::start(int argc, char **argv, std::string node_name_in){
+bool ROS_API::start(int argc, char **argv, std::string node_name_in){
     // Setup the ROS interface
     ros_interface.setup_node(argc, argv, node_name_in);
     // Setup topics
@@ -24,17 +24,17 @@ bool ROS_ICLU3_V0::start(int argc, char **argv, std::string node_name_in){
 }
 
 // Check if the ROS is started
-bool ROS_ICLU3_V0::is_running(){
+bool ROS_API::is_running(){
     return ros_interface.is_running();
 }
 
 // Get the path of the package
-std::string ROS_ICLU3_V0::get_pkg_path(){
+std::string ROS_API::get_pkg_path(){
     return path_pkg;
 }
 
 // Updating data
-bool ROS_ICLU3_V0::update(){
+bool ROS_API::update(){
     bool _updated = false;
 
 
@@ -49,25 +49,21 @@ bool ROS_ICLU3_V0::update(){
     //
 
     // All topics
-    std::cout << "here\n";
     for (int topic_id=0; topic_id < any_ptr_list.size(); ++topic_id){
         MSG::T_PARAMS _param = ros_interface.get_topic_param(topic_id);
         if (_param.is_input){
-            std::cout << "here 1\n";
-            MSG::M_TYPE _type = MSG::M_TYPE(_param.type);
+            // MSG::M_TYPE _type = MSG::M_TYPE(_param.type);
             got_on_any_topic[topic_id] = ros_interface.get_any_message(topic_id, any_ptr_list[topic_id] );
             _updated |= got_on_any_topic[topic_id];
-            std::cout << "here 2\n";
         }
     }
-    std::cout << "here 3\n";
     //
     return _updated;
 }
 
 
 //===========================================//
-bool ROS_ICLU3_V0::_set_up_topics(){
+bool ROS_API::_set_up_topics(){
     {
         using MSG::M_TYPE;
         // tfGeoPoseStamped

@@ -1,13 +1,4 @@
 #include <ROS_ICLU3_v0.hpp>
-#include <setjmp.h> // For leaving main loop
-//
-#include "Common.h"
-#include "ViewManager.h"
-#include "Scene.h"
-#include "Scene_w1.h"
-#include "Scene_w2.h"
-#include "Scene_w3.h"
-#include "Scene_w4.h"
 
 // Debug
 #include <iostream>

@@ -439,35 +439,36 @@ geometry_msgs::TransformStamped ROS_INTERFACE::get_tf(const int topic_id, bool &
 bool ROS_INTERFACE::get_any_message(const int topic_id, boost::any & content_out_ptr){
     {
         using MSG::M_TYPE;
-
+        // Initialize
         switch ( M_TYPE(_topic_param_list[topic_id].type) ){
             case M_TYPE::String:
-                {std::shared_ptr< std::string> _ptr_ptr = boost::any_cast< std::shared_ptr< std::string> >( content_out_ptr );
-                return get_String(topic_id,  _ptr_ptr);
+                {
+                    if (content_out_ptr.empty()){   content_out_ptr =  std::shared_ptr< std::string>(); }
                 break;}
             case M_TYPE::tfGeoPoseStamped:
-                {return false;
+                {
                 break;}
             case M_TYPE::Image:
-                {std::shared_ptr<cv::Mat> _ptr_ptr = boost::any_cast< std::shared_ptr<cv::Mat> >( content_out_ptr );
-                return get_Image(topic_id, _ptr_ptr );
+                {
+                    if (content_out_ptr.empty()){   content_out_ptr =  std::shared_ptr<cv::Mat>(); }
                 break;}
             case M_TYPE::PointCloud2:
-                {std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > _ptr_ptr = boost::any_cast< std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > >( content_out_ptr );
-                return get_PointCloud2(topic_id,  _ptr_ptr);
+                {
+                    if (content_out_ptr.empty()){   content_out_ptr =  std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> >(); }
                 break;}
             case M_TYPE::ITRIPointCloud:
-                {std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> >  _ptr_ptr = boost::any_cast< std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > >( content_out_ptr );
-                return get_ITRIPointCloud(topic_id, _ptr_ptr );
+                {
+                    if (content_out_ptr.empty()){   content_out_ptr =  std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> >(); }
                 break;}
             case M_TYPE::ITRI3DBoundingBox:
-                {std::shared_ptr< msgs::LidRoi > _ptr_ptr = boost::any_cast< std::shared_ptr< msgs::LidRoi > >( content_out_ptr );
-                return get_ITRI3DBoundingBox(topic_id, _ptr_ptr );
+                {
+                    if (content_out_ptr.empty()){   content_out_ptr =  std::shared_ptr< msgs::LidRoi >(); }
                 break;}
             default:
-                return false;
+                // return false;
+                break;
         }
-        /*
+        // Get value
         switch ( M_TYPE(_topic_param_list[topic_id].type) ){
             case M_TYPE::String:
                 {std::shared_ptr< std::string> *_ptr_ptr = boost::any_cast< std::shared_ptr< std::string> >( &content_out_ptr );
@@ -478,6 +479,7 @@ bool ROS_INTERFACE::get_any_message(const int topic_id, boost::any & content_out
                 break;}
             case M_TYPE::Image:
                 {std::shared_ptr<cv::Mat> *_ptr_ptr = boost::any_cast< std::shared_ptr<cv::Mat> >( &content_out_ptr );
+                // std::cout << "*_ptr_ptr.use_count() = " << (*_ptr_ptr).use_count() << "\n"; // NOTE: The result is "1", which is the result we want
                 return get_Image(topic_id, *_ptr_ptr );
                 break;}
             case M_TYPE::PointCloud2:
@@ -495,7 +497,7 @@ bool ROS_INTERFACE::get_any_message(const int topic_id, boost::any & content_out
             default:
                 return false;
         }
-        */
+
         // end switch
     }
 }

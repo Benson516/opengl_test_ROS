@@ -11,25 +11,25 @@ public:
 	SCENE_W4(std::string pkg_path_in);
 
 private:
-
+    inline static bool cal_viewport_w(int w, int h, int &cx, int &cy, int &vw, int &vh){
+        double asp = 1.5833333333;
+        int im_w = w/7;
+        int im_h = int(im_w/asp);
+        cx = im_w*4;
+        cy = 0;
+        vw = im_w;
+        vh = im_h;
+        return true;
+    }
 };
 
-bool cal_viewport_w4(int w, int h, int &cx, int &cy, int &vw, int &vh){
-    double asp = 1.5833333333;
-    int im_w = w/7;
-    int im_h = int(im_w/asp);
-    cx = im_w*4;
-    cy = 0;
-    vw = im_w;
-    vh = im_h;
-    return true;
-}
 
 
 SCENE_W4::SCENE_W4(std::string pkg_path_in)
 {
 	_camera_ptr.reset(new ViewManager());
-    _camera_ptr->assign_cal_viewport(&cal_viewport_w4);
+    _camera_ptr->assign_cal_viewport(&cal_viewport_w);
+    
     _pkg_path = (pkg_path_in);
     _Assets_path = (pkg_path_in + "Assets/");
 
