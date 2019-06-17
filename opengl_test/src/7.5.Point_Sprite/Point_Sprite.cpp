@@ -209,6 +209,65 @@ static const GLfloat box_vertex_positions[] =
 };
 //--------------------------------------//
 
+
+
+// A 2D text
+//--------------------------------------//
+void *font2D = GLUT_BITMAP_TIMES_ROMAN_24;
+void *fonts2D[] =
+{
+  GLUT_BITMAP_9_BY_15,
+  GLUT_BITMAP_TIMES_ROMAN_10,
+  GLUT_BITMAP_TIMES_ROMAN_24
+};
+void *font3D = GLUT_STROKE_ROMAN;
+void *fonts3D[] =
+{
+    GLUT_STROKE_ROMAN,
+    GLUT_STROKE_MONO_ROMAN
+};
+void selectFont2D(int newfont){
+  font2D = fonts2D[newfont];
+  glutPostRedisplay();
+}
+void selectFont3D(int newfont){
+  font3D = fonts3D[newfont];
+  glutPostRedisplay();
+}
+char defaultMessage[] = "GLUT means OpenGL.";
+char *message = defaultMessage;
+
+void text2D_output(int x, int y, const char *string){
+  glRasterPos2f(x, y);
+  int len = (int) strlen(string);
+  for (size_t i = 0; i < len; i++) {
+    glutBitmapCharacter(font2D, string[i]);
+  }
+}
+void text3D_output(float angle, const char *string){
+  glPushAttrib(GL_ENABLE_BIT);
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  glRotatef(M_PI/2.0, 0.0, 1.0, 0.0);
+  glTranslatef(0.0, 0.0, 0);
+  gluOrtho2D(0, 1500, 0, 1500);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+
+  int len = (int) strlen(string);
+  for (size_t i = 0; i < len; i++) {
+    glutStrokeCharacter(font3D, string[i]);
+  }
+  glPopMatrix();
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  glPopAttrib();
+  glMatrixMode(GL_MODELVIEW);
+}
+//--------------------------------------//
+
 GLuint m_texture;
 static unsigned int seed = 0x13371337;
 
@@ -652,10 +711,24 @@ void My_Display()
             glUniformMatrix4fv(box_uniforms.model, 1, GL_FALSE, value_ptr(model_pose));
             //--------------------------------//
 
+
+
             // Important, need to draw the buffer array out
             glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
+
         }
         glUseProgram(0);
+        //----------------------------------//
+
+
+        // A text
+        //----------------------------------//
+
+        
+        text2D_output(0, 0, "This is 2D text.");
+        text3D_output(0.0, "This is 3D text.");
         //----------------------------------//
 
     }
