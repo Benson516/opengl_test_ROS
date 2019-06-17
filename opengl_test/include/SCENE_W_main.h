@@ -37,6 +37,9 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     std::shared_ptr<rmImageBoard> _image_board_ptr;
     // PointCloud
     std::shared_ptr<rmPointCloud> pc_ptr_1;
+    // Text
+    std::shared_ptr<rmText3D> _text3D_ptr;
+
 
     /*
     // Back ground image (static)
@@ -149,7 +152,25 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _rm_BaseModel.push_back( _image_board_ptr );
     */
 
+    _text3D_ptr.reset( new rmText3D(_Assets_path, int(MSG_ID::lidar_bounding_box_1) ) );
+    _text3D_ptr->Translate(glm::vec3(0.0f, 0.0f, 5.0f));
+    _text3D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
+    _text3D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
+    _text3D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
+    // _text3D_ptr->Scale( glm::vec3(3.5f));
+    // _text3D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    _rm_BaseModel.push_back( _text3D_ptr );
 
+
+    // test, 400 x "Hello world" --> CPU 104%, GPU 85%
+    /*
+    for (size_t i=0; i < 400; ++i){
+        std::cout << "i = " << i << "\n";
+        _text3D_ptr.reset( new rmText3D(_Assets_path, int(MSG_ID::lidar_bounding_box_1) ) );
+        _text3D_ptr->Translate(glm::vec3(0.0f, 0.0f, (6.0f + 1.0f*i) ));
+        _rm_BaseModel.push_back( _text3D_ptr );
+    }
+    */
 
 
 }
