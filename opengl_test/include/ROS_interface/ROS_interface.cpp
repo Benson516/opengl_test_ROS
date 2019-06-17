@@ -819,6 +819,7 @@ void ROS_INTERFACE::_ITRIPointCloud_CB(const msgs::PointCloud::ConstPtr& msg, co
     }
     // Conversion
     //-------------------------//
+    _ITRIPointCloud_tmp_ptr->header = pcl_conversions::toPCL( msg->lidHeader );
     _ITRIPointCloud_tmp_ptr->width = msg->pointCloud.size();
     // std::cout << "cloud size = " << _ITRIPointCloud_tmp_ptr->width << "\n";
     _ITRIPointCloud_tmp_ptr->height = 1;
@@ -835,6 +836,7 @@ void ROS_INTERFACE::_ITRIPointCloud_CB(const msgs::PointCloud::ConstPtr& msg, co
         _ITRIPointCloud_tmp_ptr->points[i].intensity = msg->pointCloud[i].intensity;
     }
     //-------------------------//
+    // std::cout << "lidHeader.seq = " << msg->lidHeader.seq << "\n";
     // Add to buffer
     // bool result = buffer_list_ITRIPointCloud[ _tid ].put( *_ITRIPointCloud_tmp_ptr);
     bool result = buffer_list_ITRIPointCloud[ _tid ].put( _ITRIPointCloud_tmp_ptr, _time_in); // Put in the pointer directly
