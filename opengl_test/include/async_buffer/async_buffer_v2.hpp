@@ -102,9 +102,16 @@ public:
     //-----------------------------------------------//
     // Put in the std::shared_ptr as element_in_ptr
     bool    put_any(boost::any & element_in_ptr, bool is_droping=true, const TIME_STAMP::Time &stamp_in=TIME_STAMP::Time::now(), bool is_no_copying=true);  // Exchanging the data, fast
-
     // Put in the std::shared_ptr as content_out_ptr
     bool    front_any(boost::any & content_out_ptr, bool is_poping=false, const TIME_STAMP::Time &stamp_req=TIME_STAMP::Time());  // If is_poping, exchanging the data out, fast; if not is_poping, share the content (Note: this may not be safe!!)
+    //-----------------------------------------------//
+
+    // void* wrappers
+    //-----------------------------------------------//
+    // Put in the std::shared_ptr as element_in_ptr
+    bool    put_void(void * element_in_ptr, bool is_droping=true, const TIME_STAMP::Time &stamp_in=TIME_STAMP::Time::now(), bool is_shared_ptr=true);  // Exchanging the data, fast
+    // Put in the std::shared_ptr as content_out_ptr
+    bool    front_void(void * content_out_ptr, bool is_poping=false, const TIME_STAMP::Time &stamp_req=TIME_STAMP::Time(), bool is_shared_ptr=true);  // If is_poping, exchanging the data out, fast; if not is_poping, share the content (Note: this may not be safe!!)
     //-----------------------------------------------//
 
     // Advanced operations
@@ -696,7 +703,47 @@ template <class _T> bool async_buffer<_T>::front_any(boost::any & content_out_pt
 }
 //-----------------------------------------------//
 
-
+// void* wrappers
+//-----------------------------------------------//
+// Put in the std::shared_ptr as element_in_ptr
+template <class _T> bool async_buffer<_T>::put_void(void * element_in_ptr, bool is_droping, const TIME_STAMP::Time &stamp_in, bool is_shared_ptr){  // Exchanging the data, fast
+    try{
+        if (is_shared_ptr){
+            return put(*(std::shared_ptr<_T> *)(element_in_ptr), is_droping, stamp_in);
+        }else{
+            return put(*(_T *)(element_in_ptr), is_droping, stamp_in);
+        }
+    }catch(std::exception& e){
+        std::cout << "---\n";
+        std::cout << "Bad usage of async_buffer::put_void(), probably type error.\n";
+        std::cout << "The require type is [" << typeid(_T).name() << "]\n";
+        std::cout << "is_shared_ptr = " << is_shared_ptr << "\n";
+        std::cout << "Error: e = <" << e.what() << ">\n";
+        std::cout << "---\n";
+    }
+    return false;
+    // return put(*element_in_ptr, is_droping, stamp_in);
+}
+// Put in the std::shared_ptr as content_out_ptr
+template <class _T> bool async_buffer<_T>::front_void(void * content_out_ptr, bool is_poping, const TIME_STAMP::Time &stamp_req, bool is_shared_ptr){  // If is_poping, exchanging the data out, fast; if not is_poping, share the content (Note: this may not be safe!!)
+    try{
+        if (is_shared_ptr){
+            return front(*(std::shared_ptr<_T> *)(content_out_ptr), is_poping, stamp_req);
+        }else{
+            return front(*(_T *)(content_out_ptr), is_poping, stamp_req);
+        }
+    }catch(std::exception& e){
+        std::cout << "---\n";
+        std::cout << "Bad usage of async_buffer::put_void(), probably type error.\n";
+        std::cout << "The require type is [" << typeid(_T).name() << "]\n";
+        std::cout << "is_shared_ptr = " << is_shared_ptr << "\n";
+        std::cout << "Error: e = <" << e.what() << ">\n";
+        std::cout << "---\n";
+    }
+    return false;
+    // return front(*content_out_ptr, is_poping, stamp_req);
+}
+//-----------------------------------------------//
 
 //
 template <class _T> bool async_buffer<_T>::_is_empty(){

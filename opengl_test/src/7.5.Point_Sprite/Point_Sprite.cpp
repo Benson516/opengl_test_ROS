@@ -1,4 +1,5 @@
-#include <ROS_interface.hpp>
+// #include <ROS_interface.hpp>
+#include <ROS_interface_v2.hpp>
 //
 // #include "Common.h"
 #include "ViewManager.h"
@@ -726,7 +727,7 @@ void My_Display()
         // A text
         //----------------------------------//
 
-        
+
         text2D_output(0, 0, "This is 2D text.");
         text3D_output(0.0, "This is 3D text.");
         //----------------------------------//

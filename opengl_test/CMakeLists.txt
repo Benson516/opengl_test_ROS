@@ -181,7 +181,7 @@ add_executable(test_1 src/7.5.Point_Sprite/test_1.cpp include/ROS_ICLU3_v0.cpp s
 target_link_libraries(test_1 ROS_interface_v2_1 ${ALL_GL_LIBS} ${ALL_GL_UTIL_LIBS} ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )
 # point_sprite
 add_executable(point_sprite src/7.5.Point_Sprite/Point_Sprite.cpp )
-target_link_libraries(point_sprite ROS_interface_1  ${ALL_GL_LIBS} ${ALL_GL_UTIL_LIBS} ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )
+target_link_libraries(point_sprite ROS_interface_v2_1  ${ALL_GL_LIBS} ${ALL_GL_UTIL_LIBS} ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )
 # visualizer2
 add_executable(visualizer2 src/visualizer2_main.cpp include/ROS_ICLU3_v0.cpp src/Scene.cpp ${ALL_RENDER_MODELS})
 target_link_libraries(visualizer2 ROS_interface_v2_1  ${ALL_GL_LIBS} ${ALL_GL_UTIL_LIBS} ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )

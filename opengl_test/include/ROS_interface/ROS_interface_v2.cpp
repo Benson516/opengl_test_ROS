@@ -727,6 +727,18 @@ void ROS_INTERFACE::_Image_CB(const sensor_msgs::ImageConstPtr& msg, const MSG::
     }
     bool result = buffwr_list[params.topic_id]->put_any(any_ptr, true, _time_in, true);
 
+
+
+
+    // test_2
+    // bool result = buffer_list_Image[ _tid ].put_void( &(cv_ptr->image), true, _time_in, false);
+    //
+
+    // test_2 2
+    // std::shared_ptr<cv::Mat> image_ptr = std::make_shared<cv::Mat>(cv_ptr->image);
+    // bool result = buffer_list_Image[ _tid ].put_void( &(image_ptr), true, _time_in, true);
+    //
+
     if (!result){
         std::cout << params.name << ": buffer full.\n";
     }
@@ -746,6 +758,7 @@ bool ROS_INTERFACE::get_Image(const int topic_id, std::shared_ptr<cv::Mat> & con
     //------------------------------------//
     // return ( buffer_list_Image[_tid].front(content_out_ptr, true, _current_slice_time) );
 
+
     // test
     boost::any any_ptr;
     bool result = buffwr_list[topic_id]->front_any(any_ptr, true, _current_slice_time);
@@ -755,6 +768,11 @@ bool ROS_INTERFACE::get_Image(const int topic_id, std::shared_ptr<cv::Mat> & con
         content_out_ptr = *_ptr_ptr;
     }
     return result;
+
+
+
+    // test_2
+    // return ( buffer_list_Image[_tid].front_void(&content_out_ptr, true, _current_slice_time, true));
 }
 // output
 bool ROS_INTERFACE::send_Image(const int topic_id, const cv::Mat &content_in){
