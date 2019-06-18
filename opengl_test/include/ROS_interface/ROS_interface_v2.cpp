@@ -244,7 +244,7 @@ void ROS_INTERFACE::_ROS_worker(){
         buffer_list_ITRIPointCloud.push_back( async_buffer< pcl::PointCloud<pcl::PointXYZI> >( _tmp_params.buffer_length ) );
 
         // test
-        buffwr_list[_tmp_params.topic_id].reset(new buffwrPCLPointCloudXYZI(_tmp_params.buffer_length) );
+        buffwr_list[_tmp_params.topic_id].reset(new buffwrITRIPointCloud(_tmp_params.buffer_length) );
         //
 
         // subs_id, pub_id

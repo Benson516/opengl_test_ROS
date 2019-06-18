@@ -13,7 +13,7 @@
 #include <buffwrBase.hpp>
 #include <buffwrString.hpp>
 #include <buffwrImage.hpp>
-#include <buffwrPCLPointCloudXYZI.hpp>
+#include <buffwrITRIPointCloud.hpp>
 
 
 

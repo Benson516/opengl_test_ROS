@@ -150,8 +150,8 @@ add_library (async_buffer_v2_1 STATIC include/async_buffer/async_buffer_v2.cpp)
 # add_library (ROS_interface_1 STATIC include/ROS_interface/ROS_interface.cpp)
 # target_link_libraries(ROS_interface_1 async_buffer_v2_1)
 
-# add_library (ROS_interface_v2_1 STATIC include/ROS_interface/ROS_interface_v2.cpp)
-# target_link_libraries(ROS_interface_v2_1 async_buffer_v2_1)
+add_library (ROS_interface_v2_1 STATIC include/ROS_interface/ROS_interface_v2.cpp)
+target_link_libraries(ROS_interface_v2_1 async_buffer_v2_1)
 
 add_library (ROS_interface_v3_1 STATIC include/ROS_interface/ROS_interface_v3.cpp)
 target_link_libraries(ROS_interface_v3_1 async_buffer_v2_1)

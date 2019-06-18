@@ -561,7 +561,7 @@ bool ROS_INTERFACE::get_any_pointcloud(const int topic_id, std::shared_ptr< pcl:
 // input
 void ROS_INTERFACE::_String_CB(const std_msgs::String::ConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
-    TIME_STAMP::Time _time_in(true);
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
     std::string _tmp_s;
     _tmp_s = msg->data;
     // put
@@ -626,7 +626,7 @@ void ROS_INTERFACE::_tfGeoPoseStamped_CB(const geometry_msgs::PoseStamped::Const
     }
     // else
     // Time
-    TIME_STAMP::Time _time_in(true);
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
     // put
     // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
     bool result = buffwr_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
@@ -639,7 +639,7 @@ void ROS_INTERFACE::_tfGeoPoseStamped_CB(const geometry_msgs::PoseStamped::Const
 // input
 void ROS_INTERFACE::_Image_CB(const sensor_msgs::ImageConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
-    TIME_STAMP::Time _time_in(true);
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
 
     // Get the (raw) image
     cv_bridge::CvImagePtr cv_ptr;
@@ -663,6 +663,7 @@ void ROS_INTERFACE::_Image_CB(const sensor_msgs::ImageConstPtr& msg, const MSG::
     bool result = buffwr_list[params.topic_id]->put_any(any_ptr, true, _time_in, true);
     */
 
+
     // put
     bool result = buffwr_list[params.topic_id]->put_void( &(cv_ptr->image), true, _time_in, false);
     //
@@ -677,6 +678,7 @@ bool ROS_INTERFACE::get_Image(const int topic_id, cv::Mat & content_out){
 bool ROS_INTERFACE::get_Image(const int topic_id, std::shared_ptr<cv::Mat> & content_out_ptr){
 
     // Use any_ptr, which is actually the fatest method
+    /*
     boost::any any_ptr;
     bool result = buffwr_list[topic_id]->front_any(any_ptr, true, _current_slice_time);
     if (result){
@@ -685,10 +687,11 @@ bool ROS_INTERFACE::get_Image(const int topic_id, std::shared_ptr<cv::Mat> & con
         content_out_ptr = *_ptr_ptr;
     }
     return result;
+    */
 
 
     // front and pop
-    // return buffwr_list[topic_id]->front_void(&content_out_ptr, true, _current_slice_time, true);
+    return buffwr_list[topic_id]->front_void(&content_out_ptr, true, _current_slice_time, true);
 }
 // output
 bool ROS_INTERFACE::send_Image(const int topic_id, const cv::Mat &content_in){
@@ -708,7 +711,7 @@ bool ROS_INTERFACE::send_Image(const int topic_id, const cv::Mat &content_in){
 // input
 void ROS_INTERFACE::_PointCloud2_CB(const sensor_msgs::PointCloud2::ConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
-    TIME_STAMP::Time _time_in(true);
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
 
     // Take the reference to _tmp_in_ptr
     std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & _tmp_cloud_ptr = *(std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > *)( buffwr_list[params.topic_id]->get_tmp_in_ptr() ); // tmp cloud
@@ -752,7 +755,7 @@ bool ROS_INTERFACE::get_PointCloud2(const int topic_id, std::shared_ptr< pcl::Po
 // input
 void ROS_INTERFACE::_ITRIPointCloud_CB(const msgs::PointCloud::ConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
-    TIME_STAMP::Time _time_in(true);
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
 
     // tmp cloud
     // Note 1: this have been moved to be a member of the class, so that it won't keep constructing and destructing.
@@ -837,7 +840,7 @@ bool ROS_INTERFACE::send_ITRIPointCloud(const int topic_id, const pcl::PointClou
 // input
 void ROS_INTERFACE::_ITRI3DBoundingBox_CB(const msgs::LidRoi::ConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
-    TIME_STAMP::Time _time_in(true);
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
     // put
     // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
     bool result = buffwr_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);

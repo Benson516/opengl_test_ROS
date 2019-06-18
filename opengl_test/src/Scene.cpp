@@ -146,6 +146,7 @@ void Scene::Render(){
     // glDisable(GL_DEPTH_TEST);
 }
 void Scene::Update(float dt){
+
     // rmBaseModel
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
 		_rm_BaseModel[i]->Update(dt);
@@ -169,10 +170,15 @@ void Scene::Update(ROS_INTERFACE &ros_interface){
     }
     */
 
-
+    // evaluation
+    TIME_STAMP::Period period_Update("Update");
     // rmBaseModel
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
 		_rm_BaseModel[i]->Update(ros_interface);
+        // evaluation
+        period_Update.stamp();
+        period_Update.show_usec();
+        //
 	}
 }
 

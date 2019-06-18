@@ -125,16 +125,18 @@ void My_Init()
 	glDepthRange(0.0f, 1.0f);
 }
 
-// GLUT callback. Called to draw the scene.
-auto start_old = std::chrono::high_resolution_clock::now();
-//
+TIME_STAMP::Period period_frame("frame");
 void My_Display()
 {
-    // std::cout << "in My_Display()\n";
-    auto start = std::chrono::high_resolution_clock::now();
+    // evaluation
+    TIME_STAMP::Period period_in("part");
+    TIME_STAMP::Period period_all_func("full display");
+    //
+    period_frame.stamp();
+    period_frame.show_msec();
+    //
     // Evaluation
     //=============================================================//
-
 
 
     // ROS_interface
@@ -148,6 +150,12 @@ void My_Display()
     // Update data
     // bool is_updated = ros_api.update();
 
+#ifdef __DEBUG__
+    // evaluation
+    period_in.stamp();
+    period_in.show_msec();
+    //
+#endif
 
     // Update all_scenes
     //--------------------//
@@ -156,6 +164,12 @@ void My_Display()
     }
     //--------------------//
 
+#ifdef __DEBUG__
+    // evaluation
+    period_in.stamp();
+    period_in.show_msec();
+    //
+#endif
 
     //---------------------------------//
     // end ROS_interface
@@ -200,16 +214,18 @@ void My_Display()
 
     //=============================================================//
     // end Evaluation
+
 #ifdef __DEBUG__
-    auto elapsed = std::chrono::high_resolution_clock::now() - start;
-    auto period = start - start_old;
-    start_old = start;
-    long long elapsed_us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-    long long period_us = std::chrono::duration_cast<std::chrono::microseconds>(period).count();
-    // std::cout << "execution time (ms): " << elapsed_us*0.001 << ",\t";
-    // std::cout << "loop period (ms): " << period_us*0.001;
-    // std::cout << "---\n";
+    // evaluation
+    period_in.stamp();
+    period_in.show_msec();
+    //
+    period_all_func.stamp();
+    period_all_func.show_msec();
+    //
+    std::cout << "---\n";
 #endif
+
 }
 // end My_Display()
 

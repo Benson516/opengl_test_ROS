@@ -23,12 +23,13 @@ Result:
 
 // using std::vector;
 
-
+enum class TIME_PARAM{
+    NOW
+};
 
 // Time, similar to ros::Time
 //------------------------------------------------------//
 namespace TIME_STAMP{
-
     const long long const_10_9 = 1000000000;
     const long double const_10_neg9 = 0.000000001;
     //
@@ -39,9 +40,11 @@ namespace TIME_STAMP{
         // Constructors
         Time():sec(0),nsec(0)
         {}
-        Time(bool is_now){
-            if (is_now){ set_now(); }else{ set_zero(); }
+        Time(TIME_PARAM t_param){
+            if (t_param == TIME_PARAM::NOW){ set_now(); }else{ set_zero(); }
         }
+        // explicit Time(long long sec_in): sec(sec_in), nsec(0)
+        // {}
         Time(long long sec_in, long long nsec_in):sec(sec_in),nsec(nsec_in)
         {
             _correction();
@@ -70,6 +73,12 @@ namespace TIME_STAMP{
         long double toSec(){
             return ( (long double)(sec) + (long double)(nsec)*const_10_neg9 );
         }
+        long double toMiliSec(){
+            return ( toSec()*1000.0 );
+        }
+        long double toMicroSec(){
+            return ( toSec()*1000000.0 );
+        }
         // Usage: Time time_A = Time::now();
         static Time now(){
             using namespace std::chrono;
@@ -89,8 +98,12 @@ namespace TIME_STAMP{
             nsec = duration_cast<nanoseconds>(tp_n - tp_sec).count();
         }
 
+        // Utilities
         void set_zero(){    sec = 0;  nsec = 0;     }
-
+        void show(){ std::cout << "Time = (" << sec << ", " << nsec << ")\n"; }
+        void show_sec(){ std::cout << "Time = " << toSec() << " sec.\n"; }
+        void show_msec(){ std::cout << "Time = " << toMiliSec() << " msec.\n"; }
+        void show_usec(){ std::cout << "Time = " << toMicroSec() << " usec.\n"; }
 
         // Comparison
         bool is_zero() const {
@@ -176,8 +189,43 @@ namespace TIME_STAMP{
             return *this;
         }
 
+    }; // end struct Time
+
+
+    class Period{
+    public:
+        Time start;
+        Time end;
+        Time duration;
+        std::string name;
+
+        Period(): start(TIME_PARAM::NOW)
+        {
+            end = start;
+            duration = end - start;
+        }
+        Period(std::string name_in): start(TIME_PARAM::NOW), name(name_in)
+        {
+            end = start;
+            duration = end - start;
+        }
+
+        Time stamp(){
+            Time _current(TIME_PARAM::NOW);
+            duration = _current - end;
+            // Swap
+            start = end;
+            end = _current;
+            return duration;
+        }
+        void show(){        std::cout << "Period [" << name << "] "; duration.show();    }
+        void show_sec(){    std::cout << "Period [" << name << "] "; duration.show_sec();    }
+        void show_msec(){   std::cout << "Period [" << name << "] "; duration.show_msec();    }
+        void show_usec(){   std::cout << "Period [" << name << "] "; duration.show_usec();    }
+
+    private:
     };
-}
+} // end namespace TIME_STAMP
 //------------------------------------------------------//
 
 

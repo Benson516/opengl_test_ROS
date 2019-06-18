@@ -6,13 +6,14 @@
 
 class buffwrImage: public buffwrBase
 {
+    typedef cv::Mat _BUFFER_TYPE_;
 public:
 
-    buffwrImage(): _buffer(0)    
+    buffwrImage(): _buffer(0)
     {
         _buffer.assign_copy_func(&_cv_Mat_copy_func);
     }
-    buffwrImage(size_t buffer_length_in): _buffer(buffer_length_in)   
+    buffwrImage(size_t buffer_length_in): _buffer(buffer_length_in)
     {
         _buffer.assign_copy_func(&_cv_Mat_copy_func);
     }
@@ -44,7 +45,7 @@ public:
 
 
 protected:
-    static bool _cv_Mat_copy_func(cv::Mat & _target, const cv::Mat & _source){
+    static bool _cv_Mat_copy_func(_BUFFER_TYPE_ & _target, const _BUFFER_TYPE_ & _source){
         // _target = _source.clone();
         _source.copyTo(_target);
         return true;
@@ -52,7 +53,7 @@ protected:
 
 private:
     // The buffer
-    async_buffer< cv::Mat >  _buffer;
+    async_buffer< _BUFFER_TYPE_ >  _buffer;
 };
 
 
