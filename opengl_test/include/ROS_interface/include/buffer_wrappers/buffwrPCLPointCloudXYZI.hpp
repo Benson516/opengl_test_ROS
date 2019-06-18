@@ -1,20 +1,18 @@
-#ifndef BUFFWR_IMAGE_H
-#define BUFFWR_IMAGE_H
+#ifndef BUFFWR_PCL_POINTCLOUD_XYZI_H
+#define BUFFWR_PCL_POINTCLOUD_XYZI_H
 
 #include <buffwrBase.hpp>
 
 
-class buffwrImage: public buffwrBase
+class buffwrPCLPointCloudXYZI: public buffwrBase
 {
 public:
 
-    buffwrImage(): _buffer(0)
+    buffwrPCLPointCloudXYZI(): _buffer(0)
     {
-        _buffer.assign_copy_func(&_cv_Mat_copy_func);
     }
-    buffwrImage(size_t buffer_length_in): _buffer(buffer_length_in)
+    buffwrPCLPointCloudXYZI(size_t buffer_length_in): _buffer(buffer_length_in)
     {
-        _buffer.assign_copy_func(&_cv_Mat_copy_func);
     }
 
     // Public methods
@@ -40,16 +38,12 @@ public:
 
 
 protected:
-    static bool _cv_Mat_copy_func(cv::Mat & _target, const cv::Mat & _source){
-        // _target = _source.clone();
-        _source.copyTo(_target);
-        return true;
-    }
+
 
 private:
     // The buffer
-    async_buffer< cv::Mat >  _buffer;
+    async_buffer< pcl::PointCloud<pcl::PointXYZI> >  _buffer;
 };
 
 
-#endif // BUFFWR_IMAGE_H
+#endif // BUFFWR_PCL_POINTCLOUD_XYZI_H

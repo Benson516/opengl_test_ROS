@@ -11,7 +11,9 @@
 
 // Buffer wrappers
 #include <buffwrBase.hpp>
+#include <buffwrString.hpp>
 #include <buffwrImage.hpp>
+#include <buffwrPCLPointCloudXYZI.hpp>
 
 
 
@@ -332,7 +334,7 @@ private:
     // test, buffer handler
     std::vector< std::shared_ptr<buffwrBase> > buffwr_list;
 
-    // test_2, any buffer
+    // test_3, any buffer
     std::vector< boost::any> any_buffer_list;
 
 

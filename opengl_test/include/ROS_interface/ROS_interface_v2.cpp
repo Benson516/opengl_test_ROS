@@ -242,6 +242,11 @@ void ROS_INTERFACE::_ROS_worker(){
         MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
         // SPSC Buffer
         buffer_list_ITRIPointCloud.push_back( async_buffer< pcl::PointCloud<pcl::PointXYZI> >( _tmp_params.buffer_length ) );
+
+        // test
+        buffwr_list[_tmp_params.topic_id].reset(new buffwrPCLPointCloudXYZI(_tmp_params.buffer_length) );
+        //
+
         // subs_id, pub_id
         if (_tmp_params.is_input){
             // Subscribe
@@ -736,9 +741,12 @@ void ROS_INTERFACE::_Image_CB(const sensor_msgs::ImageConstPtr& msg, const MSG::
     bool result = buffwr_list[params.topic_id]->put_any(any_ptr, true, _time_in, true);
     */
 
+    // test_4
+    bool result = buffwr_list[params.topic_id]->put_void( &(cv_ptr->image), true, _time_in, false);
 
-    // test_2
-    bool result = (* boost::any_cast< async_buffer<cv::Mat> >(&any_buffer_list[params.topic_id]) ).put_void( &(cv_ptr->image), true, _time_in, false);
+
+    // test_3
+    // bool result = (* boost::any_cast< async_buffer<cv::Mat> >(&any_buffer_list[params.topic_id]) ).put_void( &(cv_ptr->image), true, _time_in, false);
 
     // test_2
     // bool result = buffer_list_Image[ _tid ].put_void( &(cv_ptr->image), true, _time_in, false);
@@ -781,8 +789,13 @@ bool ROS_INTERFACE::get_Image(const int topic_id, std::shared_ptr<cv::Mat> & con
     return result;
     */
 
-    // test_2
-    return ( (* boost::any_cast< async_buffer<cv::Mat> >(&any_buffer_list[topic_id]) ).front_void(&content_out_ptr, true, _current_slice_time, true));
+    // test_4
+    return buffwr_list[topic_id]->front_void(&content_out_ptr, true, _current_slice_time, true);
+
+
+
+    // test_3
+    // return ( (* boost::any_cast< async_buffer<cv::Mat> >(&any_buffer_list[topic_id]) ).front_void(&content_out_ptr, true, _current_slice_time, true));
 
     // test_2
     // return ( buffer_list_Image[_tid].front_void(&content_out_ptr, true, _current_slice_time, true));
@@ -897,9 +910,14 @@ void ROS_INTERFACE::_ITRIPointCloud_CB(const msgs::PointCloud::ConstPtr& msg, co
     //-------------------------//
     // std::cout << "lidHeader.seq = " << msg->lidHeader.seq << "\n";
     // Add to buffer
-    // bool result = buffer_list_ITRIPointCloud[ _tid ].put( *_ITRIPointCloud_tmp_ptr);
-    bool result = buffer_list_ITRIPointCloud[ _tid ].put( _ITRIPointCloud_tmp_ptr, _time_in); // Put in the pointer directly
+    // // bool result = buffer_list_ITRIPointCloud[ _tid ].put( *_ITRIPointCloud_tmp_ptr);
+    // bool result = buffer_list_ITRIPointCloud[ _tid ].put( _ITRIPointCloud_tmp_ptr, _time_in); // Put in the pointer directly
     //
+
+    // test
+    bool result = buffwr_list[params.topic_id]->put_void( &(_ITRIPointCloud_tmp_ptr), true, _time_in, true);
+    //
+
     if (!result){
         std::cout << params.name << ": buffer full.\n";
     }
@@ -924,7 +942,13 @@ bool ROS_INTERFACE::get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl:
     //------------------------------------//
     int _tid = _topic_tid_list[topic_id];
     //------------------------------------//
-    bool result = ( buffer_list_ITRIPointCloud[_tid].front(content_out_ptr, true, _current_slice_time) );
+    // bool result = ( buffer_list_ITRIPointCloud[_tid].front(content_out_ptr, true, _current_slice_time) );
+
+    // test
+    bool result = buffwr_list[topic_id]->front_void(&content_out_ptr, true, _current_slice_time, true);
+    // std::cout << "here\n";
+    //
+
     // if (!result)
     //     return false;
     // Note: even if we don't get the new content, we do the transform.
