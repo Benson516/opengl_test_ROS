@@ -1,17 +1,17 @@
-#ifndef BUFFWR_STRING_H
-#define BUFFWR_STRING_H
+#ifndef BUFFWR_TF_GEO_POSE_STAMPED_H
+#define BUFFWR_TF_GEO_POSE_STAMPED_H
 
 #include <buffwrBase.hpp>
 
 
-class buffwrString: public buffwrBase
+class buffwrtfGeoPoseStamped: public buffwrBase
 {
 public:
 
-    buffwrString(): _buffer(0)
+    buffwrtfGeoPoseStamped(): _buffer(0)
     {
     }
-    buffwrString(size_t buffer_length_in): _buffer(buffer_length_in)
+    buffwrtfGeoPoseStamped(size_t buffer_length_in): _buffer(buffer_length_in)
     {
     }
 
@@ -46,8 +46,8 @@ protected:
 
 private:
     // The buffer
-    async_buffer< std::string >  _buffer;
+    async_buffer< geometry_msgs::PoseStamped >  _buffer;
 };
 
 
-#endif // BUFFWR_STRING_H
+#endif // BUFFWR_TF_GEO_POSE_STAMPED_H

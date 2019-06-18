@@ -39,6 +39,9 @@ namespace TIME_STAMP{
         // Constructors
         Time():sec(0),nsec(0)
         {}
+        Time(bool is_now){
+            if (is_now){ set_now(); }else{ set_zero(); }
+        }
         Time(long long sec_in, long long nsec_in):sec(sec_in),nsec(nsec_in)
         {
             _correction();
@@ -85,6 +88,8 @@ namespace TIME_STAMP{
             sec = tp_sec.time_since_epoch().count();
             nsec = duration_cast<nanoseconds>(tp_n - tp_sec).count();
         }
+
+        void set_zero(){    sec = 0;  nsec = 0;     }
 
 
         // Comparison

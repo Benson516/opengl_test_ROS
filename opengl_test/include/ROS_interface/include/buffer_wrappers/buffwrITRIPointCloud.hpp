@@ -1,17 +1,17 @@
-#ifndef BUFFWR_STRING_H
-#define BUFFWR_STRING_H
+#ifndef BUFFWR_ITRI_POINTCLOUD_H
+#define BUFFWR_ITRI_POINTCLOUD_H
 
 #include <buffwrBase.hpp>
 
 
-class buffwrString: public buffwrBase
+class buffwrITRIPointCloud: public buffwrBase
 {
 public:
 
-    buffwrString(): _buffer(0)
+    buffwrITRIPointCloud(): _buffer(0)
     {
     }
-    buffwrString(size_t buffer_length_in): _buffer(buffer_length_in)
+    buffwrITRIPointCloud(size_t buffer_length_in): _buffer(buffer_length_in)
     {
     }
 
@@ -38,16 +38,16 @@ public:
     inline virtual void * get_tmp_in_ptr(){   return &(_tmp_in_ptr);  }
     //---------------------------------------------------------//
 
-
-
+    // The temporary container
+    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > _tmp_in_ptr; // tmp input element
 
 protected:
 
 
 private:
     // The buffer
-    async_buffer< std::string >  _buffer;
+    async_buffer< pcl::PointCloud<pcl::PointXYZI> >  _buffer;
 };
 
 
-#endif // BUFFWR_STRING_H
+#endif // BUFFWR_ITRI_POINTCLOUD_H
