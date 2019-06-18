@@ -332,6 +332,10 @@ private:
     // test, buffer handler
     std::vector< std::shared_ptr<buffwrBase> > buffwr_list;
 
+    // test_2, any buffer
+    std::vector< boost::any> any_buffer_list;
+
+
 
     // String
     std::vector< async_buffer<std::string> > buffer_list_String;

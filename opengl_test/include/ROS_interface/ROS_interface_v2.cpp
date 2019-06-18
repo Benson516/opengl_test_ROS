@@ -148,6 +148,8 @@ void ROS_INTERFACE::_ROS_worker(){
     // test
     buffwr_list.resize( _topic_param_list.size() );
 
+    // test_2
+    any_buffer_list.resize( _topic_param_list.size() );
 
 
     // String
@@ -199,6 +201,11 @@ void ROS_INTERFACE::_ROS_worker(){
         // test
         buffwr_list[_tmp_params.topic_id].reset(new buffwrImage(_tmp_params.buffer_length) );
         //
+
+        // test_2
+        any_buffer_list[_tmp_params.topic_id] = async_buffer<cv::Mat>(_tmp_params.buffer_length);
+        //
+
         // subs_id, pub_id
         if (_tmp_params.is_input){
             // Subscribe
@@ -719,6 +726,7 @@ void ROS_INTERFACE::_Image_CB(const sensor_msgs::ImageConstPtr& msg, const MSG::
     // bool result = buffer_list_Image[ _tid ].put( cv_ptr->image, _time_in);
 
     // test
+    /*
     boost::any any_ptr;
     {
         std::shared_ptr<cv::Mat> image_ptr = std::make_shared<cv::Mat>(cv_ptr->image);
@@ -726,9 +734,11 @@ void ROS_INTERFACE::_Image_CB(const sensor_msgs::ImageConstPtr& msg, const MSG::
         any_ptr = image_ptr;
     }
     bool result = buffwr_list[params.topic_id]->put_any(any_ptr, true, _time_in, true);
+    */
 
 
-
+    // test_2
+    bool result = (* boost::any_cast< async_buffer<cv::Mat> >(&any_buffer_list[params.topic_id]) ).put_void( &(cv_ptr->image), true, _time_in, false);
 
     // test_2
     // bool result = buffer_list_Image[ _tid ].put_void( &(cv_ptr->image), true, _time_in, false);
@@ -760,6 +770,7 @@ bool ROS_INTERFACE::get_Image(const int topic_id, std::shared_ptr<cv::Mat> & con
 
 
     // test
+    /*
     boost::any any_ptr;
     bool result = buffwr_list[topic_id]->front_any(any_ptr, true, _current_slice_time);
     if (result){
@@ -768,8 +779,10 @@ bool ROS_INTERFACE::get_Image(const int topic_id, std::shared_ptr<cv::Mat> & con
         content_out_ptr = *_ptr_ptr;
     }
     return result;
+    */
 
-
+    // test_2
+    return ( (* boost::any_cast< async_buffer<cv::Mat> >(&any_buffer_list[topic_id]) ).front_void(&content_out_ptr, true, _current_slice_time, true));
 
     // test_2
     // return ( buffer_list_Image[_tid].front_void(&content_out_ptr, true, _current_slice_time, true));
