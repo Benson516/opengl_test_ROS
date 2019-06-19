@@ -20,6 +20,7 @@ Result:
 #endif
 #include <chrono>
 #include <cmath>  // For floor()
+#include <utility> // For std::swap with c++11
 
 // using std::vector;
 
@@ -127,6 +128,10 @@ namespace TIME_STAMP{
             else // ==
                 return (nsec >= time_B.nsec);
         }
+        void swap(Time & time_B){
+            std::swap(this->sec, time_B.sec);
+            std::swap(this->nsec, time_B.nsec);
+        }
         //
 
         // Math
@@ -194,34 +199,86 @@ namespace TIME_STAMP{
 
     class Period{
     public:
-        Time start;
-        Time end;
-        Time duration;
-        std::string name;
 
-        Period(): start(TIME_PARAM::NOW)
+        Time stamped_t;
+        Time duration;
+        Time last_duration;
+        Time jitter;
+        double jitter_us_avg;
+        //
+        std::string name;
+        long long seq;
+
+        Period(): stamped_t(TIME_PARAM::NOW), duration(), seq(0), jitter_us_avg(0.0)
         {
-            end = start;
-            duration = end - start;
         }
-        Period(std::string name_in): start(TIME_PARAM::NOW), name(name_in)
+        Period(std::string name_in): stamped_t(TIME_PARAM::NOW), duration(), name(name_in), seq(0), jitter_us_avg(0.0)
         {
-            end = start;
-            duration = end - start;
         }
 
         Time stamp(){
             Time _current(TIME_PARAM::NOW);
-            duration = _current - end;
-            // Swap
-            start = end;
-            end = _current;
+            Time new_duration = _current - stamped_t;
+            // duration
+            last_duration.swap(duration);
+            duration.swap(new_duration);
+            // jitter
+            jitter = (duration - last_duration);
+            jitter_us_avg += 0.1*( jitter.abs().toMicroSec() - jitter_us_avg);
+            // stamped_t
+            stamped_t.swap(_current);
+            // seq
+            seq++;
             return duration;
         }
-        void show(){        std::cout << "Period [" << name << "] "; duration.show();    }
-        void show_sec(){    std::cout << "Period [" << name << "] "; duration.show_sec();    }
-        void show_msec(){   std::cout << "Period [" << name << "] "; duration.show_msec();    }
-        void show_usec(){   std::cout << "Period [" << name << "] "; duration.show_usec();    }
+        void show(){        std::cout << "Period [" << name << " seq:" << seq << "] "; duration.show();    }
+        void show_sec(){    std::cout << "Period [" << name << " seq:" << seq << "] "; duration.show_sec();    }
+        void show_msec(){   std::cout << "Period [" << name << " seq:" << seq << "] "; duration.show_msec();    }
+        void show_usec(){   std::cout << "Period [" << name << " seq:" << seq << "] "; duration.show_usec();    }
+        //
+        void show_jitter_usec(){   std::cout << "Period [" << name << " seq:" << seq << "] Jitter (avg.) = " << jitter_us_avg << "usec.\n";    }
+
+    private:
+    }; // end class Period
+
+    class FPS{
+    public:
+        Period period;
+        double T_raw; // The latest period
+        double T_filtered; // filtered
+        double fps; // 1.0/T_filtered
+        //
+        double a_Ts;
+        //
+        long long seq;
+        //
+        std::string name;
+
+        FPS(): seq(0)
+        {
+            a_Ts = 0.3;
+            T_filtered = 0.0;
+        }
+        FPS(std::string name_in): seq(0), name(name_in)
+        {
+            a_Ts = 0.3;
+            T_filtered = 0.0;
+        }
+
+        double stamp(){
+            period.stamp();
+            // Filter, 1st order
+            T_raw = period.duration.toSec();
+            T_filtered += a_Ts*(T_raw - T_filtered);
+
+            // fps
+            fps = 1.0/T_filtered;
+            // seq
+            seq++;
+            return fps;
+        }
+
+        void show(){        std::cout << "FPS [" << name << " seq:" << seq << "] = " << fps << "\n";    }
 
     private:
     };

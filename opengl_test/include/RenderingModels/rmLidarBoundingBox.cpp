@@ -118,9 +118,6 @@ void rmLidarBoundingBox::Update(float dt){
 }
 void rmLidarBoundingBox::Update(ROS_INTERFACE &ros_interface){
     // Update the data (uniform variables) here
-    glBindVertexArray(m_shape.vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
-    // bool pc_result = ros_interface.get_ITRI3DBoundingBox( _ROS_topic_id, box3d_out_ptr);
 
     // test, use transform
     ros::Time msg_time;
@@ -139,6 +136,12 @@ void rmLidarBoundingBox::Update(ROS_INTERFACE &ros_interface){
         if (num_box > _max_num_box){
             num_box = _max_num_box;
         }
+
+        // vao vbo
+        glBindVertexArray(m_shape.vao);
+        glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
+
+
         m_shape.indexCount = num_box*_num_vertex_idx_per_box;
         size_t offset_point = sizeof(msgs::PointXYZ);
         // vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
@@ -236,5 +239,5 @@ void rmLidarBoundingBox::Render(std::shared_ptr<ViewManager> _camera_ptr){
     glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
     // glDrawArrays(GL_TRIANGLES, 0, 3*5); // draw part of points
     //--------------------------------//
-    // _program_ptr->CloseProgram();
+    _program_ptr->CloseProgram();
 }

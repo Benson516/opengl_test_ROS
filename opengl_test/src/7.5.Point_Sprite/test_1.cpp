@@ -19,8 +19,11 @@ int main(int argc, char *argv[])
 
     Time t_a(3.0);
     t_a.show();
-    Time t_b(0.0);
+    Time t_b(1.0);
     t_b.show();
+
+    Time t_c = t_b - t_a;
+    t_c.show_sec();
 
 
     std::shared_ptr<int> a_ptr;

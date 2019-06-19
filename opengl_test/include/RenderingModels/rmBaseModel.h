@@ -49,6 +49,7 @@ public:
     std::string get_full_Shader_path(std::string Shader_name_in);
     static glm::mat4 ROStf2GLMmatrix(const geometry_msgs::TransformStamped &ros_tf);
 
+    TIME_STAMP::FPS fps_of_update;
 protected:
     //
     std::string _path_Assets_sub_dir;

@@ -52,6 +52,8 @@ public:
     float _alpha;
     glm::vec4 _color_transform;
 
+    TIME_STAMP::FPS fps_of_update;
+
 protected:
     void Init();
     virtual void LoadModel();

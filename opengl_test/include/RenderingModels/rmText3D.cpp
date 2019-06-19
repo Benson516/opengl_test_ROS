@@ -154,7 +154,7 @@ void rmText3D::Render(std::shared_ptr<ViewManager> _camera_ptr){
     // glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
     // glDrawArrays(GL_TRIANGLES, 0, 3*5); // draw part of points
     //--------------------------------//
-    // _program_ptr->CloseProgram();
+    _program_ptr->CloseProgram();
 }
 
 

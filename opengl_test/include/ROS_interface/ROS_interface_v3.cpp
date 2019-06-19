@@ -144,6 +144,7 @@ void ROS_INTERFACE::_ROS_worker(){
 
     // Resize the SPSC buffers
     buffwr_list.resize( _topic_param_list.size() );
+    async_buffer_list.resize( _topic_param_list.size() );
     //
 
 
@@ -190,6 +191,15 @@ void ROS_INTERFACE::_ROS_worker(){
         MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
         // SPSC Buffer
         buffwr_list[_tmp_params.topic_id].reset(new buffwrImage(_tmp_params.buffer_length) );
+
+        // test
+        {
+            std::shared_ptr< async_buffer<cv::Mat> > _tmpcv_buff_ptr( new async_buffer<cv::Mat>(_tmp_params.buffer_length) );
+            _tmpcv_buff_ptr->assign_copy_func(&_cv_Mat_copy_func);
+            async_buffer_list[_tmp_params.topic_id] = _tmpcv_buff_ptr;
+        }
+        //
+
         // subs_id, pub_id
         if (_tmp_params.is_input){
             // Subscribe
@@ -226,6 +236,11 @@ void ROS_INTERFACE::_ROS_worker(){
         MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
         // SPSC Buffer
         buffwr_list[_tmp_params.topic_id].reset(new buffwrITRIPointCloud(_tmp_params.buffer_length) );
+
+        // test
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< pcl::PointCloud<pcl::PointXYZI> > (_tmp_params.buffer_length) );
+        //
+
         // subs_id, pub_id
         if (_tmp_params.is_input){
             // Subscribe
@@ -503,52 +518,20 @@ bool ROS_INTERFACE::get_any_message(const int topic_id, boost::any & content_out
 }
 
 bool ROS_INTERFACE::get_any_pointcloud(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out){
-    {
-        using MSG::M_TYPE;
-        switch (_topic_param_list[topic_id].type){
-            case int(M_TYPE::PointCloud2):
-                return get_PointCloud2(topic_id, content_out);
-                break;
-            case int(M_TYPE::ITRIPointCloud):
-                return get_ITRIPointCloud(topic_id, content_out);
-                break;
-            default:
-                return false;
-        }
-        // end switch
-    }
+    // front and pop
+    return ( buffwr_list[topic_id]->front_void(&content_out, true, _current_slice_time, false) );
 }
 bool ROS_INTERFACE::get_any_pointcloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr){
-    {
-        using MSG::M_TYPE;
-        switch (_topic_param_list[topic_id].type){
-            case int(M_TYPE::PointCloud2):
-                return get_PointCloud2(topic_id, content_out_ptr);
-                break;
-            case int(M_TYPE::ITRIPointCloud):
-                return get_ITRIPointCloud(topic_id, content_out_ptr);
-                break;
-            default:
-                return false;
-        }
-        // end switch
-    }
+    // front and pop
+    // return ( async_buffer_list[topic_id]->front_void(&content_out_ptr, true, _current_slice_time, true) );
+    return ( buffwr_list[topic_id]->front_void(&content_out_ptr, true, _current_slice_time, true) );
 }
 bool ROS_INTERFACE::get_any_pointcloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp){
-    {
-        using MSG::M_TYPE;
-        switch (_topic_param_list[topic_id].type){
-            case int(M_TYPE::PointCloud2):
-                return get_PointCloud2(topic_id, content_out_ptr, msg_stamp);
-                break;
-            case int(M_TYPE::ITRIPointCloud):
-                return get_ITRIPointCloud(topic_id, content_out_ptr, msg_stamp);
-                break;
-            default:
-                return false;
-        }
-        // end switch
-    }
+    // front and pop
+    // bool result = ( async_buffer_list[topic_id]->front_void(&content_out_ptr, true, _current_slice_time, true) );
+    bool result = ( buffwr_list[topic_id]->front_void(&content_out_ptr, true, _current_slice_time, true) );
+    msg_stamp = toROStime( buffwr_list[topic_id]->get_stamp() );
+    return result;
 }
 //---------------------------------------------------------//
 
@@ -594,10 +577,9 @@ bool ROS_INTERFACE::send_string(const int topic_id, const std::string &content_i
 // tfGeoPoseStamped
 //---------------------------------------------------------------//
 void ROS_INTERFACE::_tfGeoPoseStamped_CB(const geometry_msgs::PoseStamped::ConstPtr& msg, const MSG::T_PARAMS & params){
-    // Type_id
-    //------------------------------------//
-    int _tid = _topic_tid_list[params.topic_id];
-    //------------------------------------//
+    // Time
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+    //
     if(params.is_transform){
         geometry_msgs::TransformStamped _send_tf;
         //
@@ -610,7 +592,7 @@ void ROS_INTERFACE::_tfGeoPoseStamped_CB(const geometry_msgs::PoseStamped::Const
         std::cout << "_delta (day) = " << _delta.toSec()/86400.0 << "\n";
         */
         //
-        _send_tf.header.stamp = toROStime(TIME_STAMP::Time::now()); // <- The TIME_STAMP::Time::now() is much precise than ros::Time::now(); // msg->header.stamp
+        _send_tf.header.stamp = toROStime( _time_in ); // <- The TIME_STAMP::Time::now() is much precise than ros::Time::now(); // msg->header.stamp
         _send_tf.header.frame_id = params.frame_id;
         _send_tf.child_frame_id = params.to_frame;
         _send_tf.transform.translation.x = msg->pose.position.x;
@@ -625,8 +607,7 @@ void ROS_INTERFACE::_tfGeoPoseStamped_CB(const geometry_msgs::PoseStamped::Const
         return;
     }
     // else
-    // Time
-    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+
     // put
     // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
     bool result = buffwr_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
@@ -663,6 +644,9 @@ void ROS_INTERFACE::_Image_CB(const sensor_msgs::ImageConstPtr& msg, const MSG::
     bool result = buffwr_list[params.topic_id]->put_any(any_ptr, true, _time_in, true);
     */
 
+    // test
+    // bool result = async_buffer_list[params.topic_id]->put_void( &(cv_ptr->image), true, _time_in, false);
+
 
     // put
     bool result = buffwr_list[params.topic_id]->put_void( &(cv_ptr->image), true, _time_in, false);
@@ -689,6 +673,9 @@ bool ROS_INTERFACE::get_Image(const int topic_id, std::shared_ptr<cv::Mat> & con
     return result;
     */
 
+
+    // front and pop
+    // return async_buffer_list[topic_id]->front_void(&content_out_ptr, true, _current_slice_time, true);
 
     // front and pop
     return buffwr_list[topic_id]->front_void(&content_out_ptr, true, _current_slice_time, true);
@@ -790,7 +777,9 @@ void ROS_INTERFACE::_ITRIPointCloud_CB(const msgs::PointCloud::ConstPtr& msg, co
     // Add to buffer
     // std::cout << "(phase 2) _tmp_cloud_ptr->header.seq = " << _tmp_cloud_ptr->header.seq << "\n";
     bool result = buffwr_list[params.topic_id]->put_void( &(_tmp_cloud_ptr), true, _time_in, true); // <-- It's std::shared_ptr
+    // bool result = async_buffer_list[params.topic_id]->put_void( &(_tmp_cloud_ptr), true, _time_in, true); // <-- It's std::shared_ptr
     // std::cout << "(phase 3) _tmp_cloud_ptr->header.seq = " << _tmp_cloud_ptr->header.seq << "\n";
+
     //
     if (!result){
         std::cout << params.name << ": buffer full.\n";
@@ -802,10 +791,12 @@ bool ROS_INTERFACE::get_ITRIPointCloud(const int topic_id, pcl::PointCloud<pcl::
 }
 bool ROS_INTERFACE::get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr){
     // front and pop
+    // return ( async_buffer_list[topic_id]->front_void(&content_out_ptr, true, _current_slice_time, true) );
     return ( buffwr_list[topic_id]->front_void(&content_out_ptr, true, _current_slice_time, true) );
 }
 bool ROS_INTERFACE::get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp){
     // front and pop
+    // bool result = ( async_buffer_list[topic_id]->front_void(&content_out_ptr, true, _current_slice_time, true) );
     bool result = ( buffwr_list[topic_id]->front_void(&content_out_ptr, true, _current_slice_time, true) );
     msg_stamp = toROStime( buffwr_list[topic_id]->get_stamp() );
     return result;

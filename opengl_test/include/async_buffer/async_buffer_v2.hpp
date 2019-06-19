@@ -24,11 +24,49 @@ The implementation of this queue is based on a circular buffer using fixed-lengt
 // using std::vector;
 
 
+// The async_buffer base class
+//------------------------------------------------------//
+class async_buffer_base{
+public:
+    // Constructors
+    async_buffer_base(){}
+
+    // pop
+    virtual bool pop() = 0;    // Only move the index, fast
+
+    // boost::any wrappers
+    //-----------------------------------------------//
+    // Put in the std::shared_ptr as element_in_ptr
+    virtual bool put_any(boost::any & element_in_ptr, bool is_droping=true, const TIME_STAMP::Time &stamp_in=TIME_STAMP::Time::now(), bool is_no_copying=true) = 0;  // Exchanging the data, fast
+    // Put in the std::shared_ptr as content_out_ptr
+    virtual bool front_any(boost::any & content_out_ptr, bool is_poping=false, const TIME_STAMP::Time &stamp_req=TIME_STAMP::Time()) = 0;  // If is_poping, exchanging the data out, fast; if not is_poping, share the content (Note: this may not be safe!!)
+    //-----------------------------------------------//
+
+    // void* wrappers
+    //-----------------------------------------------//
+    // Put in the &(std::shared_ptr<_T>) or &(_T) as element_in_ptr
+    virtual bool put_void(const void * element_in_ptr, bool is_droping=true, const TIME_STAMP::Time &stamp_in=TIME_STAMP::Time::now(), bool is_shared_ptr=true) = 0;  // Exchanging the data, fast
+    // Put in the &(std::shared_ptr<_T>) or &(_T) as content_out_ptr
+    virtual bool front_void(void * content_out_ptr, bool is_poping=false, const TIME_STAMP::Time &stamp_req=TIME_STAMP::Time(), bool is_shared_ptr=true) = 0;  // If is_poping, exchanging the data out, fast; if not is_poping, share the content (Note: this may not be safe!!)
+    //-----------------------------------------------//
+
+    // Advanced operations
+    //-----------------------------------------------//
+    // Time stamp
+    virtual TIME_STAMP::Time get_stamp(void) = 0; // Note: use this function right after using any one of the "front" method
+    //-----------------------------------------------//
+protected:
+
+private:
+};
+//------------------------------------------------------//
+
 
 // The async_buffer class
 //------------------------------------------------------//
 template <class _T>
-class async_buffer{
+class async_buffer: public async_buffer_base
+{
 public:
 
 
@@ -198,6 +236,7 @@ private:
 
 
     // Time searching, find the minimum delta_t in absoulute value
+    /*
     inline int get_idx_of_closest_stamp(int _idx_read_tmp, const TIME_STAMP::Time &stamp_req){
         int _idx_write_tmp = _get_index_write();
         int _closest_idx = _idx_read_tmp;
@@ -208,6 +247,22 @@ private:
             if (_is_first || _delta_t < _min_delta_t){
             // if (_is_first || (_delta_t < _min_delta_t && stamp_req >= _stamp_list[_idx_read_tmp]) ){
                 _is_first = false;
+                _min_delta_t = _delta_t;
+                _closest_idx = _idx_read_search;
+            }
+        }
+        //
+        return _closest_idx;
+    }
+    */
+    inline int get_idx_of_closest_stamp(int _idx_read_tmp, const TIME_STAMP::Time &stamp_req){
+        int _idx_write_tmp = _get_index_write();
+        int _closest_idx = -1;
+        TIME_STAMP::Time _min_delta_t(10.0f);
+        for( int _idx_read_search = _idx_read_tmp; (_idx_read_search != _idx_write_tmp) ; _idx_read_search = _increase_idx(_idx_read_search)){
+            TIME_STAMP::Time _delta_t = (stamp_req - _stamp_list[_idx_read_search]).abs();
+            // if (_is_first || _delta_t < _min_delta_t){
+            if ( (_delta_t < _min_delta_t && stamp_req >= _stamp_list[_idx_read_tmp]) ){
                 _min_delta_t = _delta_t;
                 _closest_idx = _idx_read_search;
             }
@@ -506,7 +561,12 @@ template <class _T> bool async_buffer<_T>::front(_T & content_out, bool is_popin
     //---------------------------//
     // _idx_read_tmp = ?
     if (!stamp_req.is_zero()){
-        _idx_read_tmp = get_idx_of_closest_stamp(_idx_read_tmp, stamp_req);
+        // _idx_read_tmp = get_idx_of_closest_stamp(_idx_read_tmp, stamp_req);
+        int _idx_op = get_idx_of_closest_stamp(_idx_read_tmp, stamp_req);
+        if (_idx_op < 0){
+            return false;
+        }
+        _idx_read_tmp = _idx_op;
     }
     // Store the stamp (can put this line right after getting the index)
     _stamp_out = _stamp_list[_idx_read_tmp];
@@ -580,7 +640,12 @@ template <class _T> bool async_buffer<_T>::front(std::shared_ptr<_T> & content_o
     //---------------------------//
     // _idx_read_tmp = ?
     if (!stamp_req.is_zero()){
-        _idx_read_tmp = get_idx_of_closest_stamp(_idx_read_tmp, stamp_req);
+        // _idx_read_tmp = get_idx_of_closest_stamp(_idx_read_tmp, stamp_req);
+        int _idx_op = get_idx_of_closest_stamp(_idx_read_tmp, stamp_req);
+        if (_idx_op < 0){
+            return false;
+        }
+        _idx_read_tmp = _idx_op;
     }
     // Store the stamp (can put this line right after getting the index)
     _stamp_out = _stamp_list[_idx_read_tmp];

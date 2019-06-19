@@ -2,7 +2,8 @@
 
 
 rmPointCloud::rmPointCloud(std::string _path_Assets_in, int _ROS_topic_id_in):
-    _ROS_topic_id(_ROS_topic_id_in)
+    _ROS_topic_id(_ROS_topic_id_in),
+    fps_of_update( std::string("PC ") + std::to_string(_ROS_topic_id_in) )
 {
     init_paths(_path_Assets_in);
     _max_num_vertex = 5000000; // 5*10^6 // 100000;
@@ -84,10 +85,6 @@ void rmPointCloud::Update(float dt){
 }
 void rmPointCloud::Update(ROS_INTERFACE &ros_interface){
     // Update the data (uniform variables) here
-    glBindVertexArray(m_shape.vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
-
-    // bool pc_result = ros_interface.get_any_pointcloud( _ROS_topic_id, pc_out_ptr);
 
     // test, use transform
     ros::Time msg_time;
@@ -106,6 +103,11 @@ void rmPointCloud::Update(ROS_INTERFACE &ros_interface){
         if (m_shape.indexCount > _max_num_vertex){
             m_shape.indexCount = _max_num_vertex;
         }
+
+        // vao vbo
+        glBindVertexArray(m_shape.vao);
+        glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
+
         // std::cout << "pc_out_ptr->header.seq = " << pc_out_ptr->header.seq << "\n";
         // vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
         vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, m_shape.indexCount * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
@@ -120,6 +122,9 @@ void rmPointCloud::Update(ROS_INTERFACE &ros_interface){
     		vertex_ptr[i].color[2] = m_shape.color[2]; //
     	}
     	glUnmapBuffer(GL_ARRAY_BUFFER);
+
+        //
+        fps_of_update.stamp();  fps_of_update.show();
     }
 }
 void rmPointCloud::Render(std::shared_ptr<ViewManager> _camera_ptr){
@@ -142,7 +147,7 @@ void rmPointCloud::Render(std::shared_ptr<ViewManager> _camera_ptr){
     // Close
     glDisable(GL_POINT_SPRITE);
     //--------------------------------//
-    // _program_ptr->CloseProgram();
+    _program_ptr->CloseProgram();
 }
 
 

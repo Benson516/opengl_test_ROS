@@ -19,7 +19,8 @@ rmImageBoard::rmImageBoard(
 ):
     is_perspected(is_perspected_in),
     is_moveable(is_moveable_in),
-    is_color_transformed(is_color_transformed_in)
+    is_color_transformed(is_color_transformed_in),
+    fps_of_update(image_file_in)
 {
     _path_Shaders_sub_dir += "ImageBoard/";
     init_paths(_path_Assets_in);
@@ -39,7 +40,8 @@ rmImageBoard::rmImageBoard(
     is_perspected(is_perspected_in),
     is_moveable(is_moveable_in),
     is_color_transformed(is_color_transformed_in),
-    _ROS_topic_id(_ROS_topic_id_in)
+    _ROS_topic_id(_ROS_topic_id_in),
+    fps_of_update( std::string("Image ") + std::to_string(_ROS_topic_id_in) )
 {
     _path_Shaders_sub_dir += "ImageBoard/";
     init_paths(_path_Assets_in);
@@ -139,22 +141,28 @@ void rmImageBoard::Update(float dt){
     // Update the data (uniform variables) here
 }
 void rmImageBoard::Update(ROS_INTERFACE &ros_interface){
+    // Update the data (uniform variables) here
     // Check if this image needs to be updated.
     if (!is_dynamically_updated){
         return;
     }
 
-    // Update the data (uniform variables) here
-    glBindVertexArray(m_shape.vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
-
     bool _result = ros_interface.get_Image( _ROS_topic_id, image_out_ptr);
 
 
     if (_result){
+        // evaluation
+        TIME_STAMP::Period period_image(fps_of_update.name);
+        //
+
         m_shape.width = image_out_ptr->cols;
         m_shape.height = image_out_ptr->rows;
 
+        // vao vbo
+        glBindVertexArray(m_shape.vao);
+        // glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
+
+        // Texture
         glBindTexture(GL_TEXTURE_2D, m_shape.m_texture);
         cv::Mat image_in = *image_out_ptr;
         //use fast 4-byte alignment (default anyway) if possible
@@ -166,6 +174,13 @@ void rmImageBoard::Update(ROS_INTERFACE &ros_interface){
         cv::flip(image_in, flipped_image, 0);
         // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, flipped_image.width, flipped_image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, flipped_image.data);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, flipped_image.cols, flipped_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, flipped_image.data);
+
+        // evaluation
+        period_image.stamp();  period_image.show_usec();
+        //
+
+        //
+        fps_of_update.stamp();  fps_of_update.show();
     }
 
 
@@ -202,6 +217,6 @@ void rmImageBoard::Render(std::shared_ptr<ViewManager> _camera_ptr){
     // glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_shape.m_texture);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-
+    //
+    _program_ptr->CloseProgram();
 }

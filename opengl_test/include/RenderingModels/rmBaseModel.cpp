@@ -150,7 +150,9 @@ void rmBaseModel::Render(std::shared_ptr<ViewManager> _camera_ptr){
 	glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
 
 	glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
+
 	///////////////////////////
+    _program_ptr->CloseProgram();
 }
 
 // Matrix operation

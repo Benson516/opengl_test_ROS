@@ -125,15 +125,15 @@ void My_Init()
 	glDepthRange(0.0f, 1.0f);
 }
 
-TIME_STAMP::Period period_frame("frame");
+TIME_STAMP::Period period_frame_pre("pre frame");
+TIME_STAMP::Period period_frame_post("post frame");
 void My_Display()
 {
     // evaluation
     TIME_STAMP::Period period_in("part");
     TIME_STAMP::Period period_all_func("full display");
     //
-    period_frame.stamp();
-    period_frame.show_msec();
+    period_frame_pre.stamp();   period_frame_pre.show_msec();   period_frame_pre.show_jitter_usec();
     //
     // Evaluation
     //=============================================================//
@@ -150,10 +150,16 @@ void My_Display()
     // Update data
     // bool is_updated = ros_api.update();
 
+    //
+    // Update the "_latest_tf_common_update_time"
+    // ros_interface.update_latest_tf_common_update_time("map", "base");
+    // ros_api.ros_interface.set_global_delay(0.3);
+    // ros_api.ros_interface.update_current_slice_time();
+    ros_api.ros_interface.set_ref_frame("base");
+
 #ifdef __DEBUG__
     // evaluation
-    period_in.stamp();
-    period_in.show_msec();
+    // period_in.stamp();  period_in.show_msec();
     //
 #endif
 
@@ -166,8 +172,7 @@ void My_Display()
 
 #ifdef __DEBUG__
     // evaluation
-    period_in.stamp();
-    period_in.show_msec();
+    // period_in.stamp();   period_in.show_msec();
     //
 #endif
 
@@ -217,11 +222,11 @@ void My_Display()
 
 #ifdef __DEBUG__
     // evaluation
-    period_in.stamp();
-    period_in.show_msec();
+    // period_in.stamp();  period_in.show_msec();
     //
-    period_all_func.stamp();
-    period_all_func.show_msec();
+    period_all_func.stamp();    period_all_func.show_msec();
+    //
+    period_frame_post.stamp();  period_frame_post.show_msec();  period_frame_post.show_jitter_usec();
     //
     std::cout << "---\n";
 #endif

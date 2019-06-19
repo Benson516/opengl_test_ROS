@@ -343,6 +343,7 @@ private:
 
     // test, buffer wrapper (the base class with virtual function)
     std::vector< std::shared_ptr<buffwrBase> > buffwr_list;
+    std::vector< std::shared_ptr<async_buffer_base> > async_buffer_list;
     // test_3, any buffer
     // std::vector< boost::any> any_buffer_list;
     // test, buffer -- any

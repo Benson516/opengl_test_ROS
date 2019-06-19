@@ -157,7 +157,7 @@ void Scene::Update(ROS_INTERFACE &ros_interface){
     // ros_interface.update_latest_tf_common_update_time("map", "base");
     // ros_interface.set_global_delay(0.3);
     // ros_interface.update_current_slice_time();
-    ros_interface.set_ref_frame("base");
+    // ros_interface.set_ref_frame("base");
 
     /*
     // Camera
@@ -171,13 +171,12 @@ void Scene::Update(ROS_INTERFACE &ros_interface){
     */
 
     // evaluation
-    TIME_STAMP::Period period_Update("Update");
+    // TIME_STAMP::Period period_Update("Update");
     // rmBaseModel
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
 		_rm_BaseModel[i]->Update(ros_interface);
         // evaluation
-        period_Update.stamp();
-        period_Update.show_usec();
+        // period_Update.stamp(); period_Update.show_usec();
         //
 	}
 }
