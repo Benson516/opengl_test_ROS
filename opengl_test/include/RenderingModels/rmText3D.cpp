@@ -132,10 +132,13 @@ void rmText3D::LoadModel(){
 
 }
 void rmText3D::Update(float dt){
-    // Update the data (uniform variables) here
+    // Update the data (buffer variables) here
 }
 void rmText3D::Update(ROS_INTERFACE &ros_interface){
-    // Update the data (uniform variables) here
+    // Update the data (buffer variables) here
+}
+void rmText3D::Update(ROS_API &ros_api){
+    // Update the data (buffer variables) here
 }
 void rmText3D::Render(std::shared_ptr<ViewManager> _camera_ptr){
 

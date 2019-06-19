@@ -148,13 +148,13 @@ void My_Display()
         // exit(0);
     }
     // Update data
-    // bool is_updated = ros_api.update();
+    bool is_updated = ros_api.update();
 
     //
     // Update the "_latest_tf_common_update_time"
     // ros_interface.update_latest_tf_common_update_time("map", "base");
-    // ros_api.ros_interface.set_global_delay(0.3);
-    // ros_api.ros_interface.update_current_slice_time();
+    ros_api.ros_interface.set_global_delay(0.1);
+    ros_api.ros_interface.update_current_slice_time();
     ros_api.ros_interface.set_ref_frame("base");
 
 #ifdef __DEBUG__
@@ -166,7 +166,8 @@ void My_Display()
     // Update all_scenes
     //--------------------//
     for (size_t i=0; i < all_scenes.size(); ++i){
-        all_scenes[i]->Update(ros_api.ros_interface);
+        all_scenes[i]->Update(ros_api);
+        // all_scenes[i]->Update(ros_api.ros_interface);
     }
     //--------------------//
 

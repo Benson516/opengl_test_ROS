@@ -178,7 +178,8 @@ public:
     // Check if the ROS is started
     bool is_running();
     // Get topic imformations
-    inline MSG::T_PARAMS get_topic_param(const int topic_id){ return _topic_param_list[topic_id];}
+    inline bool is_topic_a_input(const int topic_id){return _topic_param_list[topic_id].is_input; }
+    inline MSG::T_PARAMS get_topic_param(const int topic_id){ return _topic_param_list[topic_id]; }
     inline size_t get_count_of_all_topics(){    return _topic_param_list.size();    }
     inline size_t get_count_of_a_topic_type(MSG::M_TYPE topic_type){    return (_msg_type_2_topic_params[int(topic_type)].size() );  }
 
@@ -187,7 +188,7 @@ public:
     inline TIME_STAMP::Time fromROStime(const ros::Time & rostime_in){return TIME_STAMP::Time(rostime_in.sec, rostime_in.nsec);}
 
 
-    // Getting methods for each type of message
+    // (Legacy) Getting methods for each type of message
     // The topic_id should be the "global id"
     //---------------------------------------------------------//
     bool get_String(const int topic_id, std::string & content_out);
@@ -214,7 +215,7 @@ public:
     bool send_ITRI3DBoundingBox(const int topic_id, const msgs::LidRoi &content_in);
     //---------------------------------------------------------//
 
-    // New interface: boost::any and (void *)
+    // New interfaces - boost::any and (void *)
     //---------------------------------------------------------//
     bool get_any_message(const int topic_id, boost::any & content_out_ptr);
     bool get_any_message(const int topic_id, boost::any & content_out_ptr, ros::Time &msg_stamp);
@@ -222,7 +223,7 @@ public:
     bool get_void_message(const int topic_id, void * content_out_ptr, ros::Time &msg_stamp, bool is_shared_ptr=true );
     //---------------------------------------------------------//
 
-    // Combined same buffer-data types
+    // (Legacy) Combined same buffer-data types
     //---------------------------------------------------------//
     // pcl::PointCloud<pcl::PointXYZI>
     bool get_any_pointcloud(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out);

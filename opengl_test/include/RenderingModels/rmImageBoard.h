@@ -46,6 +46,7 @@ public:
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
+    void Update(ROS_API &ros_api);
 	void Render(std::shared_ptr<ViewManager> _camera_ptr);
 
     // Color transform
@@ -59,7 +60,7 @@ protected:
     virtual void LoadModel();
     //
     int _ROS_topic_id;
-    std::shared_ptr<cv::Mat> image_out_ptr;
+    std::shared_ptr<cv::Mat> msg_out_ptr;
     // ros::Time msg_time;
 
     // Settings
@@ -67,6 +68,9 @@ protected:
     bool is_moveable;
     bool is_color_transformed;
     bool is_dynamically_updated;
+
+    void update_GL_data();
+
 
 private:
     // model info

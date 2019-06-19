@@ -43,6 +43,7 @@ bool ROS_API::update(){
         //
         got_on_any_topic.resize( ros_interface.get_count_of_all_topics(), false);
         any_ptr_list.resize( ros_interface.get_count_of_all_topics() );
+        msg_time_list.resize( ros_interface.get_count_of_all_topics(), ros::Time(0) );
         //
         _is_initialized = true;
     }
@@ -50,10 +51,8 @@ bool ROS_API::update(){
 
     // All topics
     for (int topic_id=0; topic_id < any_ptr_list.size(); ++topic_id){
-        MSG::T_PARAMS _param = ros_interface.get_topic_param(topic_id);
-        if (_param.is_input){
-            // MSG::M_TYPE _type = MSG::M_TYPE(_param.type);
-            got_on_any_topic[topic_id] = ros_interface.get_any_message(topic_id, any_ptr_list[topic_id] );
+        if ( ros_interface.is_topic_a_input(topic_id) ){
+            got_on_any_topic[topic_id] = ros_interface.get_any_message(topic_id, any_ptr_list[topic_id], msg_time_list[topic_id] );
             _updated |= got_on_any_topic[topic_id];
         }
     }
@@ -61,6 +60,24 @@ bool ROS_API::update(){
     return _updated;
 }
 
+// New interfaces - boost::any and (void *)
+//---------------------------------------------------------//
+bool ROS_API::get_any_message(const int topic_id, boost::any & content_out_ptr){
+    if ( !got_on_any_topic[topic_id] ){
+        return false;
+    }
+    content_out_ptr = any_ptr_list[topic_id];
+    return true;
+}
+bool ROS_API::get_any_message(const int topic_id, boost::any & content_out_ptr, ros::Time &msg_stamp){
+    if ( !got_on_any_topic[topic_id] ){
+        return false;
+    }
+    content_out_ptr = any_ptr_list[topic_id];
+    msg_stamp = msg_time_list[topic_id];
+    return true;
+}
+//---------------------------------------------------------//
 
 //===========================================//
 bool ROS_API::_set_up_topics(){

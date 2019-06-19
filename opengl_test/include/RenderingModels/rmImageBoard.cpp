@@ -138,53 +138,62 @@ void rmImageBoard::LoadModel(){
 
 }
 void rmImageBoard::Update(float dt){
-    // Update the data (uniform variables) here
+    // Update the data (buffer variables) here
 }
 void rmImageBoard::Update(ROS_INTERFACE &ros_interface){
-    // Update the data (uniform variables) here
+    // Update the data (buffer variables) here
     // Check if this image needs to be updated.
     if (!is_dynamically_updated){
         return;
     }
 
-    bool _result = ros_interface.get_Image( _ROS_topic_id, image_out_ptr);
+    bool _result = ros_interface.get_Image( _ROS_topic_id, msg_out_ptr);
+
+    if (_result){
+        // evaluation
+        TIME_STAMP::Period period_image(fps_of_update.name);
+        //
+        update_GL_data();
+        // evaluation
+        period_image.stamp();  period_image.show_usec();
+        // FPS
+        fps_of_update.stamp();  fps_of_update.show();
+    }
+
+}
+void rmImageBoard::Update(ROS_API &ros_api){
+    // Update the data (buffer variables) here
+    // Check if this image needs to be updated.
+    if (!is_dynamically_updated){
+        return;
+    }
+
+    bool _result = false;
+    // Scops for any_ptr
+    {
+        boost::any any_ptr;
+        _result = ros_api.get_any_message( _ROS_topic_id, any_ptr );
+        if (_result){
+            std::shared_ptr< cv::Mat > *_ptr_ptr = boost::any_cast< std::shared_ptr< cv::Mat > >( &any_ptr );
+            msg_out_ptr = *_ptr_ptr;
+        }
+    }// end Scops for any_ptr
 
 
     if (_result){
         // evaluation
         TIME_STAMP::Period period_image(fps_of_update.name);
         //
-
-        m_shape.width = image_out_ptr->cols;
-        m_shape.height = image_out_ptr->rows;
-
-        // vao vbo
-        glBindVertexArray(m_shape.vao);
-        // glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
-
-        // Texture
-        glBindTexture(GL_TEXTURE_2D, m_shape.m_texture);
-        cv::Mat image_in = *image_out_ptr;
-        //use fast 4-byte alignment (default anyway) if possible
-        glPixelStorei(GL_UNPACK_ALIGNMENT, (image_in.step & 3) ? 1 : 4);
-        //set length of one complete row in data (doesn't need to equal image.cols)
-        glPixelStorei(GL_UNPACK_ROW_LENGTH, image_in.step/image_in.elemSize());
-        //
-        cv::Mat flipped_image;
-        cv::flip(image_in, flipped_image, 0);
-        // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, flipped_image.width, flipped_image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, flipped_image.data);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, flipped_image.cols, flipped_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, flipped_image.data);
-
+        update_GL_data();
         // evaluation
         period_image.stamp();  period_image.show_usec();
-        //
-
-        //
+        // FPS
         fps_of_update.stamp();  fps_of_update.show();
     }
 
-
 }
+
+
 void rmImageBoard::Render(std::shared_ptr<ViewManager> _camera_ptr){
 
     glBindVertexArray(m_shape.vao);
@@ -219,4 +228,31 @@ void rmImageBoard::Render(std::shared_ptr<ViewManager> _camera_ptr){
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     //
     _program_ptr->CloseProgram();
+}
+
+
+
+
+void rmImageBoard::update_GL_data(){
+    //
+    m_shape.width = msg_out_ptr->cols;
+    m_shape.height = msg_out_ptr->rows;
+
+    // vao vbo
+    glBindVertexArray(m_shape.vao);
+    // glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
+
+    // Texture
+    glBindTexture(GL_TEXTURE_2D, m_shape.m_texture);
+    cv::Mat image_in = *msg_out_ptr;
+    //use fast 4-byte alignment (default anyway) if possible
+    glPixelStorei(GL_UNPACK_ALIGNMENT, (image_in.step & 3) ? 1 : 4);
+    //set length of one complete row in data (doesn't need to equal image.cols)
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, image_in.step/image_in.elemSize());
+    //
+    cv::Mat flipped_image;
+    cv::flip(image_in, flipped_image, 0);
+    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, flipped_image.width, flipped_image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, flipped_image.data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, flipped_image.cols, flipped_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, flipped_image.data);
+    //
 }

@@ -21,6 +21,7 @@ public:
     //
 	virtual void Update(float dt);
     virtual void Update(ROS_INTERFACE &ros_interface);
+    virtual void Update(ROS_API &ros_api);
 	virtual void Render(std::shared_ptr<ViewManager> _camera_ptr);
 
     // Matrix operation

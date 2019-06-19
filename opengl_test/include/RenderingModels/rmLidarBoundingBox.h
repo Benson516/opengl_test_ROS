@@ -12,6 +12,7 @@ public:
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
+    void Update(ROS_API &ros_api);
 	void Render(std::shared_ptr<ViewManager> _camera_ptr);
 
 protected:
@@ -19,8 +20,10 @@ protected:
     virtual void LoadModel();
     //
     int _ROS_topic_id;
-    std::shared_ptr< msgs::LidRoi > box3d_out_ptr;
+    std::shared_ptr< msgs::LidRoi > msg_out_ptr;
     // ros::Time msg_time;
+
+    void update_GL_data();
 
 private:
     // model info

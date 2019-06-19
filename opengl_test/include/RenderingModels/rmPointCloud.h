@@ -10,6 +10,7 @@ public:
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
+    void Update(ROS_API &ros_api);
 	void Render(std::shared_ptr<ViewManager> _camera_ptr);
 
     void set_color(glm::vec3 color_in);
@@ -21,8 +22,10 @@ protected:
     virtual void LoadModel();
     //
     int _ROS_topic_id;
-    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > pc_out_ptr;
+    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > msg_out_ptr;
     // ros::Time msg_time;
+
+    void update_GL_data();
 
 private:
     // model info

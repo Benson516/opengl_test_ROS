@@ -180,6 +180,34 @@ void Scene::Update(ROS_INTERFACE &ros_interface){
         //
 	}
 }
+void Scene::Update(ROS_API &ros_api){
+    // Update the "_latest_tf_common_update_time"
+    // ros_interface.update_latest_tf_common_update_time("map", "base");
+    // ros_interface.set_global_delay(0.3);
+    // ros_interface.update_current_slice_time();
+    // ros_interface.set_ref_frame("base");
+
+    /*
+    // Camera
+    bool is_sucessed = false;
+    glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("base", "map", is_sucessed, false) );
+    // glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("base", "map", is_sucessed, true ) );
+    if (is_sucessed){
+        std::cout << "Got the camera tf\n";
+        _camera_ptr->SetInvCameraModel(_tf_world_by_base);
+    }
+    */
+
+    // evaluation
+    // TIME_STAMP::Period period_Update("Update");
+    // rmBaseModel
+	for (int i = 0; i < _rm_BaseModel.size(); i++){
+		_rm_BaseModel[i]->Update(ros_api);
+        // evaluation
+        // period_Update.stamp(); period_Update.show_usec();
+        //
+	}
+}
 
 void Scene::Reshape(int full_window_width, int full_window_height){
 

@@ -133,10 +133,13 @@ void rmBaseModel::LoadModel(){
 }
 
 void rmBaseModel::Update(float dt){
-    // Update the data (uniform variables) here
+    // Update the data (buffer variables) here
 }
 void rmBaseModel::Update(ROS_INTERFACE &ros_interface){
-    // Update the data (uniform variables) here
+    // Update the data (buffer variables) here
+}
+void rmBaseModel::Update(ROS_API &ros_api){
+    // Update the data (buffer variables) here
 }
 void rmBaseModel::Render(std::shared_ptr<ViewManager> _camera_ptr){
 	//Update shaders' input variable
