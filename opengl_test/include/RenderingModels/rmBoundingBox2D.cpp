@@ -112,7 +112,7 @@ void rmBoundingBox2D::Update(ROS_INTERFACE &ros_interface){
 
     // test, use transform
     ros::Time msg_time;
-    bool _result = ros_interface.get_ITRI3DBoundingBox( _ROS_topic_id, msg_out_ptr, msg_time);
+    bool _result = ros_interface.get_void_message( _ROS_topic_id, &msg_out_ptr, msg_time);
 
     // Note: We get the transform update even if there is no new content in for maximum smoothness
     //      (the tf will update even there is no data)
@@ -129,7 +129,6 @@ void rmBoundingBox2D::Update(ROS_INTERFACE &ros_interface){
 
 void rmBoundingBox2D::Update(ROS_API &ros_api){
     // Update the data (buffer variables) here
-
     // test, use transform
     ros::Time msg_time;
     bool _result = false;
@@ -138,7 +137,7 @@ void rmBoundingBox2D::Update(ROS_API &ros_api){
         boost::any any_ptr;
         _result = ros_api.get_any_message( _ROS_topic_id, any_ptr, msg_time );
         if (_result){
-            std::shared_ptr< msgs::LidRoi > *_ptr_ptr = boost::any_cast< std::shared_ptr< msgs::LidRoi > >( &any_ptr );
+            std::shared_ptr< msgs::CamObj > *_ptr_ptr = boost::any_cast< std::shared_ptr< msgs::CamObj > >( &any_ptr );
             msg_out_ptr = *_ptr_ptr;
         }
     }// end Scops for any_ptr
@@ -146,7 +145,7 @@ void rmBoundingBox2D::Update(ROS_API &ros_api){
 
 
     if (_result){
-        // update_GL_data();
+        update_GL_data();
     }
 }
 
@@ -156,6 +155,7 @@ void rmBoundingBox2D::Render(std::shared_ptr<ViewManager> _camera_ptr){
     glBindVertexArray(m_shape.vao);
 
 	_program_ptr->UseProgram();
+    m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
     // The transformation matrices and projection matrices
     glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
@@ -173,7 +173,11 @@ void rmBoundingBox2D::Render(std::shared_ptr<ViewManager> _camera_ptr){
 
 
 void rmBoundingBox2D::update_GL_data(){
-    long long num_box = msg_out_ptr->lidRoiBox.size();
+
+    if (msg_out_ptr->camObj.size() == 0){
+        return;
+    }
+    long long num_box = msg_out_ptr->camObj.size();
     if (num_box > _max_num_box){
         num_box = _max_num_box;
     }
@@ -184,16 +188,28 @@ void rmBoundingBox2D::update_GL_data(){
 
 
     m_shape.indexCount = num_box*_num_vertex_idx_per_box;
-    size_t offset_point = sizeof(msgs::PointXYZ);
     // vertex_p_c_2D * vertex_ptr = (vertex_p_c_2D *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c_2D), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    vertex_p_c_2D * vertex_ptr = (vertex_p_c_2D *)glMapBufferRange(GL_ARRAY_BUFFER, 0, m_shape.indexCount * sizeof(vertex_p_c_2D), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    auto * _point_ptr = &(msg_out_ptr->lidRoiBox[0].p0);
+    vertex_p_c_2D * vertex_ptr = (vertex_p_c_2D *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_box * _num_vertex_per_box * sizeof(vertex_p_c_2D), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+    float box_size = 2.0;
     size_t _j = 0;
-    for (size_t i = 0; i < num_box; i++)
-    {
-
+	for (size_t i = 0; i < num_box; i++)
+	{
         //
-
-    }
-    glUnmapBuffer(GL_ARRAY_BUFFER);
+        auto & _box = msg_out_ptr->camObj[i];
+        box_param_cv _a_box_param_cv(_box.x, _box.y, _box.width, _box.height, _box.cls);
+        box_param_gl _a_box_param_gl;
+        convert_cv_to_normalized_gl(_a_box_param_cv, _a_box_param_gl);
+        //
+        for (size_t _k=0; _k <_num_vertex_per_box; ++_k ){
+            vertex_ptr[_j].position[0] = _a_box_param_gl.xy_list[_k][0];
+    		vertex_ptr[_j].position[1] = _a_box_param_gl.xy_list[_k][1];
+    		vertex_ptr[_j].color[0] = 0.0f; //
+    		vertex_ptr[_j].color[1] = 1.0f; //
+    		vertex_ptr[_j].color[2] = 0.0f; //
+            _j++;
+        }
+        //
+	}
+	glUnmapBuffer(GL_ARRAY_BUFFER);
+    //--------------------------------------------//
 }

@@ -15,7 +15,7 @@ public:
     void Update(ROS_API &ros_api);
 	void Render(std::shared_ptr<ViewManager> _camera_ptr);
 
-    inline void setup_params(int im_width_in, int im_height_in, int box_offset_in_image_cv_x_in, int box_offset_in_image_cv_y_in){
+    void setup_params(int im_width_in, int im_height_in, int box_offset_in_image_cv_x_in, int box_offset_in_image_cv_y_in){
         im_width = im_width_in;
         im_height = im_height_in;
         im_aspect = float(im_width) / float(im_height);
@@ -28,7 +28,7 @@ protected:
     virtual void LoadModel();
     //
     int _ROS_topic_id;
-    std::shared_ptr< msgs::LidRoi > msg_out_ptr;
+    std::shared_ptr< msgs::CamObj > msg_out_ptr;
     // ros::Time msg_time;
 
     void update_GL_data();
@@ -96,10 +96,11 @@ private:
         gl_x = (cv_x + box_offset_in_image_cv_x)/float(im_width) * 2.0 - 1.0;
         gl_y = (cv_y + box_offset_in_image_cv_y)/float(im_height) * -2.0 + 1.0;
     }
-    inline void convert_cv_to_normalized_gl(box_param_cv box_cv_in, box_param_gl box_gl_out){
+    void convert_cv_to_normalized_gl(const box_param_cv &box_cv_in, box_param_gl & box_gl_out){
         box_gl_out.obj_class = box_cv_in.obj_class;
         float gl_x, gl_y, gl_w, gl_h;
-        toNormGL(box_cv_in.width, box_cv_in.height, gl_w, gl_h);
+        gl_w = box_cv_in.width/float(im_width);
+        gl_h = box_cv_in.height/float(im_height);
         int _i = 0;
         // P1
         toNormGL(box_cv_in.xy[0], box_cv_in.xy[1], gl_x, gl_y);

@@ -182,11 +182,11 @@ void rmImageBoard::Update(ROS_API &ros_api){
 
     if (_result){
         // evaluation
-        TIME_STAMP::Period period_image(fps_of_update.name);
+        // TIME_STAMP::Period period_image(fps_of_update.name);
         //
         update_GL_data();
         // evaluation
-        period_image.stamp();  period_image.show_usec();
+        // period_image.stamp();  period_image.show_usec();
         // FPS
         fps_of_update.stamp();  fps_of_update.show();
     }

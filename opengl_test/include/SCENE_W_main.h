@@ -39,6 +39,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     std::shared_ptr<rmPointCloud> pc_ptr_1;
     // Text
     std::shared_ptr<rmText3D> _text3D_ptr;
+    // Bounding box 2D
+    std::shared_ptr<rmBoundingBox2D> _box2D_ptr;
 
 
     /*
@@ -98,8 +100,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     // Lidar bounding box
     _rm_BaseModel.push_back( std::shared_ptr<rmLidarBoundingBox>(new rmLidarBoundingBox(_Assets_path, int(MSG_ID::lidar_bounding_box_1)) ) );
 
-    // Bounding boc 2D    
-    _rm_BaseModel.push_back( std::shared_ptr<rmBoundingBox2D>(new rmBoundingBox2D(_Assets_path, int(MSG_ID::lidar_bounding_box_1)) ) );
+    // Bounding boc 2D
+    // _rm_BaseModel.push_back( std::shared_ptr<rmBoundingBox2D>(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_1)) ) );
 
     // Sweeping object
     _rm_BaseModel.push_back( std::shared_ptr<rmSweepingObject>(new rmSweepingObject(_Assets_path ) ) );
@@ -127,6 +129,19 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _image_board_ptr->_alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
+
+    // Bounding box for front-right camera
+    _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_1) ) );
+    _box2D_ptr->setup_params(608, 384, 608*2, 0);
+    _box2D_ptr->Translate(glm::vec3(0.0f, -10.0f, 3.0f));
+    _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), -M_PI/6.0); // view angle
+    _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
+    _box2D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
+    _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
+    _box2D_ptr->Scale( glm::vec3(3.5f));
+    _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    // _box2D_ptr->_alpha = 0.7;
+    _rm_BaseModel.push_back( _box2D_ptr );
 
     /*
     // Dynamic image, front-left camera
