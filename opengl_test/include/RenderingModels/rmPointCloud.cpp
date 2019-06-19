@@ -2,7 +2,8 @@
 
 
 rmPointCloud::rmPointCloud(std::string _path_Assets_in, int _ROS_topic_id_in):
-    _ROS_topic_id(_ROS_topic_id_in)
+    _ROS_topic_id(_ROS_topic_id_in),
+    fps_of_update( std::string("PC ") + std::to_string(_ROS_topic_id_in) )
 {
     init_paths(_path_Assets_in);
     _max_num_vertex = 5000000; // 5*10^6 // 100000;
@@ -80,18 +81,14 @@ void rmPointCloud::LoadModel(){
 
 }
 void rmPointCloud::Update(float dt){
-    // Update the data (uniform variables) here
+    // Update the data (buffer variables) here
 }
 void rmPointCloud::Update(ROS_INTERFACE &ros_interface){
-    // Update the data (uniform variables) here
-    glBindVertexArray(m_shape.vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
-
-    // bool pc_result = ros_interface.get_any_pointcloud( _ROS_topic_id, pc_out_ptr);
+    // Update the data (buffer variables) here
 
     // test, use transform
     ros::Time msg_time;
-    bool pc_result = ros_interface.get_any_pointcloud( _ROS_topic_id, pc_out_ptr, msg_time);
+    bool _result = ros_interface.get_any_pointcloud( _ROS_topic_id, msg_out_ptr, msg_time);
 
     // Note: We get the transform update even if there is no new content in for maximum smoothness
     //      (the tf will update even there is no data)
@@ -101,27 +98,46 @@ void rmPointCloud::Update(ROS_INTERFACE &ros_interface){
     m_shape.model = _model_tf;
     // Common::print_out_mat4(_model_tf);
 
-    if (pc_result){
-        m_shape.indexCount = pc_out_ptr->width;
-        if (m_shape.indexCount > _max_num_vertex){
-            m_shape.indexCount = _max_num_vertex;
-        }
-        // std::cout << "pc_out_ptr->header.seq = " << pc_out_ptr->header.seq << "\n";
-        // vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-        vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, m_shape.indexCount * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    	for (size_t i = 0; i < m_shape.indexCount; i++)
-    	{
-            vertex_ptr[i].position[0] = pc_out_ptr->points[i].x;
-    		vertex_ptr[i].position[1] = pc_out_ptr->points[i].y;
-    		vertex_ptr[i].position[2] = pc_out_ptr->points[i].z;
-    		// If we don't keep udating the color, the color will be lost when resizing the window.
-            vertex_ptr[i].color[0] = m_shape.color[0]; //
-    		vertex_ptr[i].color[1] = m_shape.color[1]; //
-    		vertex_ptr[i].color[2] = m_shape.color[2]; //
-    	}
-    	glUnmapBuffer(GL_ARRAY_BUFFER);
+    if (_result){
+        //
+        update_GL_data();
+        //
+        fps_of_update.stamp();  fps_of_update.show();
     }
 }
+void rmPointCloud::Update(ROS_API &ros_api){
+    // Update the data (buffer variables) here
+
+    // test, use transform
+    ros::Time msg_time;
+    bool _result = false;
+    // Scops for any_ptr
+    {
+        boost::any any_ptr;
+        _result = ros_api.get_any_message( _ROS_topic_id, any_ptr, msg_time );
+        if (_result){
+            std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > *_ptr_ptr = boost::any_cast< std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > >( &any_ptr );
+            msg_out_ptr = *_ptr_ptr;
+        }
+    }// end Scops for any_ptr
+
+    ROS_INTERFACE &ros_interface = ros_api.ros_interface;
+    // Note: We get the transform update even if there is no new content in for maximum smoothness
+    //      (the tf will update even there is no data)
+    bool tf_successed = false;
+    glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, false));
+    // glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, true, msg_time));
+    m_shape.model = _model_tf;
+    // Common::print_out_mat4(_model_tf);
+
+    if (_result){
+        update_GL_data();
+        //
+        fps_of_update.stamp();  fps_of_update.show();
+    }
+}
+
+
 void rmPointCloud::Render(std::shared_ptr<ViewManager> _camera_ptr){
 
     glBindVertexArray(m_shape.vao);
@@ -142,11 +158,37 @@ void rmPointCloud::Render(std::shared_ptr<ViewManager> _camera_ptr){
     // Close
     glDisable(GL_POINT_SPRITE);
     //--------------------------------//
-    // _program_ptr->CloseProgram();
+    _program_ptr->CloseProgram();
 }
 
 
 
 void rmPointCloud::set_color(glm::vec3 color_in){
     m_shape.color = color_in;
+}
+
+void rmPointCloud::update_GL_data(){
+    m_shape.indexCount = msg_out_ptr->width;
+    if (m_shape.indexCount > _max_num_vertex){
+        m_shape.indexCount = _max_num_vertex;
+    }
+
+    // vao vbo
+    glBindVertexArray(m_shape.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
+
+    // std::cout << "msg_out_ptr->header.seq = " << msg_out_ptr->header.seq << "\n";
+    // vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+    vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, m_shape.indexCount * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+    for (size_t i = 0; i < m_shape.indexCount; i++)
+    {
+        vertex_ptr[i].position[0] = msg_out_ptr->points[i].x;
+        vertex_ptr[i].position[1] = msg_out_ptr->points[i].y;
+        vertex_ptr[i].position[2] = msg_out_ptr->points[i].z;
+        // If we don't keep udating the color, the color will be lost when resizing the window.
+        vertex_ptr[i].color[0] = m_shape.color[0]; //
+        vertex_ptr[i].color[1] = m_shape.color[1]; //
+        vertex_ptr[i].color[2] = m_shape.color[2]; //
+    }
+    glUnmapBuffer(GL_ARRAY_BUFFER);
 }

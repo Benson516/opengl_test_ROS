@@ -28,6 +28,7 @@ public:
 	void Render();
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
+    void Update(ROS_API &ros_api);
     void Reshape(int full_window_width, int full_window_height);
 
     //

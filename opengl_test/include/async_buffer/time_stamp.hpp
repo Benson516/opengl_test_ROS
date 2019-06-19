@@ -20,15 +20,17 @@ Result:
 #endif
 #include <chrono>
 #include <cmath>  // For floor()
+#include <utility> // For std::swap with c++11
 
 // using std::vector;
 
-
+enum class TIME_PARAM{
+    NOW
+};
 
 // Time, similar to ros::Time
 //------------------------------------------------------//
 namespace TIME_STAMP{
-
     const long long const_10_9 = 1000000000;
     const long double const_10_neg9 = 0.000000001;
     //
@@ -39,6 +41,11 @@ namespace TIME_STAMP{
         // Constructors
         Time():sec(0),nsec(0)
         {}
+        Time(TIME_PARAM t_param){
+            if (t_param == TIME_PARAM::NOW){ set_now(); }else{ set_zero(); }
+        }
+        // explicit Time(long long sec_in): sec(sec_in), nsec(0)
+        // {}
         Time(long long sec_in, long long nsec_in):sec(sec_in),nsec(nsec_in)
         {
             _correction();
@@ -67,6 +74,12 @@ namespace TIME_STAMP{
         long double toSec(){
             return ( (long double)(sec) + (long double)(nsec)*const_10_neg9 );
         }
+        long double toMiliSec(){
+            return ( toSec()*1000.0 );
+        }
+        long double toMicroSec(){
+            return ( toSec()*1000000.0 );
+        }
         // Usage: Time time_A = Time::now();
         static Time now(){
             using namespace std::chrono;
@@ -86,6 +99,12 @@ namespace TIME_STAMP{
             nsec = duration_cast<nanoseconds>(tp_n - tp_sec).count();
         }
 
+        // Utilities
+        void set_zero(){    sec = 0;  nsec = 0;     }
+        void show(){ std::cout << "Time = (" << sec << ", " << nsec << ")\n"; }
+        void show_sec(){ std::cout << "Time = " << toSec() << " sec.\n"; }
+        void show_msec(){ std::cout << "Time = " << toMiliSec() << " msec.\n"; }
+        void show_usec(){ std::cout << "Time = " << toMicroSec() << " usec.\n"; }
 
         // Comparison
         bool is_zero() const {
@@ -108,6 +127,10 @@ namespace TIME_STAMP{
                 return (sec > time_B.sec);
             else // ==
                 return (nsec >= time_B.nsec);
+        }
+        void swap(Time & time_B){
+            std::swap(this->sec, time_B.sec);
+            std::swap(this->nsec, time_B.nsec);
         }
         //
 
@@ -171,8 +194,95 @@ namespace TIME_STAMP{
             return *this;
         }
 
+    }; // end struct Time
+
+
+    class Period{
+    public:
+
+        Time stamped_t;
+        Time duration;
+        Time last_duration;
+        Time jitter;
+        double jitter_us_avg;
+        //
+        std::string name;
+        long long seq;
+
+        Period(): stamped_t(TIME_PARAM::NOW), duration(), seq(0), jitter_us_avg(0.0)
+        {
+        }
+        Period(std::string name_in): stamped_t(TIME_PARAM::NOW), duration(), name(name_in), seq(0), jitter_us_avg(0.0)
+        {
+        }
+
+        Time stamp(){
+            Time _current(TIME_PARAM::NOW);
+            Time new_duration = _current - stamped_t;
+            // duration
+            last_duration.swap(duration);
+            duration.swap(new_duration);
+            // jitter
+            jitter = (duration - last_duration);
+            jitter_us_avg += 0.1*( jitter.abs().toMicroSec() - jitter_us_avg);
+            // stamped_t
+            stamped_t.swap(_current);
+            // seq
+            seq++;
+            return duration;
+        }
+        void show(){        std::cout << "Period [" << name << " seq:" << seq << "] "; duration.show();    }
+        void show_sec(){    std::cout << "Period [" << name << " seq:" << seq << "] "; duration.show_sec();    }
+        void show_msec(){   std::cout << "Period [" << name << " seq:" << seq << "] "; duration.show_msec();    }
+        void show_usec(){   std::cout << "Period [" << name << " seq:" << seq << "] "; duration.show_usec();    }
+        //
+        void show_jitter_usec(){   std::cout << "Period [" << name << " seq:" << seq << "] Jitter (avg.) = " << jitter_us_avg << "usec.\n";    }
+
+    private:
+    }; // end class Period
+
+    class FPS{
+    public:
+        Period period;
+        double T_raw; // The latest period
+        double T_filtered; // filtered
+        double fps; // 1.0/T_filtered
+        //
+        double a_Ts;
+        //
+        long long seq;
+        //
+        std::string name;
+
+        FPS(): seq(0)
+        {
+            a_Ts = 0.3;
+            T_filtered = 0.0;
+        }
+        FPS(std::string name_in): seq(0), name(name_in)
+        {
+            a_Ts = 0.3;
+            T_filtered = 0.0;
+        }
+
+        double stamp(){
+            period.stamp();
+            // Filter, 1st order
+            T_raw = period.duration.toSec();
+            T_filtered += a_Ts*(T_raw - T_filtered);
+
+            // fps
+            fps = 1.0/T_filtered;
+            // seq
+            seq++;
+            return fps;
+        }
+
+        void show(){        std::cout << "FPS [" << name << " seq:" << seq << "] = " << fps << "\n";    }
+
+    private:
     };
-}
+} // end namespace TIME_STAMP
 //------------------------------------------------------//
 
 

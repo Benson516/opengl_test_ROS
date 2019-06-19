@@ -125,16 +125,18 @@ void My_Init()
 	glDepthRange(0.0f, 1.0f);
 }
 
-// GLUT callback. Called to draw the scene.
-auto start_old = std::chrono::high_resolution_clock::now();
-//
+TIME_STAMP::Period period_frame_pre("pre frame");
+TIME_STAMP::Period period_frame_post("post frame");
 void My_Display()
 {
-    // std::cout << "in My_Display()\n";
-    auto start = std::chrono::high_resolution_clock::now();
+    // evaluation
+    TIME_STAMP::Period period_in("part");
+    TIME_STAMP::Period period_all_func("full display");
+    //
+    period_frame_pre.stamp();   period_frame_pre.show_msec();   period_frame_pre.show_jitter_usec();
+    //
     // Evaluation
     //=============================================================//
-
 
 
     // ROS_interface
@@ -146,16 +148,34 @@ void My_Display()
         // exit(0);
     }
     // Update data
-    // bool is_updated = ros_api.update();
+    bool is_updated = ros_api.update();
 
+    //
+    // Update the "_latest_tf_common_update_time"
+    // ros_interface.update_latest_tf_common_update_time("map", "base");
+    ros_api.ros_interface.set_global_delay(0.1);
+    ros_api.ros_interface.update_current_slice_time();
+    ros_api.ros_interface.set_ref_frame("base");
+
+#ifdef __DEBUG__
+    // evaluation
+    // period_in.stamp();  period_in.show_msec();
+    //
+#endif
 
     // Update all_scenes
     //--------------------//
     for (size_t i=0; i < all_scenes.size(); ++i){
-        all_scenes[i]->Update(ros_api.ros_interface);
+        all_scenes[i]->Update(ros_api);
+        // all_scenes[i]->Update(ros_api.ros_interface);
     }
     //--------------------//
 
+#ifdef __DEBUG__
+    // evaluation
+    // period_in.stamp();   period_in.show_msec();
+    //
+#endif
 
     //---------------------------------//
     // end ROS_interface
@@ -200,16 +220,18 @@ void My_Display()
 
     //=============================================================//
     // end Evaluation
+
 #ifdef __DEBUG__
-    auto elapsed = std::chrono::high_resolution_clock::now() - start;
-    auto period = start - start_old;
-    start_old = start;
-    long long elapsed_us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-    long long period_us = std::chrono::duration_cast<std::chrono::microseconds>(period).count();
-    // std::cout << "execution time (ms): " << elapsed_us*0.001 << ",\t";
-    // std::cout << "loop period (ms): " << period_us*0.001;
-    // std::cout << "---\n";
+    // evaluation
+    // period_in.stamp();  period_in.show_msec();
+    //
+    period_all_func.stamp();    period_all_func.show_msec();
+    //
+    period_frame_post.stamp();  period_frame_post.show_msec();  period_frame_post.show_jitter_usec();
+    //
+    std::cout << "---\n";
 #endif
+
 }
 // end My_Display()
 

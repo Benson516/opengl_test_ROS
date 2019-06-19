@@ -18,6 +18,7 @@ public:
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
+    void Update(ROS_API &ros_api);
 	void Render(std::shared_ptr<ViewManager> _camera_ptr);
 
 protected:

@@ -62,7 +62,7 @@ void ShaderProgram::UseProgram(){
 	if (linked)glUseProgram(id);
 }
 void ShaderProgram::CloseProgram(){
-    glUseProgram(0);
+    glUseProgram(0); // Use the default shader program (compactble with openGL ver 1.0 commands)
 }
 
 //
