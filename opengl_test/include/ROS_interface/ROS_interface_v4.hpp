@@ -214,10 +214,16 @@ public:
     bool send_ITRI3DBoundingBox(const int topic_id, const msgs::LidRoi &content_in);
     //---------------------------------------------------------//
 
+    // New interface: boost::any and (void *)
+    //---------------------------------------------------------//
+    bool get_any_message(const int topic_id, boost::any & content_out_ptr);
+    bool get_any_message(const int topic_id, boost::any & content_out_ptr, ros::Time &msg_stamp);
+    bool get_void_message(const int topic_id, void * content_out_ptr, bool is_shared_ptr=true);
+    bool get_void_message(const int topic_id, void * content_out_ptr, ros::Time &msg_stamp, bool is_shared_ptr=true );
+    //---------------------------------------------------------//
 
     // Combined same buffer-data types
     //---------------------------------------------------------//
-    bool get_any_message(const int topic_id, boost::any & content_out_ptr);
     // pcl::PointCloud<pcl::PointXYZI>
     bool get_any_pointcloud(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out);
     bool get_any_pointcloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr);
