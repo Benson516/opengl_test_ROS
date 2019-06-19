@@ -71,6 +71,7 @@ namespace MSG{
         PointCloud2,
         ITRIPointCloud,
         ITRI3DBoundingBox,
+        ITRICamObj,
         NUM_MSG_TYPE
     };
 

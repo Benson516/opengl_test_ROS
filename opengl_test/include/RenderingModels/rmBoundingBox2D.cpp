@@ -143,17 +143,10 @@ void rmBoundingBox2D::Update(ROS_API &ros_api){
         }
     }// end Scops for any_ptr
 
-    ROS_INTERFACE &ros_interface = ros_api.ros_interface;
-    // Note: We get the transform update even if there is no new content in for maximum smoothness
-    //      (the tf will update even there is no data)
-    bool tf_successed = false;
-    glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, false));
-    // glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, true, msg_time));
-    m_shape.model = _model_tf;
-    // Common::print_out_mat4(_model_tf);
+
 
     if (_result){
-        update_GL_data();
+        // update_GL_data();
     }
 }
 
@@ -166,6 +159,10 @@ void rmBoundingBox2D::Render(std::shared_ptr<ViewManager> _camera_ptr){
     // The transformation matrices and projection matrices
     glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
+
+    // Setting
+    // glLineWidth(5.0);
+
     // Draw the element according to ebo
     // glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
     glDrawElements(GL_LINES, m_shape.indexCount, GL_UNSIGNED_INT, 0);

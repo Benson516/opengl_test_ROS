@@ -16,7 +16,9 @@
 #include "rmLidarBoundingBox.h"
 #include "rmImageBoard.h"
 #include "rmText3D.h"
+// The following is not finished yet
 #include "rmSweepingObject.h"
+#include "rmBoundingBox2D.h"
 //
 
 class Scene
