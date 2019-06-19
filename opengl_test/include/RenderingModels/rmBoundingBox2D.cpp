@@ -187,11 +187,11 @@ void rmBoundingBox2D::update_GL_data(){
     glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
 
 
-    m_shape.indexCount = num_box*_num_vertex_idx_per_box;
     // vertex_p_c_2D * vertex_ptr = (vertex_p_c_2D *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c_2D), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     vertex_p_c_2D * vertex_ptr = (vertex_p_c_2D *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_box * _num_vertex_per_box * sizeof(vertex_p_c_2D), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     float box_size = 2.0;
     size_t _j = 0;
+    size_t _box_count = 0;
 	for (size_t i = 0; i < num_box; i++)
 	{
         //
@@ -199,6 +199,10 @@ void rmBoundingBox2D::update_GL_data(){
         box_param_cv _a_box_param_cv(_box.x, _box.y, _box.width, _box.height, _box.cls);
         box_param_gl _a_box_param_gl;
         convert_cv_to_normalized_gl(_a_box_param_cv, _a_box_param_gl);
+        if (!is_gl_box_valid(_a_box_param_gl)){
+            continue; // Don't add to buffer
+        }
+        _box_count++;
         //
         for (size_t _k=0; _k <_num_vertex_per_box; ++_k ){
             vertex_ptr[_j].position[0] = _a_box_param_gl.xy_list[_k][0];
@@ -211,5 +215,8 @@ void rmBoundingBox2D::update_GL_data(){
         //
 	}
 	glUnmapBuffer(GL_ARRAY_BUFFER);
+    //
+    num_box = _box_count;
+    m_shape.indexCount = num_box*_num_vertex_idx_per_box;
     //--------------------------------------------//
 }

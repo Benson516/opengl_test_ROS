@@ -106,7 +106,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     // Sweeping object
     _rm_BaseModel.push_back( std::shared_ptr<rmSweepingObject>(new rmSweepingObject(_Assets_path ) ) );
 
-
+    /*
     // static image
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, "clownfish4.png", true, true, false) );
     _image_board_ptr->Translate(glm::vec3(5.0f, 0.0f, 3.0f));
@@ -116,11 +116,36 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _image_board_ptr->Scale( glm::vec3(3.5f));
     _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _rm_BaseModel.push_back( _image_board_ptr );
+    */
+
+    // Dynamic image, front-center camera
+    _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_1), true, true, false) );
+    _image_board_ptr->Translate(glm::vec3(2.0f, 0.0f, 3.0f));
+    // _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), 0.0); // view angle
+    _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
+    _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
+    _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
+    _image_board_ptr->Scale( glm::vec3(3.5f));
+    _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    _image_board_ptr->_alpha = 0.7;
+    _rm_BaseModel.push_back( _image_board_ptr );
+    // Bounding box for front-center camera
+    _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_1) ) );
+    _box2D_ptr->setup_params(608, 384, 608*1, 0);
+    _box2D_ptr->Translate(glm::vec3(2.0f, 0.0f, 3.0f));
+    // _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), 0.0); // view angle
+    _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
+    _box2D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
+    _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
+    _box2D_ptr->Scale( glm::vec3(3.5f));
+    _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    // _box2D_ptr->_alpha = 0.7;
+    _rm_BaseModel.push_back( _box2D_ptr );
 
 
     // Dynamic image, front-right camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_0), true, true, false) );
-    _image_board_ptr->Translate(glm::vec3(0.0f, -10.0f, 3.0f));
+    _image_board_ptr->Translate(glm::vec3(0.0f, -9.0f, 3.0f));
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), -M_PI/6.0); // view angle
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -129,11 +154,10 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _image_board_ptr->_alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
-
     // Bounding box for front-right camera
     _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_1) ) );
     _box2D_ptr->setup_params(608, 384, 608*2, 0);
-    _box2D_ptr->Translate(glm::vec3(0.0f, -10.0f, 3.0f));
+    _box2D_ptr->Translate(glm::vec3(0.0f, -9.0f, 3.0f));
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), -M_PI/6.0); // view angle
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _box2D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -143,10 +167,10 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     // _box2D_ptr->_alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
 
-    /*
+
     // Dynamic image, front-left camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_2), true, true, false) );
-    _image_board_ptr->Translate(glm::vec3(0.0f, 10.0f, 3.0f));
+    _image_board_ptr->Translate(glm::vec3(0.0f, 9.0f, 3.0f));
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI/6.0); // view angle
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -155,12 +179,24 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _image_board_ptr->_alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
-    */
+    // Bounding box for front-left camera
+    _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_1) ) );
+    _box2D_ptr->setup_params(608, 384, 608*0, 0);
+    _box2D_ptr->Translate(glm::vec3(0.0f, 9.0f, 3.0f));
+    _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI/6.0); // view angle
+    _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
+    _box2D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
+    _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
+    _box2D_ptr->Scale( glm::vec3(3.5f));
+    _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    // _box2D_ptr->_alpha = 0.7;
+    _rm_BaseModel.push_back( _box2D_ptr );
 
-    /*
+
+
     // Dynamic image, front-down camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_3), true, true, false) );
-    _image_board_ptr->Translate(glm::vec3(-3.0f, 0.0f, 3.0f));
+    _image_board_ptr->Translate(glm::vec3(-3.0f, 0.0f, 8.0f));
     _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), -M_PI/6.0); // view angle
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -169,10 +205,25 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _image_board_ptr->_alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
-    */
+    // Bounding box for front-left camera
+    _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_top_1) ) );
+    _box2D_ptr->setup_params(608, 384, 608*0, 0);
+    _box2D_ptr->Translate(glm::vec3(-3.0f, 0.0f, 8.0f));
+    _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), -M_PI/6.0); // view angle
+    _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
+    _box2D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
+    _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
+    _box2D_ptr->Scale( glm::vec3(3.5f));
+    _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    // _box2D_ptr->_alpha = 0.7;
+    _rm_BaseModel.push_back( _box2D_ptr );
+
+
+
+
 
     _text3D_ptr.reset( new rmText3D(_Assets_path, int(MSG_ID::lidar_bounding_box_1) ) );
-    _text3D_ptr->Translate(glm::vec3(0.0f, 0.0f, 5.0f));
+    _text3D_ptr->Translate(glm::vec3(10.0f, 0.0f, 5.0f));
     _text3D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _text3D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
     _text3D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
