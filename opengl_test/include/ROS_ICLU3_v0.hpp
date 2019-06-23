@@ -32,6 +32,8 @@ enum class MSG_ID{
     point_cloud_map,
 #endif
     lidar_bounding_box_1,
+    bounding_box_image_front_1,
+    bounding_box_image_front_top_1,
     // NUM_TOPICS
 };
 

@@ -71,6 +71,7 @@ namespace MSG{
         PointCloud2,
         ITRIPointCloud,
         ITRI3DBoundingBox,
+        ITRICamObj,
         NUM_MSG_TYPE
     };
 
@@ -380,6 +381,9 @@ private:
 
     // ITRI3DBoundingBox
     void _ITRI3DBoundingBox_CB(const msgs::LidRoi::ConstPtr& msg, const MSG::T_PARAMS & params);
+
+    // ITRICamObj
+    void _ITRICamObj_CB(const msgs::CamObj::ConstPtr& msg, const MSG::T_PARAMS & params);
     //---------------------------------------------------------//
 
 }; // end of the class ROS_INTERFACE

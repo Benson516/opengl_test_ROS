@@ -38,6 +38,8 @@
 #include <msgs/PointCloud.h>
 // MSG: ITRI3DBoundingBox
 #include <msgs/LidRoi.h>
+// MSG: ITRICamObj
+#include <msgs/CamObj.h>
 //--------------------------------------------//
 
 // Core libraries
