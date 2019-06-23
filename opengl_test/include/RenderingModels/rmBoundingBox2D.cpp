@@ -175,8 +175,10 @@ void rmBoundingBox2D::Render(std::shared_ptr<ViewManager> _camera_ptr){
 void rmBoundingBox2D::update_GL_data(){
 
     if (msg_out_ptr->camObj.size() == 0){
+        m_shape.indexCount = 0;
         return;
     }
+
     long long num_box = msg_out_ptr->camObj.size();
     if (num_box > _max_num_box){
         num_box = _max_num_box;
