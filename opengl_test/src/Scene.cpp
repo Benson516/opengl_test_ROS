@@ -1,11 +1,13 @@
 #include "Scene.h"
 
 // Default constructor, derived class will call this
-Scene::Scene()
+Scene::Scene():
+    camera_mode(0)
 {
 
 }
-Scene::Scene(std::string pkg_path_in)
+Scene::Scene(std::string pkg_path_in):
+    camera_mode(0)
 {
 	_camera_ptr.reset(new ViewManager());
     _pkg_path = (pkg_path_in);
@@ -185,7 +187,19 @@ void Scene::Update(ROS_API &ros_api){
     // ros_interface.update_latest_tf_common_update_time("map", "base");
     // ros_interface.set_global_delay(0.3);
     // ros_interface.update_current_slice_time();
-    // ros_interface.set_ref_frame("base");
+
+
+    switch(camera_mode){
+        case 0: // Follow
+            ros_api.ros_interface.set_ref_frame("base");
+            break;
+        case 1: // Steady
+            ros_api.ros_interface.set_ref_frame("map");
+            break;
+        default:
+            break;
+    }
+
 
     /*
     // Camera
@@ -221,12 +235,13 @@ void Scene::KeyBoardEvent(int key){
 
 }
 
-void Scene::KeyBoardEvent(unsigned char key){
-	_camera_ptr->keyEvents(key);
+void Scene::KeyBoardEvent(unsigned char key, ROS_API &ros_api){
 
-    /*
+
+
 	switch (key)
 	{
+    /*
 	case 'z':
 	case 'Z':
 		_rm_BaseModel[1]->Rotate(glm::vec3(0,1,0),-0.1f);
@@ -243,10 +258,30 @@ void Scene::KeyBoardEvent(unsigned char key){
 	case 'V':
 		_rm_BaseModel[1]->Translate(glm::vec3(0.1, 0, 0));
 		break;
+    */
+    case 'z':
+	case 'Z':
+        if (camera_mode == 1){
+            // Camera reference pose
+            bool is_sucessed = false;
+            glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_api.ros_interface.get_tf("base", "map", is_sucessed, false) );
+            // glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("base", "map", is_sucessed, true ) );
+            if (is_sucessed){
+                _camera_ptr->SetDefaultCameraModelInv( _tf_world_by_base );
+            }
+        }
+		break;
+    case 'c':
+	case 'C':
+		switchCameraMode( (camera_mode+1)%2 , ros_api);
+		break;
 	default:
 		break;
 	}
-    */
+
+    // Camera operations
+    _camera_ptr->keyEvents(key);
+
 }
 
 void Scene::MenuEvent(int item){
@@ -257,4 +292,55 @@ void Scene::MenuEvent(int item){
 	else if (item == 2){
 		_rm_BaseModel[1]->Scale(glm::vec3(0.5f, 0.5f, 0.5f));
 	}
+}
+
+
+void Scene::switchCameraMode(int mode_in, ROS_API &ros_api){
+    camera_mode = mode_in;
+    //
+    switch(camera_mode){
+        case 0: // Follow
+            {
+                // Set the default view matrix
+                glm::vec3 eyePosition(0.0f, 0.0f, 12.0f);
+            	glm::vec3 eyeLookPosition(0.0f, 0.0f, 0.0f);
+            	glm::vec3 up(0, 1, 0);
+                _camera_ptr->SetDefaultViewMatrix( lookAt(eyePosition, eyeLookPosition, up) );
+                // Set the default camera model matrix (the inverse)
+            	glm::mat4 translationMatrix(1.0);
+            	glm::mat4 rotationMatrix(1.0);
+                rotationMatrix = glm::rotate(rotationMatrix, deg2rad(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)); // z-axis
+                rotationMatrix = glm::rotate(rotationMatrix, deg2rad(75.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // y-axis
+                _camera_ptr->SetDefaultTansformMatrix( translationMatrix*rotationMatrix );
+                _camera_ptr->SetDefaultCameraModelInv( glm::mat4(1.0) );
+                _camera_ptr->Reset();
+                break;
+            }
+        case 1: // Steady
+            {
+                // Set the default view matrix
+                glm::vec3 eyePosition(0.0f, 0.0f, 12.0f);
+            	glm::vec3 eyeLookPosition(0.0f, 0.0f, 0.0f);
+            	glm::vec3 up(0, 1, 0);
+                _camera_ptr->SetDefaultViewMatrix( lookAt(eyePosition, eyeLookPosition, up) );
+                // Set the default camera model matrix (the inverse)
+                glm::mat4 translationMatrix(1.0);
+                glm::mat4 rotationMatrix(1.0);
+                rotationMatrix = glm::rotate(rotationMatrix, deg2rad(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)); // z-axis
+                // rotationMatrix = glm::rotate(rotationMatrix, deg2rad(75.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // y-axis
+                rotationMatrix = glm::rotate(rotationMatrix, deg2rad(45.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // y-axis
+                _camera_ptr->SetDefaultTansformMatrix( translationMatrix*rotationMatrix );
+                // Camera reference pose
+                bool is_sucessed = false;
+                glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_api.ros_interface.get_tf("base", "map", is_sucessed, false) );
+                // glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("base", "map", is_sucessed, true ) );
+                if (is_sucessed){
+                    _camera_ptr->SetDefaultCameraModelInv( _tf_world_by_base );
+                }
+                _camera_ptr->Reset();
+                break;
+            }
+        default:
+            break;
+    }
 }
