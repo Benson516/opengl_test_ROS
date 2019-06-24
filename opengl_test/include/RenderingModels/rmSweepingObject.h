@@ -48,8 +48,9 @@ private:
 	};
 
     //
-    int _num_vertex_of_curve;
-    std::vector<float> _curve_Points;
+    int _max_num_vertex_of_curve;
+    // std::vector<float> _curve_Points;
+    std::vector<glm::vec3> _curve_Points;
 
     // lookat matrix
     glm::mat4 lookat_matrix[11];
@@ -59,7 +60,7 @@ private:
 	{
 		GLint  mv_matrix;
 		GLint  proj_matrix;
-        GLint  lookat_matrix[11];
+        vector<GLint> lookat_matrix;
 	} uniforms;
 
     std::vector<vertex_p_c> box_template;

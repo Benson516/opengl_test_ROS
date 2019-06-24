@@ -1,7 +1,7 @@
 #version 410
 
 layout(lines, invocations = 1) in;
-layout(triangle_strip, max_vertices = 22) out;
+layout(triangle_strip, max_vertices = 100) out;
 
 in int gl_PrimitiveIDIn[];
 out vec4 gsOutColor;
@@ -9,7 +9,7 @@ out vec4 gsOutColor;
 uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
 // The list of rotation matrices for direction
-uniform mat4 lookat_matrix[11];
+uniform mat4 lookat_matrix[100]; // The size corespond with _max_num_vertex_of_curve
 
 //
 const float PI = 3.1415926;
@@ -23,7 +23,7 @@ void main()
 	vec4 nowRight = lookat_matrix[gl_PrimitiveIDIn[0]] * right;
 	vec4 nextRight = lookat_matrix[gl_PrimitiveIDIn[0] + 1] *  right;
 
-	float count = 10;
+	float count = 30;
 	float angleOffset = (360.0 / count) * (PI / 180.0);
 	for (int i = 0; i <= count; i++) {
 		float nowAngle = i * angleOffset;
