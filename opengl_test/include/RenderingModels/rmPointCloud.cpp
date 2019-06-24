@@ -115,6 +115,8 @@ void rmPointCloud::Update(ROS_API &ros_api){
     // test, use transform
     ros::Time msg_time;
     bool _result = false;
+
+    /*
     // Scops for any_ptr
     {
         boost::any any_ptr;
@@ -124,11 +126,16 @@ void rmPointCloud::Update(ROS_API &ros_api){
             msg_out_ptr = *_ptr_ptr;
         }
     }// end Scops for any_ptr
+    */
+
+    _result = ros_api.get_message(_ROS_topic_id, msg_out_ptr, msg_time);
+    // _result = ROS_API_TOOL::get_message(ros_api, _ROS_topic_id, msg_out_ptr, msg_time);
+    // std::cout << "msg_out_ptr.use_count() = " << msg_out_ptr.use_count() << "\n";
 
     if (_result){
         update_GL_data();
         //
-        fps_of_update.stamp();  fps_of_update.show();
+        // fps_of_update.stamp();  fps_of_update.show();
     }
 
 

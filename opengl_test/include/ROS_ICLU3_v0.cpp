@@ -44,7 +44,12 @@ bool ROS_API::update(){
         got_on_any_topic.resize( ros_interface.get_count_of_all_topics(), false);
         any_ptr_list.resize( ros_interface.get_count_of_all_topics() );
         msg_time_list.resize( ros_interface.get_count_of_all_topics(), ros::Time(0) );
-        //
+        // FPS
+        fps_list.resize( ros_interface.get_count_of_all_topics() );
+        for(size_t i=0; i < fps_list.size(); ++i){
+            fps_list[i].set_name( ros_interface.get_topic_name(i) );
+        }
+        // end FPS
         _is_initialized = true;
     }
     //
@@ -53,6 +58,7 @@ bool ROS_API::update(){
     for (int topic_id=0; topic_id < any_ptr_list.size(); ++topic_id){
         if ( ros_interface.is_topic_a_input(topic_id) ){
             got_on_any_topic[topic_id] = ros_interface.get_any_message(topic_id, any_ptr_list[topic_id], msg_time_list[topic_id] );
+            if (got_on_any_topic[topic_id]){ fps_list[topic_id].stamp(); } // <-- Update FPS
             _updated |= got_on_any_topic[topic_id];
         }
     }
@@ -77,6 +83,9 @@ bool ROS_API::get_any_message(const int topic_id, boost::any & content_out_ptr, 
     msg_stamp = msg_time_list[topic_id];
     return true;
 }
+//
+
+
 //---------------------------------------------------------//
 
 //===========================================//

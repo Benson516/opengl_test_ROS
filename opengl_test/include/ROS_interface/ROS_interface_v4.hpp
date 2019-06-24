@@ -182,6 +182,7 @@ public:
     inline bool is_topic_a_input(const int topic_id){return _topic_param_list[topic_id].is_input; }
     inline bool is_topic_got_frame(const int topic_id){return (_topic_param_list[topic_id].frame_id.size() > 0);}
     inline MSG::T_PARAMS get_topic_param(const int topic_id){ return _topic_param_list[topic_id]; }
+    inline std::string get_topic_name(const int topic_id){ return _topic_param_list[topic_id].name; }
     inline size_t get_count_of_all_topics(){    return _topic_param_list.size();    }
     inline size_t get_count_of_a_topic_type(MSG::M_TYPE topic_type){    return (_msg_type_2_topic_params[int(topic_type)].size() );  }
 

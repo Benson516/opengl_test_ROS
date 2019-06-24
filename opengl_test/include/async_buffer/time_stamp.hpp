@@ -216,6 +216,8 @@ namespace TIME_STAMP{
         {
         }
 
+        void set_name(std::string name_in){ name = name_in; }
+
         Time stamp(){
             Time _current(TIME_PARAM::NOW);
             Time new_duration = _current - stamped_t;
@@ -264,6 +266,7 @@ namespace TIME_STAMP{
             a_Ts = 0.3;
             T_filtered = 0.0;
         }
+        void set_name(std::string name_in){ name = name_in; }
 
         double stamp(){
             period.stamp();

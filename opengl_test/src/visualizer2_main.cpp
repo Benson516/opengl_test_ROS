@@ -148,15 +148,23 @@ void My_Display()
         leave_main_loop();
         // exit(0);
     }
-    // Update data
-    bool is_updated = ros_api.update();
 
-    //
+
     // Update the "_latest_tf_common_update_time"
     // ros_interface.update_latest_tf_common_update_time("map", "base");
     ros_api.ros_interface.set_global_delay(0.1);
     ros_api.ros_interface.update_current_slice_time();
     // ros_api.ros_interface.set_ref_frame("base"); <-- do this in Scene (base class with camera mode selection)
+
+    // Update data
+    bool is_updated = ros_api.update();
+
+    // FPS show
+    for (size_t i=0; i < ros_api.fps_list.size(); ++i){
+        if (ros_api.got_on_any_topic[i])
+            ros_api.fps_list[i].show();
+    }
+    // end FPS show
 
 #ifdef __DEBUG__
     // evaluation
