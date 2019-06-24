@@ -43,13 +43,7 @@ void rmSweepingObject::Init(){
     // Init model matrices
 	m_shape.model = glm::mat4(1.0);
     attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
-    //
-    for (int i = 0; i <= 10; i++) {
-		glm::mat4 temp(1.0);
-		temp = rotate(temp, (i * 9.0f) / 180.0f * 3.1415926f, glm::vec3(0, 1, 0));
-		temp = scale(temp, glm::vec3(1, 1, 1));
-		lookat_matrix[i] = temp;
-	}
+
 
     //Load model to shader _program_ptr
 	LoadModel();
@@ -69,6 +63,15 @@ void rmSweepingObject::LoadModel(){
 	_curve_Points.push_back(2.76);  _curve_Points.push_back(0.00);  _curve_Points.push_back(3.80);
 	_curve_Points.push_back(3.37);  _curve_Points.push_back(0.00);  _curve_Points.push_back(3.95);
 	_curve_Points.push_back(4.00);  _curve_Points.push_back(0.00);  _curve_Points.push_back(4.00);
+
+    // Calculate rotaion matrices and scales
+    for (int i = 0; i <= 10; i++) {
+		glm::mat4 temp(1.0);
+		temp = rotate(temp, (i * 9.0f) / 180.0f * 3.1415926f, glm::vec3(0, 1, 0));
+		temp = scale(temp, glm::vec3(1, 1, 1));
+		lookat_matrix[i] = temp;
+	}
+    //
 
 
     glGenVertexArrays(1, &m_shape.vao);
