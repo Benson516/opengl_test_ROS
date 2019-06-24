@@ -213,7 +213,8 @@ glm::mat4 rmBaseModel::get_pose_modle_ref_by_world(){
 glm::mat4 rmBaseModel::get_mv_matrix(std::shared_ptr<ViewManager> _camera_ptr, glm::mat4 &_model_M){
     // Get the model-view matrix
     // return (_camera_ptr->GetViewMatrix() * _camera_ptr->GetModelMatrix() * _model_M);
-    return (_camera_ptr->GetViewMatrix() * _camera_ptr->GetModelMatrix() * _pose_modle_ref_by_world * _model_M);
+    // return (_camera_ptr->GetViewMatrix() * _camera_ptr->GetModelMatrix() * _pose_modle_ref_by_world * _model_M);
+    return (_camera_ptr->GetModelViewMatrix() * _pose_modle_ref_by_world * _model_M);
 }
 bool rmBaseModel::init_paths(std::string _path_Assets_in){
     // Fix the path

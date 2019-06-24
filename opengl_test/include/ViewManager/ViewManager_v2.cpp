@@ -29,7 +29,7 @@ ViewManager::ViewManager():
 	eyePosition = vec3(0.0f, 0.0f, 12.0f);
 	eyeLookPosition = vec3(0.0f, 0.0f, 0.0f);
 	vec3 up = vec3(0, 1, 0);
-	viewMatrix = lookAt(eyePosition, eyeLookPosition, up);
+    _set_viewMatrix( lookAt(eyePosition, eyeLookPosition, up) );
     //
 	viewVector = eyePosition - eyeLookPosition;
 	viewVector = normalize(viewVector);
@@ -84,7 +84,9 @@ mat4 ViewManager::GetProjectionMatrix()
 {
 	return GetProjectionMatrix(aspect);
 }
-
+glm::mat4 ViewManager::GetModelViewMatrix(){ // <-- This method is the most efficient method, since we always update the mv_matrix when any of tthree components changed
+    return mv_matrix;
+}
 /**
 * 取得 V * P 的矩陣。
 * @param aspect 畫面的長寬比。
@@ -316,7 +318,7 @@ void ViewManager::mouseMoveEvent(int x_cv_g, int y_cv_g)
         // test
         glm::mat4 _delta_rot(1.0);
         _delta_rot = rotate(_delta_rot, float(1.0f*_n), _axis);
-        tansformMatrix = _delta_rot*tansformMatrix;
+        _set_tansformMatrix( _delta_rot*tansformMatrix );
         //
 		lmbDownCoord = coord;
 	}
@@ -343,7 +345,7 @@ void ViewManager::mouseMoveEvent(int x_cv_g, int y_cv_g)
 		// translationMatrix = translate(translationMatrix, (-diffUp + diffRight) * zoom * 3.0f);
         // test
         glm::mat4 _delta_trans_M = translate(glm::mat4(1.0), delta_trans);
-        tansformMatrix = _delta_trans_M*tansformMatrix;
+        _set_tansformMatrix( _delta_trans_M*tansformMatrix );
         //
 		midDownCoord = coord;
 	}else if (rmbDown){
@@ -363,7 +365,7 @@ void ViewManager::mouseMoveEvent(int x_cv_g, int y_cv_g)
         // test
         glm::mat4 _delta_rot(1.0);
         _delta_rot = rotate(_delta_rot, float(1.0f*_n), _axis);
-        tansformMatrix = _delta_rot*tansformMatrix;
+        _set_tansformMatrix( _delta_rot*tansformMatrix );
         //
 		rmbDownCoord = coord;
     }
@@ -386,7 +388,8 @@ void ViewManager::wheelEvent(int direction)
     glm::vec3 delta_trans = (-wheel_val/120.0f)*vec3(0,0,1) * ( l2Norm(trans_world_at_cam + get_trans_view() ) + 0.2f)*0.3f;
     // test
     glm::mat4 _delta_trans_M = translate(glm::mat4(1.0), delta_trans);
-    tansformMatrix = _delta_trans_M*tansformMatrix;
+    _set_tansformMatrix( _delta_trans_M*tansformMatrix );
+
 }
 
 /**
@@ -458,7 +461,7 @@ void ViewManager::SetRotation(float theta, float phi)
 	rotationMatrix = rotate(rotationMatrix, theta, vec3(0, 1, 0));
 	rotationMatrix = rotate(rotationMatrix, phi, vec3(1, 0, 0));
     // test
-    tansformMatrix = rotationMatrix;
+    _set_tansformMatrix( rotationMatrix*tansformMatrix );
 }
 
 /**
@@ -481,16 +484,35 @@ void ViewManager::SetRotation(float x, float y, float z)
     // test
     glm::mat4 _delta_rot(1.0);
     _delta_rot = rotate(_delta_rot, (float)angle, cross(o, v));
-    tansformMatrix = _delta_rot*tansformMatrix;
+    _set_tansformMatrix( _delta_rot*tansformMatrix );
 }
 
 
-void ViewManager::SetCameraModel(glm::mat4 camera_model_in){
-    camera_model_inv = inverse(camera_model_in);
+void ViewManager::SetCameraModel(const glm::mat4 &camera_model_in){
+    _set_camera_model_inv( inverse(camera_model_in) );
 }
-void ViewManager::SetInvCameraModel(glm::mat4 camera_model_inv_in){
-    camera_model_inv = camera_model_inv_in;
+void ViewManager::SetInvCameraModel(const glm::mat4 &camera_model_inv_in){
+    _set_camera_model_inv(camera_model_inv_in);
 }
+
+
+//
+void ViewManager::_set_camera_model_inv(const glm::mat4 &m_in){
+    camera_model_inv = m_in;
+    _update_mv_matrix();
+}
+void ViewManager::_set_tansformMatrix(const glm::mat4 &m_in){
+    tansformMatrix = m_in;
+    _update_mv_matrix();
+}
+void ViewManager::_set_viewMatrix(const glm::mat4 &m_in){
+    viewMatrix = m_in;
+    _update_mv_matrix();
+}
+void ViewManager::_update_mv_matrix(){
+    mv_matrix = viewMatrix * tansformMatrix * camera_model_inv;
+}
+//
 
 /**
 * 重設相機的設定。
@@ -501,11 +523,11 @@ void ViewManager::Reset()
 	zoom = 3.0f;
 
     // Reset to default value
-    viewMatrix = default_viewMatrix;
-    tansformMatrix = default_tansformMatrix;
+    _set_viewMatrix(default_viewMatrix);
+    _set_tansformMatrix(default_tansformMatrix);
 
     // The pose of camera reference frame
-    camera_model_inv = default_camera_model_inv;
+    _set_camera_model_inv(default_camera_model_inv);
 }
 void ViewManager::ResetDefaultValue(){
     // Set the default view matrix
@@ -555,7 +577,7 @@ void ViewManager::Translate(vec3 vec) {
     // test
     glm::mat4 _delta_trans_M(1.0);
     _delta_trans_M = translate(_delta_trans_M, (-diffUp + diffRight + diffForward) * zoom * 3.0f);
-    tansformMatrix = _delta_trans_M*tansformMatrix;
+    _set_tansformMatrix( _delta_trans_M*tansformMatrix );
 }
 
 

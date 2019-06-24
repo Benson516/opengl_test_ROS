@@ -5,7 +5,8 @@
 
 #include "Common.h"
 #include "Shader.h"
-#include "ViewManager.h"
+// #include "ViewManager.h"
+#include "ViewManager_v2.h"
 //
 #include <ROS_ICLU3_v0.hpp>
 

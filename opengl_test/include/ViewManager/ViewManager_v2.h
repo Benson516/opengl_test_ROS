@@ -35,6 +35,7 @@ public:
 	glm::mat4 GetProjectionMatrix();
 	glm::mat4 GetProjectionMatrix(float aspect);
     // Combination of matrices
+    glm::mat4 GetModelViewMatrix(); // <-- This method is the most efficient method, since we always update the mv_matrix when any of tthree components changed
 	glm::mat4 GetViewProjectionMatrix(float aspect);
 	glm::mat4 GetModelViewProjectionMatrix(float aspect);
 	glm::vec3 GetEyePosition() {return eyePosition;}
@@ -58,8 +59,8 @@ public:
     //
 
     // Set the camera pose
-    void SetCameraModel(glm::mat4 camera_model_in);
-    void SetInvCameraModel(glm::mat4 camera_model_inv_in);
+    void SetCameraModel(const glm::mat4 &camera_model_in);
+    void SetInvCameraModel(const glm::mat4 &camera_model_inv_in);
 
     bool ToggleOrtho() { return ortho = !ortho; }
     void Zoom(float distance);
@@ -106,7 +107,16 @@ private:
     glm::mat4 camera_model_inv;     // test, camera_model^-1
     glm::mat4 tansformMatrix;       // test, T*R
 	glm::mat4 viewMatrix;			///< 紀錄ViewMatrix。
+    //
+    glm::mat4 mv_matrix;            // viewMatrix*tansformMatrix*camera_model_inv
+    inline void _set_camera_model_inv(const glm::mat4 &m_in);
+    inline void _set_tansformMatrix(const glm::mat4 &m_in);
+    inline void _set_viewMatrix(const glm::mat4 &m_in);
+    inline void _update_mv_matrix();
+    //
 	glm::mat4 projMatrix;			///< 紀錄projMatrix。
+
+
     // Default value
     glm::mat4 default_camera_model_inv;
     glm::mat4 default_tansformMatrix;
