@@ -42,6 +42,7 @@ void rmSweepingObject::Init(){
 
     // Init model matrices
 	m_shape.model = glm::mat4(1.0);
+    attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
     //
     for (int i = 0; i <= 10; i++) {
 		glm::mat4 temp(1.0);

@@ -577,7 +577,7 @@ void ViewManager::convert_global_cv_coor_to_local_cv_coor(int x_cv_g, int y_cv_g
 
 // camera pose on view
 glm::vec3 ViewManager::get_trans_view(){
-    std::cout << viewMatrix[3].z << "\n";
+    // std::cout << viewMatrix[3].z << "\n";
     return viewMatrix[3].xyz();
 }
 glm::vec3 ViewManager::get_trans_world_at_camera(){

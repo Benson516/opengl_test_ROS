@@ -87,15 +87,15 @@ bool ROS_API::_set_up_topics(){
         ros_interface.add_a_topic("current_pose", int(M_TYPE::tfGeoPoseStamped), true, 10, 1, "map", true, "base");
         // Image
 #ifdef __SUB_IMAGES__
-        ros_interface.add_a_topic("camera/1/0/image_sync", int(M_TYPE::Image), true, 2, 20);
-        ros_interface.add_a_topic("camera/1/1/image_sync", int(M_TYPE::Image), true, 2, 20);
-        ros_interface.add_a_topic("camera/1/2/image_sync", int(M_TYPE::Image), true, 2, 20);
-        ros_interface.add_a_topic("camera/0/2/image_sync", int(M_TYPE::Image), true, 2, 20);
-        ros_interface.add_a_topic("camera/2/0/image", int(M_TYPE::Image), true, 2, 20);
-        ros_interface.add_a_topic("camera/2/1/image", int(M_TYPE::Image), true, 2, 20);
-        ros_interface.add_a_topic("camera/0/0/image", int(M_TYPE::Image), true, 2, 20);
-        ros_interface.add_a_topic("camera/0/1/image", int(M_TYPE::Image), true, 2, 20);
-        ros_interface.add_a_topic("camera/2/2/image", int(M_TYPE::Image), true, 2, 20);
+        ros_interface.add_a_topic("camera/1/0/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic("camera/1/1/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic("camera/1/2/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic("camera/0/2/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic("camera/2/0/image", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic("camera/2/1/image", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic("camera/0/0/image", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic("camera/0/1/image", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic("camera/2/2/image", int(M_TYPE::Image), true, 2, 20, "base");
 #endif // __SUB_IMAGES__
         // ITRIPointCloud
 #ifdef __SUB_POINT_CLOUD__

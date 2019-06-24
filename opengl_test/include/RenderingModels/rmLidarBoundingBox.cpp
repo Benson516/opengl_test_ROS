@@ -50,6 +50,7 @@ void rmLidarBoundingBox::Init(){
 
     // Init model matrices
 	m_shape.model = glm::mat4(1.0);
+    attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
 
     //Load model to shader _program_ptr
 	LoadModel();
@@ -123,17 +124,20 @@ void rmLidarBoundingBox::Update(ROS_INTERFACE &ros_interface){
     ros::Time msg_time;
     bool _result = ros_interface.get_ITRI3DBoundingBox( _ROS_topic_id, msg_out_ptr, msg_time);
 
+    if (_result){
+        update_GL_data();
+    }
+
     // Note: We get the transform update even if there is no new content in for maximum smoothness
     //      (the tf will update even there is no data)
     bool tf_successed = false;
     glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, false));
     // glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, true, msg_time));
-    m_shape.model = _model_tf;
+    // m_shape.model = _model_tf;
+    set_pose_modle_ref_by_world(_model_tf);
     // Common::print_out_mat4(_model_tf);
 
-    if (_result){
-        update_GL_data();
-    }
+
 }
 
 void rmLidarBoundingBox::Update(ROS_API &ros_api){
@@ -152,18 +156,21 @@ void rmLidarBoundingBox::Update(ROS_API &ros_api){
         }
     }// end Scops for any_ptr
 
+    if (_result){
+        update_GL_data();
+    }
+
     ROS_INTERFACE &ros_interface = ros_api.ros_interface;
     // Note: We get the transform update even if there is no new content in for maximum smoothness
     //      (the tf will update even there is no data)
     bool tf_successed = false;
     glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, false));
     // glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, true, msg_time));
-    m_shape.model = _model_tf;
+    // m_shape.model = _model_tf;
+    set_pose_modle_ref_by_world(_model_tf);
     // Common::print_out_mat4(_model_tf);
 
-    if (_result){
-        update_GL_data();
-    }
+
 }
 
 

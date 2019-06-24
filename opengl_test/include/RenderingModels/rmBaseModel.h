@@ -41,6 +41,10 @@ public:
     //------------------------------------------------//
 
     // The pose
+    inline void attach_pose_model_by_model_ref_ptr(glm::mat4 &pose_in){_pose_model_by_model_ref_ptr = &pose_in;}
+    void set_pose_modle_ref_by_world(glm::mat4 pose_in);
+    glm::mat4 get_pose_modle_ref_by_world();
+    //
     glm::mat4 get_mv_matrix(std::shared_ptr<ViewManager> _camera_ptr, glm::mat4 &_model_M);
 
 
@@ -64,6 +68,10 @@ protected:
 	glm::mat4 rotateMatrix;
 	glm::mat4 scaleMatrix;
     //
+    glm::mat4 * _pose_model_by_model_ref_ptr;
+    glm::mat4 _tmp_pose_model_by_model_ref;
+    glm::mat4 _pose_modle_ref_by_world;
+    //
 	//
     virtual void Init();
     virtual void LoadModel();
@@ -81,7 +89,7 @@ private:
         int materialId;
         int indexCount;
 
-        glm::mat4 model;
+        glm::mat4 model; // Note: this is the pose relative to the mode reference frame, not the world frame
     };
     Shape m_shape;
     //

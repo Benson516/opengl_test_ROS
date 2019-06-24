@@ -5,20 +5,26 @@ rmBaseModel::rmBaseModel():
     // Note: The following field will be shared across all derived classes
     //       However, each serived class can modify this on their own.
     _path_Assets_sub_dir(""),
-    _path_Shaders_sub_dir("Shaders/")
+    _path_Shaders_sub_dir("Shaders/"),
+    _pose_modle_ref_by_world(1.0f), _tmp_pose_model_by_model_ref(1.0f),
+    _pose_model_by_model_ref_ptr(&_tmp_pose_model_by_model_ref)
 {
     // The derived class will call this instead of the other constructor if we don't add the constructor in field of derived class.
 }
 rmBaseModel::rmBaseModel(std::string _path_Assets_in):
     _path_Assets_sub_dir(""),
-    _path_Shaders_sub_dir("Shaders/")
+    _path_Shaders_sub_dir("Shaders/"),
+    _pose_modle_ref_by_world(1.0f), _tmp_pose_model_by_model_ref(1.0f),
+    _pose_model_by_model_ref_ptr(&_tmp_pose_model_by_model_ref)
 {
     init_paths(_path_Assets_in);
 	Init();
 }
 rmBaseModel::rmBaseModel(std::string _path_Assets_in, std::string modelFile, std::string textFile):
     _path_Assets_sub_dir(""),
-    _path_Shaders_sub_dir("Shaders/")
+    _path_Shaders_sub_dir("Shaders/"),
+    _pose_modle_ref_by_world(1.0f), _tmp_pose_model_by_model_ref(1.0f),
+    _pose_model_by_model_ref_ptr(&_tmp_pose_model_by_model_ref)
 {
     init_paths(_path_Assets_in);
     objName = modelFile;
@@ -46,6 +52,7 @@ void rmBaseModel::Init(){
 
     // Init model matrices
 	m_shape.model = glm::mat4();
+    attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
 	translateMatrix = glm::mat4();
 	rotateMatrix = glm::mat4();
 	scaleMatrix = glm::mat4();
@@ -147,7 +154,7 @@ void rmBaseModel::Render(std::shared_ptr<ViewManager> _camera_ptr){
 	glBindVertexArray(m_shape.vao);
 	_program_ptr->UseProgram();
 
-	m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
+	// m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
 	glBindTexture(GL_TEXTURE_2D, m_shape.m_texture);
 	glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr(get_mv_matrix(_camera_ptr, m_shape.model)));
 	glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
@@ -173,28 +180,40 @@ void rmBaseModel::Scale(const glm::vec3 &vec){
 // "Pre-" operations
 void rmBaseModel::preTranslate(const glm::vec3 &vec){
 	translateMatrix = translate(translateMatrix, vec);
+    *_pose_model_by_model_ref_ptr = translateMatrix * rotateMatrix * scaleMatrix;
 }
 void rmBaseModel::preRotate(const glm::vec3 &axis, float angle){
 	rotateMatrix = rotate(rotateMatrix, angle, axis);
+    *_pose_model_by_model_ref_ptr = translateMatrix * rotateMatrix * scaleMatrix;
 }
 void rmBaseModel::preScale(const glm::vec3 &vec){
 	scaleMatrix = scale(scaleMatrix, vec);
+    *_pose_model_by_model_ref_ptr = translateMatrix * rotateMatrix * scaleMatrix;
 }
 // "Post-" operations
 void rmBaseModel::postTranslate(const glm::vec3 &vec){
 	translateMatrix = translate(glm::mat4(1.0), vec) * translateMatrix;
+    *_pose_model_by_model_ref_ptr = translateMatrix * rotateMatrix * scaleMatrix;
 }
 void rmBaseModel::postRotate(const glm::vec3 &axis, float angle){
 	rotateMatrix = rotate(glm::mat4(1.0), angle, axis) * rotateMatrix;
+    *_pose_model_by_model_ref_ptr = translateMatrix * rotateMatrix * scaleMatrix;
 }
 void rmBaseModel::postScale(const glm::vec3 &vec){
 	scaleMatrix = scale(glm::mat4(1.0), vec) * scaleMatrix;
+    *_pose_model_by_model_ref_ptr = translateMatrix * rotateMatrix * scaleMatrix;
 }
 //------------------------------------------------//
-
+void rmBaseModel::set_pose_modle_ref_by_world(glm::mat4 pose_in){
+    _pose_modle_ref_by_world = pose_in;
+}
+glm::mat4 rmBaseModel::get_pose_modle_ref_by_world(){
+    return _pose_modle_ref_by_world;
+}
 glm::mat4 rmBaseModel::get_mv_matrix(std::shared_ptr<ViewManager> _camera_ptr, glm::mat4 &_model_M){
     // Get the model-view matrix
-    return (_camera_ptr->GetViewMatrix() * _camera_ptr->GetModelMatrix() * _model_M);
+    // return (_camera_ptr->GetViewMatrix() * _camera_ptr->GetModelMatrix() * _model_M);
+    return (_camera_ptr->GetViewMatrix() * _camera_ptr->GetModelMatrix() * _pose_modle_ref_by_world * _model_M);
 }
 bool rmBaseModel::init_paths(std::string _path_Assets_in){
     // Fix the path

@@ -30,10 +30,11 @@ public:
     void wheelEvent(int direction);
 	void Translate(glm::vec3 vec);
 
-	glm::mat4 GetModelMatrix();
+	glm::mat4 GetModelMatrix(); //
 	glm::mat4 GetViewMatrix();
 	glm::mat4 GetProjectionMatrix();
 	glm::mat4 GetProjectionMatrix(float aspect);
+    // Combination of matrices
 	glm::mat4 GetViewProjectionMatrix(float aspect);
 	glm::mat4 GetModelViewProjectionMatrix(float aspect);
 	glm::vec3 GetEyePosition() {return eyePosition;}
