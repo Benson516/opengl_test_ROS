@@ -1,5 +1,30 @@
 #include "rmBoundingBox2D.h"
 
+// Predefined colors
+//-------------------------------------------//
+#define NUM_OBJ_CLASS 8
+#define color_normalize_factor  (1.0f/255.0f)
+glm::vec3 default_class_color(50, 50, 50);
+glm::vec3 obj_class_colors[] = {
+    glm::vec3(50, 50, 255), // person
+    glm::vec3(255, 153, 102), // bicycle
+    glm::vec3(153, 255, 255), // car
+    glm::vec3(255, 153, 127), // motorbike
+    glm::vec3(255, 255, 0), // not showing aeroplane
+    glm::vec3(102, 204, 255), // bus
+    glm::vec3(255, 255, 100), // not showing train
+    glm::vec3(255, 153, 102), // truck
+    glm::vec3(50, 50, 50) // default
+};
+glm::vec3 get_obj_class_color(int obj_class_in){
+    if (obj_class_in < NUM_OBJ_CLASS){
+        return ( obj_class_colors[obj_class_in] * color_normalize_factor );
+    }
+    return ( default_class_color * color_normalize_factor );
+}
+//-------------------------------------------//
+
+// Box vertex index
 namespace rmLidarBoundingBox_ns{
     const GLuint box_idx_data[] = {
         0,1,
@@ -11,9 +36,17 @@ namespace rmLidarBoundingBox_ns{
 
 
 
-rmBoundingBox2D::rmBoundingBox2D(std::string _path_Assets_in, int _ROS_topic_id_in):
+rmBoundingBox2D::rmBoundingBox2D(
+    std::string _path_Assets_in,
+    int _ROS_topic_id_in,
+    bool is_perspected_in,
+    bool is_moveable_in
+):
+    is_perspected(is_perspected_in),
+    is_moveable(is_moveable_in),
     _ROS_topic_id(_ROS_topic_id_in)
 {
+    _path_Shaders_sub_dir += "BoundingBox2D/";
     init_paths(_path_Assets_in);
     //
     _num_vertex_idx_per_box = 4*2; // 6*(3*2);
@@ -30,19 +63,38 @@ void rmBoundingBox2D::Init(){
     //
 	_program_ptr.reset( new ShaderProgram() );
     // Load shaders
-    _program_ptr->AttachShader(get_full_Shader_path("BoundingBox2D.vs.glsl"), GL_VERTEX_SHADER);
+    // VS
+    if (is_perspected){
+        _program_ptr->AttachShader(get_full_Shader_path("BoundingBox2D.vs.Perspected.glsl"), GL_VERTEX_SHADER);
+    }else{
+        if (is_moveable){
+            _program_ptr->AttachShader(get_full_Shader_path("BoundingBox2D.vs.Moveable.glsl"), GL_VERTEX_SHADER);
+        }else{ // Background
+            _program_ptr->AttachShader(get_full_Shader_path("BoundingBox2D.vs.Background.glsl"), GL_VERTEX_SHADER);
+        }
+    }
     _program_ptr->AttachShader(get_full_Shader_path("BoundingBox2D.fs.glsl"), GL_FRAGMENT_SHADER);
     // Link _program_ptr
 	_program_ptr->LinkProgram();
     //
 
-    // Cache uniform variable id
-	uniforms.proj_matrix = glGetUniformLocation(_program_ptr->GetID(), "proj_matrix");
-	uniforms.mv_matrix = glGetUniformLocation(_program_ptr->GetID(), "mv_matrix");
+
+
 
     // Init model matrices
 	m_shape.model = glm::mat4(1.0);
     attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
+
+    // Cache uniform variable id
+    //----------------------------------------//
+    if (is_perspected){
+        uniforms.proj_matrix = glGetUniformLocation(_program_ptr->GetID(), "proj_matrix");
+        uniforms.mv_matrix = glGetUniformLocation(_program_ptr->GetID(), "mv_matrix");
+    }else if (is_moveable){
+        uniforms.mv_matrix = glGetUniformLocation(_program_ptr->GetID(), "mv_matrix");
+    }
+    //----------------------------------------//
+
 
     //Load model to shader _program_ptr
 	LoadModel();
@@ -120,7 +172,7 @@ void rmBoundingBox2D::Update(ROS_INTERFACE &ros_interface){
     }
 
     // Move in 3D space
-    if (   ros_interface.is_topic_got_frame(_ROS_topic_id)){
+    if (  is_perspected && ros_interface.is_topic_got_frame(_ROS_topic_id)){
         // Note: We get the transform update even if there is no new content in for maximum smoothness
         //      (the tf will update even there is no data)
         bool tf_successed = false;
@@ -157,7 +209,7 @@ void rmBoundingBox2D::Update(ROS_API &ros_api){
 
 
     // Move in 3D space
-    if (  ros_api.ros_interface.is_topic_got_frame(_ROS_topic_id)){
+    if ( is_perspected && ros_api.ros_interface.is_topic_got_frame(_ROS_topic_id)){
         // Get tf
         bool tf_successed = false;
         glm::mat4 _model_tf = ROStf2GLMmatrix(ros_api.get_tf(_ROS_topic_id, tf_successed));
@@ -184,10 +236,24 @@ void rmBoundingBox2D::Render(std::shared_ptr<ViewManager> _camera_ptr){
     glBindVertexArray(m_shape.vao);
 
 	_program_ptr->UseProgram();
-    // m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
-    // The transformation matrices and projection matrices
-    glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
-    glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
+
+    if (is_perspected){
+        //
+        // m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
+        // The transformation matrices and projection matrices
+        glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
+        glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
+    }else{
+        if (is_moveable){
+            // Note: the rotation is mainly for z-axis rotation
+            // Note 2: The tranalation/rotation/scale is based on the "center" of the image
+            // m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
+            glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( m_shape.model ));
+        }else{
+            // background
+            // Nothing, for saving computation
+        }
+    }
 
     // Setting
     // glLineWidth(5.0);
@@ -235,12 +301,18 @@ void rmBoundingBox2D::update_GL_data(){
         }
         _box_count++;
         //
+        glm::vec3 _box_color = get_obj_class_color(_a_box_param_gl.obj_class);
         for (size_t _k=0; _k <_num_vertex_per_box; ++_k ){
             vertex_ptr[_j].position[0] = _a_box_param_gl.xy_list[_k][0];
     		vertex_ptr[_j].position[1] = _a_box_param_gl.xy_list[_k][1];
-    		vertex_ptr[_j].color[0] = 0.0f; //
+            /*
+            vertex_ptr[_j].color[0] = 0.0f; //
     		vertex_ptr[_j].color[1] = 1.0f; //
     		vertex_ptr[_j].color[2] = 0.0f; //
+            */
+            vertex_ptr[_j].color[0] = _box_color[0]; //
+    		vertex_ptr[_j].color[1] = _box_color[1]; //
+    		vertex_ptr[_j].color[2] = _box_color[2]; //
             _j++;
         }
         //

@@ -8,7 +8,12 @@
 class rmBoundingBox2D : public rmBaseModel
 {
 public:
-    rmBoundingBox2D(std::string _path_Assets_in, int _ROS_topic_id_in);
+    rmBoundingBox2D(
+        std::string _path_Assets_in,
+        int _ROS_topic_id_in,
+        bool is_perspected_in=true,
+        bool is_moveable_in=true
+    );
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
@@ -30,6 +35,10 @@ protected:
     int _ROS_topic_id;
     std::shared_ptr< msgs::CamObj > msg_out_ptr;
     // ros::Time msg_time;
+
+    // Settings
+    bool is_perspected;
+    bool is_moveable;
 
     void update_GL_data();
 
@@ -73,13 +82,11 @@ private:
             xy(x, y), width(w), height(h), obj_class(obj_class_in)
         {}
     };
-
     // The box param in openGL style: 4 points in normalized coordinate: x,y belongs to [-1, 1]
     struct box_param_gl{
         glm::vec2 xy_list[4];
         int obj_class;
     };
-
     // The image params
     // Note: The origin of the image is at its center.
     int im_width;
@@ -88,9 +95,7 @@ private:
     // The box coordinate relative to image, normally (0,0)
     int image_offset_in_box_cv_x;
     int image_offset_in_box_cv_y;
-
-
-
+    //
     inline void toNormGL(int cv_x, int cv_y, float &gl_x, float &gl_y){
         // Convert CV coordinate to normalized GL coordinate
         gl_x = (cv_x - image_offset_in_box_cv_x)/float(im_width) * 2.0 - 1.0;
@@ -131,7 +136,20 @@ private:
         return is_valid;
     }
     //-------------------------------------------------------//
+    // end OpenCV --> OpenGL
 
+    /*
+    // Predefined colors
+    int num_obj_class;
+    glm::vec3 default_class_color;
+    std::vector<glm::vec3> obj_class_colors;
+    glm::vec3 get_obj_class_color(int obj_class_in){
+        if (obj_class_in < num_obj_class){
+            return obj_class_colors[obj_class_in];
+        }
+        return default_class_color;
+    }
+    */
 
 
     //uniform id
