@@ -28,6 +28,7 @@ void rmText3D::Init(){
 
     // Init model matrices
 	m_shape.model = glm::mat4(1.0);
+    attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
 
     // Current text
     text_current = "";
@@ -145,7 +146,7 @@ void rmText3D::Render(std::shared_ptr<ViewManager> _camera_ptr){
     glBindVertexArray(m_shape.vao);
 
 	_program_ptr->UseProgram();
-    m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
+    // m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
     // The transformation matrices and projection matrices
     glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));

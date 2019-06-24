@@ -25,6 +25,7 @@ void rmPointCloud::Init(){
 
     // Init model matrices
 	m_shape.model = glm::mat4(1.0);
+    attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
     m_shape.color = glm::vec3(1.0);
 
     //Load model to shader _program_ptr
@@ -90,20 +91,23 @@ void rmPointCloud::Update(ROS_INTERFACE &ros_interface){
     ros::Time msg_time;
     bool _result = ros_interface.get_any_pointcloud( _ROS_topic_id, msg_out_ptr, msg_time);
 
-    // Note: We get the transform update even if there is no new content in for maximum smoothness
-    //      (the tf will update even there is no data)
-    bool tf_successed = false;
-    glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, false));
-    // glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, true, msg_time));
-    m_shape.model = _model_tf;
-    // Common::print_out_mat4(_model_tf);
-
     if (_result){
         //
         update_GL_data();
         //
         fps_of_update.stamp();  fps_of_update.show();
     }
+
+    // Note: We get the transform update even if there is no new content in for maximum smoothness
+    //      (the tf will update even there is no data)
+    bool tf_successed = false;
+    glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, false));
+    // glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, true, msg_time));
+    // m_shape.model = _model_tf;
+    set_pose_modle_ref_by_world(_model_tf);
+    // Common::print_out_mat4(_model_tf);
+
+
 }
 void rmPointCloud::Update(ROS_API &ros_api){
     // Update the data (buffer variables) here
@@ -111,6 +115,8 @@ void rmPointCloud::Update(ROS_API &ros_api){
     // test, use transform
     ros::Time msg_time;
     bool _result = false;
+
+    /*
     // Scops for any_ptr
     {
         boost::any any_ptr;
@@ -120,21 +126,38 @@ void rmPointCloud::Update(ROS_API &ros_api){
             msg_out_ptr = *_ptr_ptr;
         }
     }// end Scops for any_ptr
+    */
 
+    _result = ros_api.get_message(_ROS_topic_id, msg_out_ptr, msg_time);
+    // _result = ROS_API_TOOL::get_message(ros_api, _ROS_topic_id, msg_out_ptr, msg_time);
+    // std::cout << "msg_out_ptr.use_count() = " << msg_out_ptr.use_count() << "\n";
+
+    if (_result){
+        update_GL_data();
+        //
+        // fps_of_update.stamp();  fps_of_update.show();
+    }
+
+    // Get tf
+    bool tf_successed = false;
+    glm::mat4 _model_tf = ROStf2GLMmatrix(ros_api.get_tf(_ROS_topic_id, tf_successed));
+    set_pose_modle_ref_by_world(_model_tf);
+    // end Get tf
+
+
+    /*
     ROS_INTERFACE &ros_interface = ros_api.ros_interface;
     // Note: We get the transform update even if there is no new content in for maximum smoothness
     //      (the tf will update even there is no data)
     bool tf_successed = false;
     glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, false));
     // glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, true, msg_time));
-    m_shape.model = _model_tf;
+    // m_shape.model = _model_tf;
+    set_pose_modle_ref_by_world(_model_tf);
     // Common::print_out_mat4(_model_tf);
+    */
 
-    if (_result){
-        update_GL_data();
-        //
-        fps_of_update.stamp();  fps_of_update.show();
-    }
+
 }
 
 

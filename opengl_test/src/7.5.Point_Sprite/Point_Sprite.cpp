@@ -4,7 +4,8 @@
 
 //
 // #include "Common.h"
-#include "ViewManager.h"
+// #include "ViewManager.h"
+#include "ViewManager_v2.h"
 #include <iostream>
 #include <string>
 //

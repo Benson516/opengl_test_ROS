@@ -2,7 +2,8 @@
 #include <setjmp.h> // For leaving main loop
 //
 #include "Common.h"
-#include "ViewManager.h"
+// #include "ViewManager.h"
+#include "ViewManager_v2.h"
 #include "Scene.h"
 #include "SCENE_W_main.h"
 #include "SCENE_W0.h"
@@ -133,7 +134,7 @@ void My_Display()
     TIME_STAMP::Period period_in("part");
     TIME_STAMP::Period period_all_func("full display");
     //
-    period_frame_pre.stamp();   period_frame_pre.show_msec();   period_frame_pre.show_jitter_usec();
+    // period_frame_pre.stamp();   period_frame_pre.show_msec();   period_frame_pre.show_jitter_usec();
     //
     // Evaluation
     //=============================================================//
@@ -147,15 +148,23 @@ void My_Display()
         leave_main_loop();
         // exit(0);
     }
+
+
+    // Update the "_latest_tf_common_update_time"
+    // ros_interface.update_latest_tf_common_update_time("map", "base");
+    ros_api.ros_interface.set_global_delay(0.2);
+    ros_api.ros_interface.update_current_slice_time();
+    // ros_api.ros_interface.set_ref_frame("base"); <-- do this in Scene (base class with camera mode selection)
+
     // Update data
     bool is_updated = ros_api.update();
 
-    //
-    // Update the "_latest_tf_common_update_time"
-    // ros_interface.update_latest_tf_common_update_time("map", "base");
-    ros_api.ros_interface.set_global_delay(0.1);
-    ros_api.ros_interface.update_current_slice_time();
-    ros_api.ros_interface.set_ref_frame("base");
+    // FPS show
+    for (size_t i=0; i < ros_api.fps_list.size(); ++i){
+        if (ros_api.got_on_any_topic[i])
+            ros_api.fps_list[i].show();
+    }
+    // end FPS show
 
 #ifdef __DEBUG__
     // evaluation
@@ -224,12 +233,9 @@ void My_Display()
 #ifdef __DEBUG__
     // evaluation
     // period_in.stamp();  period_in.show_msec();
-    //
-    period_all_func.stamp();    period_all_func.show_msec();
-    //
-    period_frame_post.stamp();  period_frame_post.show_msec();  period_frame_post.show_jitter_usec();
-    //
-    std::cout << "---\n";
+    // period_all_func.stamp();    period_all_func.show_msec();
+    // period_frame_post.stamp();  period_frame_post.show_msec();  period_frame_post.show_jitter_usec();
+    // std::cout << "---\n";
 #endif
 
 }
@@ -305,7 +311,7 @@ void My_Keyboard(unsigned char key, int x, int y)
     // Update all_scenes
     //--------------------//
     for (size_t i=0; i < all_scenes.size(); ++i){
-        all_scenes[i]->KeyBoardEvent(key);
+        all_scenes[i]->KeyBoardEvent(key, ros_api);
     }
     //--------------------//
 }

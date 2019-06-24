@@ -47,9 +47,10 @@ public:
 
 
     // Data validation (only be used after calling update)
-    std::vector<bool>           got_on_any_topic;
-    std::vector< boost::any >   any_ptr_list;
-    std::vector< ros::Time >    msg_time_list;
+    std::vector<bool>               got_on_any_topic;
+    std::vector< boost::any >       any_ptr_list;
+    std::vector< ros::Time >        msg_time_list;
+    std::vector< TIME_STAMP::FPS>   fps_list;
 
 
     // Methods
@@ -67,6 +68,38 @@ public:
     //---------------------------------------------------------//
     bool get_any_message(const int topic_id, boost::any & content_out_ptr);
     bool get_any_message(const int topic_id, boost::any & content_out_ptr, ros::Time &msg_stamp);
+    //
+    template <class _T> bool get_message(const int topic_id, _T & content_out){
+        if ( !got_on_any_topic[topic_id] ){
+            return false;
+        }
+        std::shared_ptr< _T > *_ptr_ptr = boost::any_cast< std::shared_ptr< _T > >( &(any_ptr_list[topic_id]) );
+        content_out = *(*_ptr_ptr); // <-- Note: be carefull with cv::Mat
+        return true;
+    }
+    template <class _T> bool get_message(const int topic_id, std::shared_ptr<_T> & content_out_ptr){
+        if ( !got_on_any_topic[topic_id] ){
+            return false;
+        }
+        std::shared_ptr< _T > *_ptr_ptr = boost::any_cast< std::shared_ptr< _T > >( &(any_ptr_list[topic_id]) );
+        content_out_ptr = *_ptr_ptr;
+        return true;
+    }
+    template <class _T> bool get_message(const int topic_id, std::shared_ptr<_T> & content_out_ptr, ros::Time &msg_stamp){
+        if ( !got_on_any_topic[topic_id] ){
+            return false;
+        }
+        std::shared_ptr< _T > *_ptr_ptr = boost::any_cast< std::shared_ptr< _T > >( &(any_ptr_list[topic_id]) );
+        content_out_ptr = *_ptr_ptr;
+        msg_stamp = msg_time_list[topic_id];
+        return true;
+    }
+    //---------------------------------------------------------//
+
+    // Transforms
+    //---------------------------------------------------------//
+    bool get_tf(const int topic_id, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling=false);
+    geometry_msgs::TransformStamped get_tf(const int topic_id, bool & is_sucessed, bool is_time_traveling=false);
     //---------------------------------------------------------//
 
 private:
@@ -75,6 +108,47 @@ private:
 };
 
 
+
+
+
+
+
+
+/*
+namespace ROS_API_TOOL{
+    template <class _T> bool get_message(ROS_API & ros_api, const int topic_id, _T & content_out);
+    template <class _T> bool get_message(ROS_API & ros_api, const int topic_id, std::shared_ptr<_T> & content_out_ptr);
+    template <class _T> bool get_message(ROS_API & ros_api, const int topic_id, std::shared_ptr<_T> & content_out_ptr, ros::Time &msg_stamp);
+}
+*/
+namespace ROS_API_TOOL
+{
+    template <class _T> bool get_message(ROS_API & ros_api, const int topic_id, _T & content_out){
+        if ( !ros_api.got_on_any_topic[topic_id] ){
+            return false;
+        }
+        std::shared_ptr< _T > *_ptr_ptr = boost::any_cast< std::shared_ptr< _T > >( &(ros_api.any_ptr_list[topic_id]) );
+        content_out = *(*_ptr_ptr); // <-- Note: be carefull with cv::Mat
+        return true;
+    }
+    template <class _T> bool get_message(ROS_API & ros_api, const int topic_id, std::shared_ptr<_T> & content_out_ptr){
+        if ( !ros_api.got_on_any_topic[topic_id] ){
+            return false;
+        }
+        std::shared_ptr< _T > *_ptr_ptr = boost::any_cast< std::shared_ptr< _T > >( &(ros_api.any_ptr_list[topic_id]) );
+        content_out_ptr = *_ptr_ptr;
+        return true;
+    }
+    template <class _T> bool get_message(ROS_API & ros_api, const int topic_id, std::shared_ptr<_T> & content_out_ptr, ros::Time &msg_stamp){
+        if ( !ros_api.got_on_any_topic[topic_id] ){
+            return false;
+        }
+        std::shared_ptr< _T > *_ptr_ptr = boost::any_cast< std::shared_ptr< _T > >( &(ros_api.any_ptr_list[topic_id]) );
+        content_out_ptr = *_ptr_ptr;
+        msg_stamp = ros_api.msg_time_list[topic_id];
+        return true;
+    }
+}
 
 /*
 // Using put_any() with content_in: (The following syntex makes a clear poiter transfer withoud copying or sharring)
@@ -108,7 +182,7 @@ std::shared_ptr< _T > content_out_ptr;
         std::shared_ptr< cv::Mat > *_ptr_ptr = boost::any_cast< std::shared_ptr< cv::Mat > >( &any_ptr );
         content_out_ptr = *_ptr_ptr;
     }
-} // <-- Note: the any_ptr is destroyed when leaving this scope, thus the use_count for content_out_ptr is "1" (unique).
+} // <-- Note: the _ptr_ptr is destroyed when leaving this scope, thus the use_count for content_out_ptr is "1" (unique).
 //---------------------------------------//
 */
 

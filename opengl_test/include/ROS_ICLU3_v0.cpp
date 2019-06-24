@@ -44,7 +44,12 @@ bool ROS_API::update(){
         got_on_any_topic.resize( ros_interface.get_count_of_all_topics(), false);
         any_ptr_list.resize( ros_interface.get_count_of_all_topics() );
         msg_time_list.resize( ros_interface.get_count_of_all_topics(), ros::Time(0) );
-        //
+        // FPS
+        fps_list.resize( ros_interface.get_count_of_all_topics() );
+        for(size_t i=0; i < fps_list.size(); ++i){
+            fps_list[i].set_name( ros_interface.get_topic_name(i) );
+        }
+        // end FPS
         _is_initialized = true;
     }
     //
@@ -53,6 +58,7 @@ bool ROS_API::update(){
     for (int topic_id=0; topic_id < any_ptr_list.size(); ++topic_id){
         if ( ros_interface.is_topic_a_input(topic_id) ){
             got_on_any_topic[topic_id] = ros_interface.get_any_message(topic_id, any_ptr_list[topic_id], msg_time_list[topic_id] );
+            if (got_on_any_topic[topic_id]){ fps_list[topic_id].stamp(); } // <-- Update FPS
             _updated |= got_on_any_topic[topic_id];
         }
     }
@@ -79,6 +85,18 @@ bool ROS_API::get_any_message(const int topic_id, boost::any & content_out_ptr, 
 }
 //---------------------------------------------------------//
 
+// Transforms
+//---------------------------------------------------------//
+bool ROS_API::get_tf(const int topic_id, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling){
+    return ros_interface.get_tf(topic_id, tf_out, is_time_traveling, msg_time_list[topic_id]);
+}
+geometry_msgs::TransformStamped ROS_API::get_tf(const int topic_id, bool & is_sucessed, bool is_time_traveling){
+    return ros_interface.get_tf(topic_id, is_sucessed, is_time_traveling, msg_time_list[topic_id]);
+}
+//---------------------------------------------------------//
+
+
+
 //===========================================//
 bool ROS_API::_set_up_topics(){
     {
@@ -87,15 +105,15 @@ bool ROS_API::_set_up_topics(){
         ros_interface.add_a_topic("current_pose", int(M_TYPE::tfGeoPoseStamped), true, 10, 1, "map", true, "base");
         // Image
 #ifdef __SUB_IMAGES__
-        ros_interface.add_a_topic("camera/1/0/image_sync", int(M_TYPE::Image), true, 2, 20);
-        ros_interface.add_a_topic("camera/1/1/image_sync", int(M_TYPE::Image), true, 2, 20);
-        ros_interface.add_a_topic("camera/1/2/image_sync", int(M_TYPE::Image), true, 2, 20);
-        ros_interface.add_a_topic("camera/0/2/image_sync", int(M_TYPE::Image), true, 2, 20);
-        ros_interface.add_a_topic("camera/2/0/image", int(M_TYPE::Image), true, 2, 20);
-        ros_interface.add_a_topic("camera/2/1/image", int(M_TYPE::Image), true, 2, 20);
-        ros_interface.add_a_topic("camera/0/0/image", int(M_TYPE::Image), true, 2, 20);
-        ros_interface.add_a_topic("camera/0/1/image", int(M_TYPE::Image), true, 2, 20);
-        ros_interface.add_a_topic("camera/2/2/image", int(M_TYPE::Image), true, 2, 20);
+        ros_interface.add_a_topic("camera/1/0/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic("camera/1/1/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic("camera/1/2/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic("camera/0/2/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic("camera/2/0/image", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic("camera/2/1/image", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic("camera/0/0/image", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic("camera/0/1/image", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic("camera/2/2/image", int(M_TYPE::Image), true, 2, 20, "base");
 #endif // __SUB_IMAGES__
         // ITRIPointCloud
 #ifdef __SUB_POINT_CLOUD__

@@ -7,7 +7,8 @@
 #include <iostream>
 
 //
-#include "ViewManager.h"
+// #include "ViewManager.h"
+#include "ViewManager_v2.h"
 #include <ROS_ICLU3_v0.hpp>
 
 // Render models
@@ -36,8 +37,12 @@ public:
     //
     void MouseEvent(int button,int state,int x,int y);
 	void KeyBoardEvent(int key);
-	void KeyBoardEvent(unsigned char key);
+	void KeyBoardEvent(unsigned char key, ROS_API &ros_api);
 	void MenuEvent(int item);
+
+    // Camera mode
+    // Follow, steady, ...etc.
+    void switchCameraMode(int mode_in, ROS_API &ros_api);
 
     // ViewManager
     std::shared_ptr<ViewManager> GetCamera(){ return _camera_ptr; }
@@ -46,6 +51,8 @@ protected:
     std::string _pkg_path;
     std::string _Assets_path;
 	std::shared_ptr<ViewManager> _camera_ptr;
+
+    int camera_mode;
 
     // Render models
     std::vector< std::shared_ptr<rmBaseModel> > _rm_BaseModel;

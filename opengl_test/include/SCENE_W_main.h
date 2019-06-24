@@ -52,11 +52,16 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     */
 
     /*
-    // Back ground image (dynamic) front camera
+    // Back ground image (dynamic) front-center camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_1), false, false, true) );
     _image_board_ptr->_alpha = 1.0;
     _image_board_ptr->_color_transform = glm::vec4(1.0f);
     _rm_BaseModel.push_back( _image_board_ptr );
+    // Bounding box for front-center camera
+    _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_1), false, false ) );
+    _box2D_ptr->setup_params(608, 384, 608*1, 0);
+    // _box2D_ptr->_alpha = 0.7;
+    _rm_BaseModel.push_back( _box2D_ptr );
     */
 
 
@@ -130,7 +135,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _image_board_ptr->_alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Bounding box for front-center camera
-    _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_1) ) );
+    _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_1), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*1, 0);
     _box2D_ptr->Translate(glm::vec3(2.0f, 0.0f, 3.0f));
     // _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), 0.0); // view angle
@@ -155,7 +160,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _image_board_ptr->_alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Bounding box for front-right camera
-    _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_1) ) );
+    _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_1), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*2, 0);
     _box2D_ptr->Translate(glm::vec3(0.0f, -9.0f, 3.0f));
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), -M_PI/6.0); // view angle
@@ -180,7 +185,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _image_board_ptr->_alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Bounding box for front-left camera
-    _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_1) ) );
+    _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_1), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*0, 0);
     _box2D_ptr->Translate(glm::vec3(0.0f, 9.0f, 3.0f));
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI/6.0); // view angle
@@ -206,7 +211,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _image_board_ptr->_alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Bounding box for front-left camera
-    _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_top_1) ) );
+    _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_top_1), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*0, 0);
     _box2D_ptr->Translate(glm::vec3(-3.0f, 0.0f, 8.0f));
     _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), -M_PI/6.0); // view angle
