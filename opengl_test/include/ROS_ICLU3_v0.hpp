@@ -96,6 +96,12 @@ public:
     }
     //---------------------------------------------------------//
 
+    // Transforms
+    //---------------------------------------------------------//
+    bool get_tf(const int topic_id, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling=false);
+    geometry_msgs::TransformStamped get_tf(const int topic_id, bool & is_sucessed, bool is_time_traveling=false);
+    //---------------------------------------------------------//
+
 private:
     bool _is_initialized;
     bool _set_up_topics();

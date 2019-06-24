@@ -138,7 +138,14 @@ void rmPointCloud::Update(ROS_API &ros_api){
         // fps_of_update.stamp();  fps_of_update.show();
     }
 
+    // Get tf
+    bool tf_successed = false;
+    glm::mat4 _model_tf = ROStf2GLMmatrix(ros_api.get_tf(_ROS_topic_id, tf_successed));
+    set_pose_modle_ref_by_world(_model_tf);
+    // end Get tf
 
+
+    /*
     ROS_INTERFACE &ros_interface = ros_api.ros_interface;
     // Note: We get the transform update even if there is no new content in for maximum smoothness
     //      (the tf will update even there is no data)
@@ -148,6 +155,7 @@ void rmPointCloud::Update(ROS_API &ros_api){
     // m_shape.model = _model_tf;
     set_pose_modle_ref_by_world(_model_tf);
     // Common::print_out_mat4(_model_tf);
+    */
 
 
 }

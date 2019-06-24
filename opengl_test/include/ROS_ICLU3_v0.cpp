@@ -83,10 +83,19 @@ bool ROS_API::get_any_message(const int topic_id, boost::any & content_out_ptr, 
     msg_stamp = msg_time_list[topic_id];
     return true;
 }
-//
-
-
 //---------------------------------------------------------//
+
+// Transforms
+//---------------------------------------------------------//
+bool ROS_API::get_tf(const int topic_id, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling){
+    return ros_interface.get_tf(topic_id, tf_out, is_time_traveling, msg_time_list[topic_id]);
+}
+geometry_msgs::TransformStamped ROS_API::get_tf(const int topic_id, bool & is_sucessed, bool is_time_traveling){
+    return ros_interface.get_tf(topic_id, is_sucessed, is_time_traveling, msg_time_list[topic_id]);
+}
+//---------------------------------------------------------//
+
+
 
 //===========================================//
 bool ROS_API::_set_up_topics(){
