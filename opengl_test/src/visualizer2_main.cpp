@@ -1,4 +1,5 @@
 #include <ROS_ICLU3_v0.hpp>
+#include "../external/AntTweakBar-1.16/include/AntTweakBar.h"
 #include <setjmp.h> // For leaving main loop
 //
 #include "Common.h"
@@ -99,6 +100,97 @@ void cv_windows_setup(){
 #endif
 }
 //----------------------------------------------------//
+
+
+
+
+
+
+
+// AntTwekBar
+//----------------------------------------------------//
+// Shape			m_shape;
+ViewManager		m_camera;
+TwBar			*bar;
+vec2			m_screenSize;
+// vector<Shape>   m_shapes;
+int				m_currentShape;
+float			m_zoom = 3.0f;
+float			m_fps = 0;
+unsigned int	m_frames = 0;
+unsigned int    m_currentTime = 0;
+unsigned int    m_timebase = 0;
+bool			m_autoRotate;
+bool			m_isOthogonol;
+vec3			m_backgroundColor = vec3(0.486, 0.721, 0.918);
+//
+typedef enum { SHAPE_BOX = 0, SHAPE_FISH, SHAPE_TEAPOT, NUM_SHAPES } ModelShape;
+
+void TW_CALL SetAutoRotateCB(const void *value, void *clientData)
+{
+	// m_autoRotate = *(const int *)value;
+}
+void TW_CALL GetAutoRotateCB(void *value, void *clientData)
+{
+	// *(int *)value = m_autoRotate;
+}
+void TW_CALL SetIsOthoCB(const void *value, void *clientData)
+{
+	// m_isOthogonol = *(const int *)value;
+	// m_camera.ToggleOrtho();
+}
+void TW_CALL GetIsOthoCB(void *value, void *clientData)
+{
+	// *(int *)value = m_isOthogonol;
+}
+void TW_CALL ResetRotationCB(void * clientData)
+{
+    /*
+	m_camera.SetRotation(0, 0);
+	for (int i = 0; i < m_shapes.size(); ++i)
+	{
+		m_shapes[i].rotation = vec3(0);
+	}
+    */
+	glutPostRedisplay();
+}
+
+void setupGUI()
+{
+	// Initialize AntTweakBar
+	//TwDefine(" GLOBAL fontscaling=2 ");
+
+#ifdef _MSC_VER
+	TwInit(TW_OPENGL, NULL);
+#elif  __GNUC__ // Compiler for cross platform app., including Linux
+    TwInit(TW_OPENGL, NULL);
+#else
+	TwInit(TW_OPENGL_CORE, NULL);
+#endif
+
+	TwGLUTModifiersFunc(glutGetModifiers); // <-- This is just for key modifiers
+	bar = TwNewBar("Properties");
+	TwDefine(" Properties size='300 220' ");
+	TwDefine(" Properties fontsize='3' color='0 0 0' alpha=180 ");  // http://anttweakbar.sourceforge.net/doc/tools:anttweakbar:twbarparamsyntax
+
+	TwAddVarRO(bar, "time", TW_TYPE_FLOAT, &m_fps, " label='FPS' help='Frame Per Second(FPS)' ");
+	{
+		TwEnumVal shapeEV[NUM_SHAPES] = { { SHAPE_BOX, "Box" },{ SHAPE_FISH, "Fish" },{ SHAPE_TEAPOT, "Teapot" } };
+		TwType shapeType = TwDefineEnum("ShapeType", shapeEV, NUM_SHAPES);
+		TwAddVarRW(bar, "Shape", shapeType, &m_currentShape, " keyIncr='<' keyDecr='>' help='Change object shape.' ");
+	}
+
+	TwAddVarRW(bar, "Zoom", TW_TYPE_FLOAT, &m_zoom, " min=0.01 max=3.0 step=0.01 help='Camera zoom in/out' ");
+	TwAddVarRW(bar, "BackgroundColor", TW_TYPE_COLOR3F, value_ptr(m_backgroundColor), " label='Background Color' opened=true help='Used in glClearColor' ");
+	TwAddVarCB(bar, "AutoRotate", TW_TYPE_BOOL32, SetAutoRotateCB, GetAutoRotateCB, NULL, " label='Auto-rotate' key=space help='Toggle auto-rotate mode.' ");
+	TwAddVarCB(bar, "OthoToggle", TW_TYPE_BOOL32, SetIsOthoCB, GetIsOthoCB, NULL, " label='Is Orthographic' key=space help='Toggle orthogonal camera' ");
+	TwAddButton(bar, "ResetRotation", ResetRotationCB, NULL, " label='Reset Rotation' ");
+}
+//----------------------------------------------------//
+
+
+
+
 
 
 
@@ -225,6 +317,11 @@ void My_Display()
         all_scenes[i]->Render();
     }
     //--------------------//
+
+    // Render AntTweeekBar
+    TwDraw();
+
+    //--------------------//
     glutSwapBuffers();
     //---------------------------------//
 
@@ -256,6 +353,9 @@ void My_Reshape(int width, int height)
         all_scenes[i]->GetCamera()->SetWindowSize(windows_width, windows_height);
     }
     //--------------------//
+
+    // AntTweakBar
+    TwWindowSize(width, height);
 }
 
 //Timer event
@@ -280,7 +380,10 @@ void My_Timer(int val)
 //Mouse event
 void My_Mouse(int button, int state, int x, int y)
 {
-
+    if (TwEventMouseButtonGLUT(button, state, x, y)){
+        TwRefreshBar(bar);
+        return;
+    }
     // Update all_scenes
     //--------------------//
     for (size_t i=0; i < all_scenes.size(); ++i){
@@ -310,6 +413,10 @@ void My_Mouse(int button, int state, int x, int y)
 //Keyboard event
 void My_Keyboard(unsigned char key, int x, int y)
 {
+    if (TwEventKeyboardGLUT(key, x, y)){
+        return;
+    }
+
     // Update all_scenes
     //--------------------//
     for (size_t i=0; i < all_scenes.size(); ++i){
@@ -321,6 +428,9 @@ void My_Keyboard(unsigned char key, int x, int y)
 //Special key event
 void My_SpecialKeys(int key, int x, int y)
 {
+    if (TwEventSpecialGLUT(key, x, y)){
+        return;
+    }
     // Update all_scenes
     //--------------------//
     for (size_t i=0; i < all_scenes.size(); ++i){
@@ -347,6 +457,9 @@ void My_Menu(int id)
 */
 
 void My_Mouse_Moving(int x, int y) {
+    if (TwEventMouseMotionGLUT(x, y)){
+        return;
+    }
     // Update all_scenes
     //--------------------//
     for (size_t i=0; i < all_scenes.size(); ++i){
@@ -396,6 +509,9 @@ int main(int argc, char *argv[])
 
 	//Call custom initialize function
 	My_Init();
+
+    // AntTweakBar
+    setupGUI();
 
     /*
 	//定義選單

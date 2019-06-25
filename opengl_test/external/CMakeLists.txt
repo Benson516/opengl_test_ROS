@@ -64,6 +64,7 @@ set(ANTTWEAKBAR_SOURCE
 	AntTweakBar-1.16/src/TwColors.cpp
 	AntTweakBar-1.16/src/TwBar.cpp
 	AntTweakBar-1.16/src/TwEventGLFW.c
+    AntTweakBar-1.16/src/TwEventGLUT.c
 	AntTweakBar-1.16/src/TwFonts.cpp
 	AntTweakBar-1.16/src/TwMgr.cpp
 	AntTweakBar-1.16/src/TwOpenGL.cpp
@@ -78,6 +79,7 @@ file(RENAME ${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/LoadOGLCore.cpp 
 file(RENAME ${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwColors.cpp     ${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwColors.mm    )
 file(RENAME ${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwBar.cpp        ${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwBar.mm       )
 file(RENAME ${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwEventGLFW.c    ${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwEventGLFW.m  )
+file(RENAME ${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwEventGLUT.c    ${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwEventGLUT.m  )
 file(RENAME ${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwFonts.cpp      ${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwFonts.mm     )
 file(RENAME ${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwMgr.cpp        ${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwMgr.mm       )
 file(RENAME ${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwOpenGL.cpp     ${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwOpenGL.mm    )
@@ -90,6 +92,7 @@ set(ANTTWEAKBAR_SOURCE
 	${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwColors.mm
 	${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwBar.mm
 	${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwEventGLFW.m
+    ${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwEventGLUT.m
 	${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwFonts.mm
 	${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwMgr.mm
 	${CMAKE_BINARY_DIR}/external/AntTweakBar-ObjectiveC/TwOpenGL.mm
@@ -177,4 +180,3 @@ add_subdirectory( bullet-2.81-rev2613/src/BulletSoftBody )
 add_subdirectory( bullet-2.81-rev2613/src/BulletCollision )
 add_subdirectory( bullet-2.81-rev2613/src/BulletDynamics )
 add_subdirectory( bullet-2.81-rev2613/src/LinearMath )
-
