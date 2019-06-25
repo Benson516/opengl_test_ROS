@@ -2,6 +2,7 @@
 
 // Maximum texture width
 #define MAXWIDTH 1024
+#define TOTAL_CHAR 128
 
 
 // Atlas
@@ -25,7 +26,7 @@ struct atlas {
 
 		float tx;	// x offset of glyph in texture coordinates
 		float ty;	// y offset of glyph in texture coordinates
-	} _ch[128];		// character information
+	} _ch[TOTAL_CHAR];		// character information
 
 	 atlas(FT_Face face, int font_size_in) {
 		FT_Set_Pixel_Sizes(face, 0, font_size_in);
@@ -40,7 +41,7 @@ struct atlas {
 		 memset(_ch, 0, sizeof _ch);
 
 		/* Find minimum size for a texture holding all visible ASCII characters */
-		for (int i = 32; i < 128; i++) {
+		for (int i = 0; i < TOTAL_CHAR; i++) {
 			if (FT_Load_Char(face, i, FT_LOAD_RENDER)) {
 				fprintf(stderr, "Loading character %c failed!\n", i);
 				continue;
@@ -79,7 +80,7 @@ struct atlas {
 
 		rowh = 0;
 
-		for (int i = 32; i < 128; i++) {
+		for (int i = 0; i < TOTAL_CHAR; i++) {
 			if (FT_Load_Char(face, i, FT_LOAD_RENDER)) {
 				fprintf(stderr, "Loading character %c failed!\n", i);
 				continue;
@@ -230,7 +231,7 @@ void rmText3D_v2::Render(std::shared_ptr<ViewManager> _camera_ptr){
     glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
 
-    RenderText("Hello world", a48, 0.0, 0.0, 100.0, 100.0, glm::vec3(1.0f, 1.0f, 0.0f));
+    RenderText("Hello world", a48, 0.0, 0.0, 1.0, 1.0, glm::vec3(1.0f, 1.0f, 0.0f));
 
 
     // Draw the element according to ebo
@@ -253,11 +254,7 @@ void rmText3D_v2::RenderText(const std::string &text, atlas * _atlas_ptr, float 
     //
     glUniform3f( uniforms.textColor, color.x, color.y, color.z);
 
-    // Activate corresponding render state
-    glActiveTexture(GL_TEXTURE0);
 
-	// Use the texture containing the atlas
-	glBindTexture(GL_TEXTURE_2D, _atlas_ptr->TextureID);
 
 
 
@@ -281,7 +278,7 @@ void rmText3D_v2::RenderText(const std::string &text, atlas * _atlas_ptr, float 
 		y += _atlas_ptr->_ch[*p].ay * scale_y;
 
 		/* Skip glyphs that have no pixels */
-		if (!w || !h)
+		if (!w || !h) // For example: space - " "
 			continue;
 
 		coords[_idx_count++] = (point) {
@@ -310,14 +307,21 @@ void rmText3D_v2::RenderText(const std::string &text, atlas * _atlas_ptr, float 
     // Directly assign data to memory of GPU
     //--------------------------------------------//
     point * vertex_ptr = (point *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _idx_count* sizeof(point), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    for (size_t i = 0; i < 6; i++)
+    for (size_t i = 0; i < _idx_count; i++)
     {
         vertex_ptr[i] = coords[i];
     }
     glUnmapBuffer(GL_ARRAY_BUFFER);
     //--------------------------------------------//
 
+    // Activate corresponding render state
+    glActiveTexture(GL_TEXTURE0);
+	// Use the texture containing the atlas
+	glBindTexture(GL_TEXTURE_2D, _atlas_ptr->TextureID);
 
+    // Draw
 	glDrawArrays(GL_TRIANGLES, 0, _idx_count);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
 
 }

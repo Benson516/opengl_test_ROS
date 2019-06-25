@@ -237,7 +237,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _rm_BaseModel.push_back( _text3D_ptr );
 
 
-    // test, 400 x "Hello world" --> CPU 104%, GPU 85%
+    // test, rmText3D:    400 x "Hello world" --> CPU 104%, GPU 85%
+    // test, rmText3D_v2: 400 x "Hello world" --> CPU 60%, GPU 57%
     /*
     for (size_t i=0; i < 400; ++i){
         std::cout << "i = " << i << "\n";
@@ -246,6 +247,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
         _rm_BaseModel.push_back( _text3D_ptr );
     }
     */
+
 
 
 }
