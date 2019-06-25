@@ -159,12 +159,14 @@ void My_Display()
     // Update data
     bool is_updated = ros_api.update();
 
+    /*
     // FPS show
     for (size_t i=0; i < ros_api.fps_list.size(); ++i){
         if (ros_api.got_on_any_topic[i])
             ros_api.fps_list[i].show();
     }
     // end FPS show
+    */
 
 #ifdef __DEBUG__
     // evaluation
