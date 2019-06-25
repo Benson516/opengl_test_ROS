@@ -48,18 +48,25 @@ private:
 	};
 
     //
-    int _num_vertex_of_curve;
-    std::vector<float> _curve_Points;
+    int _max_num_vertex_of_curve;
+    // std::vector<float> _curve_Points;
+    std::vector<glm::vec3> _curve_Points;
 
-    // lookat matrix
-    glm::mat4 lookat_matrix[11];
+    // lookat matrix - a list of transformation matrices for each transaction
+    std::vector<glm::mat4> lookat_matrix_list;
+
+
+    int _max_num_vertex_of_shape;
+    std::vector<glm::vec3> section_vertexes;
 
     //uniform id
 	struct
 	{
 		GLint  mv_matrix;
 		GLint  proj_matrix;
-        GLint  lookat_matrix[11];
+        std::vector<GLint> lookat_matrix;
+        std::vector<GLint> section_vertexes;
+        GLint _num_vertex_of_shape;
 	} uniforms;
 
     std::vector<vertex_p_c> box_template;
