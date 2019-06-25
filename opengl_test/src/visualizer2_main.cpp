@@ -66,8 +66,8 @@ void leave_main_loop () {
 
 
 // float	aspect;
-float	windows_width = 800;
-float   windows_height = 600;
+float	windows_width = 1200; // 800;
+float   windows_height = 800; // 600;
 float	timer_interval = 16.0f;
 
 
