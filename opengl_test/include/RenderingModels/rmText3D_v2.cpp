@@ -14,6 +14,7 @@ struct atlas {
 	unsigned int w;			// width of texture in pixels
 	unsigned int h;			// height of texture in pixels
 
+    /*
 	struct {
 		float ax;	// advance.x
 		float ay;	// advance.y
@@ -23,6 +24,20 @@ struct atlas {
 
 		float bl;	// bitmap_left;
 		float bt;	// bitmap_top;
+
+		float tx;	// x offset of glyph in texture coordinates
+		float ty;	// y offset of glyph in texture coordinates
+	} _ch[TOTAL_CHAR];		// character information
+    */
+    struct {
+		int ax;	// advance.x
+		int ay;	// advance.y
+
+		int bw;	// bitmap.width;
+		int bh;	// bitmap.height;
+
+		int bl;	// bitmap_left;
+		int bt;	// bitmap_top;
 
 		float tx;	// x offset of glyph in texture coordinates
 		float ty;	// y offset of glyph in texture coordinates
@@ -48,7 +63,7 @@ struct atlas {
 			}
 			if (roww + g->bitmap.width + 1 >= MAXWIDTH) {
 				w = std::max(w, roww);
-				h += rowh;
+				h += rowh + 1;
 				roww = 0;
 				rowh = 0;
 			}
@@ -57,7 +72,7 @@ struct atlas {
 		}
 
 		w = std::max(w, roww);
-		h += rowh;
+		h += rowh + 1;
 
 		/* Create a texture that will be used to hold all ASCII glyphs */
 		glActiveTexture(GL_TEXTURE0);
@@ -87,7 +102,7 @@ struct atlas {
 			}
 
 			if (ox + g->bitmap.width + 1 >= MAXWIDTH) {
-				oy += rowh;
+				oy += rowh + 1;
 				rowh = 0;
 				ox = 0;
 			}
@@ -102,8 +117,8 @@ struct atlas {
 			_ch[i].bl = g->bitmap_left;
 			_ch[i].bt = g->bitmap_top;
 
-			_ch[i].tx = ox / (float)w;
-			_ch[i].ty = oy / (float)h;
+			_ch[i].tx = ox / double(w);
+			_ch[i].ty = oy / double(h);
 
 			rowh = std::max(rowh, g->bitmap.rows);
 			ox += g->bitmap.width + 1;
@@ -222,6 +237,7 @@ void rmText3D_v2::Update(ROS_API &ros_api){
     // Update the data (buffer variables) here
 }
 void rmText3D_v2::Render(std::shared_ptr<ViewManager> _camera_ptr){
+    static int _count = 0;
 
     glBindVertexArray(m_shape.vao);
 
@@ -231,7 +247,7 @@ void rmText3D_v2::Render(std::shared_ptr<ViewManager> _camera_ptr){
     glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
 
-    RenderText("Hello world", a48, 0.0, 0.0, 1.0, 1.0, glm::vec3(1.0f, 1.0f, 0.0f));
+    RenderText("Hello world: " + std::to_string(++_count), a48, 0.0, 0.0, 1.0, 1.0, glm::vec3(1.0f, 1.0f, 0.0f));
 
 
     // Draw the element according to ebo
@@ -284,15 +300,15 @@ void rmText3D_v2::RenderText(const std::string &text, atlas * _atlas_ptr, float 
 		coords[_idx_count++] = (point) {
 		x2, -y2, _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty};
 		coords[_idx_count++] = (point) {
-		x2 + w, -y2, _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / _atlas_ptr->w, _atlas_ptr->_ch[*p].ty};
+		x2 + w, -y2, _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->w), _atlas_ptr->_ch[*p].ty};
 		coords[_idx_count++] = (point) {
-		x2, -y2 - h, _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / _atlas_ptr->h};
+		x2, -y2 - h, _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h)};
 		coords[_idx_count++] = (point) {
-		x2 + w, -y2, _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / _atlas_ptr->w, _atlas_ptr->_ch[*p].ty};
+		x2 + w, -y2, _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->w), _atlas_ptr->_ch[*p].ty};
 		coords[_idx_count++] = (point) {
-		x2, -y2 - h, _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / _atlas_ptr->h};
+		x2, -y2 - h, _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h)};
 		coords[_idx_count++] = (point) {
-		x2 + w, -y2 - h, _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / _atlas_ptr->w, _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / _atlas_ptr->h};
+		x2 + w, -y2 - h, _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->w), _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h)};
 	}
 
 

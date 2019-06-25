@@ -170,7 +170,7 @@ void setupGUI()
 
 	TwGLUTModifiersFunc(glutGetModifiers); // <-- This is just for key modifiers
 	bar = TwNewBar("Properties");
-	TwDefine(" Properties size='300 220' ");
+	TwDefine(" Properties size='220 300' ");
 	TwDefine(" Properties fontsize='3' color='0 0 0' alpha=180 ");  // http://anttweakbar.sourceforge.net/doc/tools:anttweakbar:twbarparamsyntax
 
 	TwAddVarRO(bar, "time", TW_TYPE_FLOAT, &m_fps, " label='FPS' help='Frame Per Second(FPS)' ");
