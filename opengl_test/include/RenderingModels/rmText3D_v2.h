@@ -33,8 +33,8 @@ protected:
     // std::shared_ptr< msgs::LidRoi > box3d_out_ptr;
     // ros::Time msg_time;
 
-
-    void RenderText(const std::string &text, atlas * _atlas_ptr, float x, float y, float scale_x_in, float scale_y_in, glm::vec3 color);
+    // void RenderText(const std::string &text, atlas *_atlas_ptr, float x, float y, float scale_x_in, float scale_y_in, glm::vec3 color);
+    void RenderText(const std::string &text, std::shared_ptr<atlas> &_atlas_ptr, float x, float y, float scale_x_in, float scale_y_in, glm::vec3 color);
 
 private:
     // model info
@@ -72,10 +72,18 @@ private:
     //
     std::string text_current;
 
+
     // Pointers of atlas
-    atlas *a48;
-    atlas *a24;
-    atlas *a12;
+    /*
+    atlas *a48_ptr;
+    atlas *a24_ptr;
+    atlas *a12_ptr;
+    */
+    /*
+    std::shared_ptr<atlas> a48_ptr;
+    std::shared_ptr<atlas> a24_ptr;
+    std::shared_ptr<atlas> a12_ptr;
+    */
 
 
 

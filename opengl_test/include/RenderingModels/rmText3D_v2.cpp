@@ -5,6 +5,8 @@
 #define TOTAL_CHAR 128
 
 
+
+
 // Atlas
 //--------------------------------------//
 struct atlas {
@@ -43,89 +45,113 @@ struct atlas {
 		float ty;	// y offset of glyph in texture coordinates
 	} _ch[TOTAL_CHAR];		// character information
 
-	 atlas(FT_Face face, int font_size_in) {
-		FT_Set_Pixel_Sizes(face, 0, font_size_in);
+    atlas(int font_size_in){
+        // FreeType
+        //-----------------------------------------//
+        FT_Library ft;
+        // All functions return a value different than 0 whenever an error occurred
+        if (FT_Init_FreeType(&ft))
+            std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+        // Load font as face
+        FT_Face face;
+        // if (FT_New_Face(ft, "fonts/arial.ttf", 0, &face))
+        if (FT_New_Face(ft, "/usr/share/fonts/truetype/freefont/FreeSans.ttf", 0, &face))
+        // if (FT_New_Face(ft, "FreeSans.ttf", 0, &face))
+            std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+        //-----------------------------------------//
+        Init(face, font_size_in);
+        // Destroy FreeType once we're finished
+        //-----------------------------------------//
+        FT_Done_Face(face);
+        FT_Done_FreeType(ft);
+        //-----------------------------------------//
+
+    }
+    atlas(FT_Face face, int font_size_in){
+        Init(face, font_size_in);
+    }
+    void Init(FT_Face face, int font_size_in) {
+        FT_Set_Pixel_Sizes(face, 0, font_size_in);
         font_size = font_size_in;
-		FT_GlyphSlot g = face->glyph;
+        FT_GlyphSlot g = face->glyph;
 
-		unsigned int roww = 0;
-		unsigned int rowh = 0;
-		 w = 0;
-		 h = 0;
+        unsigned int roww = 0;
+        unsigned int rowh = 0;
+        w = 0;
+        h = 0;
 
-		 memset(_ch, 0, sizeof _ch);
+        memset(_ch, 0, sizeof _ch);
 
-		/* Find minimum size for a texture holding all visible ASCII characters */
-		for (int i = 0; i < TOTAL_CHAR; i++) {
-			if (FT_Load_Char(face, i, FT_LOAD_RENDER)) {
-				fprintf(stderr, "Loading character %c failed!\n", i);
-				continue;
-			}
-			if (roww + g->bitmap.width + 1 >= MAXWIDTH) {
-				w = std::max(w, roww);
-				h += rowh + 1;
-				roww = 0;
-				rowh = 0;
-			}
-			roww += g->bitmap.width + 1;
-			rowh = std::max(rowh, g->bitmap.rows);
-		}
+        /* Find minimum size for a texture holding all visible ASCII characters */
+        for (int i = 0; i < TOTAL_CHAR; i++) {
+        	if (FT_Load_Char(face, i, FT_LOAD_RENDER)) {
+        		fprintf(stderr, "Loading character %c failed!\n", i);
+        		continue;
+        	}
+        	if (roww + g->bitmap.width + 1 >= MAXWIDTH) {
+        		w = std::max(w, roww);
+        		h += rowh + 1;
+        		roww = 0;
+        		rowh = 0;
+        	}
+        	roww += g->bitmap.width + 1;
+        	rowh = std::max(rowh, g->bitmap.rows);
+        }
 
-		w = std::max(w, roww);
-		h += rowh + 1;
+        w = std::max(w, roww);
+        h += rowh + 1;
 
-		/* Create a texture that will be used to hold all ASCII glyphs */
-		glActiveTexture(GL_TEXTURE0);
-		glGenTextures(1, &TextureID);
-		glBindTexture(GL_TEXTURE_2D, TextureID);
+        /* Create a texture that will be used to hold all ASCII glyphs */
+        glActiveTexture(GL_TEXTURE0);
+        glGenTextures(1, &TextureID);
+        glBindTexture(GL_TEXTURE_2D, TextureID);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, w, h, 0, GL_ALPHA, GL_UNSIGNED_BYTE, 0);
-		/* We require 1 byte alignment when uploading texture data */
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		/* Clamping to edges is important to prevent artifacts when scaling */
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		/* Linear filtering usually looks best for text */
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, w, h, 0, GL_ALPHA, GL_UNSIGNED_BYTE, 0);
+        /* We require 1 byte alignment when uploading texture data */
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        /* Clamping to edges is important to prevent artifacts when scaling */
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        /* Linear filtering usually looks best for text */
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		/* Paste all glyph bitmaps into the texture, remembering the offset */
-		int ox = 0;
-		int oy = 0;
+        /* Paste all glyph bitmaps into the texture, remembering the offset */
+        int ox = 0;
+        int oy = 0;
 
-		rowh = 0;
+        rowh = 0;
 
-		for (int i = 0; i < TOTAL_CHAR; i++) {
-			if (FT_Load_Char(face, i, FT_LOAD_RENDER)) {
-				fprintf(stderr, "Loading character %c failed!\n", i);
-				continue;
-			}
+        for (int i = 0; i < TOTAL_CHAR; i++) {
+        	if (FT_Load_Char(face, i, FT_LOAD_RENDER)) {
+        		fprintf(stderr, "Loading character %c failed!\n", i);
+        		continue;
+        	}
 
-			if (ox + g->bitmap.width + 1 >= MAXWIDTH) {
-				oy += rowh + 1;
-				rowh = 0;
-				ox = 0;
-			}
+        	if (ox + g->bitmap.width + 1 >= MAXWIDTH) {
+        		oy += rowh + 1;
+        		rowh = 0;
+        		ox = 0;
+        	}
 
-			glTexSubImage2D(GL_TEXTURE_2D, 0, ox, oy, g->bitmap.width, g->bitmap.rows, GL_ALPHA, GL_UNSIGNED_BYTE, g->bitmap.buffer);
-			_ch[i].ax = g->advance.x >> 6;
-			_ch[i].ay = g->advance.y >> 6;
+        	glTexSubImage2D(GL_TEXTURE_2D, 0, ox, oy, g->bitmap.width, g->bitmap.rows, GL_ALPHA, GL_UNSIGNED_BYTE, g->bitmap.buffer);
+        	_ch[i].ax = g->advance.x >> 6;
+        	_ch[i].ay = g->advance.y >> 6;
 
-			_ch[i].bw = g->bitmap.width;
-			_ch[i].bh = g->bitmap.rows;
+        	_ch[i].bw = g->bitmap.width;
+        	_ch[i].bh = g->bitmap.rows;
 
-			_ch[i].bl = g->bitmap_left;
-			_ch[i].bt = g->bitmap_top;
+        	_ch[i].bl = g->bitmap_left;
+        	_ch[i].bt = g->bitmap_top;
 
-			_ch[i].tx = ox / double(w);
-			_ch[i].ty = oy / double(h);
+        	_ch[i].tx = ox / double(w);
+        	_ch[i].ty = oy / double(h);
 
-			rowh = std::max(rowh, g->bitmap.rows);
-			ox += g->bitmap.width + 1;
-		}
-
-		fprintf(stderr, "Generated a %d x %d (%d kb) texture atlas\n", w, h, w * h / 1024);
-	}
+        	rowh = std::max(rowh, g->bitmap.rows);
+        	ox += g->bitmap.width + 1;
+        }
+        fprintf(stderr, "Generated a %d x %d (%d kb) texture atlas\n", w, h, w * h / 1024);
+    }
 
 	~atlas() {
 		glDeleteTextures(1, &TextureID);
@@ -135,6 +161,9 @@ struct atlas {
 // end Atlas
 
 
+std::shared_ptr<atlas> a48_ptr;
+std::shared_ptr<atlas> a24_ptr;
+std::shared_ptr<atlas> a12_ptr;
 
 
 
@@ -176,8 +205,9 @@ void rmText3D_v2::Init(){
 }
 void rmText3D_v2::LoadModel(){
 
-
+    /*
     // FreeType
+    //-----------------------------------------//
     FT_Library ft;
     // All functions return a value different than 0 whenever an error occurred
     if (FT_Init_FreeType(&ft))
@@ -188,20 +218,51 @@ void rmText3D_v2::LoadModel(){
     if (FT_New_Face(ft, "/usr/share/fonts/truetype/freefont/FreeSans.ttf", 0, &face))
     // if (FT_New_Face(ft, "FreeSans.ttf", 0, &face))
         std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+    //-----------------------------------------//
 
 
 
     // Create texture atlasses for several font sizes
-	a48 = new atlas(face, 48);
-	a24 = new atlas(face, 24);
-	a12 = new atlas(face, 12);
+	a48_ptr = new atlas(face, 48);
+	a24_ptr = new atlas(face, 24);
+	a12_ptr = new atlas(face, 12);
     //
 
 
 
     // Destroy FreeType once we're finished
+    //-----------------------------------------//
     FT_Done_Face(face);
     FT_Done_FreeType(ft);
+    //-----------------------------------------//
+    */
+
+    /*
+    // Create texture atlasses for several font sizes
+	a48_ptr = new atlas(48);
+	a24_ptr = new atlas(24);
+	a12_ptr = new atlas(12);
+    //
+    */
+
+
+
+    if (!a48_ptr){
+        a48_ptr.reset(new atlas(48));
+    }else{
+        std::cout << "The atlas<" << a48_ptr->font_size << "> is already created.\n";
+    }
+    if (!a24_ptr){
+        a24_ptr.reset(new atlas(24));
+    }else{
+        std::cout << "The atlas<" << a24_ptr->font_size << "> is already created.\n";
+    }
+    if (!a12_ptr){
+        a12_ptr.reset(new atlas(12));
+    }else{
+        std::cout << "The atlas<" << a12_ptr->font_size << "> is already created.\n";
+    }
+
 
 
 
@@ -247,7 +308,7 @@ void rmText3D_v2::Render(std::shared_ptr<ViewManager> _camera_ptr){
     glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
 
-    RenderText("Hello world: " + std::to_string(++_count), a48, 0.0, 0.0, 1.0, 1.0, glm::vec3(1.0f, 1.0f, 0.0f));
+    RenderText("Hello world: " + std::to_string(++_count), a48_ptr, 0.0, 0.0, 1.0, 1.0, glm::vec3(1.0f, 1.0f, 0.0f));
 
 
     // Draw the element according to ebo
@@ -262,7 +323,8 @@ void rmText3D_v2::Render(std::shared_ptr<ViewManager> _camera_ptr){
 
 
 //-----------------------------------------------//
-void rmText3D_v2::RenderText(const std::string &text, atlas * _atlas_ptr, float x, float y, float scale_x_in, float scale_y_in, glm::vec3 color) {
+// void rmText3D_v2::RenderText(const std::string &text, atlas *_atlas_ptr, float x, float y, float scale_x_in, float scale_y_in, glm::vec3 color) {
+void rmText3D_v2::RenderText(const std::string &text, std::shared_ptr<atlas> &_atlas_ptr, float x, float y, float scale_x_in, float scale_y_in, glm::vec3 color) {
 
     GLfloat scale_x = scale_x_in/GLfloat(_atlas_ptr->font_size);
     GLfloat scale_y = scale_y_in/GLfloat(_atlas_ptr->font_size);
