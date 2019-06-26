@@ -296,29 +296,46 @@ void rmText3D_v2::Update(ROS_INTERFACE &ros_interface){
 void rmText3D_v2::Update(ROS_API &ros_api){
     // Update the data (buffer variables) here
 
+    // test
     static int _count = 0;
-    insert_text( "Hello world: " + std::to_string(_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), glm::vec2(0.0f), glm::vec3(1.0f,1.0f,0.0f) );
-
+    insert_text( text2D_data( "Hello world: " + std::to_string(_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), glm::vec2(0.0f), glm::vec3(1.0f,1.0f,0.0f) ) );
     for (size_t _k=0; _k < 1000; ++_k){
-        insert_text("Text #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec2( 0.0f, float(_k)));
+        insert_text( text2D_data("Text #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec2( 0.0f, float(_k))) );
     }
-
+    //
+    insert_text( text_billboard_data("The billboard" ));
+    insert_text( text_billboard_data("The billboard", glm::vec3( 0.0f, 0.0f, 5.0f), glm::vec2(3.0f, 0.0f) ) );
+    for (size_t _k=0; _k < 1000; ++_k){
+        insert_text( text_billboard_data("billboard #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec3( float(_k)*2.0f, 0.0f, 2.0f), glm::vec2(0.0f, 0.0f) ) );
+    }
+    //
     _count++;
-
-
+    //
 }
 void rmText3D_v2::Render(std::shared_ptr<ViewManager> _camera_ptr){
     glBindVertexArray(m_shape.vao);
 	_program_ptr->UseProgram();
     //--------------------------------//
-    for (size_t i=0; i < text_buffer.size(); ++i){
-        _draw_one_text(_camera_ptr, text_buffer.front() );
-        text_buffer.pop();
+    for (size_t i=0; i < text2D_buffer.size(); ++i){
+        _draw_one_text2D(_camera_ptr, text2D_buffer.front() );
+        text2D_buffer.pop();
+    }
+    for (size_t i=0; i < text3D_buffer.size(); ++i){
+        _draw_one_text3D(_camera_ptr, text3D_buffer.front() );
+        text3D_buffer.pop();
+    }
+    for (size_t i=0; i < text_billboard_buffer.size(); ++i){
+        _draw_one_text_billboard(_camera_ptr, text_billboard_buffer.front() );
+        text_billboard_buffer.pop();
     }
     //--------------------------------//
     _program_ptr->CloseProgram();
 }
-void rmText3D_v2::_draw_one_text(std::shared_ptr<ViewManager> &_camera_ptr, text2D_data &_data_in){
+
+
+// Different draw methods
+//--------------------------------------------------------//
+void rmText3D_v2::_draw_one_text2D(std::shared_ptr<ViewManager> &_camera_ptr, text2D_data &_data_in){
     // static int _count = 0;
 
     // m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
@@ -330,7 +347,31 @@ void rmText3D_v2::_draw_one_text(std::shared_ptr<ViewManager> &_camera_ptr, text
     RenderText(_data_in.text, a48_ptr, _data_in.position_2D[0], _data_in.position_2D[1], 1.0, 1.0, _data_in.color);
     //--------------------------------//
 }
+void rmText3D_v2::_draw_one_text3D(std::shared_ptr<ViewManager> &_camera_ptr, text3D_data &_data_in){
 
+    // The transformation matrices and projection matrices
+    glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, _data_in.pose_ref_point) ));
+    glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
+    //
+    RenderText(_data_in.text, a48_ptr, -1*(_data_in.offset_ref_point_2D[0]), -1*(_data_in.offset_ref_point_2D[1]), 1.0, 1.0, _data_in.color);
+    //--------------------------------//
+}
+void rmText3D_v2::_draw_one_text_billboard(std::shared_ptr<ViewManager> &_camera_ptr, text_billboard_data &_data_in){
+    // Calculate model matrix
+    glm::mat4 view_m = _camera_ptr->GetModelViewMatrix();
+    glm::mat4 _model_m = glm::transpose(view_m);
+    _model_m[0][3] = 0.0f;  _model_m[1][3] = 0.0f;  _model_m[2][3] = 0.0f;
+    _model_m[3] = glm::vec4(_data_in.position_ref_point, 1.0f);
+    //
+
+    // The transformation matrices and projection matrices
+    glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, _model_m) ));
+    glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
+    //
+    RenderText(_data_in.text, a48_ptr, -1*(_data_in.offset_ref_point_2D[0]), -1*(_data_in.offset_ref_point_2D[1]), 1.0, 1.0, _data_in.color);
+    //--------------------------------//
+}
+//--------------------------------------------------------//
 
 
 

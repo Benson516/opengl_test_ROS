@@ -26,17 +26,57 @@ struct atlas;
 class rmText3D_v2 : public rmBaseModel
 {
 
-    //
+    // text2D in 3D space
     struct text2D_data{
         std::string text;
         glm::vec2   position_2D;
         glm::vec3   color;
-        text2D_data(const std::string &text_in, const glm::vec2 &position_2D_in=glm::vec2(0.0f), const glm::vec3 &color_in=glm::vec3(1.0f) ):
+        text2D_data(
+            const std::string &text_in,
+            const glm::vec2 &position_2D_in=glm::vec2(0.0f),
+            const glm::vec3 &color_in=glm::vec3(1.0f)
+        ):
             text(text_in), position_2D(position_2D_in), color(color_in)
         {}
     };
+    // text3D as an object in space
+    struct text3D_data{
+        std::string text;
+        glm::mat4   pose_ref_point;
+        glm::vec2   offset_ref_point_2D;
+        glm::vec3   color;
+        text3D_data(
+            const std::string &text_in,
+            const glm::mat4 &pose_ref_point_in=glm::mat4(1.0f),
+            const glm::vec2 &offset_ref_point_2D_in=glm::vec2(0.0f),
+            const glm::vec3 &color_in=glm::vec3(1.0f)
+        ):
+            text(text_in),
+            pose_ref_point(pose_ref_point_in),
+            offset_ref_point_2D(offset_ref_point_2D_in),
+            color(color_in)
+        {}
+    };
+    // text3D as a billboard attached to a 3D point
+    struct text_billboard_data{
+        std::string text;
+        glm::vec3   position_ref_point;
+        glm::vec2   offset_ref_point_2D;
+        glm::vec3   color;
+        text_billboard_data(
+            const std::string &text_in,
+            const glm::vec3 &position_ref_point_in=glm::vec3(0.0f),
+            const glm::vec2 &offset_ref_point_2D_in=glm::vec2(0.0f),
+            const glm::vec3 &color_in=glm::vec3(1.0f)
+        ):
+            text(text_in),
+            position_ref_point(position_ref_point_in),
+            offset_ref_point_2D(offset_ref_point_2D_in),
+            color(color_in)
+        {}
+    };
     //
-    
+
 public:
     rmText3D_v2(std::string _path_Assets_in, int _ROS_topic_id_in);
     //
@@ -45,10 +85,18 @@ public:
     void Update(ROS_API &ros_api);
 	void Render(std::shared_ptr<ViewManager> _camera_ptr);
 
-
-    inline void insert_text(const std::string &text_in, const glm::vec2 &position_2D_in=glm::vec2(0.0f), const glm::vec3 &color_in=glm::vec3(1.0f) ){
-        text_buffer.push( text2D_data(text_in, position_2D_in, color_in) );
+    // Insert method for texts
+    //-------------------------------------//
+    inline void insert_text(const text2D_data & data_in ){
+        text2D_buffer.push( data_in );
     }
+    inline void insert_text(const text3D_data & data_in ){
+        text3D_buffer.push( data_in );
+    }
+    inline void insert_text(const text_billboard_data & data_in ){
+        text_billboard_buffer.push( data_in );
+    }
+    //-------------------------------------//
 
 protected:
     void Init();
@@ -60,7 +108,13 @@ protected:
 
     // void RenderText(const std::string &text, atlas *_atlas_ptr, float x, float y, float scale_x_in, float scale_y_in, glm::vec3 color);
     void RenderText(const std::string &text, std::shared_ptr<atlas> &_atlas_ptr, float x_in, float y_in, float scale_x_in, float scale_y_in, glm::vec3 color);
-    void _draw_one_text(std::shared_ptr<ViewManager> &_camera_ptr, text2D_data &_data_in);
+
+    // Different draw methods
+    //--------------------------------------------------------//
+    void _draw_one_text2D(std::shared_ptr<ViewManager> &_camera_ptr, text2D_data &_data_in);
+    void _draw_one_text3D(std::shared_ptr<ViewManager> &_camera_ptr, text3D_data &_data_in);
+    void _draw_one_text_billboard(std::shared_ptr<ViewManager> &_camera_ptr, text_billboard_data &_data_in);
+    //--------------------------------------------------------//
 
 private:
     // model info
@@ -97,7 +151,9 @@ private:
 
     //
 
-    std::queue<text2D_data> text_buffer;
+    std::queue<text2D_data> text2D_buffer;
+    std::queue<text3D_data> text3D_buffer;
+    std::queue<text_billboard_data> text_billboard_buffer;
 
 
 
