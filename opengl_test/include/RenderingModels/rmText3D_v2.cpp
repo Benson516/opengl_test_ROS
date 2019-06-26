@@ -168,12 +168,26 @@ std::shared_ptr<atlas> a12_ptr;
 
 
 
+// Box vertex index
+namespace rmLidarBoundingBox_ns{
+    const GLuint box_idx_data[] = {
+        0,1,2,
+        1,2,3
+    };
+}
+
+
 
 rmText3D_v2::rmText3D_v2(std::string _path_Assets_in, int _ROS_topic_id_in):
     _ROS_topic_id(_ROS_topic_id_in)
 {
     init_paths(_path_Assets_in);
-    _max_string_length = 500; // 100000;
+    _num_vertex_idx_per_box = (3*2);
+    _num_vertex_per_box = 4; // 8;
+    _max_num_box = 500; // 100000;
+    _max_num_vertex_idx = _max_num_box*(long long)(_num_vertex_idx_per_box);
+    _max_num_vertex = _max_num_box*(long long)(_num_vertex_per_box);
+    //
 	Init();
 }
 void rmText3D_v2::Init(){
@@ -274,11 +288,37 @@ void rmText3D_v2::LoadModel(){
     glGenBuffers(1, &m_shape.vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo);
     // glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(point) * 6 * _max_string_length, NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, _max_num_vertex * sizeof(point), NULL, GL_DYNAMIC_DRAW);
 
     // glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), NULL);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(point), NULL);
     glEnableVertexAttribArray(0);
+
+
+    // ebo
+    glGenBuffers(1, &m_shape.ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_shape.ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, _max_num_vertex_idx * sizeof(GLuint), NULL, GL_STATIC_DRAW);
+    // Directly assign data to memory of GPU
+    //--------------------------------------------//
+	GLuint * _idx_ptr = (GLuint *)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, _max_num_vertex_idx * sizeof(GLuint), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+	size_t _idx_idx = 0;
+    long long _offset_box = 0;
+	for (size_t i = 0; i < _max_num_vertex_idx; i++)
+	{
+        _idx_ptr[i] = rmLidarBoundingBox_ns::box_idx_data[_idx_idx] + _offset_box;
+        // std::cout << "_idx_ptr[" << i << "] = " << _idx_ptr[i] << "\n";
+        _idx_idx++;
+        if (_idx_idx >= _num_vertex_idx_per_box){
+            _idx_idx = 0;
+            _offset_box += _num_vertex_per_box;
+        }
+	}
+	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+    // m_shape.indexCount = _max_num_vertex_idx; //  1 * _num_vertex_idx_per_box; // ;
+    //--------------------------------------------//
+
+
 
     // Close
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -299,19 +339,23 @@ void rmText3D_v2::Update(ROS_API &ros_api){
     // test
     static int _count = 0;
     insert_text( text2D_data( "Hello world: " + std::to_string(_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), glm::vec2(0.0f), glm::vec3(1.0f,1.0f,0.0f) ) );
+    /*
     for (size_t _k=0; _k < 1000; ++_k){
         insert_text( text2D_data("Text #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec2( 0.0f, float(_k))) );
     }
+    */
     //
     insert_text( text3D_data("Text3D") );
     //
     insert_text( text_billboard_data("The billboard" ));
     insert_text( text_billboard_data("The billboard", glm::vec3( 0.0f, 0.0f, 5.0f), glm::vec2(3.0f, 0.0f) ) );
+    /*
     for (size_t _k=0; _k < 1000; ++_k){
         insert_text( text_billboard_data("billboard #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec3( float(_k)*2.0f, 0.0f, 2.0f), glm::vec2(0.0f, 0.0f) ) );
     }
+    */
     //
-    for (size_t _k=0; _k < 3; ++_k){
+    for (size_t _k=0; _k < 1000; ++_k){
         insert_text( text_freeze_board_data("I am freeze board #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec3( float(_k)*20.0f, 0.0f, 10.0f), glm::vec2(0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 1.0f) ) );
     }
     //
@@ -426,6 +470,7 @@ void rmText3D_v2::RenderText(const std::string &text, std::shared_ptr<atlas> &_a
 
 	point coords[ 6 * text.size() ];
 	int _idx_count = 0;
+    int _word_count = 0;
 
     // Iterate through all characters
     std::string::const_iterator p;
@@ -454,18 +499,26 @@ void rmText3D_v2::RenderText(const std::string &text, std::shared_ptr<atlas> &_a
 		if (!w || !h) // For example: space - " "
 			continue;
 
+        // T1
 		coords[_idx_count++] = (point) {
 		x2, -y2, _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty};
 		coords[_idx_count++] = (point) {
 		x2 + w, -y2, _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->w), _atlas_ptr->_ch[*p].ty};
 		coords[_idx_count++] = (point) {
 		x2, -y2 - h, _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h)};
-		coords[_idx_count++] = (point) {
+
+        // T2
+        /*
+        coords[_idx_count++] = (point) {
 		x2 + w, -y2, _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->w), _atlas_ptr->_ch[*p].ty};
 		coords[_idx_count++] = (point) {
 		x2, -y2 - h, _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h)};
+        */
 		coords[_idx_count++] = (point) {
 		x2 + w, -y2 - h, _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->w), _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h)};
+
+        //
+        _word_count++;
 	}
 
 
@@ -493,7 +546,8 @@ void rmText3D_v2::RenderText(const std::string &text, std::shared_ptr<atlas> &_a
 	glBindTexture(GL_TEXTURE_2D, _atlas_ptr->TextureID);
 
     // Draw
-	glDrawArrays(GL_TRIANGLES, 0, _idx_count);
+	// glDrawArrays(GL_TRIANGLES, 0, _idx_count);
+    glDrawElements(GL_TRIANGLES, _word_count*_num_vertex_idx_per_box, GL_UNSIGNED_INT, 0); // Using ebo
 
     glBindTexture(GL_TEXTURE_2D, 0);
 

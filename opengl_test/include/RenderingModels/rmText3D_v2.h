@@ -168,7 +168,13 @@ private:
         GLint  textColor;
 	} uniforms;
 
-    long long _max_string_length;
+    //
+    int _num_vertex_idx_per_box;
+    long long _max_num_vertex_idx;
+    int _num_vertex_per_box;
+    long long _max_num_vertex;
+    long long _max_num_box;
+    // long long _max_string_length;
 
 
     //
