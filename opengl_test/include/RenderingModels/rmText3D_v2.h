@@ -3,6 +3,8 @@
 
 #include "rmBaseModel.h"
 
+#include <queue>          // std::queue
+
 
 // #include <map> // std::map
 // FreeType
@@ -11,12 +13,30 @@
 
 
 
-struct atlas;
 
+
+
+
+
+// atlas
+struct atlas;
+//
 
 
 class rmText3D_v2 : public rmBaseModel
 {
+
+    //
+    struct text2D_data{
+        std::string text;
+        glm::vec2   position_2D;
+        glm::vec3   color;
+        text2D_data(const std::string &text_in, const glm::vec2 &position_2D_in=glm::vec2(0.0f), const glm::vec3 &color_in=glm::vec3(1.0f) ):
+            text(text_in), position_2D(position_2D_in), color(color_in)
+        {}
+    };
+    //
+    
 public:
     rmText3D_v2(std::string _path_Assets_in, int _ROS_topic_id_in);
     //
@@ -24,6 +44,11 @@ public:
     void Update(ROS_INTERFACE &ros_interface);
     void Update(ROS_API &ros_api);
 	void Render(std::shared_ptr<ViewManager> _camera_ptr);
+
+
+    inline void insert_text(const std::string &text_in, const glm::vec2 &position_2D_in=glm::vec2(0.0f), const glm::vec3 &color_in=glm::vec3(1.0f) ){
+        text_buffer.push( text2D_data(text_in, position_2D_in, color_in) );
+    }
 
 protected:
     void Init();
@@ -34,7 +59,8 @@ protected:
     // ros::Time msg_time;
 
     // void RenderText(const std::string &text, atlas *_atlas_ptr, float x, float y, float scale_x_in, float scale_y_in, glm::vec3 color);
-    void RenderText(const std::string &text, std::shared_ptr<atlas> &_atlas_ptr, float x, float y, float scale_x_in, float scale_y_in, glm::vec3 color);
+    void RenderText(const std::string &text, std::shared_ptr<atlas> &_atlas_ptr, float x_in, float y_in, float scale_x_in, float scale_y_in, glm::vec3 color);
+    void _draw_one_text(std::shared_ptr<ViewManager> &_camera_ptr, text2D_data &_data_in);
 
 private:
     // model info
@@ -70,7 +96,9 @@ private:
 
 
     //
-    std::string text_current;
+
+    std::queue<text2D_data> text_buffer;
+
 
 
     // Pointers of atlas

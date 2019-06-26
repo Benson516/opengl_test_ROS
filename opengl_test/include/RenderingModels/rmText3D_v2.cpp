@@ -196,8 +196,7 @@ void rmText3D_v2::Init(){
 	m_shape.model = glm::mat4(1.0);
     attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
 
-    // Current text
-    text_current = "";
+
 
     //Load model to shader _program_ptr
 	LoadModel();
@@ -296,26 +295,40 @@ void rmText3D_v2::Update(ROS_INTERFACE &ros_interface){
 }
 void rmText3D_v2::Update(ROS_API &ros_api){
     // Update the data (buffer variables) here
+
+    static int _count = 0;
+    insert_text( "Hello world: " + std::to_string(_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), glm::vec2(0.0f), glm::vec3(1.0f,1.0f,0.0f) );
+
+    for (size_t _k=0; _k < 1000; ++_k){
+        insert_text("Text #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec2( 0.0f, float(_k)));
+    }
+
+    _count++;
+
+
 }
 void rmText3D_v2::Render(std::shared_ptr<ViewManager> _camera_ptr){
-    static int _count = 0;
-
     glBindVertexArray(m_shape.vao);
-
 	_program_ptr->UseProgram();
+    //--------------------------------//
+    for (size_t i=0; i < text_buffer.size(); ++i){
+        _draw_one_text(_camera_ptr, text_buffer.front() );
+        text_buffer.pop();
+    }
+    //--------------------------------//
+    _program_ptr->CloseProgram();
+}
+void rmText3D_v2::_draw_one_text(std::shared_ptr<ViewManager> &_camera_ptr, text2D_data &_data_in){
+    // static int _count = 0;
+
     // m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
     // The transformation matrices and projection matrices
     glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
 
-    RenderText("Hello world: " + std::to_string(++_count), a48_ptr, 0.0, 0.0, 1.0, 1.0, glm::vec3(1.0f, 1.0f, 0.0f));
-
-
-    // Draw the element according to ebo
-    // glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
-    // glDrawArrays(GL_TRIANGLES, 0, 3*5); // draw part of points
+    // RenderText("Hello world: " + std::to_string(++_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), a48_ptr, 0.0, 0.0, 1.0, 1.0, glm::vec3(1.0f, 1.0f, 0.0f));
+    RenderText(_data_in.text, a48_ptr, _data_in.position_2D[0], _data_in.position_2D[1], 1.0, 1.0, _data_in.color);
     //--------------------------------//
-    _program_ptr->CloseProgram();
 }
 
 
@@ -324,19 +337,19 @@ void rmText3D_v2::Render(std::shared_ptr<ViewManager> _camera_ptr){
 
 //-----------------------------------------------//
 // void rmText3D_v2::RenderText(const std::string &text, atlas *_atlas_ptr, float x, float y, float scale_x_in, float scale_y_in, glm::vec3 color) {
-void rmText3D_v2::RenderText(const std::string &text, std::shared_ptr<atlas> &_atlas_ptr, float x, float y, float scale_x_in, float scale_y_in, glm::vec3 color) {
+void rmText3D_v2::RenderText(const std::string &text, std::shared_ptr<atlas> &_atlas_ptr, float x_in, float y_in, float scale_x_in, float scale_y_in, glm::vec3 color) {
 
     GLfloat scale_x = scale_x_in/GLfloat(_atlas_ptr->font_size);
     GLfloat scale_y = scale_y_in/GLfloat(_atlas_ptr->font_size);
-
     //
     glUniform3f( uniforms.textColor, color.x, color.y, color.z);
 
 
 
 
-
-
+    //
+    float x = x_in;
+    float y = y_in;
 
 	point coords[ 6 * text.size() ];
 	int _idx_count = 0;
@@ -344,6 +357,15 @@ void rmText3D_v2::RenderText(const std::string &text, std::shared_ptr<atlas> &_a
     // Iterate through all characters
     std::string::const_iterator p;
     for (p = text.begin(); p != text.end(); p++) {
+        if (*p == '\n'){
+            x = x_in;
+            y -= _atlas_ptr->font_size * scale_y;
+            continue;
+        }
+        if (*p == '\t'){
+            x += (_atlas_ptr->_ch[' '].ax * scale_x)*8;
+            continue;
+        }
 	// for (uint8_t * p = (const uint8_t *)text; *p; p++) {
 		/* Calculate the vertex and texture coordinates */
 		float x2 = x + _atlas_ptr->_ch[*p].bl * scale_x;
