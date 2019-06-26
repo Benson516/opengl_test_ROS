@@ -194,8 +194,8 @@ void rmText3D_v2::Init(){
     //
 	_program_ptr.reset( new ShaderProgram() );
     // Load shaders
-    _program_ptr->AttachShader(get_full_Shader_path("Text3D.vs.glsl"), GL_VERTEX_SHADER);
-    _program_ptr->AttachShader(get_full_Shader_path("Text3D.fs.glsl"), GL_FRAGMENT_SHADER);
+    _program_ptr->AttachShader(get_full_Shader_path("Text3D_v2.vs.glsl"), GL_VERTEX_SHADER);
+    _program_ptr->AttachShader(get_full_Shader_path("Text3D_v2.fs.glsl"), GL_FRAGMENT_SHADER);
     // Link _program_ptr
 	_program_ptr->LinkProgram();
     //
@@ -204,13 +204,13 @@ void rmText3D_v2::Init(){
 	uniforms.proj_matrix = glGetUniformLocation(_program_ptr->GetID(), "proj_matrix");
 	uniforms.mv_matrix = glGetUniformLocation(_program_ptr->GetID(), "mv_matrix");
     uniforms.textColor = glGetUniformLocation(_program_ptr->GetID(), "textColor");
-
+    uniforms.ref_point = glGetUniformLocation(_program_ptr->GetID(), "ref_point");
 
     // Init model matrices
 	m_shape.model = glm::mat4(1.0);
     attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
-
-
+    // The reference point of a text
+    ref_point = glm::vec2(0.0f);
 
     //Load model to shader _program_ptr
 	LoadModel();
@@ -339,25 +339,28 @@ void rmText3D_v2::Update(ROS_API &ros_api){
     // test
     static int _count = 0;
     insert_text( text2D_data( "Hello world: " + std::to_string(_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), glm::vec2(0.0f), glm::vec3(1.0f,1.0f,0.0f) ) );
-    /*
+
     for (size_t _k=0; _k < 1000; ++_k){
         insert_text( text2D_data("Text #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec2( 0.0f, float(_k))) );
     }
-    */
+
     //
     insert_text( text3D_data("Text3D") );
     //
-    insert_text( text_billboard_data("The billboard" ));
-    insert_text( text_billboard_data("The billboard", glm::vec3( 0.0f, 0.0f, 5.0f), glm::vec2(3.0f, 0.0f) ) );
+    // insert_text( text_billboard_data("The billboard" ));
+    insert_text( text_billboard_data("The billboard\nSecond line\nSeq: " + std::to_string(_count), glm::vec3( 0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec3(1.0f, 0.8f, 0.2f) ) );
     /*
     for (size_t _k=0; _k < 1000; ++_k){
         insert_text( text_billboard_data("billboard #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec3( float(_k)*2.0f, 0.0f, 2.0f), glm::vec2(0.0f, 0.0f) ) );
     }
     */
+
     //
+    /*
     for (size_t _k=0; _k < 1000; ++_k){
         insert_text( text_freeze_board_data("I am freeze board #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec3( float(_k)*20.0f, 0.0f, 10.0f), glm::vec2(0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 1.0f) ) );
     }
+    */
     //
     _count++;
     //
@@ -461,7 +464,9 @@ void rmText3D_v2::RenderText(const std::string &text, std::shared_ptr<atlas> &_a
     //
     glUniform3f( uniforms.textColor, color.x, color.y, color.z);
 
-
+    // Calculate the bound
+    float _max_w = 0;
+    float _max_h = 0;
 
 
     //
@@ -470,7 +475,12 @@ void rmText3D_v2::RenderText(const std::string &text, std::shared_ptr<atlas> &_a
 
 	point coords[ 6 * text.size() ];
 	int _idx_count = 0;
-    int _word_count = 0;
+    int _valid_word_count = 0;
+
+    //
+    int _word_per_line = 0;
+    int _max_word_per_line = 0;
+    int _line_count = 1;
 
     // Iterate through all characters
     std::string::const_iterator p;
@@ -478,8 +488,18 @@ void rmText3D_v2::RenderText(const std::string &text, std::shared_ptr<atlas> &_a
         if (*p == '\n'){
             x = x_in;
             y -= _atlas_ptr->font_size * scale_y;
+            //
+
+            _line_count++;
+            _word_per_line = 0;
             continue;
         }
+        //
+        _word_per_line++;
+        if (_max_word_per_line < _word_per_line){
+            _max_word_per_line = _word_per_line;
+        }
+        //
         if (*p == '\t'){
             x += (_atlas_ptr->_ch[' '].ax * scale_x)*8;
             continue;
@@ -499,27 +519,59 @@ void rmText3D_v2::RenderText(const std::string &text, std::shared_ptr<atlas> &_a
 		if (!w || !h) // For example: space - " "
 			continue;
 
+        /*
+        Sequence of index
+        1 - 2
+        | / |
+        3 - 4
+        */
         // T1
 		coords[_idx_count++] = (point) {
-		x2, -y2, _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty};
+    		x2, -y2,
+            _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty};
 		coords[_idx_count++] = (point) {
-		x2 + w, -y2, _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->w), _atlas_ptr->_ch[*p].ty};
+    		x2+w, -y2,
+            _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->w), _atlas_ptr->_ch[*p].ty};
 		coords[_idx_count++] = (point) {
-		x2, -y2 - h, _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h)};
+    		x2, -y2-h,
+            _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h)};
 
         // T2
         /*
         coords[_idx_count++] = (point) {
-		x2 + w, -y2, _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->w), _atlas_ptr->_ch[*p].ty};
+    		x2+w, -y2,
+            _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->w), _atlas_ptr->_ch[*p].ty};
 		coords[_idx_count++] = (point) {
-		x2, -y2 - h, _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h)};
+    		x2, -y2-h,
+            _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h)};
         */
 		coords[_idx_count++] = (point) {
-		x2 + w, -y2 - h, _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->w), _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h)};
+    		x2+w, -y2-h,
+            _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->w), _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h)};
 
+        if (_max_w < (x2+w)){
+            _max_w = (x2+w);
+        }
+        if (_max_h < (y2+h)){
+            _max_h = (y2+h);
+        }
         //
-        _word_count++;
+        _valid_word_count++;
+
 	}
+
+    // ref_point
+
+    // Method 1: too precise that it will vibrate when word change
+    // ref_point = glm::vec2(_max_w/2.0f, -1*_max_h/2.0f);
+
+    // Method 2: less precise, using word (per line) count and line count
+    float _space_x = 2*(_atlas_ptr->_ch[' '].ax * scale_x);
+    float _space_y = _atlas_ptr->font_size * scale_y;
+    ref_point = glm::vec2(_max_word_per_line*_space_x/2.0f, -1*_line_count*_space_y/2.0f);
+
+    glUniform2f( uniforms.ref_point, ref_point.x, ref_point.y);
+
 
 
     // Update content of VBO memory
@@ -547,7 +599,7 @@ void rmText3D_v2::RenderText(const std::string &text, std::shared_ptr<atlas> &_a
 
     // Draw
 	// glDrawArrays(GL_TRIANGLES, 0, _idx_count);
-    glDrawElements(GL_TRIANGLES, _word_count*_num_vertex_idx_per_box, GL_UNSIGNED_INT, 0); // Using ebo
+    glDrawElements(GL_TRIANGLES, _valid_word_count*_num_vertex_idx_per_box, GL_UNSIGNED_INT, 0); // Using ebo
 
     glBindTexture(GL_TEXTURE_2D, 0);
 

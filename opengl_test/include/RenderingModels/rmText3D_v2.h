@@ -166,7 +166,10 @@ private:
 		GLint  mv_matrix;
 		GLint  proj_matrix;
         GLint  textColor;
+        GLint  ref_point;
 	} uniforms;
+
+    glm::vec2 ref_point;
 
     //
     int _num_vertex_idx_per_box;
