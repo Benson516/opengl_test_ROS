@@ -16,6 +16,7 @@
 #include "rmPointCloud.h"
 #include "rmLidarBoundingBox.h"
 #include "rmImageBoard.h"
+#include "rmText2D.h"
 #include "rmText3D.h"
 #include "rmText3D_v2.h"
 #include "rmBoundingBox2D.h"

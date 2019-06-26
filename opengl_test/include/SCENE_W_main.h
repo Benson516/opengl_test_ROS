@@ -38,6 +38,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     // PointCloud
     std::shared_ptr<rmPointCloud> pc_ptr_1;
     // Text
+    std::shared_ptr<rmText2D> _text2D_ptr;
     std::shared_ptr<rmText3D_v2> _text3D_ptr;
     // Bounding box 2D
     std::shared_ptr<rmBoundingBox2D> _box2D_ptr;
@@ -235,6 +236,9 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     // _text3D_ptr->Scale( glm::vec3(3.5f));
     // _text3D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _rm_BaseModel.push_back( _text3D_ptr );
+
+    _text2D_ptr.reset( new rmText2D() );
+    _rm_BaseModel.push_back( _text2D_ptr );
 
 
     // test, rmText3D:    400 x "Hello world" --> CPU 104%, GPU 85%
