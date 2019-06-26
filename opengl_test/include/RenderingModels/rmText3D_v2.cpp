@@ -303,10 +303,16 @@ void rmText3D_v2::Update(ROS_API &ros_api){
         insert_text( text2D_data("Text #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec2( 0.0f, float(_k))) );
     }
     //
+    insert_text( text3D_data("Text3D") );
+    //
     insert_text( text_billboard_data("The billboard" ));
     insert_text( text_billboard_data("The billboard", glm::vec3( 0.0f, 0.0f, 5.0f), glm::vec2(3.0f, 0.0f) ) );
     for (size_t _k=0; _k < 1000; ++_k){
         insert_text( text_billboard_data("billboard #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec3( float(_k)*2.0f, 0.0f, 2.0f), glm::vec2(0.0f, 0.0f) ) );
+    }
+    //
+    for (size_t _k=0; _k < 3; ++_k){
+        insert_text( text_freeze_board_data("I am freeze board #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec3( float(_k)*20.0f, 0.0f, 10.0f), glm::vec2(0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 1.0f) ) );
     }
     //
     _count++;
@@ -327,6 +333,10 @@ void rmText3D_v2::Render(std::shared_ptr<ViewManager> _camera_ptr){
     for (size_t i=0; i < text_billboard_buffer.size(); ++i){
         _draw_one_text_billboard(_camera_ptr, text_billboard_buffer.front() );
         text_billboard_buffer.pop();
+    }
+    for (size_t i=0; i < text_freeze_board_buffer.size(); ++i){
+        _draw_one_text_freeze_board(_camera_ptr, text_freeze_board_buffer.front() );
+        text_freeze_board_buffer.pop();
     }
     //--------------------------------//
     _program_ptr->CloseProgram();
@@ -359,8 +369,8 @@ void rmText3D_v2::_draw_one_text3D(std::shared_ptr<ViewManager> &_camera_ptr, te
 void rmText3D_v2::_draw_one_text_billboard(std::shared_ptr<ViewManager> &_camera_ptr, text_billboard_data &_data_in){
     // Calculate model matrix
     glm::mat4 view_m = _camera_ptr->GetModelViewMatrix();
+    view_m[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     glm::mat4 _model_m = glm::transpose(view_m);
-    _model_m[0][3] = 0.0f;  _model_m[1][3] = 0.0f;  _model_m[2][3] = 0.0f;
     _model_m[3] = glm::vec4(_data_in.position_ref_point, 1.0f);
     //
 
@@ -369,6 +379,28 @@ void rmText3D_v2::_draw_one_text_billboard(std::shared_ptr<ViewManager> &_camera
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
     //
     RenderText(_data_in.text, a48_ptr, -1*(_data_in.offset_ref_point_2D[0]), -1*(_data_in.offset_ref_point_2D[1]), 1.0, 1.0, _data_in.color);
+    //--------------------------------//
+}
+void rmText3D_v2::_draw_one_text_freeze_board(std::shared_ptr<ViewManager> &_camera_ptr, text_freeze_board_data &_data_in){
+    // Calculate model matrix
+    glm::mat4 view_m = _camera_ptr->GetModelViewMatrix();
+    //
+    // glm::vec4 _ref_in_canonical = ( _camera_ptr->GetProjectionMatrix()*view_m*glm::vec4(_data_in.position_ref_point, 1.0f) );
+    // GLfloat _z_ref = (_ref_in_canonical.z);
+    GLfloat _z_ref = ( view_m*glm::vec4(_data_in.position_ref_point, 1.0f) ).z;
+    // GLfloat _scale = _z_ref / (_camera_ptr->GetProjectionMatrix() )[2][3];
+    GLfloat _scale = _z_ref / (_camera_ptr->GetProjectionMatrix() )[2][3] * 0.05;
+    //
+    view_m[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    glm::mat4 _model_m = glm::transpose(view_m);
+    _model_m[3] = glm::vec4(_data_in.position_ref_point, 1.0f);
+    //
+
+    // The transformation matrices and projection matrices
+    glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, _model_m) ));
+    glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
+    //
+    RenderText(_data_in.text, a48_ptr, -1*(_data_in.offset_ref_point_2D[0]), -1*(_data_in.offset_ref_point_2D[1]), 1.0*_scale, 1.0*_scale, _data_in.color);
     //--------------------------------//
 }
 //--------------------------------------------------------//

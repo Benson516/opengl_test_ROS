@@ -75,6 +75,24 @@ class rmText3D_v2 : public rmBaseModel
             color(color_in)
         {}
     };
+    // text3D as a billboard attached to a 3D point with fixed size
+    struct text_freeze_board_data{
+        std::string text;
+        glm::vec3   position_ref_point;
+        glm::vec2   offset_ref_point_2D;
+        glm::vec3   color;
+        text_freeze_board_data(
+            const std::string &text_in,
+            const glm::vec3 &position_ref_point_in=glm::vec3(0.0f),
+            const glm::vec2 &offset_ref_point_2D_in=glm::vec2(0.0f),
+            const glm::vec3 &color_in=glm::vec3(1.0f)
+        ):
+            text(text_in),
+            position_ref_point(position_ref_point_in),
+            offset_ref_point_2D(offset_ref_point_2D_in),
+            color(color_in)
+        {}
+    };
     //
 
 public:
@@ -96,6 +114,9 @@ public:
     inline void insert_text(const text_billboard_data & data_in ){
         text_billboard_buffer.push( data_in );
     }
+    inline void insert_text(const text_freeze_board_data & data_in ){
+        text_freeze_board_buffer.push( data_in );
+    }
     //-------------------------------------//
 
 protected:
@@ -114,6 +135,7 @@ protected:
     void _draw_one_text2D(std::shared_ptr<ViewManager> &_camera_ptr, text2D_data &_data_in);
     void _draw_one_text3D(std::shared_ptr<ViewManager> &_camera_ptr, text3D_data &_data_in);
     void _draw_one_text_billboard(std::shared_ptr<ViewManager> &_camera_ptr, text_billboard_data &_data_in);
+    void _draw_one_text_freeze_board(std::shared_ptr<ViewManager> &_camera_ptr, text_freeze_board_data &_data_in);
     //--------------------------------------------------------//
 
 private:
@@ -154,6 +176,7 @@ private:
     std::queue<text2D_data> text2D_buffer;
     std::queue<text3D_data> text3D_buffer;
     std::queue<text_billboard_data> text_billboard_buffer;
+    std::queue<text_freeze_board_data> text_freeze_board_buffer;
 
 
 
