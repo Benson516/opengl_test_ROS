@@ -140,6 +140,7 @@ set(ALL_RENDER_MODELS
     ${RENDER_MODEL_PATH}rmText3D_v2.cpp
     ${RENDER_MODEL_PATH}rmSweepingObject.cpp
     ${RENDER_MODEL_PATH}rmBoundingBox2D.cpp
+    ${RENDER_MODEL_PATH}rmGrid.cpp
 
 )
 

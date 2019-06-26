@@ -98,6 +98,10 @@ public:
 
     // Transforms
     //---------------------------------------------------------//
+    bool get_tf(std::string base_fram, std::string to_frame, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling=false);
+    geometry_msgs::TransformStamped get_tf(std::string base_fram, std::string to_frame, bool & is_sucessed, bool is_time_traveling=false);
+    bool get_tf(std::string at_frame, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling=false);
+    geometry_msgs::TransformStamped get_tf(std::string at_frame, bool & is_sucessed, bool is_time_traveling=false);
     bool get_tf(const int topic_id, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling=false);
     geometry_msgs::TransformStamped get_tf(const int topic_id, bool & is_sucessed, bool is_time_traveling=false);
     //---------------------------------------------------------//

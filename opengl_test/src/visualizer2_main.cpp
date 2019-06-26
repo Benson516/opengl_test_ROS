@@ -198,10 +198,11 @@ void setupGUI()
 //----------------------------------------------------//
 void My_Init()
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-	// scene_ptr.reset(new Scene(ros_api.get_pkg_path()) );
+    // glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	// glEnable(GL_DEPTH_TEST);
+	// glDepthFunc(GL_LEQUAL);
+
+    // scene_ptr.reset(new Scene(ros_api.get_pkg_path()) );
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W_main(ros_api.get_pkg_path()) ) );
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W0(ros_api.get_pkg_path()) ) );
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W1(ros_api.get_pkg_path()) ) );
@@ -211,6 +212,8 @@ void My_Init()
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W5(ros_api.get_pkg_path()) ) );
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W6(ros_api.get_pkg_path()) ) );
 
+    // Clear background color
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);

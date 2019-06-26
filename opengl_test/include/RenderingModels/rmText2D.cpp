@@ -45,7 +45,7 @@ void rmText2D::Render(std::shared_ptr<ViewManager> _camera_ptr){
     //
     glUseProgram(0); // Program 0: OpenGL ver1.0
     selectFont2D(2);
-    text2D_output(0.5,0.5, "This is 2D text: " + std::to_string(_count++) );
+    text2D_output(0.5,0.8, "This is 2D text: " + std::to_string(_count++) );
 }
 
 

@@ -33,6 +33,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _pkg_path = (pkg_path_in);
     _Assets_path = (pkg_path_in + "Assets/");
 
+    // Grid
+    std::shared_ptr<rmGrid> _rmGrid_ptr;
     // Image
     std::shared_ptr<rmImageBoard> _image_board_ptr;
     // PointCloud
@@ -79,7 +81,16 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _rm_BaseModel.push_back( _image_board_ptr );
     */
 
-
+    // Grid ground
+    _rmGrid_ptr.reset(new rmGrid(_Assets_path, "map", "base" ) );
+    _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -6.0f, false);
+    _rm_BaseModel.push_back( _rmGrid_ptr );
+    /*
+    // Grid local
+    _rmGrid_ptr.reset(new rmGrid(_Assets_path, "base", "base" ) );
+    _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -3.0f, false, glm::vec3(0.2f, 0.2f, 0.5f));
+    _rm_BaseModel.push_back( _rmGrid_ptr );
+    */
 
 
     // BaseModel
@@ -113,6 +124,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 
     // Sweeping object
     _rm_BaseModel.push_back( std::shared_ptr<rmSweepingObject>(new rmSweepingObject(_Assets_path ) ) );
+
+
 
     /*
     // static image
