@@ -54,6 +54,7 @@ public:
     //
 	void SetWindowSize(int viewport_width, int viewport_height);
     void SetWindowSize(int ld_corner_x, int ld_corner_y, int viewport_width, int viewport_height, int full_window_width, int full_window_height);
+    glm::ivec2 GetViewportSize(){   return glm::ivec2(v_width, v_height); }
     //
     void SwitchGLViewPortAndCleanDraw();
     //
