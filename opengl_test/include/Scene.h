@@ -16,10 +16,14 @@
 #include "rmPointCloud.h"
 #include "rmLidarBoundingBox.h"
 #include "rmImageBoard.h"
-#include "rmText3D.h"
-// The following is not finished yet
-#include "rmSweepingObject.h"
 #include "rmBoundingBox2D.h"
+// The following are not finished yet
+#include "rmSweepingObject.h"
+#include "rmGrid.h"
+#include "rmText2D.h"
+#include "rmText3D.h"
+#include "rmText3D_v2.h"
+
 //
 
 class Scene

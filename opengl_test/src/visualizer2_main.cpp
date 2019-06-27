@@ -66,8 +66,8 @@ void leave_main_loop () {
 
 
 // float	aspect;
-float	windows_width = 800;
-float   windows_height = 600;
+float	windows_width = 1200; // 800;
+float   windows_height = 800; // 600;
 float	timer_interval = 16.0f;
 
 
@@ -170,7 +170,7 @@ void setupGUI()
 
 	TwGLUTModifiersFunc(glutGetModifiers); // <-- This is just for key modifiers
 	bar = TwNewBar("Properties");
-	TwDefine(" Properties size='300 220' ");
+	TwDefine(" Properties size='220 300' ");
 	TwDefine(" Properties fontsize='3' color='0 0 0' alpha=180 ");  // http://anttweakbar.sourceforge.net/doc/tools:anttweakbar:twbarparamsyntax
 
 	TwAddVarRO(bar, "time", TW_TYPE_FLOAT, &m_fps, " label='FPS' help='Frame Per Second(FPS)' ");
@@ -198,10 +198,11 @@ void setupGUI()
 //----------------------------------------------------//
 void My_Init()
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-	// scene_ptr.reset(new Scene(ros_api.get_pkg_path()) );
+    // glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	// glEnable(GL_DEPTH_TEST);
+	// glDepthFunc(GL_LEQUAL);
+
+    // scene_ptr.reset(new Scene(ros_api.get_pkg_path()) );
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W_main(ros_api.get_pkg_path()) ) );
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W0(ros_api.get_pkg_path()) ) );
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W1(ros_api.get_pkg_path()) ) );
@@ -211,6 +212,8 @@ void My_Init()
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W5(ros_api.get_pkg_path()) ) );
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W6(ros_api.get_pkg_path()) ) );
 
+    // Clear background color
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);

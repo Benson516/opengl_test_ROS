@@ -445,6 +445,14 @@ geometry_msgs::TransformStamped ROS_INTERFACE::get_tf(std::string base_fram, std
     is_sucessed = get_tf(base_fram, to_frame, _tf_out, is_time_traveling, lookup_stamp);
     return _tf_out;
 }
+bool ROS_INTERFACE::get_tf(std::string at_frame, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling, ros::Time lookup_stamp ){ // _ref_frame --> at_frame
+    return get_tf(_ref_frame, at_frame, tf_out, is_time_traveling, lookup_stamp);
+}
+geometry_msgs::TransformStamped ROS_INTERFACE::get_tf(std::string at_frame, bool & is_sucessed, bool is_time_traveling, ros::Time lookup_stamp ){ // _ref_frame --> at_frame
+    geometry_msgs::TransformStamped _tf_out;
+    is_sucessed = get_tf(_ref_frame, at_frame, _tf_out, is_time_traveling, lookup_stamp);
+    return _tf_out;
+}
 bool ROS_INTERFACE::get_tf(const int topic_id, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling, ros::Time lookup_stamp){
     // Get the topic param by topic_id
     //------------------------------------//

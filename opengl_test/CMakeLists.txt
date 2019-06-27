@@ -135,9 +135,12 @@ set(ALL_RENDER_MODELS
     ${RENDER_MODEL_PATH}rmPointCloud.cpp
     ${RENDER_MODEL_PATH}rmLidarBoundingBox.cpp
     ${RENDER_MODEL_PATH}rmImageBoard.cpp
+    ${RENDER_MODEL_PATH}rmText2D.cpp
     ${RENDER_MODEL_PATH}rmText3D.cpp
+    ${RENDER_MODEL_PATH}rmText3D_v2.cpp
     ${RENDER_MODEL_PATH}rmSweepingObject.cpp
     ${RENDER_MODEL_PATH}rmBoundingBox2D.cpp
+    ${RENDER_MODEL_PATH}rmGrid.cpp
 
 )
 

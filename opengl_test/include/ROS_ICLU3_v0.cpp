@@ -87,6 +87,18 @@ bool ROS_API::get_any_message(const int topic_id, boost::any & content_out_ptr, 
 
 // Transforms
 //---------------------------------------------------------//
+bool ROS_API::get_tf(std::string base_fram, std::string to_frame, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling){
+    return ros_interface.get_tf(base_fram, to_frame, tf_out, is_time_traveling, ros_interface.get_current_slice_time());
+}
+geometry_msgs::TransformStamped ROS_API::get_tf(std::string base_fram, std::string to_frame, bool & is_sucessed, bool is_time_traveling){
+    return ros_interface.get_tf(base_fram, to_frame, is_sucessed, is_time_traveling, ros_interface.get_current_slice_time());
+}
+bool ROS_API::get_tf(std::string at_frame, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling){
+    return ros_interface.get_tf(at_frame, tf_out, is_time_traveling, ros_interface.get_current_slice_time());
+}
+geometry_msgs::TransformStamped ROS_API::get_tf(std::string at_frame, bool & is_sucessed, bool is_time_traveling){
+    return ros_interface.get_tf(at_frame, is_sucessed, is_time_traveling, ros_interface.get_current_slice_time());
+}
 bool ROS_API::get_tf(const int topic_id, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling){
     return ros_interface.get_tf(topic_id, tf_out, is_time_traveling, msg_time_list[topic_id]);
 }

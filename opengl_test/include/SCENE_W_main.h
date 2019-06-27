@@ -33,12 +33,15 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _pkg_path = (pkg_path_in);
     _Assets_path = (pkg_path_in + "Assets/");
 
+    // Grid
+    std::shared_ptr<rmGrid> _rmGrid_ptr;
     // Image
     std::shared_ptr<rmImageBoard> _image_board_ptr;
     // PointCloud
     std::shared_ptr<rmPointCloud> pc_ptr_1;
     // Text
-    std::shared_ptr<rmText3D> _text3D_ptr;
+    std::shared_ptr<rmText2D> _text2D_ptr;
+    std::shared_ptr<rmText3D_v2> _text3D_ptr;
     // Bounding box 2D
     std::shared_ptr<rmBoundingBox2D> _box2D_ptr;
 
@@ -78,6 +81,17 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _rm_BaseModel.push_back( _image_board_ptr );
     */
 
+    // Grid ground
+    _rmGrid_ptr.reset(new rmGrid(_Assets_path, "map", "base" ) );
+    _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -6.0f, false);
+    _rm_BaseModel.push_back( _rmGrid_ptr );
+    /*
+    // Grid local
+    _rmGrid_ptr.reset(new rmGrid(_Assets_path, "base", "base" ) );
+    _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -3.0f, false, glm::vec3(0.2f, 0.2f, 0.5f));
+    _rm_BaseModel.push_back( _rmGrid_ptr );
+    */
+
 
     // BaseModel
 	std::shared_ptr<rmBaseModel> bottle( new rmBaseModel(_Assets_path, "Potion_bottle.obj", "bottle_mana.png") );
@@ -110,6 +124,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 
     // Sweeping object
     _rm_BaseModel.push_back( std::shared_ptr<rmSweepingObject>(new rmSweepingObject(_Assets_path ) ) );
+
+
 
     /*
     // static image
@@ -225,10 +241,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 
 
 
-
-
-    _text3D_ptr.reset( new rmText3D(_Assets_path, int(MSG_ID::lidar_bounding_box_1) ) );
-    _text3D_ptr->Translate(glm::vec3(10.0f, 0.0f, 5.0f));
+    _text3D_ptr.reset( new rmText3D_v2(_Assets_path, int(MSG_ID::lidar_bounding_box_1) ) );
+    _text3D_ptr->Translate(glm::vec3(1.0f, -2.0f, -2.0f));
     _text3D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _text3D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
     _text3D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
@@ -236,16 +250,24 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     // _text3D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _rm_BaseModel.push_back( _text3D_ptr );
 
+    _text2D_ptr.reset( new rmText2D() );
+    _rm_BaseModel.push_back( _text2D_ptr );
 
-    // test, 400 x "Hello world" --> CPU 104%, GPU 85%
+
+    // test, rmText3D:    400 x "Hello world" --> CPU 104%, GPU 85%
+    // test, rmText3D_v2: 400 x "Hello world" --> CPU 60%, GPU 57%
     /*
     for (size_t i=0; i < 400; ++i){
         std::cout << "i = " << i << "\n";
-        _text3D_ptr.reset( new rmText3D(_Assets_path, int(MSG_ID::lidar_bounding_box_1) ) );
+        _text3D_ptr.reset( new rmText3D_v2(_Assets_path, int(MSG_ID::lidar_bounding_box_1) ) );
         _text3D_ptr->Translate(glm::vec3(0.0f, 0.0f, (6.0f + 1.0f*i) ));
         _rm_BaseModel.push_back( _text3D_ptr );
     }
     */
+
+
+
+
 
 
 }

@@ -252,6 +252,8 @@ public:
     // Get tf
     bool get_tf(std::string base_fram, std::string to_frame, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling=false, ros::Time lookup_stamp=ros::Time::now() );
     geometry_msgs::TransformStamped get_tf(std::string base_fram, std::string to_frame, bool & is_sucessed, bool is_time_traveling=false, ros::Time lookup_stamp=ros::Time::now());
+    bool get_tf(std::string at_frame, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling=false, ros::Time lookup_stamp=ros::Time::now() ); // _ref_frame --> at_frame
+    geometry_msgs::TransformStamped get_tf(std::string at_frame, bool & is_sucessed, bool is_time_traveling=false, ros::Time lookup_stamp=ros::Time::now()); // _ref_frame --> at_frame
     bool get_tf(const int topic_id, geometry_msgs::TransformStamped & tf_out, bool is_time_traveling=false, ros::Time lookup_stamp=ros::Time::now());
     geometry_msgs::TransformStamped get_tf(const int topic_id, bool & is_sucessed, bool is_time_traveling=false, ros::Time lookup_stamp=ros::Time::now());
     //---------------------------------------------------------//
