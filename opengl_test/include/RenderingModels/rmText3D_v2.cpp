@@ -338,29 +338,56 @@ void rmText3D_v2::Update(ROS_API &ros_api){
 
     // test
     static int _count = 0;
-    insert_text( text2D_data( "Hello world: " + std::to_string(_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), glm::vec2(0.0f), glm::vec3(1.0f,1.0f,0.0f) ) );
-
+    insert_text( text2D_data( "Hello world: " + std::to_string(_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), glm::vec2(0.0f), 1.0f, glm::vec3(1.0f,1.0f,0.0f) ) );
+    /*
     for (size_t _k=0; _k < 1000; ++_k){
         insert_text( text2D_data("Text #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec2( 0.0f, float(_k))) );
     }
+    */
 
     //
     insert_text( text3D_data("Text3D") );
     //
     // insert_text( text_billboard_data("The billboard" ));
-    insert_text( text_billboard_data("The billboard\nSecond line\nSeq: " + std::to_string(_count), glm::vec3( 0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec3(1.0f, 0.8f, 0.2f) ) );
+    insert_text(
+        text_billboard_data(
+            "The billboard\nSecond line\nSeq: " + std::to_string(_count),
+            glm::vec3( 0.0f, 0.0f, 0.0f),
+            glm::vec2(0.0f, 0.0f),
+            1.0f,
+            glm::vec3(1.0f, 0.8f, 0.2f),
+            ALIGN_X::RIGHT,
+            ALIGN_Y::CENTER
+        )
+    );
     /*
     for (size_t _k=0; _k < 1000; ++_k){
-        insert_text( text_billboard_data("billboard #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec3( float(_k)*2.0f, 0.0f, 2.0f), glm::vec2(0.0f, 0.0f) ) );
+        insert_text(
+            text_billboard_data(
+                "billboard #" + std::to_string(_k) + ": " + std::to_string(_count),
+                glm::vec3( float(_k)*2.0f, 0.0f, 2.0f),
+                glm::vec2(0.0f, 0.0f)
+            )
+        );
     }
     */
 
+
     //
-    /*
-    for (size_t _k=0; _k < 1000; ++_k){
-        insert_text( text_freeze_board_data("I am freeze board #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec3( float(_k)*20.0f, 0.0f, 10.0f), glm::vec2(0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 1.0f) ) );
+    for (size_t _k=0; _k < 3; ++_k){
+        insert_text(
+            text_freeze_board_data(
+                "I am freeze board #" + std::to_string(_k) + ": " + std::to_string(_count),
+                glm::vec3( float(_k)*20.0f, 0.0f, 10.0f),
+                glm::vec2(0.0f, 0.0f),
+                24,
+                glm::vec3(1.0f, 0.0f, 1.0f),
+                ALIGN_X::CENTER,
+                ALIGN_Y::CENTER
+            )
+        );
     }
-    */
+
     //
     _count++;
     //
@@ -401,7 +428,17 @@ void rmText3D_v2::_draw_one_text2D(std::shared_ptr<ViewManager> &_camera_ptr, te
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
 
     // RenderText("Hello world: " + std::to_string(++_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), a48_ptr, 0.0, 0.0, 1.0, 1.0, glm::vec3(1.0f, 1.0f, 0.0f));
-    RenderText(_data_in.text, a48_ptr, _data_in.position_2D[0], _data_in.position_2D[1], 1.0, 1.0, _data_in.color);
+    RenderText(
+        _data_in.text,
+        a48_ptr,
+        _data_in.position_2D[0],
+        _data_in.position_2D[1],
+        _data_in.size,
+        _data_in.size,
+        _data_in.color,
+        _data_in.align_x,
+        _data_in.align_y
+    );
     //--------------------------------//
 }
 void rmText3D_v2::_draw_one_text3D(std::shared_ptr<ViewManager> &_camera_ptr, text3D_data &_data_in){
@@ -410,7 +447,17 @@ void rmText3D_v2::_draw_one_text3D(std::shared_ptr<ViewManager> &_camera_ptr, te
     glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, _data_in.pose_ref_point) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
     //
-    RenderText(_data_in.text, a48_ptr, -1*(_data_in.offset_ref_point_2D[0]), -1*(_data_in.offset_ref_point_2D[1]), 1.0, 1.0, _data_in.color);
+    RenderText(
+        _data_in.text,
+        a48_ptr,
+        -1*(_data_in.offset_ref_point_2D[0]),
+        -1*(_data_in.offset_ref_point_2D[1]),
+        _data_in.size,
+        _data_in.size,
+        _data_in.color,
+        _data_in.align_x,
+        _data_in.align_y
+    );
     //--------------------------------//
 }
 void rmText3D_v2::_draw_one_text_billboard(std::shared_ptr<ViewManager> &_camera_ptr, text_billboard_data &_data_in){
@@ -425,7 +472,17 @@ void rmText3D_v2::_draw_one_text_billboard(std::shared_ptr<ViewManager> &_camera
     glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, _model_m) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
     //
-    RenderText(_data_in.text, a48_ptr, -1*(_data_in.offset_ref_point_2D[0]), -1*(_data_in.offset_ref_point_2D[1]), 1.0, 1.0, _data_in.color);
+    RenderText(
+        _data_in.text,
+        a48_ptr,
+        -1*(_data_in.offset_ref_point_2D[0]),
+        -1*(_data_in.offset_ref_point_2D[1]),
+        _data_in.size,
+        _data_in.size,
+        _data_in.color,
+        _data_in.align_x,
+        _data_in.align_y
+    );
     //--------------------------------//
 }
 void rmText3D_v2::_draw_one_text_freeze_board(std::shared_ptr<ViewManager> &_camera_ptr, text_freeze_board_data &_data_in){
@@ -436,7 +493,7 @@ void rmText3D_v2::_draw_one_text_freeze_board(std::shared_ptr<ViewManager> &_cam
     // GLfloat _z_ref = (_ref_in_canonical.z);
     GLfloat _z_ref = ( view_m*glm::vec4(_data_in.position_ref_point, 1.0f) ).z;
     // GLfloat _scale = _z_ref / (_camera_ptr->GetProjectionMatrix() )[2][3];
-    GLfloat _scale = _z_ref / (_camera_ptr->GetProjectionMatrix() )[2][3] * 0.05;
+    GLfloat _scale = _z_ref / (_camera_ptr->GetProjectionMatrix() )[2][3] / ( (_camera_ptr->GetViewportSize())[1]/2 );
     //
     view_m[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     glm::mat4 _model_m = glm::transpose(view_m);
@@ -447,7 +504,17 @@ void rmText3D_v2::_draw_one_text_freeze_board(std::shared_ptr<ViewManager> &_cam
     glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, _model_m) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
     //
-    RenderText(_data_in.text, a48_ptr, -1*(_data_in.offset_ref_point_2D[0]), -1*(_data_in.offset_ref_point_2D[1]), 1.0*_scale, 1.0*_scale, _data_in.color);
+    RenderText(
+        _data_in.text,
+        a48_ptr,
+        -1*(_data_in.offset_ref_point_2D[0]),
+        -1*(_data_in.offset_ref_point_2D[1]),
+        1.0*_scale*_data_in.size,
+        1.0*_scale*_data_in.size,
+        _data_in.color,
+        _data_in.align_x,
+        _data_in.align_y
+    );
     //--------------------------------//
 }
 //--------------------------------------------------------//
@@ -457,7 +524,17 @@ void rmText3D_v2::_draw_one_text_freeze_board(std::shared_ptr<ViewManager> &_cam
 
 //-----------------------------------------------//
 // void rmText3D_v2::RenderText(const std::string &text, atlas *_atlas_ptr, float x, float y, float scale_x_in, float scale_y_in, glm::vec3 color) {
-void rmText3D_v2::RenderText(const std::string &text, std::shared_ptr<atlas> &_atlas_ptr, float x_in, float y_in, float scale_x_in, float scale_y_in, glm::vec3 color) {
+void rmText3D_v2::RenderText(
+    const std::string &text,
+    std::shared_ptr<atlas> &_atlas_ptr,
+    float x_in,
+    float y_in,
+    float scale_x_in,
+    float scale_y_in,
+    glm::vec3 color,
+    ALIGN_X align_x,
+    ALIGN_Y align_y
+){
 
     GLfloat scale_x = scale_x_in/GLfloat(_atlas_ptr->font_size);
     GLfloat scale_y = scale_y_in/GLfloat(_atlas_ptr->font_size);
@@ -489,7 +566,6 @@ void rmText3D_v2::RenderText(const std::string &text, std::shared_ptr<atlas> &_a
             x = x_in;
             y -= _atlas_ptr->font_size * scale_y;
             //
-
             _line_count++;
             _word_per_line = 0;
             continue;
@@ -568,8 +644,37 @@ void rmText3D_v2::RenderText(const std::string &text, std::shared_ptr<atlas> &_a
     // Method 2: less precise, using word (per line) count and line count
     float _space_x = 2*(_atlas_ptr->_ch[' '].ax * scale_x);
     float _space_y = _atlas_ptr->font_size * scale_y;
-    ref_point = glm::vec2(_max_word_per_line*_space_x/2.0f, -1*_line_count*_space_y/2.0f);
-
+    //
+    switch (align_x){
+        case ALIGN_X::LEFT:
+            ref_point[0] = 0.0f;
+            break;
+        case ALIGN_X::CENTER:
+            ref_point[0] = _max_word_per_line*_space_x/2.0f;
+            break;
+        case ALIGN_X::RIGHT:
+            ref_point[0] = _max_w;
+            break;
+        default:
+            ref_point[0] = 0.0f;
+            break;
+    }
+    switch (align_y){
+        case ALIGN_Y::TOP:
+            ref_point[1] = 0.0f;
+            break;
+        case ALIGN_Y::CENTER:
+            // ref_point[1] = -1*_line_count*_space_y/2.0f;
+            ref_point[1] = -1*_max_h/2.0f;
+            break;
+        case ALIGN_Y::BUTTON:
+            ref_point[1] = -1*_max_h;
+            break;
+        default:
+            ref_point[1] = 0.0f;
+            break;
+    }
+    // ref_point = glm::vec2(_max_word_per_line*_space_x/2.0f, -1*_line_count*_space_y/2.0f);
     glUniform2f( uniforms.ref_point, ref_point.x, ref_point.y);
 
 
