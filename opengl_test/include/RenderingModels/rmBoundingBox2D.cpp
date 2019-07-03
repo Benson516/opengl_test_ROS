@@ -256,7 +256,7 @@ void rmBoundingBox2D::Render(std::shared_ptr<ViewManager> _camera_ptr){
     }
 
     // Setting
-    // glLineWidth(5.0);
+    glLineWidth(1.0);
 
     // Draw the element according to ebo
     // glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);

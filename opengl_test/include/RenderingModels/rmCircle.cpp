@@ -4,15 +4,13 @@
 
 
 
-rmCircle::rmCircle(std::string _path_Assets_in, int _ROS_topic_id_in):
-    _ROS_topic_id(_ROS_topic_id_in)
-{
+rmCircle::rmCircle(std::string _path_Assets_in){
     _path_Shaders_sub_dir += "Circle/";
     init_paths(_path_Assets_in);
     //
-    _num_vertex_per_box = 1;
-    _max_num_box = 1000;
-    _max_num_vertex = _max_num_box*(long long)(_num_vertex_per_box);
+    _num_vertex_per_shape = 1;
+    _max_num_shape = 1000;
+    _max_num_vertex = _max_num_shape*(long long)(_num_vertex_per_shape);
     //
 	Init();
 }
@@ -21,7 +19,7 @@ void rmCircle::Init(){
 	_program_ptr.reset( new ShaderProgram() );
     // Load shaders
     _program_ptr->AttachShader(get_full_Shader_path("Circle.vs.glsl"), GL_VERTEX_SHADER);
-    _program_ptr->AttachShader(get_full_Shader_path("Circle.gs.glsl"), GL_VERTEX_SHADER);
+    _program_ptr->AttachShader(get_full_Shader_path("Circle.gs.glsl"), GL_GEOMETRY_SHADER);
     _program_ptr->AttachShader(get_full_Shader_path("Circle.fs.glsl"), GL_FRAGMENT_SHADER);
     // Link _program_ptr
 	_program_ptr->LinkProgram();
@@ -34,6 +32,7 @@ void rmCircle::Init(){
     // Init model matrices
 	m_shape.model = glm::mat4(1.0);
     attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
+
 
     //Load model to shader _program_ptr
 	LoadModel();
@@ -51,10 +50,10 @@ void rmCircle::LoadModel(){
 	vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 	size_t _j = 0;
     float radious = 1.0;
-	for (size_t i = 0; i < _max_num_box; i++)
+	for (size_t i = 0; i < _max_num_shape; i++)
 	{
         // Center
-		vertex_ptr[_j].position[0] = 2.0*radious*(i/_num_vertex_per_box);
+		vertex_ptr[_j].position[0] = 2.0*radious*(i/_num_vertex_per_shape);
 		vertex_ptr[_j].position[1] = 0.0f;
 		vertex_ptr[_j].position[2] = 0.0f;
         vertex_ptr[_j].radious     = radious;
@@ -89,7 +88,6 @@ void rmCircle::Update(ROS_INTERFACE &ros_interface){
 
 void rmCircle::Update(ROS_API &ros_api){
     // Update the data (buffer variables) here
-
 }
 
 
@@ -101,18 +99,22 @@ void rmCircle::Render(std::shared_ptr<ViewManager> _camera_ptr){
     // The transformation matrices and projection matrices
     glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
+
+    // Setting
+    glLineWidth(5.0);
     // Draw the element according to ebo
     // glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
     glDrawArrays(GL_POINTS, 0, m_shape.indexCount); // draw part of points
     //--------------------------------//
+    glLineWidth(1.0); // default line width
     _program_ptr->CloseProgram();
 }
 
 
 void rmCircle::update_GL_data(){
     long long num_box = msg_out_ptr->lidRoiBox.size();
-    if (num_box > _max_num_box){
-        num_box = _max_num_box;
+    if (num_box > _max_num_shape){
+        num_box = _max_num_shape;
     }
 
     // vao vbo
@@ -122,7 +124,7 @@ void rmCircle::update_GL_data(){
 
     m_shape.indexCount = num_box;
     vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    // vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_box * _num_vertex_per_box * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+    // vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_box * _num_vertex_per_shape * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     auto * _point_ptr = &(msg_out_ptr->lidRoiBox[0].p0);
     size_t _j = 0;
     for (size_t i = 0; i < num_box; i++)

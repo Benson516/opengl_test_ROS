@@ -3,27 +3,33 @@
 
 #include "rmBaseModel.h"
 
-
+#include <queue>          // std::queue
 
 class rmCircle : public rmBaseModel
 {
 public:
-    rmCircle(std::string _path_Assets_in, int _ROS_topic_id_in);
+    rmCircle(std::string _path_Assets_in);
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
     void Update(ROS_API &ros_api);
 	void Render(std::shared_ptr<ViewManager> _camera_ptr);
 
+    // Insert method for circle
+    //-------------------------------------//
+
+    //-------------------------------------//
+
 protected:
     void Init();
     virtual void LoadModel();
     //
-    int _ROS_topic_id;
+    // int _ROS_topic_id;
     std::shared_ptr< msgs::LidRoi > msg_out_ptr;
     // ros::Time msg_time;
 
     void update_GL_data();
+
 
 private:
     // model info
@@ -46,9 +52,9 @@ private:
         float         radious;
 		glm::vec3     color;
 	};
-    int _num_vertex_per_box;
+    int _num_vertex_per_shape;
     long long _max_num_vertex;
-    long long _max_num_box;
+    long long _max_num_shape;
 
 
 
@@ -59,6 +65,8 @@ private:
 		GLint  proj_matrix;
 	} uniforms;
 
+    // buffer
+    std::queue<vertex_p_c> circle_buffer;
 
 
 };

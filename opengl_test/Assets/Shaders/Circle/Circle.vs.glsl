@@ -1,7 +1,7 @@
 #version 410 core
 
 layout(location = 0) in vec4 position;
-layout(location = 1) in vec4 radious;
+layout(location = 1) in float radious;
 layout(location = 2) in vec4 color;
 
 out VS_OUT
@@ -13,7 +13,7 @@ out VS_OUT
 void main()
 {
 	gl_Position = position;
+    //
     vs_out.radious = radious;
     vs_out.color = color;
-    // vs_out.color.a = 0.3;
 }

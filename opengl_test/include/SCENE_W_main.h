@@ -126,6 +126,10 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _rm_BaseModel.push_back( std::shared_ptr<rmSweepingObject>(new rmSweepingObject(_Assets_path ) ) );
 
 
+    // Circle
+    _rm_BaseModel.push_back( std::shared_ptr<rmCircle>(new rmCircle(_Assets_path ) ) );
+
+
 
     /*
     // static image

@@ -326,6 +326,26 @@ void rmText3D_v2::LoadModel(){
     //----------------------------------------//
 
 
+
+
+
+    // test
+    vector<text_billboard_data> data_test;
+    for (size_t _k=0; _k < 1000; ++_k){
+        data_test.push_back(
+            text_billboard_data(
+                "billboard #" + std::to_string(_k),
+                glm::vec3( float(_k)*2.0f, 0.0f, 2.0f),
+                glm::vec2(0.0f, 0.0f),
+                1.5f,
+                glm::vec3(0.6f)
+            )
+        );
+        insert_text(data_test);
+    }
+    //
+
+
 }
 void rmText3D_v2::Update(float dt){
     // Update the data (buffer variables) here
@@ -395,24 +415,42 @@ void rmText3D_v2::Update(ROS_API &ros_api){
 void rmText3D_v2::Render(std::shared_ptr<ViewManager> _camera_ptr){
     glBindVertexArray(m_shape.vao);
 	_program_ptr->UseProgram();
+    // queues
+    //--------------------------------//
+    while (!text2D_queue.empty()){
+        _draw_one_text2D(_camera_ptr, text2D_queue.front() );
+        text2D_queue.pop();
+    }
+    while (!text3D_queue.empty()){
+        _draw_one_text3D(_camera_ptr, text3D_queue.front() );
+        text3D_queue.pop();
+    }
+    while (!text_billboard_queue.empty()){
+        _draw_one_text_billboard(_camera_ptr, text_billboard_queue.front() );
+        text_billboard_queue.pop();
+    }
+    while (!text_freeze_board_queue.empty()){
+        _draw_one_text_freeze_board(_camera_ptr, text_freeze_board_queue.front() );
+        text_freeze_board_queue.pop();
+    }
+    //--------------------------------//
+
+    // buffers
     //--------------------------------//
     for (size_t i=0; i < text2D_buffer.size(); ++i){
-        _draw_one_text2D(_camera_ptr, text2D_buffer.front() );
-        text2D_buffer.pop();
+        _draw_one_text2D(_camera_ptr, text2D_buffer[i] );
     }
     for (size_t i=0; i < text3D_buffer.size(); ++i){
-        _draw_one_text3D(_camera_ptr, text3D_buffer.front() );
-        text3D_buffer.pop();
+        _draw_one_text3D(_camera_ptr, text3D_buffer[i] );
     }
     for (size_t i=0; i < text_billboard_buffer.size(); ++i){
-        _draw_one_text_billboard(_camera_ptr, text_billboard_buffer.front() );
-        text_billboard_buffer.pop();
+        _draw_one_text_billboard(_camera_ptr, text_billboard_buffer[i] );
     }
     for (size_t i=0; i < text_freeze_board_buffer.size(); ++i){
-        _draw_one_text_freeze_board(_camera_ptr, text_freeze_board_buffer.front() );
-        text_freeze_board_buffer.pop();
+        _draw_one_text_freeze_board(_camera_ptr, text_freeze_board_buffer[i] );
     }
     //--------------------------------//
+
     _program_ptr->CloseProgram();
 }
 

@@ -167,20 +167,38 @@ public:
 	void Render(std::shared_ptr<ViewManager> _camera_ptr);
 
     // Insert method for texts
+    // queues - draw once
     //-------------------------------------//
     inline void insert_text(const text2D_data & data_in ){
-        text2D_buffer.push( data_in );
+        text2D_queue.push( data_in );
     }
     inline void insert_text(const text3D_data & data_in ){
-        text3D_buffer.push( data_in );
+        text3D_queue.push( data_in );
     }
     inline void insert_text(const text_billboard_data & data_in ){
-        text_billboard_buffer.push( data_in );
+        text_billboard_queue.push( data_in );
     }
     inline void insert_text(const text_freeze_board_data & data_in ){
-        text_freeze_board_buffer.push( data_in );
+        text_freeze_board_queue.push( data_in );
     }
     //-------------------------------------//
+
+    // buffers - draw each time until update
+    //-------------------------------------//
+    inline void insert_text(const vector<text2D_data> & data_list_in ){
+        text2D_buffer = data_list_in;
+    }
+    inline void insert_text(const vector<text3D_data> & data_list_in ){
+        text3D_buffer = data_list_in;
+    }
+    inline void insert_text(const vector<text_billboard_data> & data_list_in ){
+        text_billboard_buffer = data_list_in;
+    }
+    inline void insert_text(const vector<text_freeze_board_data> & data_list_in ){
+        text_freeze_board_buffer = data_list_in;
+    }
+    //-------------------------------------//
+
 
 protected:
     void Init();
@@ -254,11 +272,18 @@ private:
 
 
     //
-
-    std::queue<text2D_data> text2D_buffer;
-    std::queue<text3D_data> text3D_buffer;
-    std::queue<text_billboard_data> text_billboard_buffer;
-    std::queue<text_freeze_board_data> text_freeze_board_buffer;
+    //------------------------------------------//
+    // queues - only draw on time
+    std::queue<text2D_data> text2D_queue;
+    std::queue<text3D_data> text3D_queue;
+    std::queue<text_billboard_data> text_billboard_queue;
+    std::queue<text_freeze_board_data> text_freeze_board_queue;
+    // buffers - draw each time
+    std::vector<text2D_data> text2D_buffer;
+    std::vector<text3D_data> text3D_buffer;
+    std::vector<text_billboard_data> text_billboard_buffer;
+    std::vector<text_freeze_board_data> text_freeze_board_buffer;
+    //------------------------------------------//
 
 
 
