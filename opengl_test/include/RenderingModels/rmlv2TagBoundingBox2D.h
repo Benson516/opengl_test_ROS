@@ -1,14 +1,14 @@
-#ifndef RM_L2_TAG_BOUNDINGBOX_2D_H
-#define RM_L2_TAG_BOUNDINGBOX_2D_H
+#ifndef RM_LV2_TAG_BOUNDINGBOX_2D_H
+#define RM_LV2_TAG_BOUNDINGBOX_2D_H
 
 #include "rmBaseModel.h"
 
 
 
-class rmL2TagBoundingBox2D : public rmBaseModel
+class rmlv2TagBoundingBox2D : public rmBaseModel
 {
 public:
-    rmL2TagBoundingBox2D(
+    rmlv2TagBoundingBox2D(
         std::string _path_Assets_in,
         int _ROS_topic_id_in,
         bool is_perspected_in=true,
@@ -125,4 +125,4 @@ private:
 
 };
 
-#endif // RM_L2_TAG_BOUNDINGBOX_2D_H
+#endif // RM_LV2_TAG_BOUNDINGBOX_2D_H

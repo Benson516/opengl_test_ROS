@@ -3,7 +3,7 @@
 
 #include "rmBaseModel.h"
 
-
+#include <queue>          // std::queue
 
 
 
@@ -70,7 +70,10 @@ public:
         text2D_buffer.push( data_in );
     }
     //-------------------------------------//
-    
+
+
+    void _draw_one_text2D(std::shared_ptr<ViewManager> &_camera_ptr, text2D_data &_data_in);
+
 protected:
     void Init();
     virtual void LoadModel();

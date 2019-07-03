@@ -62,8 +62,8 @@ void rmText2D::_draw_one_text2D(std::shared_ptr<ViewManager> &_camera_ptr, text2
     int _max_word_per_line = 0;
     int _word_per_line = 0;
     // Counting lines
-    for (size_t i = 0; i < string_in.size(); i++) {
-      if (string_in[i] == '\n'){
+    for (size_t i = 0; i < _data_in.text.size(); i++) {
+      if (_data_in.text[i] == '\n'){
           _line_count++;
           _word_per_line = 0;
       }else{

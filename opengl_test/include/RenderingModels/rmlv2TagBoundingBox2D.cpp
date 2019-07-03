@@ -1,4 +1,4 @@
-#include "rmL2TagBoundingBox2D.h"
+#include "rmlv2TagBoundingBox2D.h"
 
 // Predefined colors
 //-------------------------------------------//
@@ -36,7 +36,7 @@ namespace rmLidarBoundingBox_ns{
 
 
 
-rmL2TagBoundingBox2D::rmL2TagBoundingBox2D(
+rmlv2TagBoundingBox2D::rmlv2TagBoundingBox2D(
     std::string _path_Assets_in,
     int _ROS_topic_id_in,
     bool is_perspected_in,
@@ -59,7 +59,7 @@ rmL2TagBoundingBox2D::rmL2TagBoundingBox2D(
     //
 	Init();
 }
-void rmL2TagBoundingBox2D::Init(){
+void rmlv2TagBoundingBox2D::Init(){
     //
 	_program_ptr.reset( new ShaderProgram() );
     // Load shaders
@@ -100,7 +100,7 @@ void rmL2TagBoundingBox2D::Init(){
 	LoadModel();
 
 }
-void rmL2TagBoundingBox2D::LoadModel(){
+void rmlv2TagBoundingBox2D::LoadModel(){
     glGenVertexArrays(1, &m_shape.vao);
 	glBindVertexArray(m_shape.vao);
 
@@ -157,10 +157,10 @@ void rmL2TagBoundingBox2D::LoadModel(){
 
 
 }
-void rmL2TagBoundingBox2D::Update(float dt){
+void rmlv2TagBoundingBox2D::Update(float dt){
     // Update the data (buffer variables) here
 }
-void rmL2TagBoundingBox2D::Update(ROS_INTERFACE &ros_interface){
+void rmlv2TagBoundingBox2D::Update(ROS_INTERFACE &ros_interface){
     // Update the data (buffer variables) here
 
     // test, use transform
@@ -185,7 +185,7 @@ void rmL2TagBoundingBox2D::Update(ROS_INTERFACE &ros_interface){
 
 }
 
-void rmL2TagBoundingBox2D::Update(ROS_API &ros_api){
+void rmlv2TagBoundingBox2D::Update(ROS_API &ros_api){
     // Update the data (buffer variables) here
     // test, use transform
     ros::Time msg_time;
@@ -231,7 +231,7 @@ void rmL2TagBoundingBox2D::Update(ROS_API &ros_api){
 }
 
 
-void rmL2TagBoundingBox2D::Render(std::shared_ptr<ViewManager> _camera_ptr){
+void rmlv2TagBoundingBox2D::Render(std::shared_ptr<ViewManager> _camera_ptr){
 
     glBindVertexArray(m_shape.vao);
 
