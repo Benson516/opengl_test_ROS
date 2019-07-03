@@ -140,10 +140,12 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
     _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
-    _image_board_ptr->Scale( glm::vec3(3.5f));
-    _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    _image_board_ptr->setBoardSize(2.0, false);
+    // _image_board_ptr->Scale( glm::vec3(3.5f));
+    // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _rm_BaseModel.push_back( _image_board_ptr );
     */
+
 
     // Dynamic image, front-center camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_1), true, true, false) );
@@ -152,8 +154,9 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
     _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
-    _image_board_ptr->Scale( glm::vec3(3.5f));
-    _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    _image_board_ptr->setBoardSize(2.0, false);
+    // _image_board_ptr->Scale( glm::vec3(3.5f));
+    // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _image_board_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Bounding box for front-center camera
@@ -177,8 +180,9 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
     _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
-    _image_board_ptr->Scale( glm::vec3(3.5f));
-    _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    _image_board_ptr->setBoardSize(2.0, false);
+    // _image_board_ptr->Scale( glm::vec3(3.5f));
+    // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _image_board_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Bounding box for front-right camera
@@ -202,8 +206,9 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
     _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
-    _image_board_ptr->Scale( glm::vec3(3.5f));
-    _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    _image_board_ptr->setBoardSize(2.0, false);
+    // _image_board_ptr->Scale( glm::vec3(3.5f));
+    // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _image_board_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Bounding box for front-left camera
@@ -228,8 +233,9 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
     _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
-    _image_board_ptr->Scale( glm::vec3(3.5f));
-    _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    _image_board_ptr->setBoardSize(2.0, false);
+    // _image_board_ptr->Scale( glm::vec3(3.5f));
+    // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _image_board_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Bounding box for front-left camera
