@@ -68,7 +68,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     */
 
 
-
+    /*
     // Top-level top-centered back image (dynamic) <-- "Rear-sight mirror"
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_8), false, true, true) );
     _image_board_ptr->alpha = 1.0;
@@ -80,6 +80,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     // _image_board_ptr->Scale( glm::vec3(0.2f, 0.2f, 0.5f));
     _image_board_ptr->setBoardSizeRatio(0.2, false);
     _rm_BaseModel.push_back( _image_board_ptr );
+    */
 
 
     // Grid ground

@@ -79,7 +79,7 @@ protected:
     float board_height; // meter
     float board_aspect_ratio; // w/h
     int board_shape_mode;
-    glm::vec2 _viewport_size; // (w,h)
+    glm::ivec2 _viewport_size; // (w,h)
     // mode:
     // 0 - fixed size
     // 1 - fixed width

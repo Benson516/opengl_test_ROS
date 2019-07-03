@@ -253,7 +253,7 @@ void rmImageBoard::Render(std::shared_ptr<ViewManager> &_camera_ptr){
         glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
     }else{
         if (is_moveable){
-            if (_viewport_size != _camera_ptr->GetViewportSize() ){
+            if ( !glm::all(glm::equal(_viewport_size, _camera_ptr->GetViewportSize() ) ) ){
                 _viewport_size = _camera_ptr->GetViewportSize();
                 updateBoardSize();
             }
@@ -338,7 +338,7 @@ void rmImageBoard::setBoardSize(float size_in, bool is_width){ // Using the aspe
     //
     m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
 }
-void setBoardSizeRatio(float ratio_in, bool is_width){ // Only use when is_perspected==false is_moveable==true
+void rmImageBoard::setBoardSizeRatio(float ratio_in, bool is_width){ // Only use when is_perspected==false is_moveable==true
     board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
     if (is_width){
         board_shape_mode = 3;
