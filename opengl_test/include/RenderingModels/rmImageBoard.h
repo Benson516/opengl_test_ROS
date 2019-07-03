@@ -50,9 +50,13 @@ public:
 	void Render(std::shared_ptr<ViewManager> _camera_ptr);
 
     // Color transform
-    float _alpha;
-    glm::vec4 _color_transform;
+    float alpha;
+    glm::vec4 color_transform;
 
+
+    void setBoardSize(float width_in, float height_in);
+    void setBoardSize(float size_in, bool is_width); // Using the aspect ratio from pixel data
+    void updateBoardSize();
     // TIME_STAMP::FPS fps_of_update;
 
 protected:
@@ -70,8 +74,14 @@ protected:
     bool is_dynamically_updated;
 
     // Params
-    int im_width;
-    int im_height;
+    float board_width; // meter
+    float board_height; // meter
+    float board_aspect_ratio; // w/h
+    int board_shape_mode;
+    // mode:
+    // 0 - fixed size
+    // 1 - fixed width
+    // 2 - fixed height
 
     void update_GL_data();
 
@@ -86,6 +96,7 @@ private:
         size_t width;
         size_t height;
         //
+        glm::mat4 shape;
         glm::mat4 model;
     };
     Shape m_shape;
