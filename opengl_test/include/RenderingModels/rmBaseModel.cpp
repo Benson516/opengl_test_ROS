@@ -6,16 +6,14 @@ rmBaseModel::rmBaseModel():
     //       However, each serived class can modify this on their own.
     _path_Assets_sub_dir(""),
     _path_Shaders_sub_dir("Shaders/"),
-    _pose_modle_ref_by_world(1.0f), _tmp_pose_model_by_model_ref(1.0f),
-    _pose_model_by_model_ref_ptr(&_tmp_pose_model_by_model_ref)
+    _pose_modle_ref_by_world(1.0f), _tmp_pose_model_by_model_ref(1.0f)
 {
     // The derived class will call this instead of the other constructor if we don't add the constructor in field of derived class.
 }
 rmBaseModel::rmBaseModel(std::string _path_Assets_in):
     _path_Assets_sub_dir(""),
     _path_Shaders_sub_dir("Shaders/"),
-    _pose_modle_ref_by_world(1.0f), _tmp_pose_model_by_model_ref(1.0f),
-    _pose_model_by_model_ref_ptr(&_tmp_pose_model_by_model_ref)
+    _pose_modle_ref_by_world(1.0f), _tmp_pose_model_by_model_ref(1.0f)
 {
     init_paths(_path_Assets_in);
 	Init();
@@ -23,8 +21,7 @@ rmBaseModel::rmBaseModel(std::string _path_Assets_in):
 rmBaseModel::rmBaseModel(std::string _path_Assets_in, std::string modelFile, std::string textFile):
     _path_Assets_sub_dir(""),
     _path_Shaders_sub_dir("Shaders/"),
-    _pose_modle_ref_by_world(1.0f), _tmp_pose_model_by_model_ref(1.0f),
-    _pose_model_by_model_ref_ptr(&_tmp_pose_model_by_model_ref)
+    _pose_modle_ref_by_world(1.0f), _tmp_pose_model_by_model_ref(1.0f)
 {
     init_paths(_path_Assets_in);
     objName = modelFile;
@@ -180,28 +177,37 @@ void rmBaseModel::Scale(const glm::vec3 &vec){
 // "Pre-" operations
 void rmBaseModel::preTranslate(const glm::vec3 &vec){
 	translateMatrix = translate(translateMatrix, vec);
-    *_pose_model_by_model_ref_ptr = translateMatrix * rotateMatrix * scaleMatrix;
+    update_pose_model_by_model_ref();
 }
 void rmBaseModel::preRotate(const glm::vec3 &axis, float angle){
 	rotateMatrix = rotate(rotateMatrix, angle, axis);
-    *_pose_model_by_model_ref_ptr = translateMatrix * rotateMatrix * scaleMatrix;
+    update_pose_model_by_model_ref();
 }
 void rmBaseModel::preScale(const glm::vec3 &vec){
 	scaleMatrix = scale(scaleMatrix, vec);
-    *_pose_model_by_model_ref_ptr = translateMatrix * rotateMatrix * scaleMatrix;
+    update_pose_model_by_model_ref();
 }
 // "Post-" operations
 void rmBaseModel::postTranslate(const glm::vec3 &vec){
 	translateMatrix = translate(glm::mat4(1.0), vec) * translateMatrix;
-    *_pose_model_by_model_ref_ptr = translateMatrix * rotateMatrix * scaleMatrix;
+    update_pose_model_by_model_ref();
 }
 void rmBaseModel::postRotate(const glm::vec3 &axis, float angle){
 	rotateMatrix = rotate(glm::mat4(1.0), angle, axis) * rotateMatrix;
-    *_pose_model_by_model_ref_ptr = translateMatrix * rotateMatrix * scaleMatrix;
+    update_pose_model_by_model_ref();
 }
 void rmBaseModel::postScale(const glm::vec3 &vec){
 	scaleMatrix = scale(glm::mat4(1.0), vec) * scaleMatrix;
-    *_pose_model_by_model_ref_ptr = translateMatrix * rotateMatrix * scaleMatrix;
+    update_pose_model_by_model_ref();
+}
+//
+void rmBaseModel::update_pose_model_by_model_ref(){
+    if (_pose_model_by_model_ref_ptr_list.size() > 0){
+        glm::mat4 _tmp_m = translateMatrix * rotateMatrix * scaleMatrix;
+        for (size_t i=0; i < _pose_model_by_model_ref_ptr_list.size(); ++i){
+            *(_pose_model_by_model_ref_ptr_list[i]) = _tmp_m;
+        }
+    }
 }
 //------------------------------------------------//
 void rmBaseModel::set_pose_modle_ref_by_world(glm::mat4 pose_in){
