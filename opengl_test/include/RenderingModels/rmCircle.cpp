@@ -44,10 +44,10 @@ void rmCircle::LoadModel(){
 
     glGenBuffers(1, &m_shape.vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo);
-    glBufferData(GL_ARRAY_BUFFER, _max_num_vertex * sizeof(vertex_p_c), NULL, GL_DYNAMIC_DRAW); // test, change to dynamic draw to assign point cloud
+    glBufferData(GL_ARRAY_BUFFER, _max_num_vertex * sizeof(circle_data), NULL, GL_DYNAMIC_DRAW); // test, change to dynamic draw to assign point cloud
     // Directly assign data to memory of GPU
     //--------------------------------------------//
-	vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+	circle_data * vertex_ptr = (circle_data *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(circle_data), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 	size_t _j = 0;
     float radious = 1.0;
 	for (size_t i = 0; i < _max_num_shape; i++)
@@ -65,9 +65,9 @@ void rmCircle::LoadModel(){
 	glUnmapBuffer(GL_ARRAY_BUFFER);
     //--------------------------------------------//
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_p_c), NULL);
-    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(vertex_p_c), (void *)(sizeof(glm::vec3) )  );
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_p_c), (void *)(sizeof(glm::vec3) + sizeof(float) )  );
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(circle_data), NULL);
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(circle_data), (void *)(sizeof(glm::vec3) )  );
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(circle_data), (void *)(sizeof(glm::vec3) + sizeof(float) )  );
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
@@ -75,6 +75,23 @@ void rmCircle::LoadModel(){
     m_shape.indexCount = _max_num_vertex;
     //--------------------------------------------//
 
+
+    /*
+    // test
+    vector<circle_data> data_test;
+    float __radious = 0.5;
+    for (size_t _k=0; _k < 10; ++_k){
+        data_test.push_back(
+            circle_data(
+                glm::vec3(10.0f, -2.0*__radious*(_k/_num_vertex_per_shape), 0.0f),
+                __radious,
+                glm::vec3(0.6f, 0.6f, 0.2f)
+            )
+        );
+        insert_circle(data_test);
+    }
+    //
+    */
 
 
 
@@ -111,10 +128,14 @@ void rmCircle::Render(std::shared_ptr<ViewManager> _camera_ptr){
 }
 
 
-void rmCircle::update_GL_data(){
-    long long num_box = msg_out_ptr->lidRoiBox.size();
-    if (num_box > _max_num_shape){
-        num_box = _max_num_shape;
+
+
+// Insert method for circle
+//-------------------------------------//
+void rmCircle::insert_circle(const vector<circle_data> & data_list_in ){
+    long long num_shape = data_list_in.size();
+    if (num_shape > _max_num_shape){
+        num_shape = _max_num_shape;
     }
 
     // vao vbo
@@ -122,14 +143,15 @@ void rmCircle::update_GL_data(){
     glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
 
 
-    m_shape.indexCount = num_box;
-    vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    // vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_box * _num_vertex_per_shape * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    auto * _point_ptr = &(msg_out_ptr->lidRoiBox[0].p0);
+    m_shape.indexCount = num_shape * _num_vertex_per_shape;
+    circle_data * vertex_ptr = (circle_data *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_shape * _num_vertex_per_shape * sizeof(circle_data), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+    // circle_data * vertex_ptr = (circle_data *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_shape * _num_vertex_per_shape * sizeof(circle_data), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     size_t _j = 0;
-    for (size_t i = 0; i < num_box; i++)
+    for (size_t i = 0; i < (num_shape*_num_vertex_per_shape); i++)
     {
-            //
+        //
+        vertex_ptr[i] = data_list_in[i];
     }
     glUnmapBuffer(GL_ARRAY_BUFFER);
 }
+//-------------------------------------//

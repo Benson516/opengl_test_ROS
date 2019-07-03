@@ -178,9 +178,7 @@ namespace rmLidarBoundingBox_ns{
 
 
 
-rmText3D_v2::rmText3D_v2(std::string _path_Assets_in, int _ROS_topic_id_in):
-    _ROS_topic_id(_ROS_topic_id_in)
-{
+rmText3D_v2::rmText3D_v2(std::string _path_Assets_in){
     init_paths(_path_Assets_in);
     _num_vertex_idx_per_box = (3*2);
     _num_vertex_per_box = 4; // 8;
@@ -328,7 +326,7 @@ void rmText3D_v2::LoadModel(){
 
 
 
-
+    /*
     // test
     vector<text_billboard_data> data_test;
     for (size_t _k=0; _k < 1000; ++_k){
@@ -344,6 +342,7 @@ void rmText3D_v2::LoadModel(){
         insert_text(data_test);
     }
     //
+    */
 
 
 }
@@ -355,6 +354,7 @@ void rmText3D_v2::Update(ROS_INTERFACE &ros_interface){
 }
 void rmText3D_v2::Update(ROS_API &ros_api){
     // Update the data (buffer variables) here
+
 
     // test
     static int _count = 0;
@@ -397,7 +397,7 @@ void rmText3D_v2::Update(ROS_API &ros_api){
     for (size_t _k=0; _k < 3; ++_k){
         insert_text(
             text_freeze_board_data(
-                "I am freeze board #" + std::to_string(_k) + ": " + std::to_string(_count),
+                "I am freezed board #" + std::to_string(_k) + ": " + std::to_string(_count),
                 glm::vec3( float(_k)*20.0f, 0.0f, 10.0f),
                 glm::vec2(0.0f, 0.0f),
                 24,

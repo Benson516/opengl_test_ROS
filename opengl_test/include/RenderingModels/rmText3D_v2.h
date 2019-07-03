@@ -159,7 +159,7 @@ public:
 
 
 
-    rmText3D_v2(std::string _path_Assets_in, int _ROS_topic_id_in);
+    rmText3D_v2(std::string _path_Assets_in);
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
@@ -185,16 +185,16 @@ public:
 
     // buffers - draw each time until update
     //-------------------------------------//
-    inline void insert_text(const vector<text2D_data> & data_list_in ){
+    inline void insert_text(const std::vector<text2D_data> & data_list_in ){
         text2D_buffer = data_list_in;
     }
-    inline void insert_text(const vector<text3D_data> & data_list_in ){
+    inline void insert_text(const std::vector<text3D_data> & data_list_in ){
         text3D_buffer = data_list_in;
     }
-    inline void insert_text(const vector<text_billboard_data> & data_list_in ){
+    inline void insert_text(const std::vector<text_billboard_data> & data_list_in ){
         text_billboard_buffer = data_list_in;
     }
-    inline void insert_text(const vector<text_freeze_board_data> & data_list_in ){
+    inline void insert_text(const std::vector<text_freeze_board_data> & data_list_in ){
         text_freeze_board_buffer = data_list_in;
     }
     //-------------------------------------//

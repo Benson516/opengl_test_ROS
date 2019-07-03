@@ -245,7 +245,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 
 
 
-    _text3D_ptr.reset( new rmText3D_v2(_Assets_path, int(MSG_ID::lidar_bounding_box_1) ) );
+    _text3D_ptr.reset( new rmText3D_v2(_Assets_path ) );
     _text3D_ptr->Translate(glm::vec3(1.0f, -2.0f, -2.0f));
     _text3D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _text3D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -263,7 +263,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     /*
     for (size_t i=0; i < 400; ++i){
         std::cout << "i = " << i << "\n";
-        _text3D_ptr.reset( new rmText3D_v2(_Assets_path, int(MSG_ID::lidar_bounding_box_1) ) );
+        _text3D_ptr.reset( new rmText3D_v2(_Assets_path ) );
         _text3D_ptr->Translate(glm::vec3(0.0f, 0.0f, (6.0f + 1.0f*i) ));
         _rm_BaseModel.push_back( _text3D_ptr );
     }

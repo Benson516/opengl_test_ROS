@@ -8,6 +8,25 @@
 class rmCircle : public rmBaseModel
 {
 public:
+
+    // The structure for point
+    struct circle_data
+	{
+		glm::vec3     position;
+        float         radious;
+		glm::vec3     color;
+        circle_data(
+            glm::vec3     position_in=glm::vec3(0.0f),
+            float         radious_in=1.0f,
+    		glm::vec3     color_in=glm::vec3(1.0f)
+        ):
+            position(position_in),
+            radious(radious_in),
+            color(color_in)
+        {}
+	};
+
+
     rmCircle(std::string _path_Assets_in);
     //
 	void Update(float dt);
@@ -17,7 +36,7 @@ public:
 
     // Insert method for circle
     //-------------------------------------//
-
+    void insert_circle(const vector<circle_data> & data_list_in );
     //-------------------------------------//
 
 protected:
@@ -27,8 +46,6 @@ protected:
     // int _ROS_topic_id;
     std::shared_ptr< msgs::LidRoi > msg_out_ptr;
     // ros::Time msg_time;
-
-    void update_GL_data();
 
 
 private:
@@ -45,13 +62,7 @@ private:
     };
     Shape m_shape;
 
-    // The structure for point
-    struct vertex_p_c
-	{
-		glm::vec3     position;
-        float         radious;
-		glm::vec3     color;
-	};
+
     int _num_vertex_per_shape;
     long long _max_num_vertex;
     long long _max_num_shape;
@@ -66,7 +77,7 @@ private:
 	} uniforms;
 
     // buffer
-    std::queue<vertex_p_c> circle_buffer;
+    std::vector<circle_data> circle_buffer;
 
 
 };

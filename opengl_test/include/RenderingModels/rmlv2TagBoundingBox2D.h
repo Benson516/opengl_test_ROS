@@ -3,6 +3,9 @@
 
 #include "rmBaseModel.h"
 
+//
+#include "rmBoundingBox2D.h"
+#include "rmText3D_v2.h"
 
 
 class rmlv2TagBoundingBox2D : public rmBaseModel
@@ -26,7 +29,6 @@ public:
 
 protected:
     void Init();
-    virtual void LoadModel();
     //
     int _ROS_topic_id;
     std::shared_ptr< msgs::CamObj > msg_out_ptr;
@@ -36,21 +38,13 @@ protected:
     bool is_perspected;
     bool is_moveable;
 
+    //
+    rmBoundingBox2D rm_box;
+    rmText3D_v2 rm_text;
 
 private:
 
 
-    // The structure for point
-    struct vertex_p_c_2D
-	{
-		glm::vec2     position;
-		glm::vec3     color;
-	};
-    int _num_vertex_idx_per_box;
-    long long _max_num_vertex_idx;
-    int _num_vertex_per_box;
-    long long _max_num_vertex;
-    long long _max_num_box;
 
 
 
