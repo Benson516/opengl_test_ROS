@@ -6,14 +6,6 @@ rmModelLoaderObj::rmModelLoaderObj(std::string _path_Assets_in, std::string mode
     textName = textFile;
 	Init();
 }
-rmModelLoaderObj::rmModelLoaderObj(std::string _path_Assets_in, int _ROS_topic_id_in):
-    _ROS_topic_id(_ROS_topic_id_in),
-    fps_of_update( std::string("PC ") + std::to_string(_ROS_topic_id_in) )
-{
-    init_paths(_path_Assets_in);
-    _max_num_vertex = 5000000; // 5*10^6 // 100000;
-	Init();
-}
 void rmModelLoaderObj::Init(){
     //
 	_program_ptr.reset( new ShaderProgram() );
