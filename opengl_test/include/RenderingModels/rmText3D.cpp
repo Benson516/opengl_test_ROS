@@ -141,7 +141,7 @@ void rmText3D::Update(ROS_INTERFACE &ros_interface){
 void rmText3D::Update(ROS_API &ros_api){
     // Update the data (buffer variables) here
 }
-void rmText3D::Render(std::shared_ptr<ViewManager> _camera_ptr){
+void rmText3D::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
     glBindVertexArray(m_shape.vao);
 

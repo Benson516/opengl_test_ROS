@@ -412,7 +412,7 @@ void rmText3D_v2::Update(ROS_API &ros_api){
     _count++;
     //
 }
-void rmText3D_v2::Render(std::shared_ptr<ViewManager> _camera_ptr){
+void rmText3D_v2::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     glBindVertexArray(m_shape.vao);
 	_program_ptr->UseProgram();
     // queues

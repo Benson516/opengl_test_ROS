@@ -68,7 +68,7 @@ void rmlv2TagBoundingBox2D::Update(ROS_API &ros_api){
 }
 
 
-void rmlv2TagBoundingBox2D::Render(std::shared_ptr<ViewManager> _camera_ptr){
+void rmlv2TagBoundingBox2D::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
     rm_box.Render(_camera_ptr);
     rm_text.Render(_camera_ptr);

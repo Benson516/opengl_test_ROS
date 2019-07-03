@@ -114,7 +114,7 @@ void rmModelLoaderObj::Update(ROS_API &ros_api){
 }
 
 
-void rmModelLoaderObj::Render(std::shared_ptr<ViewManager> _camera_ptr){
+void rmModelLoaderObj::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     //Update shaders' input variable
     ///////////////////////////
     glBindVertexArray(m_shape.vao);

@@ -18,7 +18,7 @@ public:
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
     void Update(ROS_API &ros_api);
-	void Render(std::shared_ptr<ViewManager> _camera_ptr);
+	void Render(std::shared_ptr<ViewManager> &_camera_ptr);
 
     void setup_params(int im_width_in, int im_height_in, int image_offset_in_box_cv_x_in, int image_offset_in_box_cv_y_in){
         im_width = im_width_in;

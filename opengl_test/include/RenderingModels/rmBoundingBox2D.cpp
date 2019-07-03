@@ -231,7 +231,7 @@ void rmBoundingBox2D::Update(ROS_API &ros_api){
 }
 
 
-void rmBoundingBox2D::Render(std::shared_ptr<ViewManager> _camera_ptr){
+void rmBoundingBox2D::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
     glBindVertexArray(m_shape.vao);
 

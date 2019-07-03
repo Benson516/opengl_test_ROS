@@ -108,7 +108,7 @@ void rmCircle::Update(ROS_API &ros_api){
 }
 
 
-void rmCircle::Render(std::shared_ptr<ViewManager> _camera_ptr){
+void rmCircle::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
     glBindVertexArray(m_shape.vao);
 

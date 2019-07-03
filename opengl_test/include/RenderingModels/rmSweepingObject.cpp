@@ -225,7 +225,7 @@ void rmSweepingObject::Update(ROS_API &ros_api){
 }
 
 
-void rmSweepingObject::Render(std::shared_ptr<ViewManager> _camera_ptr){
+void rmSweepingObject::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
     glBindVertexArray(m_shape.vao);
 

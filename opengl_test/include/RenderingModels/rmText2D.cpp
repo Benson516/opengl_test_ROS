@@ -44,7 +44,7 @@ void rmText2D::Update(ROS_API &ros_api){
     insert_text( text2D_data( "This is 2D text: " + std::to_string(_count), glm::vec2(0.5, 0.8) ) );
     _count++;
 }
-void rmText2D::Render(std::shared_ptr<ViewManager> _camera_ptr){
+void rmText2D::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     // test
     // static int _count = 0;
     //
@@ -82,7 +82,7 @@ void rmText2D::_draw_one_text2D(std::shared_ptr<ViewManager> &_camera_ptr, text2
     }
     //
     */
-    
+
     text2D_output(_data_in.position_2D.x, _data_in.position_2D.y, _data_in.text);
 }
 //--------------------------------------------------------//

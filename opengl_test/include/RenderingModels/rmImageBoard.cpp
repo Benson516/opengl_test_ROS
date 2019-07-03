@@ -240,7 +240,7 @@ void rmImageBoard::Update(ROS_API &ros_api){
 }
 
 
-void rmImageBoard::Render(std::shared_ptr<ViewManager> _camera_ptr){
+void rmImageBoard::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
     glBindVertexArray(m_shape.vao);
 	_program_ptr->UseProgram();

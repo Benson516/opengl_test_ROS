@@ -164,7 +164,7 @@ public:
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
     void Update(ROS_API &ros_api);
-	void Render(std::shared_ptr<ViewManager> _camera_ptr);
+	void Render(std::shared_ptr<ViewManager> &_camera_ptr);
 
     // Insert method for texts
     // queues - draw once

@@ -161,7 +161,7 @@ void rmPointCloud::Update(ROS_API &ros_api){
 }
 
 
-void rmPointCloud::Render(std::shared_ptr<ViewManager> _camera_ptr){
+void rmPointCloud::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
     glBindVertexArray(m_shape.vao);
 	_program_ptr->UseProgram();

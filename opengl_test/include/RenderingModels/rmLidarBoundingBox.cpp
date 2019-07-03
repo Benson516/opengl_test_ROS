@@ -184,7 +184,7 @@ void rmLidarBoundingBox::Update(ROS_API &ros_api){
 }
 
 
-void rmLidarBoundingBox::Render(std::shared_ptr<ViewManager> _camera_ptr){
+void rmLidarBoundingBox::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
     glBindVertexArray(m_shape.vao);
 

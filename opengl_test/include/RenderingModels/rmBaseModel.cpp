@@ -148,7 +148,7 @@ void rmBaseModel::Update(ROS_INTERFACE &ros_interface){
 void rmBaseModel::Update(ROS_API &ros_api){
     // Update the data (buffer variables) here
 }
-void rmBaseModel::Render(std::shared_ptr<ViewManager> _camera_ptr){
+void rmBaseModel::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 	//Update shaders' input variable
 	///////////////////////////
 	glBindVertexArray(m_shape.vao);
