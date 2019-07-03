@@ -21,24 +21,24 @@ Scene::Scene(std::string pkg_path_in):
     /*
     // Back ground image (static)
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, "view_3.jpg", false, false, true) );
-    _image_board_ptr->_alpha = 1.0;
-    _image_board_ptr->_color_transform = glm::vec4(1.0f);
+    _image_board_ptr->alpha = 1.0;
+    _image_board_ptr->color_transform = glm::vec4(1.0f);
     _rm_BaseModel.push_back( _image_board_ptr );
     */
 
     /*
     // Back ground image (dynamic) front camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_1), false, false, true) );
-    _image_board_ptr->_alpha = 1.0;
-    _image_board_ptr->_color_transform = glm::vec4(1.0f);
+    _image_board_ptr->alpha = 1.0;
+    _image_board_ptr->color_transform = glm::vec4(1.0f);
     _rm_BaseModel.push_back( _image_board_ptr );
     */
 
     /*
     // Top-level top-centered image (dynamic) <-- "Rear-sight mirror"
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_8), false, true, true) );
-    _image_board_ptr->_alpha = 1.0;
-    _image_board_ptr->_color_transform = glm::vec4(1.0f);
+    _image_board_ptr->alpha = 1.0;
+    _image_board_ptr->color_transform = glm::vec4(1.0f);
     // _image_board_ptr->Translate(glm::vec3(0.0f, 0.0f, 1.0f)); // Move to ackground
     _image_board_ptr->Translate(glm::vec3(0.0f, 0.8f, 0.0f)); // Move to up-center
     _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI); // Flip vertically
@@ -97,7 +97,7 @@ Scene::Scene(std::string pkg_path_in):
     _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
     _image_board_ptr->Scale( glm::vec3(3.5f));
     _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    _image_board_ptr->_alpha = 0.7;
+    _image_board_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
 
     // Dynamic image, front-left camera
@@ -109,7 +109,7 @@ Scene::Scene(std::string pkg_path_in):
     _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
     _image_board_ptr->Scale( glm::vec3(3.5f));
     _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    _image_board_ptr->_alpha = 0.7;
+    _image_board_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
 
     /*
@@ -122,7 +122,7 @@ Scene::Scene(std::string pkg_path_in):
     _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
     _image_board_ptr->Scale( glm::vec3(3.5f));
     _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    _image_board_ptr->_alpha = 0.7;
+    _image_board_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
     */
 

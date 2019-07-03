@@ -48,7 +48,7 @@ public:
     void set_pose_modle_ref_by_world(glm::mat4 pose_in);
     glm::mat4 get_pose_modle_ref_by_world();
     //
-    glm::mat4 get_mv_matrix(std::shared_ptr<ViewManager> _camera_ptr, glm::mat4 &_model_M);
+    glm::mat4 get_mv_matrix(const std::shared_ptr<ViewManager> &_camera_ptr, const glm::mat4 &_model_M);
 
 
     // Utilities
