@@ -40,8 +40,8 @@ void rmBaseModel::Init(){
     //
 	_program_ptr.reset( new ShaderProgram() );
     // Load shaders
-    _program_ptr->AttachShader(get_full_Shader_path("BaseModel.vs.glsl"), GL_VERTEX_SHADER);
-    _program_ptr->AttachShader(get_full_Shader_path("BaseModel.fs.glsl"), GL_FRAGMENT_SHADER);
+    _program_ptr->AttachShader(get_full_Shader_path("ModelLoader.vs.glsl"), GL_VERTEX_SHADER);
+    _program_ptr->AttachShader(get_full_Shader_path("ModelLoader.fs.glsl"), GL_FRAGMENT_SHADER);
     // Link _program_ptr
 	_program_ptr->LinkProgram();
     //

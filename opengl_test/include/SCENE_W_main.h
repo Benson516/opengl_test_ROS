@@ -94,8 +94,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 
 
     // BaseModel
-	std::shared_ptr<rmBaseModel> bottle( new rmBaseModel(_Assets_path, "Potion_bottle.obj", "bottle_mana.png") );
-	std::shared_ptr<rmBaseModel> box( new rmBaseModel(_Assets_path, "box_realistic.obj", "box_texture_color.png") );
+	std::shared_ptr<rmModelLoaderObj> bottle( new rmModelLoaderObj(_Assets_path, "Potion_bottle.obj", "bottle_mana.png") );
+	std::shared_ptr<rmModelLoaderObj> box( new rmModelLoaderObj(_Assets_path, "box_realistic.obj", "box_texture_color.png") );
 	bottle->Scale(glm::vec3(0.01, 0.01, 0.01));
 	bottle->Rotate(glm::vec3(1, 0, 0), 3.1415926 / 2 * 3);
 	bottle->Translate(glm::vec3(0.0, 0.5, 0.0));
