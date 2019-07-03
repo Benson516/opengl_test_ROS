@@ -53,7 +53,7 @@ public:
     float alpha;
     glm::vec4 color_transform;
 
-
+    // Set board size
     void setBoardSize(float width_in, float height_in);
     void setBoardSize(float size_in, bool is_width); // Using the aspect ratio from pixel data
     void setBoardSizeRatio(float ratio_in, bool is_width); // Only use when is_perspected==false is_moveable==true

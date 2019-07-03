@@ -26,7 +26,14 @@ public:
         im_aspect = float(im_width) / float(im_height);
         image_offset_in_box_cv_x = image_offset_in_box_cv_x_in;
         image_offset_in_box_cv_y = image_offset_in_box_cv_y_in;
+        updateBoardSize();
     }
+
+    // Set board size
+    void setBoardSize(float width_in, float height_in);
+    void setBoardSize(float size_in, bool is_width); // Using the aspect ratio from pixel data
+    void setBoardSizeRatio(float ratio_in, bool is_width); // Only use when is_perspected==false is_moveable==true
+    void updateBoardSize();
 
 protected:
     void Init();
@@ -40,6 +47,19 @@ protected:
     bool is_perspected;
     bool is_moveable;
 
+    // Params
+    float board_width; // meter
+    float board_height; // meter
+    float board_aspect_ratio; // w/h
+    int board_shape_mode;
+    glm::ivec2 _viewport_size; // (w,h)
+    // mode:
+    // 0 - fixed size
+    // 1 - fixed width
+    // 2 - fixed height
+    // 3 - fixed width ratio relative to viewport
+    // 4 - fixed height ratio ralative to viewport
+
     void update_GL_data();
 
 private:
@@ -51,7 +71,8 @@ private:
         GLuint m_texture;
         //
         int indexCount;
-
+        //
+        glm::mat4 shape;
         glm::mat4 model;
     };
     Shape m_shape;
