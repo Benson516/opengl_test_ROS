@@ -56,6 +56,7 @@ public:
 
     void setBoardSize(float width_in, float height_in);
     void setBoardSize(float size_in, bool is_width); // Using the aspect ratio from pixel data
+    void setBoardSizeRatio(float ratio_in, bool is_width); // Only use when is_perspected==false is_moveable==true
     void updateBoardSize();
     // TIME_STAMP::FPS fps_of_update;
 
@@ -78,10 +79,13 @@ protected:
     float board_height; // meter
     float board_aspect_ratio; // w/h
     int board_shape_mode;
+    glm::vec2 _viewport_size; // (w,h)
     // mode:
     // 0 - fixed size
     // 1 - fixed width
     // 2 - fixed height
+    // 3 - fixed width ratio relative to viewport
+    // 4 - fixed height ratio ralative to viewport
 
     void update_GL_data();
 

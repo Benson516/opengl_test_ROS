@@ -253,6 +253,10 @@ void rmImageBoard::Render(std::shared_ptr<ViewManager> &_camera_ptr){
         glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
     }else{
         if (is_moveable){
+            if (_viewport_size != _camera_ptr->GetViewportSize() ){
+                _viewport_size = _camera_ptr->GetViewportSize();
+                updateBoardSize();
+            }
             // Note: the rotation is mainly for z-axis rotation
             // Note 2: The tranalation/rotation/scale is based on the "center" of the image
             // m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
@@ -334,20 +338,44 @@ void rmImageBoard::setBoardSize(float size_in, bool is_width){ // Using the aspe
     //
     m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
 }
+void setBoardSizeRatio(float ratio_in, bool is_width){ // Only use when is_perspected==false is_moveable==true
+    board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+    if (is_width){
+        board_shape_mode = 3;
+        board_width = ratio_in;
+        board_height = board_width / board_aspect_ratio;
+    }else{
+        board_shape_mode = 4;
+        board_height = ratio_in;
+        board_width = board_height * board_aspect_ratio;
+    }
+    //
+    m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
+}
 void rmImageBoard::updateBoardSize(){
     switch(board_shape_mode){
-        case 0:
+        case 0: // fixed size
             // Nothing to do
             break;
-        case 1:
+        case 1: // fixed width
             board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
             board_height = board_width / board_aspect_ratio;
             m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
             break;
-        case 2:
+        case 2: // fixed height
             board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
             board_width = board_height * board_aspect_ratio;
             m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
+            break;
+        case 3: // fixed width ratio relative to viewport
+            board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+            board_height = (board_width*_viewport_size[0]) / (board_aspect_ratio*_viewport_size[1]);
+            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
+            break;
+        case 4: // fixed height ratio ralative to viewport
+            board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+            board_width = (board_height*_viewport_size[1]) * board_aspect_ratio / float(_viewport_size[0]);
+            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
             break;
         default:
             break;
