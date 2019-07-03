@@ -20,7 +20,8 @@ rmImageBoard::rmImageBoard(
     is_perspected(is_perspected_in),
     is_moveable(is_moveable_in),
     is_color_transformed(is_color_transformed_in),
-    fps_of_update(image_file_in)
+    fps_of_update(image_file_in),
+    im_width(100), im_height(100)
 {
     _path_Shaders_sub_dir += "ImageBoard/";
     init_paths(_path_Assets_in);
@@ -41,7 +42,8 @@ rmImageBoard::rmImageBoard(
     is_moveable(is_moveable_in),
     is_color_transformed(is_color_transformed_in),
     _ROS_topic_id(_ROS_topic_id_in),
-    fps_of_update( std::string("Image ") + std::to_string(_ROS_topic_id_in) )
+    im_width(100), im_height(100),
+    // fps_of_update( std::string("Image ") + std::to_string(_ROS_topic_id_in) )
 {
     _path_Shaders_sub_dir += "ImageBoard/";
     init_paths(_path_Assets_in);
@@ -153,13 +155,13 @@ void rmImageBoard::Update(ROS_INTERFACE &ros_interface){
 
     if (_result){
         // evaluation
-        TIME_STAMP::Period period_image(fps_of_update.name);
+        // TIME_STAMP::Period period_image(fps_of_update.name);
         //
         update_GL_data();
         // evaluation
-        period_image.stamp();  period_image.show_usec();
+        // period_image.stamp();  period_image.show_usec();
         // FPS
-        fps_of_update.stamp();  fps_of_update.show();
+        // fps_of_update.stamp();  fps_of_update.show();
     }
 
     // Move in 3D space

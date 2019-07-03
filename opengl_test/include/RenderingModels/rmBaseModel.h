@@ -39,6 +39,8 @@ public:
     void postTranslate(const glm::vec3 &vec);
 	void postRotate(const glm::vec3 &axis, float angle);
 	void postScale(const glm::vec3 &vec);
+    // Directly set the model matrix
+    virtual void setModelMatrix(const glm::mat4 & model_m_in){ *_pose_model_by_model_ref_ptr = model_m_in;  }
     //------------------------------------------------//
 
     // The pose

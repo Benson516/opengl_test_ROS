@@ -3,7 +3,7 @@
 
 rmPointCloud::rmPointCloud(std::string _path_Assets_in, int _ROS_topic_id_in):
     _ROS_topic_id(_ROS_topic_id_in),
-    fps_of_update( std::string("PC ") + std::to_string(_ROS_topic_id_in) )
+    // fps_of_update( std::string("PC ") + std::to_string(_ROS_topic_id_in) )
 {
     init_paths(_path_Assets_in);
     _max_num_vertex = 5000000; // 5*10^6 // 100000;
@@ -95,7 +95,7 @@ void rmPointCloud::Update(ROS_INTERFACE &ros_interface){
         //
         update_GL_data();
         //
-        fps_of_update.stamp();  fps_of_update.show();
+        // fps_of_update.stamp();  fps_of_update.show();
     }
 
     // Note: We get the transform update even if there is no new content in for maximum smoothness

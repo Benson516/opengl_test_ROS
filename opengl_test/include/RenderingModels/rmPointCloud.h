@@ -15,7 +15,7 @@ public:
 
     void set_color(glm::vec3 color_in);
 
-    TIME_STAMP::FPS fps_of_update;
+    // TIME_STAMP::FPS fps_of_update;
 
 protected:
     void Init();

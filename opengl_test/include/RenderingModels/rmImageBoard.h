@@ -53,7 +53,7 @@ public:
     float _alpha;
     glm::vec4 _color_transform;
 
-    TIME_STAMP::FPS fps_of_update;
+    // TIME_STAMP::FPS fps_of_update;
 
 protected:
     void Init();
@@ -68,6 +68,10 @@ protected:
     bool is_moveable;
     bool is_color_transformed;
     bool is_dynamically_updated;
+
+    // Params
+    int im_width;
+    int im_height;
 
     void update_GL_data();
 
