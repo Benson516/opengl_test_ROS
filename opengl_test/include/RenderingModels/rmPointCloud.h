@@ -69,4 +69,4 @@ private:
     }
 };
 
-#endif
+#endif // RM_POINTCLOUD_H
