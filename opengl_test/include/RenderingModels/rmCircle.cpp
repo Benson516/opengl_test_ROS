@@ -7,14 +7,12 @@
 rmCircle::rmCircle(std::string _path_Assets_in, int _ROS_topic_id_in):
     _ROS_topic_id(_ROS_topic_id_in)
 {
-    // _path_Shaders_sub_dir += "Circle/";
+    _path_Shaders_sub_dir += "Circle/";
     init_paths(_path_Assets_in);
     //
     _num_vertex_per_box = 1;
     _max_num_box = 1000;
     _max_num_vertex = _max_num_box*(long long)(_num_vertex_per_box);
-    //
-    generate_box_template();
     //
 	Init();
 }
@@ -75,7 +73,7 @@ void rmCircle::LoadModel(){
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
 
-    m_shape.indexCount = _max_num_vertex_idx; //  1 * _num_vertex_idx_per_box; // ;
+    m_shape.indexCount = _max_num_vertex;
     //--------------------------------------------//
 
 
@@ -122,7 +120,7 @@ void rmCircle::update_GL_data(){
     glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
 
 
-    m_shape.indexCount = num_box*_num_vertex_idx_per_box;
+    m_shape.indexCount = num_box;
     vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     // vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_box * _num_vertex_per_box * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     auto * _point_ptr = &(msg_out_ptr->lidRoiBox[0].p0);

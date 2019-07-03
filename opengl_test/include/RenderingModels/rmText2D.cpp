@@ -37,6 +37,12 @@ void rmText2D::Update(ROS_INTERFACE &ros_interface){
 }
 void rmText2D::Update(ROS_API &ros_api){
     // Update the data (buffer variables) here
+
+    // test
+    static int _count = 0;
+
+    insert_text( text2D_data( "This is 2D text: " + std::to_string(_count), glm::vec2(0.5, 0.8) ) );
+    _count++;
 }
 void rmText2D::Render(std::shared_ptr<ViewManager> _camera_ptr){
     // test
@@ -58,6 +64,7 @@ void rmText2D::Render(std::shared_ptr<ViewManager> _camera_ptr){
 void rmText2D::_draw_one_text2D(std::shared_ptr<ViewManager> &_camera_ptr, text2D_data &_data_in){
     selectFont2D(3);
 
+    /*
     int _line_count = 1;
     int _max_word_per_line = 0;
     int _word_per_line = 0;
@@ -74,6 +81,8 @@ void rmText2D::_draw_one_text2D(std::shared_ptr<ViewManager> &_camera_ptr, text2
       }
     }
     //
+    */
+    
     text2D_output(_data_in.position_2D.x, _data_in.position_2D.y, _data_in.text);
 }
 //--------------------------------------------------------//
