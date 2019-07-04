@@ -383,8 +383,12 @@ void rmText3D_v2::Update(ROS_API &ros_api){
         insert_text( text2Din3D_data("Text #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec2( 0.0f, float(_k))) );
     }
     */
+
+    // 2D text
     insert_text( text2Dflat_data( "text2Dflat\n\tpos_mode=1\n\tsize_mode=0\n\tis_fullviewport=true\n\tis_background=false\nseq: " + std::to_string(_count), glm::vec2(0.5f), 24, glm::vec3(0.0f,0.0f,1.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1, 0, true, false) );
     insert_text( text2Dflat_data( "text2Dflat\n\tpos_mode=1\n\tsize_mode=0\n\tis_fullviewport=true\n\tis_background=true\nseq: " + std::to_string(_count), glm::vec2(-0.5f), 24, glm::vec3(0.0f,0.0f,0.5f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1, 0, true, true) );
+    //
+    // insert_text( text2Dflat_data( "--text2Dflat\n\tpos_mode=1\n\tsize_mode=0\n\tis_fullviewport=false\n\tis_background=false\nseq: " + std::to_string(_count), glm::vec2(-1.0f, 1.0f), 24, glm::vec3(1.0f,0.0f,0.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1, 0, false, false) );
 
     //
     insert_text( text3D_data("Text3D") );
