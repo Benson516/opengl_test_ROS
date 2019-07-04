@@ -48,6 +48,15 @@ public:
     };
     //--------------------------------------//
 
+    /*
+    Requirements:
+    2D draw_mode:
+        0 - proj_matrix, m_shape.model, set_pose_modle_ref_by_world()
+        1 - m_shape.model <-- 2D
+        2 - m_shape.model <-- 2D, pose2D_depth=1.0
+        3 - pose2D_depth=1.0
+    */
+
 
     // Different drawing method
     //--------------------------------------//
@@ -55,27 +64,20 @@ public:
     /*
     Note: position_2D can be the following
     pos_mode:
-        0 - meter in 3D perspective view (3D text2D only)
+        0 - OpenCV pixel x:[0,ncol] "right", y:[0,nrow] "down"
         1 - OpenGL normalizd coordinate x:[-1,1] "right", y:[-1,1] "up"
-        2 - pixel of the board in OpenCV coordinate x:[0, ncol-1] "right", y:[0, mrow-1] "down"
-    draw_mode:
-        0 - in 3D perspective view
-        1 - on 2D moveable foreground board
-        2 - on 2D moveable background board
-        3 - on background
     ---
     Requirements:
-    pos_mode:
-        0 - (none)
-        1 - m_shape.shape
-        2 - m_shape.shape, board_pixel_size
-    draw_mode:
-        0 - proj_matrix, m_shape.model, set_pose_modle_ref_by_world()
-        1 - m_shape.model <-- 2D
-        2 - m_shape.model <-- 2D, pose2D_depth=1.0
-        3 - pose2D_depth=1.0
+    pos_mode, size_mode:
+        0 - _viewport_size, board_width, board_height
+        1 - m_shape.shape, board_aspect_ratio
+    draw_mode (is_fullviewport, is_background):
+        false, false - m_shape.model, pose2D_depth=0.0
+        false, true - m_shape.model, pose2D_depth=1.0
+        true, false - pose2D_depth=0.0
+        true, true - pose2D_depth=1.0
     */
-    struct text2D_data{
+    struct text2Dflat_data{
         std::string text;
         glm::vec2   position_2D; // (x,y), the unit depends on pos_mode
         float       size; // The "hight of line", the unit depends on pos_mode
@@ -83,8 +85,10 @@ public:
         ALIGN_X     align_x;
         ALIGN_Y     align_y;
         int         pos_mode;
-        int         draw_mode;
-        text2D_data(
+        int         size_mode;
+        bool        is_fullviewport;
+        bool        is_background;
+        text2Dflat_data(
             const std::string &text_in,
             const glm::vec2 &position_2D_in=glm::vec2(0.0f),
             float size_in=1.0f,
@@ -92,7 +96,9 @@ public:
             ALIGN_X align_x_in=ALIGN_X::LEFT,
             ALIGN_Y align_y_in=ALIGN_Y::TOP,
             int pos_mode_in,
-            int draw_mode_in
+            int size_mode_in,
+            bool is_fullviewport_in=false,
+            bool is_background_in=false
         ):
             text(text_in),
             position_2D(position_2D_in),
@@ -101,7 +107,48 @@ public:
             align_x(align_x_in),
             align_y(align_y_in),
             pos_mode(pos_mode_in),
-            draw_mode(draw_mode_in)
+            size_mode(size_mode_in),
+            is_fullviewport(is_fullviewport_in),
+            is_background(is_background_in)
+        {
+        }
+    };
+    // text2D in 3D space
+    /*
+    Note: position_2D can be the following
+    pos_mode:
+        0 - meter in 3D perspective view (3D text2D only)
+        1 - OpenGL normalizd coordinate x:[-1,1] "right", y:[-1,1] "up"
+    ---
+    Requirements:
+    pos_mode:
+        0 - (none)
+        1 - m_shape.shape, board_aspect_ratio
+    */
+    struct text2Din3D_data{
+        std::string text;
+        glm::vec2   position_2D; // (x,y), the unit depends on pos_mode
+        float       size; // The "hight of line", the unit depends on pos_mode
+        glm::vec3   color;
+        ALIGN_X     align_x;
+        ALIGN_Y     align_y;
+        int         pos_mode;
+        text2Din3D_data(
+            const std::string &text_in,
+            const glm::vec2 &position_2D_in=glm::vec2(0.0f),
+            float size_in=1.0f,
+            const glm::vec3 &color_in=glm::vec3(1.0f),
+            ALIGN_X align_x_in=ALIGN_X::LEFT,
+            ALIGN_Y align_y_in=ALIGN_Y::TOP,
+            int pos_mode_in
+        ):
+            text(text_in),
+            position_2D(position_2D_in),
+            size(size_in),
+            color(color_in),
+            align_x(align_x_in),
+            align_y(align_y_in),
+            pos_mode(pos_mode_in)
         {
         }
     };
@@ -205,8 +252,11 @@ public:
     // Insert method for texts
     // queues - draw once
     //-------------------------------------//
-    inline void insert_text(const text2D_data & data_in ){
-        text2D_queue.push( data_in );
+    inline void insert_text(const text2Dflat_data & data_in ){
+        text2Dflat_queue.push( data_in );
+    }
+    inline void insert_text(const text2Din3D_data & data_in ){
+        text2Din3D_queue.push( data_in );
     }
     inline void insert_text(const text3D_data & data_in ){
         text3D_queue.push( data_in );
@@ -221,8 +271,11 @@ public:
 
     // buffers - draw each time until update
     //-------------------------------------//
-    inline void insert_text(const std::vector<text2D_data> & data_list_in ){
-        text2D_buffer = data_list_in;
+    inline void insert_text(const std::vector<text2Dflat_data> & data_list_in ){
+        text2Dflat_buffer = data_list_in;
+    }
+    inline void insert_text(const std::vector<text2Din3D_data> & data_list_in ){
+        text2Din3D_buffer = data_list_in;
     }
     inline void insert_text(const std::vector<text3D_data> & data_list_in ){
         text3D_buffer = data_list_in;
@@ -260,34 +313,17 @@ protected:
 
     // Different draw methods
     //--------------------------------------------------------//
-    void _draw_one_text2D(std::shared_ptr<ViewManager> &_camera_ptr, text2D_data &_data_in);
+    void _draw_one_text2Dflat(std::shared_ptr<ViewManager> &_camera_ptr, text2Dflat_data &_data_in);
+    void _draw_one_text2Din3D(std::shared_ptr<ViewManager> &_camera_ptr, text2Din3D_data &_data_in);
     void _draw_one_text3D(std::shared_ptr<ViewManager> &_camera_ptr, text3D_data &_data_in);
     void _draw_one_text_billboard(std::shared_ptr<ViewManager> &_camera_ptr, text_billboard_data &_data_in);
     void _draw_one_text_freeze_board(std::shared_ptr<ViewManager> &_camera_ptr, text_freeze_board_data &_data_in);
     //--------------------------------------------------------//
 
 
-    // Draw for text2Ds
-    /*
-    pos_mode:
-        0 - meter in 3D perspective view (3D text2D only)
-        1 - OpenGL normalizd coordinate x:[-1,1] "right", y:[-1,1] "up"
-        2 - pixel of the board in OpenCV coordinate x:[0, ncol-1] "right", y:[0, mrow-1] "down"
-    draw_mode:
-        0 - in 3D perspective view
-        1 - on 2D moveable foreground board
-        2 - on 2D moveable background board
-        3 - on background
-    */
-    //--------------------------------------------------------//
-    void _draw_engin_one_text2D_3Dworld(std::shared_ptr<ViewManager> &_camera_ptr, text2D_data &_data_in);
-    void _draw_engin_one_text2D_2Dflat(std::shared_ptr<ViewManager> &_camera_ptr, text2D_data &_data_in);
-    void _draw_engin_one_text2D_backgroud(std::shared_ptr<ViewManager> &_camera_ptr, text2D_data &_data_in);
-
-
     // Params
-    float board_width; // meter
-    float board_height; // meter
+    float board_width; // meter or ratio to viewport
+    float board_height; // meter or ratio to viewport
     float board_aspect_ratio; // w/h
     int board_shape_mode;
     glm::ivec2 _viewport_size; // (w,h)
@@ -347,12 +383,14 @@ private:
     //
     //------------------------------------------//
     // queues - only draw on time
-    std::queue<text2D_data> text2D_queue;
+    std::queue<text2Dflat_data> text2Dflat_queue;
+    std::queue<text2Din3D_data> text2Din3D_queue;
     std::queue<text3D_data> text3D_queue;
     std::queue<text_billboard_data> text_billboard_queue;
     std::queue<text_freeze_board_data> text_freeze_board_queue;
     // buffers - draw each time
-    std::vector<text2D_data> text2D_buffer;
+    std::vector<text2Dflat_data> text2Dflat_buffer;
+    std::vector<text2Din3D_data> text2Din3D_buffer;
     std::vector<text3D_data> text3D_buffer;
     std::vector<text_billboard_data> text_billboard_buffer;
     std::vector<text_freeze_board_data> text_freeze_board_buffer;

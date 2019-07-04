@@ -183,6 +183,7 @@ rmText3D_v2::rmText3D_v2(std::string _path_Assets_in, std::string frame_id_in=""
     board_width(1.0), board_height(1.0), board_aspect_ratio(1.0),
     board_shape_mode(0)
 {
+    _path_Shaders_sub_dir += "Text/";
     init_paths(_path_Assets_in);
     _num_vertex_idx_per_box = (3*2);
     _num_vertex_per_box = 4; // 8;
@@ -373,10 +374,10 @@ void rmText3D_v2::Update(ROS_API &ros_api){
     // test
     //----------------------//
     static int _count = 0;
-    insert_text( text2D_data( "Hello world: " + std::to_string(_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), glm::vec2(0.0f), 1.0f, glm::vec3(1.0f,1.0f,0.0f) ) );
+    insert_text( text2Din3D_data( "Hello world: " + std::to_string(_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), glm::vec2(0.0f), 1.0f, glm::vec3(1.0f,1.0f,0.0f) ) );
     /*
     for (size_t _k=0; _k < 1000; ++_k){
-        insert_text( text2D_data("Text #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec2( 0.0f, float(_k))) );
+        insert_text( text2Din3D_data("Text #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec2( 0.0f, float(_k))) );
     }
     */
 
@@ -434,9 +435,9 @@ void rmText3D_v2::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 	_program_ptr->UseProgram();
     // queues
     //--------------------------------//
-    while (!text2D_queue.empty()){
-        _draw_one_text2D(_camera_ptr, text2D_queue.front() );
-        text2D_queue.pop();
+    while (!text2Din3D_queue.empty()){
+        _draw_one_text2Din3D(_camera_ptr, text2Din3D_queue.front() );
+        text2Din3D_queue.pop();
     }
     while (!text3D_queue.empty()){
         _draw_one_text3D(_camera_ptr, text3D_queue.front() );
@@ -454,8 +455,8 @@ void rmText3D_v2::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
     // buffers
     //--------------------------------//
-    for (size_t i=0; i < text2D_buffer.size(); ++i){
-        _draw_one_text2D(_camera_ptr, text2D_buffer[i] );
+    for (size_t i=0; i < text2Din3D_buffer.size(); ++i){
+        _draw_one_text2Din3D(_camera_ptr, text2Din3D_buffer[i] );
     }
     for (size_t i=0; i < text3D_buffer.size(); ++i){
         _draw_one_text3D(_camera_ptr, text3D_buffer[i] );
@@ -474,40 +475,94 @@ void rmText3D_v2::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
 // Different draw methods
 //--------------------------------------------------------//
-void rmText3D_v2::_draw_one_text2D(std::shared_ptr<ViewManager> &_camera_ptr, text2D_data &_data_in){
-    // static int _count = 0;
+void rmText3D_v2::_draw_one_text2Dflat(std::shared_ptr<ViewManager> &_camera_ptr, text2Dflat_data &_data_in){
     if ( !glm::all(glm::equal(_viewport_size, _camera_ptr->GetViewportSize() ) ) ){
         _viewport_size = _camera_ptr->GetViewportSize();
         updateBoardSize();
     }
+    // static int _count = 0;
+    /*
+    pos_mode:
+        0 - OpenCV pixel x:[0,ncol] "right", y:[0,nrow] "down"
+        1 - OpenGL normalizd coordinate x:[-1,1] "right", y:[-1,1] "up"
+    */
+    glm::vec2 nl_position_2D;   // normalized
+    glm::vec2 nl_size;          // normalized
+    if (is_fullviewport){
+        //
+        if (_data_in.pos_mode == 0){
+            glm::vec2 _factor(2.0/float(_viewport_size[0]), 2.0/float(_viewport_size[1]) );
+            nl_position_2D = _data_in.position_2D * _factor * glm::vec2(1.0f, -1.0f) + glm::vec2(-1.0f, 1.0f);
+        }else{ // 1
+            nl_position_2D = _data_in.position_2D;       // [-1, 1]
+        }
+        //
+        if (_data_in.size_mode == 0){
+            glm::vec2 _factor(2.0/float(_viewport_size[0]), 2.0/float(_viewport_size[1]) );
+            nl_size = glm::vec2(_data_in.size) * _factor; // the size in ratio of the whole board --> OpenGL coordinate: [-1, 1]
+        }else{
+            nl_size[0] = _data_in.size * 2.0 * ( float(_viewport_size[1]) / float(_viewport_size[0]) ); //  the size is based i=on "height"
+            nl_size[1] = _data_in.size * 2.0; // the size in ratio of the whole board --> OpenGL coordinate: [-1, 1]
+        }
+        glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( glm::mat4(1.0f) ));
+    }else{ // Note full viewport
+        //
+        if (_data_in.pos_mode == 0){
+            glm::vec2 _factor(2.0/(board_width*float(_viewport_size[0])), 2.0/(board_height*float(_viewport_size[1])) );
+            nl_position_2D = _data_in.position_2D * _factor * glm::vec2(1.0f, -1.0f) + glm::vec2(-1.0f, 1.0f);
+        }else{ // 1
+            nl_position_2D = _data_in.position_2D;       // [-1, 1]
+        }
+        //
+        if (_data_in.size_mode == 0){
+            glm::vec2 _factor(2.0/(board_width*float(_viewport_size[0])), 2.0/(board_height*float(_viewport_size[1])) );
+            nl_size = glm::vec2(_data_in.size) * _factor; // the size in ratio of the whole board --> OpenGL coordinate: [-1, 1]
+        }else{
+            nl_size[0] = _data_in.size * 2.0 / board_aspect_ratio; //  the size is based i=on "height"
+            nl_size[1] = _data_in.size * 2.0; // the size in ratio of the whole board --> OpenGL coordinate: [-1, 1]
+        }
+        glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( m_shape.model * m_shape.shape));
+    }
+
+    // The transformation matrices and projection matrices
+    glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(glm::mat4(1.0)));
+    if (_data_in.is_background){
+        glUniform1f(uniforms.pose2D_depth, 1.0);
+    }else{
+        glUniform1f(uniforms.pose2D_depth, 0.0);
+    }
+    // RenderText("Hello world: " + std::to_string(++_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), a48_ptr, 0.0, 0.0, 1.0, 1.0, glm::vec3(1.0f, 1.0f, 0.0f));
+    RenderText(
+        _data_in.text,
+        a48_ptr,
+        nl_position_2D[0],
+        nl_position_2D[1],
+        nl_size[0],
+        nl_size[1],
+        _data_in.color,
+        _data_in.align_x,
+        _data_in.align_y
+    );
+    //--------------------------------//
+}
+void rmText3D_v2::_draw_one_text2Din3D(std::shared_ptr<ViewManager> &_camera_ptr, text2Din3D_data &_data_in){
+    // static int _count = 0;
     /*
     pos_mode:
         0 - meter in 3D perspective view (3D text2D only)
         1 - OpenGL normalizd coordinate x:[-1,1] "right", y:[-1,1] "up"
-        2 - pixel of the board in OpenCV coordinate x:[0, ncol-1] "right", y:[0, mrow-1] "down"
     */
     glm::vec2 nl_position_2D;   // normalized
-    float     nl_size;          // normalized
+    glm::vec2 nl_size;          // normalized
     if (_data_in.pos_mode == 0){
         nl_position_2D = _data_in.position_2D;
-        nl_size = _data_in.size;
+        nl_size = glm::vec2(_data_in.size);
         glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
-    }else{ // 1, 2
-        // Note: because the rendering method of text,
-        //       the input unit should be "pixel"
-        //       the transform_m convert from pixel back to OpenGL coordinate
-        glm::mat4 transform_m = glm::scale(glm::mat4(1.0), glm::vec3(2.0/(_viewport_size[0]), 2.0/(_viewport_size[1]), 1.0f) );
-        if (_data_in.pos_mode == 1){
-            nl_position_2D = _data_in.position_2D * glm::vec2(_viewport_size[0], _viewport_size[1]);       // Pixel,
-            nl_size = ( (_data_in.size / 2.0) * _viewport_size[1]); // Pixel, the size is based i=on "height"
-            //            (the ratio of the full screen) --> (the pixel of the font height)
-        }else{ // 2
-            nl_position_2D = _data_in.position_2D;       // Pixel,
-            nl_size = _data_in.size; // Pixel, the size is based i=on "height"
-            //       It's already in pixel.
-        }
-        glm::mat4 model_m = m_shape.model * m_shape.shape * transform_m;
-        glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, model_m) ));
+    }else{ // 1
+        nl_position_2D = _data_in.position_2D;       // [-1, 1]
+        nl_size[0] = _data_in.size * 2.0 / board_aspect_ratio; //  the size is based i=on "height"
+        nl_size[1] = _data_in.size * 2.0; // the size in ratio of the whole board --> OpenGL coordinate: [-1, 1]
+        glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model * m_shape.shape) ));
     }
     // m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
     // The transformation matrices and projection matrices
@@ -520,8 +575,8 @@ void rmText3D_v2::_draw_one_text2D(std::shared_ptr<ViewManager> &_camera_ptr, te
         a48_ptr,
         nl_position_2D[0],
         nl_position_2D[1],
-        nl_size,
-        nl_size,
+        nl_size[0],
+        nl_size[1],
         _data_in.color,
         _data_in.align_x,
         _data_in.align_y
