@@ -257,7 +257,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 
 
 
-    _text3D_ptr.reset( new rmText3D_v2(_Assets_path ) );
+    _text3D_ptr.reset( new rmText3D_v2(_Assets_path, "base" ) );
     _text3D_ptr->Translate(glm::vec3(1.0f, -2.0f, -2.0f));
     _text3D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _text3D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);

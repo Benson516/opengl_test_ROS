@@ -178,7 +178,7 @@ namespace rmLidarBoundingBox_ns{
 
 
 
-rmText3D_v2::rmText3D_v2(std::string _path_Assets_in, std::string frame_id_in=""):
+rmText3D_v2::rmText3D_v2(std::string _path_Assets_in, std::string frame_id_in):
     _frame_id(frame_id_in),
     board_width(1.0), board_height(1.0), board_aspect_ratio(1.0),
     board_shape_mode(0)
@@ -375,11 +375,16 @@ void rmText3D_v2::Update(ROS_API &ros_api){
     //----------------------//
     static int _count = 0;
     insert_text( text2Din3D_data( "Hello world: " + std::to_string(_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), glm::vec2(0.0f), 1.0f, glm::vec3(1.0f,1.0f,0.0f) ) );
+    //
+    insert_text( text2Din3D_data( "Text2Din3D pos_mode=0: " + std::to_string(_count), glm::vec2(10.0f), 1.0f, glm::vec3(0.0f,1.0f,0.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 0) );
+    insert_text( text2Din3D_data( "Text2Din3D pos_mode=1: " + std::to_string(_count), glm::vec2(1.0f), 1.0f, glm::vec3(0.0f,1.0f,0.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1) );
     /*
     for (size_t _k=0; _k < 1000; ++_k){
         insert_text( text2Din3D_data("Text #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec2( 0.0f, float(_k))) );
     }
     */
+    insert_text( text2Dflat_data( "text2Dflat\n\tpos_mode=1\n\tsize_mode=0\n\tis_fullviewport=true\n\tis_background=false\nseq: " + std::to_string(_count), glm::vec2(0.5f), 24, glm::vec3(0.0f,0.0f,1.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1, 0, true, false) );
+    insert_text( text2Dflat_data( "text2Dflat\n\tpos_mode=1\n\tsize_mode=0\n\tis_fullviewport=true\n\tis_background=true\nseq: " + std::to_string(_count), glm::vec2(-0.5f), 24, glm::vec3(0.0f,0.0f,0.5f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1, 0, true, true) );
 
     //
     insert_text( text3D_data("Text3D") );
@@ -435,6 +440,10 @@ void rmText3D_v2::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 	_program_ptr->UseProgram();
     // queues
     //--------------------------------//
+    while (!text2Dflat_queue.empty()){
+        _draw_one_text2Dflat(_camera_ptr, text2Dflat_queue.front() );
+        text2Dflat_queue.pop();
+    }
     while (!text2Din3D_queue.empty()){
         _draw_one_text2Din3D(_camera_ptr, text2Din3D_queue.front() );
         text2Din3D_queue.pop();
@@ -455,6 +464,9 @@ void rmText3D_v2::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
     // buffers
     //--------------------------------//
+    for (size_t i=0; i < text2Dflat_buffer.size(); ++i){
+        _draw_one_text2Dflat(_camera_ptr, text2Dflat_buffer[i] );
+    }
     for (size_t i=0; i < text2Din3D_buffer.size(); ++i){
         _draw_one_text2Din3D(_camera_ptr, text2Din3D_buffer[i] );
     }
@@ -488,7 +500,7 @@ void rmText3D_v2::_draw_one_text2Dflat(std::shared_ptr<ViewManager> &_camera_ptr
     */
     glm::vec2 nl_position_2D;   // normalized
     glm::vec2 nl_size;          // normalized
-    if (is_fullviewport){
+    if (_data_in.is_fullviewport){
         //
         if (_data_in.pos_mode == 0){
             glm::vec2 _factor(2.0/float(_viewport_size[0]), 2.0/float(_viewport_size[1]) );
@@ -605,7 +617,7 @@ void rmText3D_v2::_draw_one_text3D(std::shared_ptr<ViewManager> &_camera_ptr, te
 }
 void rmText3D_v2::_draw_one_text_billboard(std::shared_ptr<ViewManager> &_camera_ptr, text_billboard_data &_data_in){
     // Calculate model matrix
-    glm::mat4 view_m = _camera_ptr->GetModelViewMatrix();
+    glm::mat4 view_m = get_mv_matrix(_camera_ptr, glm::mat4(1.0)); // _camera_ptr->GetModelViewMatrix();
     view_m[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     glm::mat4 _model_m = glm::transpose(view_m);
     _model_m[3] = glm::vec4(_data_in.position_ref_point, 1.0f);
@@ -631,7 +643,7 @@ void rmText3D_v2::_draw_one_text_billboard(std::shared_ptr<ViewManager> &_camera
 }
 void rmText3D_v2::_draw_one_text_freeze_board(std::shared_ptr<ViewManager> &_camera_ptr, text_freeze_board_data &_data_in){
     // Calculate model matrix
-    glm::mat4 view_m = _camera_ptr->GetModelViewMatrix();
+    glm::mat4 view_m = get_mv_matrix(_camera_ptr, glm::mat4(1.0)); // _camera_ptr->GetModelViewMatrix();
     //
     // glm::vec4 _ref_in_canonical = ( _camera_ptr->GetProjectionMatrix()*view_m*glm::vec4(_data_in.position_ref_point, 1.0f) );
     // GLfloat _z_ref = (_ref_in_canonical.z);
@@ -861,7 +873,7 @@ void rmText3D_v2::RenderText(
 //---------------------------------------------------//
 //---------------------------------------------------//
 //---------------------------------------------------//
-void rmImageBoard::setBoardSize(float width_in, float height_in){
+void rmText3D_v2::setBoardSize(float width_in, float height_in){
     board_shape_mode = 0;
     board_width = width_in;
     board_height = height_in;
@@ -869,8 +881,8 @@ void rmImageBoard::setBoardSize(float width_in, float height_in){
     //
     m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height,1.0f) );
 }
-void rmImageBoard::setBoardSize(float size_in, bool is_width){ // Using the aspect ratio from pixel data
-    board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+void rmText3D_v2::setBoardSize(float size_in, bool is_width){ // Using the aspect ratio from pixel data
+    board_aspect_ratio = float(im_width)/float(im_height);
     if (is_width){
         board_shape_mode = 1;
         board_width = size_in;
@@ -883,8 +895,8 @@ void rmImageBoard::setBoardSize(float size_in, bool is_width){ // Using the aspe
     //
     m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
 }
-void rmImageBoard::setBoardSizeRatio(float ratio_in, bool is_width){ // Only use when is_perspected==false is_moveable==true
-    board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+void rmText3D_v2::setBoardSizeRatio(float ratio_in, bool is_width){ // Only use when is_perspected==false is_moveable==true
+    board_aspect_ratio = float(im_width)/float(im_height);
     if (is_width){
         board_shape_mode = 3;
         board_width = ratio_in;
@@ -897,28 +909,28 @@ void rmImageBoard::setBoardSizeRatio(float ratio_in, bool is_width){ // Only use
     //
     m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
 }
-void rmImageBoard::updateBoardSize(){
+void rmText3D_v2::updateBoardSize(){
     switch(board_shape_mode){
         case 0: // fixed size
             // Nothing to do
             break;
         case 1: // fixed width
-            board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+            board_aspect_ratio = float(im_width)/float(im_height);
             board_height = board_width / board_aspect_ratio;
             m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
             break;
         case 2: // fixed height
-            board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+            board_aspect_ratio = float(im_width)/float(im_height);
             board_width = board_height * board_aspect_ratio;
             m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
             break;
         case 3: // fixed width ratio relative to viewport
-            board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+            board_aspect_ratio = float(im_width)/float(im_height);
             board_height = (board_width*_viewport_size[0]) / (board_aspect_ratio*_viewport_size[1]);
             m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
             break;
         case 4: // fixed height ratio ralative to viewport
-            board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+            board_aspect_ratio = float(im_width)/float(im_height);
             board_width = (board_height*_viewport_size[1]) * board_aspect_ratio / float(_viewport_size[0]);
             m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
             break;

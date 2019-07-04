@@ -95,8 +95,8 @@ public:
             const glm::vec3 &color_in=glm::vec3(1.0f),
             ALIGN_X align_x_in=ALIGN_X::LEFT,
             ALIGN_Y align_y_in=ALIGN_Y::TOP,
-            int pos_mode_in,
-            int size_mode_in,
+            int pos_mode_in=1,
+            int size_mode_in=1,
             bool is_fullviewport_in=false,
             bool is_background_in=false
         ):
@@ -140,7 +140,7 @@ public:
             const glm::vec3 &color_in=glm::vec3(1.0f),
             ALIGN_X align_x_in=ALIGN_X::LEFT,
             ALIGN_Y align_y_in=ALIGN_Y::TOP,
-            int pos_mode_in
+            int pos_mode_in=0
         ):
             text(text_in),
             position_2D(position_2D_in),
@@ -242,12 +242,19 @@ public:
 
 
 
-    rmText3D_v2(std::string _path_Assets_in);
+    rmText3D_v2(std::string _path_Assets_in, std::string frame_id_in="");
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
     void Update(ROS_API &ros_api);
 	void Render(std::shared_ptr<ViewManager> &_camera_ptr);
+
+    void setup_params(int im_width_in, int im_height_in){
+        im_width = im_width_in;
+        im_height = im_height_in;
+        im_aspect = float(im_width) / float(im_height);
+        updateBoardSize();
+    }
 
     // Insert method for texts
     // queues - draw once
@@ -289,6 +296,13 @@ public:
     //-------------------------------------//
 
 
+    // Set board size
+    void setBoardSize(float width_in, float height_in); // 3D space
+    void setBoardSize(float size_in, bool is_width); // 3D space / Using the aspect ratio from pixel data
+    void setBoardSizeRatio(float ratio_in, bool is_width); // Only use when is_perspected==false is_moveable==true
+    void updateBoardSize();
+
+
 protected:
     void Init();
     virtual void LoadModel();
@@ -321,6 +335,12 @@ protected:
     //--------------------------------------------------------//
 
 
+
+    // The image params
+    // Note: The origin of the image is at its center.
+    int im_width;
+    int im_height;
+    float im_aspect; // w / h
     // Params
     float board_width; // meter or ratio to viewport
     float board_height; // meter or ratio to viewport
