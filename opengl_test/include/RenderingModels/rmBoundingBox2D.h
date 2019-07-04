@@ -30,8 +30,8 @@ public:
     }
 
     // Set board size
-    void setBoardSize(float width_in, float height_in);
-    void setBoardSize(float size_in, bool is_width); // Using the aspect ratio from pixel data
+    void setBoardSize(float width_in, float height_in); // 3D space
+    void setBoardSize(float size_in, bool is_width); // 3D space / Using the aspect ratio from pixel data
     void setBoardSizeRatio(float ratio_in, bool is_width); // Only use when is_perspected==false is_moveable==true
     void updateBoardSize();
 
@@ -118,7 +118,7 @@ private:
     int image_offset_in_box_cv_y;
     //
     inline void toNormGL(int cv_x, int cv_y, float &gl_x, float &gl_y){
-        // Convert CV coordinate to normalized GL coordinate
+        // Convert CV coordinate to normalized GL coordinate x:[-1,1], y:[-1,1]
         gl_x = (cv_x - image_offset_in_box_cv_x)/float(im_width) * 2.0 - 1.0;
         gl_y = (cv_y - image_offset_in_box_cv_y)/float(im_height) * -2.0 + 1.0;
     }
