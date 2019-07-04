@@ -193,6 +193,21 @@ rmText3D_v2::rmText3D_v2(std::string _path_Assets_in, std::string frame_id_in):
     //
 	Init();
 }
+rmText3D_v2::rmText3D_v2(std::string _path_Assets_in, int _ROS_topic_id_in):
+    _ROS_topic_id(_ROS_topic_id_in),
+    board_width(1.0), board_height(1.0), board_aspect_ratio(1.0),
+    board_shape_mode(0)
+{
+    _path_Shaders_sub_dir += "Text/";
+    init_paths(_path_Assets_in);
+    _num_vertex_idx_per_box = (3*2);
+    _num_vertex_per_box = 4; // 8;
+    _max_num_box = 500; // 100000;
+    _max_num_vertex_idx = _max_num_box*(long long)(_num_vertex_idx_per_box);
+    _max_num_vertex = _max_num_box*(long long)(_num_vertex_per_box);
+    //
+	Init();
+}
 void rmText3D_v2::Init(){
     //
 	_program_ptr.reset( new ShaderProgram() );
@@ -368,6 +383,14 @@ void rmText3D_v2::Update(ROS_API &ros_api){
         glm::mat4 _model_tf = ROStf2GLMmatrix(ros_api.get_tf(_frame_id, tf_successed));
         set_pose_modle_ref_by_world(_model_tf);
         // end Get tf
+    }else{
+        if ( ros_api.ros_interface.is_topic_got_frame(_ROS_topic_id) ){
+            // Get tf
+            bool tf_successed = false;
+            glm::mat4 _model_tf = ROStf2GLMmatrix(ros_api.get_tf(_ROS_topic_id, tf_successed));
+            set_pose_modle_ref_by_world(_model_tf);
+            // end Get tf
+        }
     }
 
 

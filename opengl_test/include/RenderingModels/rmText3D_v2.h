@@ -243,11 +243,14 @@ public:
 
 
     rmText3D_v2(std::string _path_Assets_in, std::string frame_id_in="");
+    rmText3D_v2(std::string _path_Assets_in, int _ROS_topic_id_in);
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
     void Update(ROS_API &ros_api);
 	void Render(std::shared_ptr<ViewManager> &_camera_ptr);
+    //
+    inline glm::mat4 * get_model_m_ptr(){ return &(m_shape.model); }
 
     void setup_params(int im_width_in, int im_height_in){
         im_width = im_width_in;
