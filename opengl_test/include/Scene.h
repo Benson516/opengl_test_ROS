@@ -18,6 +18,7 @@
 #include "rmLidarBoundingBox.h"
 #include "rmImageBoard.h"
 #include "rmBoundingBox2D.h"
+#include "rmlv2TagBoundingBox2D.h"
 #include "rmGrid.h"
 // The following are not finished yet
 #include "rmSweepingObject.h"

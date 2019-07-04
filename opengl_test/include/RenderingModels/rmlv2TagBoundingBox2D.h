@@ -59,8 +59,8 @@ protected:
 
 private:
 
-    std::vector<rmText3D_v2::text2Din3D_data> text2Din3D_list();
-    std::vector<rmText3D_v2::text2Dflat_data> text2Dflat_list();
+    std::vector<rmText3D_v2::text2Din3D_data> text2Din3D_list;
+    std::vector<rmText3D_v2::text2Dflat_data> text2Dflat_list;
 
     // OpenCV --> OpenGL
     //-------------------------------------------------------//

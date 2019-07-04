@@ -1,32 +1,32 @@
 #include "rmlv2TagBoundingBox2D.h"
 
 
-
-// Predefined colors
-//-------------------------------------------//
-#define NUM_OBJ_CLASS 8
-#define color_normalize_factor  (1.0f/255.0f)
-glm::vec3 default_class_color(50, 50, 50);
-glm::vec3 obj_class_colors[] = {
-    glm::vec3(50, 50, 255), // person
-    glm::vec3(255, 153, 102), // bicycle
-    glm::vec3(153, 255, 255), // car
-    glm::vec3(255, 153, 127), // motorbike
-    glm::vec3(255, 255, 0), // not showing aeroplane
-    glm::vec3(102, 204, 255), // bus
-    glm::vec3(255, 255, 100), // not showing train
-    glm::vec3(255, 153, 102), // truck
-    glm::vec3(50, 50, 50) // default
-};
-glm::vec3 get_obj_class_color(int obj_class_in){
-    if (obj_class_in < NUM_OBJ_CLASS){
-        return ( obj_class_colors[obj_class_in] * color_normalize_factor );
+namespace rmlv2TagBoundingBox2D_ns{
+    // Predefined colors
+    //-------------------------------------------//
+    #define NUM_OBJ_CLASS 8
+    #define color_normalize_factor  (1.0f/255.0f)
+    glm::vec3 default_class_color(50, 50, 50);
+    glm::vec3 obj_class_colors[] = {
+        glm::vec3(50, 50, 255), // person
+        glm::vec3(255, 153, 102), // bicycle
+        glm::vec3(153, 255, 255), // car
+        glm::vec3(255, 153, 127), // motorbike
+        glm::vec3(255, 255, 0), // not showing aeroplane
+        glm::vec3(102, 204, 255), // bus
+        glm::vec3(255, 255, 100), // not showing train
+        glm::vec3(255, 153, 102), // truck
+        glm::vec3(50, 50, 50) // default
+    };
+    glm::vec3 get_obj_class_color(int obj_class_in){
+        if (obj_class_in < NUM_OBJ_CLASS){
+            return ( obj_class_colors[obj_class_in] * color_normalize_factor );
+        }
+        return ( default_class_color * color_normalize_factor );
     }
-    return ( default_class_color * color_normalize_factor );
+    //-------------------------------------------//
+
 }
-//-------------------------------------------//
-
-
 
 rmlv2TagBoundingBox2D::rmlv2TagBoundingBox2D(
     std::string _path_Assets_in,
@@ -87,22 +87,33 @@ void rmlv2TagBoundingBox2D::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
 
 void rmlv2TagBoundingBox2D::update_GL_data(){
+    // Reset
+    if (is_perspected){
+        text2Din3D_list.clear();
+    }else{
+        text2Dflat_list.clear();
+    }
+
+    //
     if (msg_out_ptr->camObj.size() == 0){
-        m_shape.indexCount = 0;
+        // Insert texts
+        if (is_perspected){
+            rm_text.insert_text(text2Din3D_list);
+        }else{
+            rm_text.insert_text(text2Dflat_list);
+        }
         return;
     }
     long long num_box = msg_out_ptr->camObj.size();
+    /*
     if (num_box > _max_num_box){
         num_box = _max_num_box;
     }
+    */
 
-    // Reset
-    if (is_perspected){
-        text2Din3D_list.resize(0);
-    }else{
-        text2Dflat_list.resize(0);
-    }
+
     //
+    size_t _box_count = 0;
     for (size_t i = 0; i < num_box; i++)
 	{
         //
@@ -115,7 +126,7 @@ void rmlv2TagBoundingBox2D::update_GL_data(){
         }
         _box_count++;
         //
-        glm::vec3 _box_color = get_obj_class_color(_a_box_param_gl.obj_class);
+        glm::vec3 _box_color = rmlv2TagBoundingBox2D_ns::get_obj_class_color(_a_box_param_gl.obj_class);
         /*
         for (size_t _k=0; _k <_num_vertex_per_box; ++_k ){
             vertex_ptr[_j].position[0] = _a_box_param_gl.xy_list[_k][0];
@@ -129,8 +140,8 @@ void rmlv2TagBoundingBox2D::update_GL_data(){
         if (is_perspected){
             text2Din3D_list.emplace_back(
                 "#" + std::to_string(_box.id) + " cls: " + std::to_string(_box.cls),
-                xy_list[0],
-                0.2,
+                _a_box_param_gl.xy_list[0],
+                0.1,
                 _box_color,
                 rmText3D_v2::ALIGN_X::LEFT,
                 rmText3D_v2::ALIGN_Y::BUTTON,
@@ -139,7 +150,7 @@ void rmlv2TagBoundingBox2D::update_GL_data(){
         }else{
             text2Dflat_list.emplace_back(
                 "#" + std::to_string(_box.id) + " cls: " + std::to_string(_box.cls),
-                xy_list[0],
+                _a_box_param_gl.xy_list[0],
                 24,
                 _box_color,
                 rmText3D_v2::ALIGN_X::LEFT,

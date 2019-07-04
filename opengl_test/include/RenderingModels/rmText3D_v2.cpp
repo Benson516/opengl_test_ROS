@@ -394,73 +394,73 @@ void rmText3D_v2::Update(ROS_API &ros_api){
     }
 
 
-    // test
-    //----------------------//
-    static int _count = 0;
-    insert_text( text2Din3D_data( "Hello world: " + std::to_string(_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), glm::vec2(0.0f), 1.0f, glm::vec3(1.0f,1.0f,0.0f) ) );
+    // // test
+    // //----------------------//
+    // static int _count = 0;
+    // insert_text( text2Din3D_data( "Hello world: " + std::to_string(_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), glm::vec2(0.0f), 1.0f, glm::vec3(1.0f,1.0f,0.0f) ) );
+    // //
+    // insert_text( text2Din3D_data( "Text2Din3D pos_mode=0: " + std::to_string(_count), glm::vec2(10.0f), 1.0f, glm::vec3(0.0f,1.0f,0.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 0) );
+    // insert_text( text2Din3D_data( "Text2Din3D pos_mode=1: " + std::to_string(_count), glm::vec2(1.0f), 1.0f, glm::vec3(0.0f,1.0f,0.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1) );
+    // /*
+    // for (size_t _k=0; _k < 1000; ++_k){
+    //     insert_text( text2Din3D_data("Text #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec2( 0.0f, float(_k))) );
+    // }
+    // */
     //
-    insert_text( text2Din3D_data( "Text2Din3D pos_mode=0: " + std::to_string(_count), glm::vec2(10.0f), 1.0f, glm::vec3(0.0f,1.0f,0.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 0) );
-    insert_text( text2Din3D_data( "Text2Din3D pos_mode=1: " + std::to_string(_count), glm::vec2(1.0f), 1.0f, glm::vec3(0.0f,1.0f,0.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1) );
-    /*
-    for (size_t _k=0; _k < 1000; ++_k){
-        insert_text( text2Din3D_data("Text #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec2( 0.0f, float(_k))) );
-    }
-    */
-
-    // 2D text
-    insert_text( text2Dflat_data( "text2Dflat\n\tpos_mode=1\n\tsize_mode=0\n\tis_fullviewport=true\n\tis_background=false\nseq: " + std::to_string(_count), glm::vec2(0.5f), 24, glm::vec3(0.0f,0.0f,1.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1, 0, true, false) );
-    insert_text( text2Dflat_data( "text2Dflat\n\tpos_mode=1\n\tsize_mode=0\n\tis_fullviewport=true\n\tis_background=true\nseq: " + std::to_string(_count), glm::vec2(-0.5f), 24, glm::vec3(0.0f,0.0f,0.5f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1, 0, true, true) );
+    // // 2D text
+    // insert_text( text2Dflat_data( "text2Dflat\n\tpos_mode=1\n\tsize_mode=0\n\tis_fullviewport=true\n\tis_background=false\nseq: " + std::to_string(_count), glm::vec2(0.5f), 24, glm::vec3(0.0f,0.0f,1.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1, 0, true, false) );
+    // insert_text( text2Dflat_data( "text2Dflat\n\tpos_mode=1\n\tsize_mode=0\n\tis_fullviewport=true\n\tis_background=true\nseq: " + std::to_string(_count), glm::vec2(-0.5f), 24, glm::vec3(0.0f,0.0f,0.5f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1, 0, true, true) );
+    // //
+    // // insert_text( text2Dflat_data( "--text2Dflat\n\tpos_mode=1\n\tsize_mode=0\n\tis_fullviewport=false\n\tis_background=false\nseq: " + std::to_string(_count), glm::vec2(-1.0f, 1.0f), 24, glm::vec3(1.0f,0.0f,0.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1, 0, false, false) );
     //
-    // insert_text( text2Dflat_data( "--text2Dflat\n\tpos_mode=1\n\tsize_mode=0\n\tis_fullviewport=false\n\tis_background=false\nseq: " + std::to_string(_count), glm::vec2(-1.0f, 1.0f), 24, glm::vec3(1.0f,0.0f,0.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1, 0, false, false) );
-
+    // //
+    // insert_text( text3D_data("Text3D") );
+    // //
+    // // insert_text( text_billboard_data("The billboard" ));
+    // insert_text(
+    //     text_billboard_data(
+    //         "The billboard\nSecond line\nSeq: " + std::to_string(_count),
+    //         glm::vec3( 0.0f, 0.0f, 0.0f),
+    //         glm::vec2(0.0f, 0.0f),
+    //         1.0f,
+    //         glm::vec3(1.0f, 0.8f, 0.2f),
+    //         ALIGN_X::RIGHT,
+    //         ALIGN_Y::CENTER
+    //     )
+    // );
+    // /*
+    // for (size_t _k=0; _k < 1000; ++_k){
+    //     insert_text(
+    //         text_billboard_data(
+    //             "billboard #" + std::to_string(_k) + ": " + std::to_string(_count),
+    //             glm::vec3( float(_k)*2.0f, 0.0f, 2.0f),
+    //             glm::vec2(0.0f, 0.0f)
+    //         )
+    //     );
+    // }
+    // */
     //
-    insert_text( text3D_data("Text3D") );
     //
-    // insert_text( text_billboard_data("The billboard" ));
-    insert_text(
-        text_billboard_data(
-            "The billboard\nSecond line\nSeq: " + std::to_string(_count),
-            glm::vec3( 0.0f, 0.0f, 0.0f),
-            glm::vec2(0.0f, 0.0f),
-            1.0f,
-            glm::vec3(1.0f, 0.8f, 0.2f),
-            ALIGN_X::RIGHT,
-            ALIGN_Y::CENTER
-        )
-    );
-    /*
-    for (size_t _k=0; _k < 1000; ++_k){
-        insert_text(
-            text_billboard_data(
-                "billboard #" + std::to_string(_k) + ": " + std::to_string(_count),
-                glm::vec3( float(_k)*2.0f, 0.0f, 2.0f),
-                glm::vec2(0.0f, 0.0f)
-            )
-        );
-    }
-    */
-
-
+    // //
+    // for (size_t _k=0; _k < 3; ++_k){
+    //     insert_text(
+    //         text_freeze_board_data(
+    //             "I am freezed board #" + std::to_string(_k) + ": " + std::to_string(_count),
+    //             glm::vec3( float(_k)*20.0f, 0.0f, 10.0f),
+    //             glm::vec2(0.0f, 0.0f),
+    //             24,
+    //             glm::vec3(1.0f, 0.0f, 1.0f),
+    //             ALIGN_X::CENTER,
+    //             ALIGN_Y::CENTER
+    //         )
+    //     );
+    // }
     //
-    for (size_t _k=0; _k < 3; ++_k){
-        insert_text(
-            text_freeze_board_data(
-                "I am freezed board #" + std::to_string(_k) + ": " + std::to_string(_count),
-                glm::vec3( float(_k)*20.0f, 0.0f, 10.0f),
-                glm::vec2(0.0f, 0.0f),
-                24,
-                glm::vec3(1.0f, 0.0f, 1.0f),
-                ALIGN_X::CENTER,
-                ALIGN_Y::CENTER
-            )
-        );
-    }
-
-    //
-    _count++;
-    //
-    //----------------------//
-    // end test
+    // //
+    // _count++;
+    // //
+    // //----------------------//
+    // // end test
 }
 void rmText3D_v2::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     glBindVertexArray(m_shape.vao);
@@ -607,7 +607,7 @@ void rmText3D_v2::_draw_one_text2Din3D(std::shared_ptr<ViewManager> &_camera_ptr
     // The transformation matrices and projection matrices
     // glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model * m_shape.shape * transform_m) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
-    glUniform1f(uniforms.pose2D_depth, 0.0);
+    glUniform1f(uniforms.pose2D_depth, 0.0001); // Pop out (floating) a little bit to prevent the intersection with image board
     // RenderText("Hello world: " + std::to_string(++_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), a48_ptr, 0.0, 0.0, 1.0, 1.0, glm::vec3(1.0f, 1.0f, 0.0f));
     RenderText(
         _data_in.text,
