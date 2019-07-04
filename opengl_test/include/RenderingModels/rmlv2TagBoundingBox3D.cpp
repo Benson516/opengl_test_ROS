@@ -9,7 +9,7 @@ rmlv2TagBoundingBox3D::rmlv2TagBoundingBox3D(
 ):
     _ROS_topic_id(_ROS_topic_id_in),
     //
-    rm_box(_path_Assets_in, _ROS_topic_id_in, is_perspected_in, is_moveable_in),
+    rm_box(_path_Assets_in, _ROS_topic_id_in),
     rm_text(_path_Assets_in, _ROS_topic_id_in)
 {
     //
@@ -98,8 +98,7 @@ void rmlv2TagBoundingBox3D::update_GL_data(){
             1.0f,
             glm::vec3(0.0f, 1.0f, 0.0f),
             rmText3D_v2::ALIGN_X::CENTER,
-            rmText3D_v2::ALIGN_Y::BUTTON,
-            1
+            rmText3D_v2::ALIGN_Y::BUTTON
         );
     }
 

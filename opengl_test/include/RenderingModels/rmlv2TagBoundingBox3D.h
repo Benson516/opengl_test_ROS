@@ -26,7 +26,7 @@ protected:
     void Init();
     //
     int _ROS_topic_id;
-    std::shared_ptr< msgs::CamObj > msg_out_ptr;
+    std::shared_ptr< msgs::LidRoi > msg_out_ptr;
     // ros::Time msg_time;
 
     //
