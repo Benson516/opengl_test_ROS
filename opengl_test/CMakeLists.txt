@@ -132,16 +132,20 @@ set(RENDER_MODEL_PATH
 )
 set(ALL_RENDER_MODELS
     ${RENDER_MODEL_PATH}rmBaseModel.cpp
+    ${RENDER_MODEL_PATH}rmModelLoaderObj.cpp
     ${RENDER_MODEL_PATH}rmPointCloud.cpp
     ${RENDER_MODEL_PATH}rmLidarBoundingBox.cpp
     ${RENDER_MODEL_PATH}rmImageBoard.cpp
     ${RENDER_MODEL_PATH}rmText2D.cpp
-    ${RENDER_MODEL_PATH}rmText3D.cpp
+    # ${RENDER_MODEL_PATH}rmText3D.cpp
     ${RENDER_MODEL_PATH}rmText3D_v2.cpp
     ${RENDER_MODEL_PATH}rmSweepingObject.cpp
     ${RENDER_MODEL_PATH}rmBoundingBox2D.cpp
     ${RENDER_MODEL_PATH}rmGrid.cpp
-
+    #
+    ${RENDER_MODEL_PATH}rmCircle.cpp
+    ${RENDER_MODEL_PATH}rmlv2TagBoundingBox2D.cpp
+    ${RENDER_MODEL_PATH}rmlv2TagBoundingBox3D.cpp
 )
 
 

@@ -11,11 +11,11 @@ public:
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
     void Update(ROS_API &ros_api);
-	void Render(std::shared_ptr<ViewManager> _camera_ptr);
+	void Render(std::shared_ptr<ViewManager> &_camera_ptr);
 
     void set_color(glm::vec3 color_in);
 
-    TIME_STAMP::FPS fps_of_update;
+    // TIME_STAMP::FPS fps_of_update;
 
 protected:
     void Init();
@@ -69,4 +69,4 @@ private:
     }
 };
 
-#endif
+#endif // RM_POINTCLOUD_H

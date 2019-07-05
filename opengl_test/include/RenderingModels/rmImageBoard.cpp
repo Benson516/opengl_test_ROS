@@ -20,7 +20,9 @@ rmImageBoard::rmImageBoard(
     is_perspected(is_perspected_in),
     is_moveable(is_moveable_in),
     is_color_transformed(is_color_transformed_in),
-    fps_of_update(image_file_in)
+    board_width(1.0), board_height(1.0), board_aspect_ratio(1.0),
+    board_shape_mode(0)
+    // fps_of_update(image_file_in)
 {
     _path_Shaders_sub_dir += "ImageBoard/";
     init_paths(_path_Assets_in);
@@ -41,7 +43,9 @@ rmImageBoard::rmImageBoard(
     is_moveable(is_moveable_in),
     is_color_transformed(is_color_transformed_in),
     _ROS_topic_id(_ROS_topic_id_in),
-    fps_of_update( std::string("Image ") + std::to_string(_ROS_topic_id_in) )
+    board_width(1.0), board_height(1.0), board_aspect_ratio(1.0),
+    board_shape_mode(0)
+    // fps_of_update( std::string("Image ") + std::to_string(_ROS_topic_id_in) )
 {
     _path_Shaders_sub_dir += "ImageBoard/";
     init_paths(_path_Assets_in);
@@ -78,11 +82,12 @@ void rmImageBoard::Init(){
 
     // Initialize variables
     // Init model matrices
+    m_shape.shape = glm::mat4(1.0);
 	m_shape.model = glm::mat4(1.0);
     attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
     // Colors
-    _alpha = 0.7;
-    _color_transform = glm::vec4(1.0f);
+    alpha = 0.7;
+    color_transform = glm::vec4(1.0f);
     //
 
     // Cache uniform variable id
@@ -130,6 +135,8 @@ void rmImageBoard::LoadModel(){
         std::cout << "start loading <" << textName << ">\n";
     	TextureData tdata = Common::Load_png(get_full_Assets_path(textName).c_str());
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, tdata.width, tdata.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata.data);
+        m_shape.width = tdata.width;
+        m_shape.height = tdata.height;
     }
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -153,13 +160,13 @@ void rmImageBoard::Update(ROS_INTERFACE &ros_interface){
 
     if (_result){
         // evaluation
-        TIME_STAMP::Period period_image(fps_of_update.name);
+        // TIME_STAMP::Period period_image(fps_of_update.name);
         //
         update_GL_data();
         // evaluation
-        period_image.stamp();  period_image.show_usec();
+        // period_image.stamp();  period_image.show_usec();
         // FPS
-        fps_of_update.stamp();  fps_of_update.show();
+        // fps_of_update.stamp();  fps_of_update.show();
     }
 
     // Move in 3D space
@@ -233,7 +240,7 @@ void rmImageBoard::Update(ROS_API &ros_api){
 }
 
 
-void rmImageBoard::Render(std::shared_ptr<ViewManager> _camera_ptr){
+void rmImageBoard::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
     glBindVertexArray(m_shape.vao);
 	_program_ptr->UseProgram();
@@ -242,24 +249,28 @@ void rmImageBoard::Render(std::shared_ptr<ViewManager> _camera_ptr){
         //
         // m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
         // The transformation matrices and projection matrices
-        glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
+        glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model * m_shape.shape) ));
         glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
     }else{
         if (is_moveable){
+            if ( !glm::all(glm::equal(_viewport_size, _camera_ptr->GetViewportSize() ) ) ){
+                _viewport_size = _camera_ptr->GetViewportSize();
+                updateBoardSize();
+            }
             // Note: the rotation is mainly for z-axis rotation
             // Note 2: The tranalation/rotation/scale is based on the "center" of the image
             // m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
-            glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( m_shape.model ));
+            glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( m_shape.model * m_shape.shape));
         }else{
             // background
             // Nothing, for saving computation
         }
     }
     //
-    glUniform1f(uniforms.alpha, _alpha); // The alpha, if alpha < 0.0 then it's disabled
+    glUniform1f(uniforms.alpha, alpha); // The alpha, if alpha < 0.0 then it's disabled
     if (is_color_transformed){
         // Color transform will resulted in feelable delay in display.
-        glUniform4fv(uniforms.color_transform, 1, value_ptr(_color_transform) );
+        glUniform4fv(uniforms.color_transform, 1, value_ptr(color_transform) );
     }
 
     // glActiveTexture(GL_TEXTURE0);
@@ -274,8 +285,12 @@ void rmImageBoard::Render(std::shared_ptr<ViewManager> _camera_ptr){
 
 void rmImageBoard::update_GL_data(){
     //
-    m_shape.width = msg_out_ptr->cols;
-    m_shape.height = msg_out_ptr->rows;
+    if (m_shape.width != msg_out_ptr->cols || m_shape.height != msg_out_ptr->rows){
+        m_shape.width = msg_out_ptr->cols;
+        m_shape.height = msg_out_ptr->rows;
+        updateBoardSize();
+    }
+
 
     // vao vbo
     glBindVertexArray(m_shape.vao);
@@ -294,4 +309,75 @@ void rmImageBoard::update_GL_data(){
     // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, flipped_image.width, flipped_image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, flipped_image.data);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, flipped_image.cols, flipped_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, flipped_image.data);
     //
+}
+
+
+
+
+
+
+void rmImageBoard::setBoardSize(float width_in, float height_in){
+    board_shape_mode = 0;
+    board_width = width_in;
+    board_height = height_in;
+    board_aspect_ratio = board_width/board_height;
+    //
+    m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height,1.0f) );
+}
+void rmImageBoard::setBoardSize(float size_in, bool is_width){ // Using the aspect ratio from pixel data
+    board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+    if (is_width){
+        board_shape_mode = 1;
+        board_width = size_in;
+        board_height = board_width / board_aspect_ratio;
+    }else{
+        board_shape_mode = 2;
+        board_height = size_in;
+        board_width = board_height * board_aspect_ratio;
+    }
+    //
+    m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
+}
+void rmImageBoard::setBoardSizeRatio(float ratio_in, bool is_width){ // Only use when is_perspected==false is_moveable==true
+    board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+    if (is_width){
+        board_shape_mode = 3;
+        board_width = ratio_in;
+        board_height = board_width / board_aspect_ratio;
+    }else{
+        board_shape_mode = 4;
+        board_height = ratio_in;
+        board_width = board_height * board_aspect_ratio;
+    }
+    //
+    m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
+}
+void rmImageBoard::updateBoardSize(){
+    switch(board_shape_mode){
+        case 0: // fixed size
+            // Nothing to do
+            break;
+        case 1: // fixed width
+            board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+            board_height = board_width / board_aspect_ratio;
+            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
+            break;
+        case 2: // fixed height
+            board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+            board_width = board_height * board_aspect_ratio;
+            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
+            break;
+        case 3: // fixed width ratio relative to viewport
+            board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+            board_height = (board_width*_viewport_size[0]) / (board_aspect_ratio*_viewport_size[1]);
+            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
+            break;
+        case 4: // fixed height ratio ralative to viewport
+            board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+            board_width = (board_height*_viewport_size[1]) * board_aspect_ratio / float(_viewport_size[0]);
+            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
+            break;
+        default:
+            break;
+    }
 }

@@ -178,9 +178,27 @@ namespace rmLidarBoundingBox_ns{
 
 
 
-rmText3D_v2::rmText3D_v2(std::string _path_Assets_in, int _ROS_topic_id_in):
-    _ROS_topic_id(_ROS_topic_id_in)
+rmText3D_v2::rmText3D_v2(std::string _path_Assets_in, std::string frame_id_in):
+    _frame_id(frame_id_in),
+    board_width(1.0), board_height(1.0), board_aspect_ratio(1.0),
+    board_shape_mode(0)
 {
+    _path_Shaders_sub_dir += "Text/";
+    init_paths(_path_Assets_in);
+    _num_vertex_idx_per_box = (3*2);
+    _num_vertex_per_box = 4; // 8;
+    _max_num_box = 500; // 100000;
+    _max_num_vertex_idx = _max_num_box*(long long)(_num_vertex_idx_per_box);
+    _max_num_vertex = _max_num_box*(long long)(_num_vertex_per_box);
+    //
+	Init();
+}
+rmText3D_v2::rmText3D_v2(std::string _path_Assets_in, int _ROS_topic_id_in):
+    _ROS_topic_id(_ROS_topic_id_in),
+    board_width(1.0), board_height(1.0), board_aspect_ratio(1.0),
+    board_shape_mode(0)
+{
+    _path_Shaders_sub_dir += "Text/";
     init_paths(_path_Assets_in);
     _num_vertex_idx_per_box = (3*2);
     _num_vertex_per_box = 4; // 8;
@@ -205,8 +223,10 @@ void rmText3D_v2::Init(){
 	uniforms.mv_matrix = glGetUniformLocation(_program_ptr->GetID(), "mv_matrix");
     uniforms.textColor = glGetUniformLocation(_program_ptr->GetID(), "textColor");
     uniforms.ref_point = glGetUniformLocation(_program_ptr->GetID(), "ref_point");
+    uniforms.pose2D_depth = glGetUniformLocation(_program_ptr->GetID(), "pose2D_depth");
 
     // Init model matrices
+    m_shape.shape = glm::mat4(1.0);
 	m_shape.model = glm::mat4(1.0);
     attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
     // The reference point of a text
@@ -326,6 +346,27 @@ void rmText3D_v2::LoadModel(){
     //----------------------------------------//
 
 
+
+
+    /*
+    // test
+    vector<text_billboard_data> data_test;
+    for (size_t _k=0; _k < 1000; ++_k){
+        data_test.push_back(
+            text_billboard_data(
+                "billboard #" + std::to_string(_k),
+                glm::vec3( float(_k)*2.0f, 0.0f, 2.0f),
+                glm::vec2(0.0f, 0.0f),
+                1.5f,
+                glm::vec3(0.6f)
+            )
+        );
+        insert_text(data_test);
+    }
+    //
+    */
+
+
 }
 void rmText3D_v2::Update(float dt){
     // Update the data (buffer variables) here
@@ -336,105 +377,245 @@ void rmText3D_v2::Update(ROS_INTERFACE &ros_interface){
 void rmText3D_v2::Update(ROS_API &ros_api){
     // Update the data (buffer variables) here
 
-    // test
-    static int _count = 0;
-    insert_text( text2D_data( "Hello world: " + std::to_string(_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), glm::vec2(0.0f), 1.0f, glm::vec3(1.0f,1.0f,0.0f) ) );
-    /*
-    for (size_t _k=0; _k < 1000; ++_k){
-        insert_text( text2D_data("Text #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec2( 0.0f, float(_k))) );
-    }
-    */
-
-    //
-    insert_text( text3D_data("Text3D") );
-    //
-    // insert_text( text_billboard_data("The billboard" ));
-    insert_text(
-        text_billboard_data(
-            "The billboard\nSecond line\nSeq: " + std::to_string(_count),
-            glm::vec3( 0.0f, 0.0f, 0.0f),
-            glm::vec2(0.0f, 0.0f),
-            1.0f,
-            glm::vec3(1.0f, 0.8f, 0.2f),
-            ALIGN_X::RIGHT,
-            ALIGN_Y::CENTER
-        )
-    );
-    /*
-    for (size_t _k=0; _k < 1000; ++_k){
-        insert_text(
-            text_billboard_data(
-                "billboard #" + std::to_string(_k) + ": " + std::to_string(_count),
-                glm::vec3( float(_k)*2.0f, 0.0f, 2.0f),
-                glm::vec2(0.0f, 0.0f)
-            )
-        );
-    }
-    */
-
-
-    //
-    for (size_t _k=0; _k < 3; ++_k){
-        insert_text(
-            text_freeze_board_data(
-                "I am freeze board #" + std::to_string(_k) + ": " + std::to_string(_count),
-                glm::vec3( float(_k)*20.0f, 0.0f, 10.0f),
-                glm::vec2(0.0f, 0.0f),
-                24,
-                glm::vec3(1.0f, 0.0f, 1.0f),
-                ALIGN_X::CENTER,
-                ALIGN_Y::CENTER
-            )
-        );
+    if (_frame_id.size() > 0){
+        // Get tf
+        bool tf_successed = false;
+        glm::mat4 _model_tf = ROStf2GLMmatrix(ros_api.get_tf(_frame_id, tf_successed));
+        set_pose_modle_ref_by_world(_model_tf);
+        // end Get tf
+    }else{
+        if ( ros_api.ros_interface.is_topic_got_frame(_ROS_topic_id) ){
+            // Get tf
+            bool tf_successed = false;
+            glm::mat4 _model_tf = ROStf2GLMmatrix(ros_api.get_tf(_ROS_topic_id, tf_successed));
+            set_pose_modle_ref_by_world(_model_tf);
+            // end Get tf
+        }
     }
 
+
+    // // test
+    // //----------------------//
+    // static int _count = 0;
+    // insert_text( text2Din3D_data( "Hello world: " + std::to_string(_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), glm::vec2(0.0f), 1.0f, glm::vec3(1.0f,1.0f,0.0f) ) );
+    // //
+    // insert_text( text2Din3D_data( "Text2Din3D pos_mode=0: " + std::to_string(_count), glm::vec2(10.0f), 1.0f, glm::vec3(0.0f,1.0f,0.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 0) );
+    // insert_text( text2Din3D_data( "Text2Din3D pos_mode=1: " + std::to_string(_count), glm::vec2(1.0f), 1.0f, glm::vec3(0.0f,1.0f,0.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1) );
+    // /*
+    // for (size_t _k=0; _k < 1000; ++_k){
+    //     insert_text( text2Din3D_data("Text #" + std::to_string(_k) + ": " + std::to_string(_count), glm::vec2( 0.0f, float(_k))) );
+    // }
+    // */
     //
-    _count++;
+    // // 2D text
+    // insert_text( text2Dflat_data( "text2Dflat\n\tpos_mode=1\n\tsize_mode=0\n\tis_fullviewport=true\n\tis_background=false\nseq: " + std::to_string(_count), glm::vec2(0.5f), 24, glm::vec3(0.0f,0.0f,1.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1, 0, true, false) );
+    // insert_text( text2Dflat_data( "text2Dflat\n\tpos_mode=1\n\tsize_mode=0\n\tis_fullviewport=true\n\tis_background=true\nseq: " + std::to_string(_count), glm::vec2(-0.5f), 24, glm::vec3(0.0f,0.0f,0.5f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1, 0, true, true) );
+    // //
+    // // insert_text( text2Dflat_data( "--text2Dflat\n\tpos_mode=1\n\tsize_mode=0\n\tis_fullviewport=false\n\tis_background=false\nseq: " + std::to_string(_count), glm::vec2(-1.0f, 1.0f), 24, glm::vec3(1.0f,0.0f,0.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1, 0, false, false) );
     //
+    // //
+    // insert_text( text3D_data("Text3D") );
+    // //
+    // // insert_text( text_billboard_data("The billboard" ));
+    // insert_text(
+    //     text_billboard_data(
+    //         "The billboard\nSecond line\nSeq: " + std::to_string(_count),
+    //         glm::vec3( 0.0f, 0.0f, 0.0f),
+    //         glm::vec2(0.0f, 0.0f),
+    //         1.0f,
+    //         glm::vec3(1.0f, 0.8f, 0.2f),
+    //         ALIGN_X::RIGHT,
+    //         ALIGN_Y::CENTER
+    //     )
+    // );
+    // /*
+    // for (size_t _k=0; _k < 1000; ++_k){
+    //     insert_text(
+    //         text_billboard_data(
+    //             "billboard #" + std::to_string(_k) + ": " + std::to_string(_count),
+    //             glm::vec3( float(_k)*2.0f, 0.0f, 2.0f),
+    //             glm::vec2(0.0f, 0.0f)
+    //         )
+    //     );
+    // }
+    // */
+    //
+    //
+    // //
+    // for (size_t _k=0; _k < 3; ++_k){
+    //     insert_text(
+    //         text_freeze_board_data(
+    //             "I am freezed board #" + std::to_string(_k) + ": " + std::to_string(_count),
+    //             glm::vec3( float(_k)*20.0f, 0.0f, 10.0f),
+    //             glm::vec2(0.0f, 0.0f),
+    //             24,
+    //             glm::vec3(1.0f, 0.0f, 1.0f),
+    //             ALIGN_X::CENTER,
+    //             ALIGN_Y::CENTER
+    //         )
+    //     );
+    // }
+    //
+    // //
+    // _count++;
+    // //
+    // //----------------------//
+    // // end test
 }
-void rmText3D_v2::Render(std::shared_ptr<ViewManager> _camera_ptr){
+void rmText3D_v2::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     glBindVertexArray(m_shape.vao);
 	_program_ptr->UseProgram();
+    // queues
     //--------------------------------//
-    for (size_t i=0; i < text2D_buffer.size(); ++i){
-        _draw_one_text2D(_camera_ptr, text2D_buffer.front() );
-        text2D_buffer.pop();
+    while (!text2Dflat_queue.empty()){
+        _draw_one_text2Dflat(_camera_ptr, text2Dflat_queue.front() );
+        text2Dflat_queue.pop();
+    }
+    while (!text2Din3D_queue.empty()){
+        _draw_one_text2Din3D(_camera_ptr, text2Din3D_queue.front() );
+        text2Din3D_queue.pop();
+    }
+    while (!text3D_queue.empty()){
+        _draw_one_text3D(_camera_ptr, text3D_queue.front() );
+        text3D_queue.pop();
+    }
+    while (!text_billboard_queue.empty()){
+        _draw_one_text_billboard(_camera_ptr, text_billboard_queue.front() );
+        text_billboard_queue.pop();
+    }
+    while (!text_freeze_board_queue.empty()){
+        _draw_one_text_freeze_board(_camera_ptr, text_freeze_board_queue.front() );
+        text_freeze_board_queue.pop();
+    }
+    //--------------------------------//
+
+    // buffers
+    //--------------------------------//
+    for (size_t i=0; i < text2Dflat_buffer.size(); ++i){
+        _draw_one_text2Dflat(_camera_ptr, text2Dflat_buffer[i] );
+    }
+    for (size_t i=0; i < text2Din3D_buffer.size(); ++i){
+        _draw_one_text2Din3D(_camera_ptr, text2Din3D_buffer[i] );
     }
     for (size_t i=0; i < text3D_buffer.size(); ++i){
-        _draw_one_text3D(_camera_ptr, text3D_buffer.front() );
-        text3D_buffer.pop();
+        _draw_one_text3D(_camera_ptr, text3D_buffer[i] );
     }
     for (size_t i=0; i < text_billboard_buffer.size(); ++i){
-        _draw_one_text_billboard(_camera_ptr, text_billboard_buffer.front() );
-        text_billboard_buffer.pop();
+        _draw_one_text_billboard(_camera_ptr, text_billboard_buffer[i] );
     }
     for (size_t i=0; i < text_freeze_board_buffer.size(); ++i){
-        _draw_one_text_freeze_board(_camera_ptr, text_freeze_board_buffer.front() );
-        text_freeze_board_buffer.pop();
+        _draw_one_text_freeze_board(_camera_ptr, text_freeze_board_buffer[i] );
     }
     //--------------------------------//
+
     _program_ptr->CloseProgram();
 }
 
 
 // Different draw methods
 //--------------------------------------------------------//
-void rmText3D_v2::_draw_one_text2D(std::shared_ptr<ViewManager> &_camera_ptr, text2D_data &_data_in){
+void rmText3D_v2::_draw_one_text2Dflat(std::shared_ptr<ViewManager> &_camera_ptr, text2Dflat_data &_data_in){
+    if ( !glm::all(glm::equal(_viewport_size, _camera_ptr->GetViewportSize() ) ) ){
+        _viewport_size = _camera_ptr->GetViewportSize();
+        updateBoardSize();
+    }
     // static int _count = 0;
+    /*
+    pos_mode:
+        0 - OpenCV pixel x:[0,ncol] "right", y:[0,nrow] "down"
+        1 - OpenGL normalizd coordinate x:[-1,1] "right", y:[-1,1] "up"
+    */
+    glm::vec2 nl_position_2D;   // normalized
+    glm::vec2 nl_size;          // normalized
+    if (_data_in.is_fullviewport){
+        //
+        if (_data_in.pos_mode == 0){
+            glm::vec2 _factor(2.0/float(_viewport_size[0]), 2.0/float(_viewport_size[1]) );
+            nl_position_2D = _data_in.position_2D * _factor * glm::vec2(1.0f, -1.0f) + glm::vec2(-1.0f, 1.0f);
+        }else{ // 1
+            nl_position_2D = _data_in.position_2D;       // [-1, 1]
+        }
+        //
+        if (_data_in.size_mode == 0){
+            glm::vec2 _factor(2.0/float(_viewport_size[0]), 2.0/float(_viewport_size[1]) );
+            nl_size = glm::vec2(_data_in.size) * _factor; // the size in ratio of the whole board --> OpenGL coordinate: [-1, 1]
+        }else{
+            nl_size[0] = _data_in.size * 2.0 * ( float(_viewport_size[1]) / float(_viewport_size[0]) ); //  the size is based i=on "height"
+            nl_size[1] = _data_in.size * 2.0; // the size in ratio of the whole board --> OpenGL coordinate: [-1, 1]
+        }
+        glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( glm::mat4(1.0f) ));
+    }else{ // Note full viewport
+        //
+        if (_data_in.pos_mode == 0){
+            glm::vec2 _factor(2.0/(board_width*float(_viewport_size[0])), 2.0/(board_height*float(_viewport_size[1])) );
+            nl_position_2D = _data_in.position_2D * _factor * glm::vec2(1.0f, -1.0f) + glm::vec2(-1.0f, 1.0f);
+        }else{ // 1
+            nl_position_2D = _data_in.position_2D;       // [-1, 1]
+        }
+        //
+        if (_data_in.size_mode == 0){
+            glm::vec2 _factor(2.0/(board_width*float(_viewport_size[0])), 2.0/(board_height*float(_viewport_size[1])) );
+            nl_size = glm::vec2(_data_in.size) * _factor; // the size in ratio of the whole board --> OpenGL coordinate: [-1, 1]
+        }else{
+            nl_size[0] = _data_in.size * 2.0 / board_aspect_ratio; //  the size is based i=on "height"
+            nl_size[1] = _data_in.size * 2.0; // the size in ratio of the whole board --> OpenGL coordinate: [-1, 1]
+        }
+        glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( m_shape.model * m_shape.shape));
+    }
 
-    // m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
     // The transformation matrices and projection matrices
-    glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
-    glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
-
+    glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(glm::mat4(1.0)));
+    if (_data_in.is_background){
+        glUniform1f(uniforms.pose2D_depth, 1.0);
+    }else{
+        glUniform1f(uniforms.pose2D_depth, 0.0);
+    }
     // RenderText("Hello world: " + std::to_string(++_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), a48_ptr, 0.0, 0.0, 1.0, 1.0, glm::vec3(1.0f, 1.0f, 0.0f));
     RenderText(
         _data_in.text,
         a48_ptr,
-        _data_in.position_2D[0],
-        _data_in.position_2D[1],
-        _data_in.size,
-        _data_in.size,
+        nl_position_2D[0],
+        nl_position_2D[1],
+        nl_size[0],
+        nl_size[1],
+        _data_in.color,
+        _data_in.align_x,
+        _data_in.align_y
+    );
+    //--------------------------------//
+}
+void rmText3D_v2::_draw_one_text2Din3D(std::shared_ptr<ViewManager> &_camera_ptr, text2Din3D_data &_data_in){
+    // static int _count = 0;
+    /*
+    pos_mode:
+        0 - meter in 3D perspective view (3D text2D only)
+        1 - OpenGL normalizd coordinate x:[-1,1] "right", y:[-1,1] "up"
+    */
+    glm::vec2 nl_position_2D;   // normalized
+    glm::vec2 nl_size;          // normalized
+    if (_data_in.pos_mode == 0){
+        nl_position_2D = _data_in.position_2D;
+        nl_size = glm::vec2(_data_in.size);
+        glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
+    }else{ // 1
+        nl_position_2D = _data_in.position_2D;       // [-1, 1]
+        nl_size[0] = _data_in.size * 2.0 / board_aspect_ratio; //  the size is based i=on "height"
+        nl_size[1] = _data_in.size * 2.0; // the size in ratio of the whole board --> OpenGL coordinate: [-1, 1]
+        glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model * m_shape.shape) ));
+    }
+    // m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
+    // The transformation matrices and projection matrices
+    // glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model * m_shape.shape * transform_m) ));
+    glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
+    glUniform1f(uniforms.pose2D_depth, 0.0001); // Pop out (floating) a little bit to prevent the intersection with image board
+    // RenderText("Hello world: " + std::to_string(++_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), a48_ptr, 0.0, 0.0, 1.0, 1.0, glm::vec3(1.0f, 1.0f, 0.0f));
+    RenderText(
+        _data_in.text,
+        a48_ptr,
+        nl_position_2D[0],
+        nl_position_2D[1],
+        nl_size[0],
+        nl_size[1],
         _data_in.color,
         _data_in.align_x,
         _data_in.align_y
@@ -446,6 +627,7 @@ void rmText3D_v2::_draw_one_text3D(std::shared_ptr<ViewManager> &_camera_ptr, te
     // The transformation matrices and projection matrices
     glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, _data_in.pose_ref_point) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
+    glUniform1f(uniforms.pose2D_depth, 0.0);
     //
     RenderText(
         _data_in.text,
@@ -462,7 +644,7 @@ void rmText3D_v2::_draw_one_text3D(std::shared_ptr<ViewManager> &_camera_ptr, te
 }
 void rmText3D_v2::_draw_one_text_billboard(std::shared_ptr<ViewManager> &_camera_ptr, text_billboard_data &_data_in){
     // Calculate model matrix
-    glm::mat4 view_m = _camera_ptr->GetModelViewMatrix();
+    glm::mat4 view_m = get_mv_matrix(_camera_ptr, glm::mat4(1.0)); // _camera_ptr->GetModelViewMatrix();
     view_m[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     glm::mat4 _model_m = glm::transpose(view_m);
     _model_m[3] = glm::vec4(_data_in.position_ref_point, 1.0f);
@@ -471,6 +653,7 @@ void rmText3D_v2::_draw_one_text_billboard(std::shared_ptr<ViewManager> &_camera
     // The transformation matrices and projection matrices
     glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, _model_m) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
+    glUniform1f(uniforms.pose2D_depth, 0.0);
     //
     RenderText(
         _data_in.text,
@@ -487,7 +670,7 @@ void rmText3D_v2::_draw_one_text_billboard(std::shared_ptr<ViewManager> &_camera
 }
 void rmText3D_v2::_draw_one_text_freeze_board(std::shared_ptr<ViewManager> &_camera_ptr, text_freeze_board_data &_data_in){
     // Calculate model matrix
-    glm::mat4 view_m = _camera_ptr->GetModelViewMatrix();
+    glm::mat4 view_m = get_mv_matrix(_camera_ptr, glm::mat4(1.0)); // _camera_ptr->GetModelViewMatrix();
     //
     // glm::vec4 _ref_in_canonical = ( _camera_ptr->GetProjectionMatrix()*view_m*glm::vec4(_data_in.position_ref_point, 1.0f) );
     // GLfloat _z_ref = (_ref_in_canonical.z);
@@ -503,6 +686,7 @@ void rmText3D_v2::_draw_one_text_freeze_board(std::shared_ptr<ViewManager> &_cam
     // The transformation matrices and projection matrices
     glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, _model_m) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
+    glUniform1f(uniforms.pose2D_depth, 0.0);
     //
     RenderText(
         _data_in.text,
@@ -709,3 +893,78 @@ void rmText3D_v2::RenderText(
     glBindTexture(GL_TEXTURE_2D, 0);
 
 }
+
+
+
+// For text2D, the concept of a "board" (see for ref. the rmImageBoard and/or rmBoundingBox2D)
+//---------------------------------------------------//
+//---------------------------------------------------//
+//---------------------------------------------------//
+void rmText3D_v2::setBoardSize(float width_in, float height_in){
+    board_shape_mode = 0;
+    board_width = width_in;
+    board_height = height_in;
+    board_aspect_ratio = board_width/board_height;
+    //
+    m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height,1.0f) );
+}
+void rmText3D_v2::setBoardSize(float size_in, bool is_width){ // Using the aspect ratio from pixel data
+    board_aspect_ratio = float(im_width)/float(im_height);
+    if (is_width){
+        board_shape_mode = 1;
+        board_width = size_in;
+        board_height = board_width / board_aspect_ratio;
+    }else{
+        board_shape_mode = 2;
+        board_height = size_in;
+        board_width = board_height * board_aspect_ratio;
+    }
+    //
+    m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
+}
+void rmText3D_v2::setBoardSizeRatio(float ratio_in, bool is_width){ // Only use when is_perspected==false is_moveable==true
+    board_aspect_ratio = float(im_width)/float(im_height);
+    if (is_width){
+        board_shape_mode = 3;
+        board_width = ratio_in;
+        board_height = board_width / board_aspect_ratio;
+    }else{
+        board_shape_mode = 4;
+        board_height = ratio_in;
+        board_width = board_height * board_aspect_ratio;
+    }
+    //
+    m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
+}
+void rmText3D_v2::updateBoardSize(){
+    switch(board_shape_mode){
+        case 0: // fixed size
+            // Nothing to do
+            break;
+        case 1: // fixed width
+            board_aspect_ratio = float(im_width)/float(im_height);
+            board_height = board_width / board_aspect_ratio;
+            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
+            break;
+        case 2: // fixed height
+            board_aspect_ratio = float(im_width)/float(im_height);
+            board_width = board_height * board_aspect_ratio;
+            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
+            break;
+        case 3: // fixed width ratio relative to viewport
+            board_aspect_ratio = float(im_width)/float(im_height);
+            board_height = (board_width*_viewport_size[0]) / (board_aspect_ratio*_viewport_size[1]);
+            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
+            break;
+        case 4: // fixed height ratio ralative to viewport
+            board_aspect_ratio = float(im_width)/float(im_height);
+            board_width = (board_height*_viewport_size[1]) * board_aspect_ratio / float(_viewport_size[0]);
+            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
+            break;
+        default:
+            break;
+    }
+}
+//---------------------------------------------------//
+//---------------------------------------------------//
+//---------------------------------------------------//

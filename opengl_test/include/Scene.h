@@ -13,16 +13,20 @@
 
 // Render models
 #include "rmBaseModel.h"
+#include "rmModelLoaderObj.h"
 #include "rmPointCloud.h"
 #include "rmLidarBoundingBox.h"
 #include "rmImageBoard.h"
 #include "rmBoundingBox2D.h"
+#include "rmlv2TagBoundingBox2D.h"
+#include "rmlv2TagBoundingBox3D.h"
+#include "rmGrid.h"
 // The following are not finished yet
 #include "rmSweepingObject.h"
-#include "rmGrid.h"
 #include "rmText2D.h"
-#include "rmText3D.h"
+// #include "rmText3D.h"
 #include "rmText3D_v2.h"
+#include "rmCircle.h"
 
 //
 

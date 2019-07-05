@@ -23,7 +23,7 @@ public:
 	virtual void Update(float dt);
     virtual void Update(ROS_INTERFACE &ros_interface);
     virtual void Update(ROS_API &ros_api);
-	virtual void Render(std::shared_ptr<ViewManager> _camera_ptr);
+	virtual void Render(std::shared_ptr<ViewManager> &_camera_ptr);
 
     // Matrix operation
     //------------------------------------------------//
@@ -39,14 +39,22 @@ public:
     void postTranslate(const glm::vec3 &vec);
 	void postRotate(const glm::vec3 &axis, float angle);
 	void postScale(const glm::vec3 &vec);
+    //
+    void update_pose_model_by_model_ref();
+    // Directly set the model matrix
+    virtual void setModelMatrix(const glm::mat4 & model_m_in){
+        for (size_t i=0; i < _pose_model_by_model_ref_ptr_list.size(); ++i){
+            *(_pose_model_by_model_ref_ptr_list[i]) = model_m_in;
+        }
+    }
     //------------------------------------------------//
 
     // The pose
-    inline void attach_pose_model_by_model_ref_ptr(glm::mat4 &pose_in){_pose_model_by_model_ref_ptr = &pose_in;}
+    inline void attach_pose_model_by_model_ref_ptr(glm::mat4 &pose_in){ _pose_model_by_model_ref_ptr_list.push_back(&pose_in); }
     void set_pose_modle_ref_by_world(glm::mat4 pose_in);
     glm::mat4 get_pose_modle_ref_by_world();
     //
-    glm::mat4 get_mv_matrix(std::shared_ptr<ViewManager> _camera_ptr, glm::mat4 &_model_M);
+    glm::mat4 get_mv_matrix(const std::shared_ptr<ViewManager> &_camera_ptr, const glm::mat4 &_model_M);
 
 
     // Utilities
@@ -69,7 +77,7 @@ protected:
 	glm::mat4 rotateMatrix;
 	glm::mat4 scaleMatrix;
     //
-    glm::mat4 * _pose_model_by_model_ref_ptr;
+    std::vector<glm::mat4 *>  _pose_model_by_model_ref_ptr_list;
     glm::mat4 _tmp_pose_model_by_model_ref;
     glm::mat4 _pose_modle_ref_by_world;
     //

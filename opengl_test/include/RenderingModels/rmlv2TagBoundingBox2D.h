@@ -1,14 +1,17 @@
-#ifndef RM_BOUNDINGBOX_2D_H
-#define RM_BOUNDINGBOX_2D_H
+#ifndef RM_LV2_TAG_BOUNDINGBOX_2D_H
+#define RM_LV2_TAG_BOUNDINGBOX_2D_H
 
 #include "rmBaseModel.h"
 
+//
+#include "rmBoundingBox2D.h"
+#include "rmText3D_v2.h"
 
 
-class rmBoundingBox2D : public rmBaseModel
+class rmlv2TagBoundingBox2D : public rmBaseModel
 {
 public:
-    rmBoundingBox2D(
+    rmlv2TagBoundingBox2D(
         std::string _path_Assets_in,
         int _ROS_topic_id_in,
         bool is_perspected_in=true,
@@ -19,8 +22,6 @@ public:
     void Update(ROS_INTERFACE &ros_interface);
     void Update(ROS_API &ros_api);
 	void Render(std::shared_ptr<ViewManager> &_camera_ptr);
-    //
-    inline glm::mat4 * get_model_m_ptr(){ return &(m_shape.model); }
 
     void setup_params(int im_width_in, int im_height_in, int image_offset_in_box_cv_x_in, int image_offset_in_box_cv_y_in){
         im_width = im_width_in;
@@ -28,18 +29,19 @@ public:
         im_aspect = float(im_width) / float(im_height);
         image_offset_in_box_cv_x = image_offset_in_box_cv_x_in;
         image_offset_in_box_cv_y = image_offset_in_box_cv_y_in;
-        updateBoardSize();
+        // updateBoardSize();
+        rm_box.setup_params(im_width_in, im_height_in, image_offset_in_box_cv_x_in, image_offset_in_box_cv_y_in);
+        rm_text.setup_params(im_width_in, im_height_in);
     }
 
     // Set board size
     void setBoardSize(float width_in, float height_in); // 3D space
     void setBoardSize(float size_in, bool is_width); // 3D space / Using the aspect ratio from pixel data
     void setBoardSizeRatio(float ratio_in, bool is_width); // Only use when is_perspected==false is_moveable==true
-    void updateBoardSize();
+    // void updateBoardSize();
 
 protected:
     void Init();
-    virtual void LoadModel();
     //
     int _ROS_topic_id;
     std::shared_ptr< msgs::CamObj > msg_out_ptr;
@@ -49,48 +51,16 @@ protected:
     bool is_perspected;
     bool is_moveable;
 
-    // Params
-    float board_width; // meter
-    float board_height; // meter
-    float board_aspect_ratio; // w/h
-    int board_shape_mode;
-    glm::ivec2 _viewport_size; // (w,h)
-    // mode:
-    // 0 - fixed size
-    // 1 - fixed width
-    // 2 - fixed height
-    // 3 - fixed width ratio relative to viewport
-    // 4 - fixed height ratio ralative to viewport
+    //
+    rmBoundingBox2D rm_box;
+    rmText3D_v2 rm_text;
 
     void update_GL_data();
 
 private:
-    // model info
-    struct Shape{
-        GLuint vao;
-        GLuint vbo;
-        GLuint ebo;
-        GLuint m_texture;
-        //
-        int indexCount;
-        //
-        glm::mat4 shape;
-        glm::mat4 model;
-    };
-    Shape m_shape;
 
-    // The structure for point
-    struct vertex_p_c_2D
-	{
-		glm::vec2     position;
-		glm::vec3     color;
-	};
-    int _num_vertex_idx_per_box;
-    long long _max_num_vertex_idx;
-    int _num_vertex_per_box;
-    long long _max_num_vertex;
-    long long _max_num_box;
-
+    std::vector<rmText3D_v2::text2Din3D_data> text2Din3D_list;
+    std::vector<rmText3D_v2::text2Dflat_data> text2Dflat_list;
 
     // OpenCV --> OpenGL
     //-------------------------------------------------------//
@@ -161,38 +131,9 @@ private:
     //-------------------------------------------------------//
     // end OpenCV --> OpenGL
 
-    /*
-    // Predefined colors
-    int num_obj_class;
-    glm::vec3 default_class_color;
-    std::vector<glm::vec3> obj_class_colors;
-    glm::vec3 get_obj_class_color(int obj_class_in){
-        if (obj_class_in < num_obj_class){
-            return obj_class_colors[obj_class_in];
-        }
-        return default_class_color;
-    }
-    */
 
 
-    //uniform id
-	struct
-	{
-		GLint  mv_matrix;
-		GLint  proj_matrix;
-	} uniforms;
-
-    std::vector<vertex_p_c_2D> box_template;
-
-    inline void generate_box_template(){
-        box_template.resize(4);
-        box_template[0].position = glm::vec2(0.0f, 0.0f);
-        box_template[1].position = glm::vec2(1.0f, 0.0f);
-        box_template[2].position = glm::vec2(1.0f, 1.0f);
-        box_template[3].position = glm::vec2(0.0f, 1.0f);
-
-    }
 
 };
 
-#endif // RM_BOUNDINGBOX_2D_H
+#endif // RM_LV2_TAG_BOUNDINGBOX_2D_H

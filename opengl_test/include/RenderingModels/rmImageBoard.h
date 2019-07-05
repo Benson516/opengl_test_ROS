@@ -47,13 +47,20 @@ public:
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
     void Update(ROS_API &ros_api);
-	void Render(std::shared_ptr<ViewManager> _camera_ptr);
+	void Render(std::shared_ptr<ViewManager> &_camera_ptr);
+    //
+    inline glm::mat4 * get_model_m_ptr(){ return &(m_shape.model); }
 
     // Color transform
-    float _alpha;
-    glm::vec4 _color_transform;
+    float alpha;
+    glm::vec4 color_transform;
 
-    TIME_STAMP::FPS fps_of_update;
+    // Set board size
+    void setBoardSize(float width_in, float height_in); // 3D space
+    void setBoardSize(float size_in, bool is_width); // 3D space / Using the aspect ratio from pixel data
+    void setBoardSizeRatio(float ratio_in, bool is_width); // Only use when is_perspected==false is_moveable==true
+    void updateBoardSize();
+    // TIME_STAMP::FPS fps_of_update;
 
 protected:
     void Init();
@@ -69,6 +76,19 @@ protected:
     bool is_color_transformed;
     bool is_dynamically_updated;
 
+    // Params
+    float board_width; // meter
+    float board_height; // meter
+    float board_aspect_ratio; // w/h
+    int board_shape_mode;
+    glm::ivec2 _viewport_size; // (w,h)
+    // mode:
+    // 0 - fixed size
+    // 1 - fixed width
+    // 2 - fixed height
+    // 3 - fixed width ratio relative to viewport
+    // 4 - fixed height ratio ralative to viewport
+
     void update_GL_data();
 
 
@@ -82,6 +102,7 @@ private:
         size_t width;
         size_t height;
         //
+        glm::mat4 shape;
         glm::mat4 model;
     };
     Shape m_shape;
