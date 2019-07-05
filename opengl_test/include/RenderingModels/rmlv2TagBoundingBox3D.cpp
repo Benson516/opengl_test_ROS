@@ -73,27 +73,29 @@ void rmlv2TagBoundingBox3D::update_GL_data(){
     }
     */
 
-    auto * _point_ptr = &(msg_out_ptr->lidRoiBox[0].p0);
+    auto * _point_1_ptr = &(msg_out_ptr->lidRoiBox[0].p0);
+    auto * _point_2_ptr = &(msg_out_ptr->lidRoiBox[0].p0);
     size_t _j = 0;
     for (size_t i = 0; i < num_box; i++)
     {
-
-        /*
-        _point_ptr = &(msg_out_ptr->lidRoiBox[i].p0);
-        vertex_ptr[_j].position[0] = (_point_ptr)->x;
-        vertex_ptr[_j].position[1] = (_point_ptr)->y;
-        vertex_ptr[_j].position[2] = (_point_ptr )->z;
-        vertex_ptr[_j].color[0] = 1.0f; // If we don't keep udating the color, the color will be lost when resizing the window.
-        vertex_ptr[_j].color[1] = 1.0f;
-        vertex_ptr[_j].color[2] = 1.0f;
-        _j++;
-        */
-
-        _point_ptr = &(msg_out_ptr->lidRoiBox[i].p0);
         //
+
+        // _point_1_ptr = &(msg_out_ptr->lidRoiBox[i].p0);
+        // text_list.emplace_back(
+        //     "#" + std::to_string(i),
+        //     glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z),
+        //     glm::vec2(0.0f),
+        //     1.0f,
+        //     glm::vec3(0.0f, 1.0f, 0.0f),
+        //     rmText3D_v2::ALIGN_X::LEFT,
+        //     rmText3D_v2::ALIGN_Y::BUTTON
+        // );
+
+        _point_1_ptr = &(msg_out_ptr->lidRoiBox[i].p1);
+        _point_2_ptr = &(msg_out_ptr->lidRoiBox[i].p6);
         text_list.emplace_back(
             "#" + std::to_string(i),
-            glm::vec3(_point_ptr->x, _point_ptr->y, _point_ptr->z),
+            0.5f*(glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z) + glm::vec3(_point_2_ptr->x, _point_2_ptr->y, _point_2_ptr->z)) + glm::vec3(0.0f, 0.0f, 0.5f),
             glm::vec2(0.0f),
             1.0f,
             glm::vec3(0.0f, 1.0f, 0.0f),

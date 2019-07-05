@@ -12,6 +12,6 @@ uniform float pose2D_depth; // default/foreground: 0.0, background: 1.0, floatin
 void main()
 {
     // gl_Position = proj_matrix * mv_matrix * vec4(vertex.xy - ref_point, 0.0, 1.0);
-    gl_Position = proj_matrix * mv_matrix * vec4(vertex.xy, pose2D_depth, 1.0);
+    gl_Position = proj_matrix * mv_matrix * vec4(vertex.xy - ref_point, pose2D_depth, 1.0);
     TexCoords = vertex.zw;
 }
