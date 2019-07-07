@@ -40,6 +40,8 @@
 #include <msgs/LidRoi.h>
 // MSG: ITRICamObj
 #include <msgs/CamObj.h>
+// MSG: ITRIDetectedObjectArray
+#include <msgs/DetectedObjectArray.h>
 //--------------------------------------------//
 
 // Core libraries
