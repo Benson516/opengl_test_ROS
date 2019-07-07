@@ -286,6 +286,25 @@ void ROS_INTERFACE::_ROS_worker(){
         }
     }
 
+    // ITRIDetectedObjectArray
+    _msg_type = int(MSG::M_TYPE::ITRIDetectedObjectArray);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::DetectedObjectArray > (_tmp_params.buffer_length) );
+        //
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe< msgs::DetectedObjectArray >( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_ITRIDetectedObjectArray_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise< msgs::DetectedObjectArray >( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
+
     //----------------------------------//
 
 
@@ -513,6 +532,12 @@ bool ROS_INTERFACE::get_any_pointcloud(const int topic_id, std::shared_ptr< pcl:
     return result;
 }
 //---------------------------------------------------------//
+
+
+
+
+
+
 
 
 // Callbacks and public methods of each message type
@@ -836,10 +861,24 @@ bool ROS_INTERFACE::send_ITRI3DBoundingBox(const int topic_id, const msgs::LidRo
 }
 //---------------------------------------------------------------//
 
-// ITRI3DBoundingBox
+// ITRICamObj
 //---------------------------------------------------------------//
 // input
 void ROS_INTERFACE::_ITRICamObj_CB(const msgs::CamObj::ConstPtr& msg, const MSG::T_PARAMS & params){
+    // Time
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+    // put
+    // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
+    bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    if (!result){ std::cout << params.name << ": buffer full.\n"; }
+}
+//---------------------------------------------------------------//
+
+
+// ITRIDetectedObjectArray
+//---------------------------------------------------------------//
+// input
+void ROS_INTERFACE::_ITRIDetectedObjectArray_CB(const msgs::DetectedObjectArray::ConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
     // put

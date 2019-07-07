@@ -72,6 +72,7 @@ namespace MSG{
         ITRIPointCloud,
         ITRI3DBoundingBox,
         ITRICamObj,
+        ITRIDetectedObjectArray,
         NUM_MSG_TYPE
     };
 
@@ -388,6 +389,9 @@ private:
 
     // ITRICamObj
     void _ITRICamObj_CB(const msgs::CamObj::ConstPtr& msg, const MSG::T_PARAMS & params);
+
+    // ITRIDetectedObjectArray
+    void _ITRIDetectedObjectArray_CB(const msgs::DetectedObjectArray::ConstPtr& msg, const MSG::T_PARAMS & params);
     //---------------------------------------------------------//
 
 }; // end of the class ROS_INTERFACE

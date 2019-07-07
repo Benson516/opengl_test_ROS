@@ -16,15 +16,15 @@ enum class MSG_ID{
     ego_pose_0,
     // Image
 #ifdef __SUB_IMAGES__
-    camera_0,
-    camera_1,
-    camera_2,
-    camera_3,
-    camera_4,
-    camera_5,
-    camera_6,
-    camera_7,
-    camera_8,
+    camera_0, // front-right
+    camera_1, // front-center
+    camera_2, // front-left
+    camera_3, // front top-down
+    camera_4, // right-front
+    camera_5, // right-rear
+    camera_6, // left-front
+    camera_7, // left-rear
+    camera_8, // back
 #endif // __SUB_IMAGES__
     // ITRIPointCloud
 #ifdef __SUB_POINT_CLOUD__
