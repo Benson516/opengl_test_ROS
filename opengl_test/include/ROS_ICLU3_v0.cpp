@@ -132,7 +132,8 @@ bool ROS_API::_set_up_topics(){
         ros_interface.add_a_topic("LidFrontLeft_sync", int(M_TYPE::ITRIPointCloud), true, 2, 20, "base");
         ros_interface.add_a_topic("points_map", int(M_TYPE::PointCloud2), true, 2, 20, "map");
 #endif // __SUB_POINT_CLOUD__
-        ros_interface.add_a_topic("LidRoi", int(M_TYPE::ITRI3DBoundingBox), true, 10, 20, "base");
+        // ros_interface.add_a_topic("LidRoi", int(M_TYPE::ITRI3DBoundingBox), true, 10, 20, "base");
+        ros_interface.add_a_topic("LiDAR_Track", int(M_TYPE::ITRICamObj), true, 10, 20, "base");
         ros_interface.add_a_topic("CamMsg", int(M_TYPE::ITRICamObj), true, 10, 20, "base");
         ros_interface.add_a_topic("CamObj4", int(M_TYPE::ITRICamObj), true, 10, 20, "base");
 
