@@ -10,7 +10,7 @@ rmlv2ObjectTracking::rmlv2ObjectTracking(
     _ROS_topic_id(_ROS_topic_id_in),
     //
     rm_polylines3D(_path_Assets_in, _ROS_topic_id_in),
-    rm_circle(_path_Assets_in),
+    rm_circle(_path_Assets_in, _ROS_topic_id_in),
     rm_text(_path_Assets_in, _ROS_topic_id_in)
 {
     // init_paths(_path_Assets_in);
@@ -21,6 +21,7 @@ void rmlv2ObjectTracking::Init(){
 
 
     // For adjusting the model pose by public methods
+    attach_pose_model_by_model_ref_ptr( *rm_polylines3D.get_model_m_ptr() );
     attach_pose_model_by_model_ref_ptr( *rm_circle.get_model_m_ptr() );
     attach_pose_model_by_model_ref_ptr( *rm_text.get_model_m_ptr() );
 
@@ -54,6 +55,7 @@ void rmlv2ObjectTracking::Update(ROS_API &ros_api){
     }
 
     //
+    rm_polylines3D.Update(ros_api);
     rm_circle.Update(ros_api);
     rm_text.Update(ros_api);
 }
@@ -61,6 +63,7 @@ void rmlv2ObjectTracking::Update(ROS_API &ros_api){
 
 void rmlv2ObjectTracking::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
+    rm_polylines3D.Render(_camera_ptr);
     rm_circle.Render(_camera_ptr);
     rm_text.Render(_camera_ptr);
 }
@@ -69,6 +72,7 @@ void rmlv2ObjectTracking::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
 void rmlv2ObjectTracking::update_GL_data(){
     // Reset
+    rm_polylines3D.reset_line_list();
     text_list.clear();
     //
     if (msg_out_ptr->objects.size() == 0){
@@ -81,38 +85,54 @@ void rmlv2ObjectTracking::update_GL_data(){
     //     num_box = _max_num_box;
     // }
 
+    // Initialize
+    std::vector<circle_data> circle_list;
+
     auto * _point_1_ptr = &(msg_out_ptr->objects[0].bPoint.p0);
     auto * _point_2_ptr = &(msg_out_ptr->objects[0].bPoint.p0);
     size_t _j = 0;
     for (size_t i = 0; i < num_box; i++)
     {
-        std::string _s_tag( "#" + std::to_string( msg_out_ptr->objects[i].camInfo.id ) );
+        int obj_id = msg_out_ptr->objects[i].camInfo.id;
+        _point_1_ptr = &(msg_out_ptr->objects[i].bPoint.p0);
+        _point_2_ptr = &(msg_out_ptr->objects[i].bPoint.p7);
+        glm::vec3 point_pose = 0.5f*(glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z) + glm::vec3(_point_2_ptr->x, _point_2_ptr->y, _point_2_ptr->z)) + glm::vec3(0.0f, 0.0f, 0.0f),
 
-        // _point_1_ptr = &(msg_out_ptr->objects[i].bPoint.p0);
-        // text_list.emplace_back(
-        //     _s_tag,
-        //     glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z),
-        //     glm::vec2(0.0f),
-        //     1.0f,
-        //     glm::vec3(0.0f, 1.0f, 0.0f),
-        //     rmText3D_v2::ALIGN_X::LEFT,
-        //     rmText3D_v2::ALIGN_Y::BUTTON
-        // );
-        _point_1_ptr = &(msg_out_ptr->objects[i].bPoint.p1);
-        _point_2_ptr = &(msg_out_ptr->objects[i].bPoint.p6);
-        text_list.emplace_back(
-            _s_tag,
-            0.5f*(glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z) + glm::vec3(_point_2_ptr->x, _point_2_ptr->y, _point_2_ptr->z)) + glm::vec3(0.0f, 0.0f, 0.5f),
-            glm::vec2(0.0f),
-            1.0f,
-            glm::vec3(0.0f, 1.0f, 0.0f),
-            rmText3D_v2::ALIGN_X::CENTER,
-            rmText3D_v2::ALIGN_Y::BUTTON
+        // A line
+        //-------------------------//
+        std::queue<point_data> & a_line_queue = line_map[obj_id];
+        a_line_queue.emplace(
+            point_pose,
+            glm::vec3(1.0f, 0.0f, 0.0f)
         );
+        while(a_line_queue.size() > 5){
+            a_line_queue.pop();
+        }
+        rm_polylines3D.push_back_a_line_queue(a_line_queue);
+        //-------------------------//
+
+        // A set of circles
+        //-------------------------//
+        std::queue<point_data> point_queue_tmp = a_line_queue;
+        while ( !point_queue_tmp.empty() ){
+            auto point_tmp = point_queue_tmp.front();
+            circle_list.emplace_back(
+                point_tmp.position;
+                1.0f,
+                glm::vec3(1.0f)
+            );
+            point_queue_tmp.pop();
+        }
+        //-------------------------//
+
+
     }
+
+    // Insert circles
+    rm_circle.insert_circle(circle_list);
 
 
     // Insert texts
-    rm_text.insert_text(text_list);
+    // rm_text.insert_text(text_list);
 
 }

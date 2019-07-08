@@ -151,9 +151,17 @@ void rmPolyLines3D::update_GL_data(std::vector<point_data> &a_line_in){
 }
 
 
-// Insert method for circle
+// Insert method for line
 //-------------------------------------//
-void rmPolyLines3D::push_back_a_line(const vector<point_data> & a_line_in ){
+void rmPolyLines3D::push_back_a_line(const std::vector<point_data> & a_line_in ){
     line_list.push_back(a_line_in);
+}
+void rmPolyLines3D::push_back_a_line_queue(const std::queue<point_data> & a_line_queue ){
+    std::vector<point_data> a_line;
+    while( !a_line_queue.empty() ){
+        a_line.push_back( a_line_queue.front() );
+        a_line_queue.pop();
+    }
+    line_list.push_back(a_line);
 }
 //-------------------------------------//

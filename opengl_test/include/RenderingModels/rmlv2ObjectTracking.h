@@ -3,6 +3,9 @@
 
 #include "rmBaseModel.h"
 
+#include <queue>
+#include <map>
+
 //
 #include "rmPolyLines3D.h"
 #include "rmCircle.h"
@@ -44,6 +47,9 @@ private:
 
     // 3D text
     std::vector<rmText3D_v2::text_billboard_data> text_list;
+
+    // buffer map: id --> a_line
+    std::map<int, std::queue<point_data> > line_map;
 
 };
 

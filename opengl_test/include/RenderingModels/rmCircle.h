@@ -27,7 +27,8 @@ public:
 	};
 
 
-    rmCircle(std::string _path_Assets_in);
+    rmCircle(std::string _path_Assets_in, std::string frame_id_in);
+    rmCircle(std::string _path_Assets_in, int _ROS_topic_id_in);
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
@@ -36,16 +37,17 @@ public:
 
     // Insert method for circle
     //-------------------------------------//
-    void insert_circle(const vector<circle_data> & data_list_in );
+    void insert_circle(const std::vector<circle_data> & data_list_in );
     //-------------------------------------//
 
 protected:
     void Init();
     virtual void LoadModel();
     //
-    // int _ROS_topic_id;
-    std::shared_ptr< msgs::LidRoi > msg_out_ptr;
+    int _ROS_topic_id;
+    // std::shared_ptr< msgs::LidRoi > msg_out_ptr;
     // ros::Time msg_time;
+    std::string _frame_id;
 
 
 private:

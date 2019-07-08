@@ -4,7 +4,21 @@
 
 
 
-rmCircle::rmCircle(std::string _path_Assets_in){
+rmCircle::rmCircle(std::string _path_Assets_in, std::string frame_id_in):
+    _frame_id(frame_id_in)
+{
+    _path_Shaders_sub_dir += "Circle/";
+    init_paths(_path_Assets_in);
+    //
+    _num_vertex_per_shape = 1;
+    _max_num_shape = 1000;
+    _max_num_vertex = _max_num_shape*(long long)(_num_vertex_per_shape);
+    //
+	Init();
+}
+rmCircle::rmCircle(std::string _path_Assets_in, int _ROS_topic_id_in):
+    _ROS_topic_id(_ROS_topic_id_in)
+{
     _path_Shaders_sub_dir += "Circle/";
     init_paths(_path_Assets_in);
     //
@@ -105,6 +119,28 @@ void rmCircle::Update(ROS_INTERFACE &ros_interface){
 
 void rmCircle::Update(ROS_API &ros_api){
     // Update the data (buffer variables) here
+
+    // Update transform
+    //--------------------------------//
+    if (_frame_id.size() > 0){
+        // Get tf
+        bool tf_successed = false;
+        glm::mat4 _model_tf = ROStf2GLMmatrix(ros_api.get_tf(_frame_id, tf_successed));
+        set_pose_modle_ref_by_world(_model_tf);
+        // end Get tf
+    }else{
+        if ( ros_api.ros_interface.is_topic_got_frame(_ROS_topic_id) ){
+            // Get tf
+            bool tf_successed = false;
+            glm::mat4 _model_tf = ROStf2GLMmatrix(ros_api.get_tf(_ROS_topic_id, tf_successed));
+            set_pose_modle_ref_by_world(_model_tf);
+            // end Get tf
+        }
+    }
+    //--------------------------------//
+    // end Update transform
+
+
 }
 
 
@@ -132,7 +168,7 @@ void rmCircle::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
 // Insert method for circle
 //-------------------------------------//
-void rmCircle::insert_circle(const vector<circle_data> & data_list_in ){
+void rmCircle::insert_circle(const std::vector<circle_data> & data_list_in ){
     long long num_shape = data_list_in.size();
     if (num_shape > _max_num_shape){
         num_shape = _max_num_shape;

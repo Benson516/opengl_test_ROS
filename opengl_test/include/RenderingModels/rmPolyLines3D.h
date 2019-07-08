@@ -3,7 +3,7 @@
 
 #include "rmBaseModel.h"
 
-// #include <queue>          // std::queue
+#include <queue>          // std::queue
 
 class rmPolyLines3D : public rmBaseModel
 {
@@ -34,7 +34,8 @@ public:
     // Insert method for circle
     //-------------------------------------//
     void reset_line_list() {    line_list.clear();  }
-    void push_back_a_line(const vector<point_data> & a_line_in );
+    void push_back_a_line(const std::vector<point_data> & a_line_in );
+    void push_back_a_line_queue(const std::queue<point_data> & a_line_queue );
     //-------------------------------------//
 
 protected:
