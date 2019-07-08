@@ -24,27 +24,31 @@ public:
 	};
 
 
-    rmPolyLines3D(std::string _path_Assets_in);
+    rmPolyLines3D(std::string _path_Assets_in, std::string frame_id_in);
+    rmPolyLines3D(std::string _path_Assets_in, int _ROS_topic_id_in);
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
     void Update(ROS_API &ros_api);
 	void Render(std::shared_ptr<ViewManager> &_camera_ptr);
+    //
+    inline glm::mat4 * get_model_m_ptr(){ return &(m_shape.model); }
 
     // Insert method for circle
     //-------------------------------------//
     void reset_line_list() {    line_list.clear();  }
     void push_back_a_line(const std::vector<point_data> & a_line_in );
-    void push_back_a_line_queue(const std::queue<point_data> & a_line_queue );
+    void push_back_a_line_queue(const std::queue<point_data> & a_line_queue_in );
     //-------------------------------------//
 
 protected:
     void Init();
     virtual void LoadModel();
     //
-    // int _ROS_topic_id;
-    std::shared_ptr< msgs::LidRoi > msg_out_ptr;
+    int _ROS_topic_id;
+    // std::shared_ptr< msgs::LidRoi > msg_out_ptr;
     // ros::Time msg_time;
+    std::string _frame_id;
 
     void _draw_one_poly_line(std::vector<point_data> &a_line_in);
     void update_GL_data(std::vector<point_data> &a_line_in);

@@ -34,6 +34,8 @@ public:
     void Update(ROS_INTERFACE &ros_interface);
     void Update(ROS_API &ros_api);
 	void Render(std::shared_ptr<ViewManager> &_camera_ptr);
+    //
+    inline glm::mat4 * get_model_m_ptr(){ return &(m_shape.model); }
 
     // Insert method for circle
     //-------------------------------------//

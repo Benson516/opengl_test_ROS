@@ -86,7 +86,7 @@ void rmlv2ObjectTracking::update_GL_data(){
     // }
 
     // Initialize
-    std::vector<circle_data> circle_list;
+    std::vector<rmCircle::circle_data> circle_list;
 
     auto * _point_1_ptr = &(msg_out_ptr->objects[0].bPoint.p0);
     auto * _point_2_ptr = &(msg_out_ptr->objects[0].bPoint.p0);
@@ -96,34 +96,47 @@ void rmlv2ObjectTracking::update_GL_data(){
         int obj_id = msg_out_ptr->objects[i].camInfo.id;
         _point_1_ptr = &(msg_out_ptr->objects[i].bPoint.p0);
         _point_2_ptr = &(msg_out_ptr->objects[i].bPoint.p7);
-        glm::vec3 point_pose = 0.5f*(glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z) + glm::vec3(_point_2_ptr->x, _point_2_ptr->y, _point_2_ptr->z)) + glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3 point_pose = 0.5f*(glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z) + glm::vec3(_point_2_ptr->x, _point_2_ptr->y, _point_2_ptr->z)) + glm::vec3(0.0f, 0.0f, 0.0f);
+
+
+        // Reset count
+        std::map<int,int>::iterator it_1 = obj_miss_count.find(obj_id);
+        if (it_1 == obj_miss_count.end()){
+            obj_miss_count[obj_id] = 0;
+        }else{
+            obj_miss_count[obj_id] -= 2; // We will dd this by one later
+        }
+        //
+
 
         // A line
         //-------------------------//
-        std::queue<point_data> & a_line_queue = line_map[obj_id];
+        std::queue<rmPolyLines3D::point_data> &a_line_queue = line_map[obj_id];
         a_line_queue.emplace(
             point_pose,
             glm::vec3(1.0f, 0.0f, 0.0f)
         );
-        while(a_line_queue.size() > 5){
+        while(a_line_queue.size() > 100){ // test, track for 50 points
             a_line_queue.pop();
         }
         rm_polylines3D.push_back_a_line_queue(a_line_queue);
         //-------------------------//
 
+        /*
         // A set of circles
         //-------------------------//
-        std::queue<point_data> point_queue_tmp = a_line_queue;
+        std::queue<rmPolyLines3D::point_data> point_queue_tmp = a_line_queue;
         while ( !point_queue_tmp.empty() ){
             auto point_tmp = point_queue_tmp.front();
             circle_list.emplace_back(
-                point_tmp.position;
-                1.0f,
-                glm::vec3(1.0f)
+                point_tmp.position,
+                0.5f,
+                glm::vec3(1.0f, 0.0f, 0.0f)
             );
             point_queue_tmp.pop();
         }
         //-------------------------//
+        */
 
 
     }
@@ -134,5 +147,22 @@ void rmlv2ObjectTracking::update_GL_data(){
 
     // Insert texts
     // rm_text.insert_text(text_list);
+
+
+    // Clear line
+    for (std::map<int,int>::iterator it=obj_miss_count.begin(); it!=obj_miss_count.end(); ++it){
+        it->second++;
+        if (it->second > 5){ // test, miss count
+            // line_map[it->first] = std::queue<rmPolyLines3D::point_data>();
+            // it->second = 0;
+            line_map.erase(it->first);
+            obj_miss_count.erase(it);
+        }else if (it->second < 0){
+            it->second = 0;
+        }
+    }
+    // std::cout << "line_map.size() = " << line_map.size() << ", ";
+    // std::cout << "obj_miss_count.size() = " << obj_miss_count.size() << "\n";
+
 
 }

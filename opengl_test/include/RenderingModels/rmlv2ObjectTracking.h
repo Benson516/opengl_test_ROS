@@ -49,7 +49,8 @@ private:
     std::vector<rmText3D_v2::text_billboard_data> text_list;
 
     // buffer map: id --> a_line
-    std::map<int, std::queue<point_data> > line_map;
+    std::map<int, std::queue<rmPolyLines3D::point_data> > line_map;
+    std::map<int, int> obj_miss_count;
 
 };
 
