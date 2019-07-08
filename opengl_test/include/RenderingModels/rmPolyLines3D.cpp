@@ -5,7 +5,7 @@
 
 
 rmPolyLines3D::rmPolyLines3D(std::string _path_Assets_in){
-    _path_Shaders_sub_dir += "Circle/";
+    _path_Shaders_sub_dir += "PolyLines/";
     init_paths(_path_Assets_in);
     //
     _num_vertex_per_shape = 1;
@@ -44,33 +44,47 @@ void rmPolyLines3D::LoadModel(){
     glGenBuffers(1, &m_shape.vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo);
     glBufferData(GL_ARRAY_BUFFER, _max_num_vertex * sizeof(point_data), NULL, GL_DYNAMIC_DRAW); // test, change to dynamic draw to assign point cloud
-    // Directly assign data to memory of GPU
-    //--------------------------------------------//
-	point_data * vertex_ptr = (point_data *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(point_data), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-	size_t _j = 0;
-    float radious = 1.0;
-	for (size_t i = 0; i < _max_num_shape; i++)
-	{
-        // Center
-		vertex_ptr[_j].position[0] = 2.0*radious*(i/_num_vertex_per_shape);
-		vertex_ptr[_j].position[1] = 0.0f;
-		vertex_ptr[_j].position[2] = 0.0f;
-		vertex_ptr[_j].color[0] = 1.0f; //
-		vertex_ptr[_j].color[1] = 1.0f; //
-		vertex_ptr[_j].color[2] = 1.0f; //
-        _j++;
-	}
-	glUnmapBuffer(GL_ARRAY_BUFFER);
-    //--------------------------------------------//
+    // // Directly assign data to memory of GPU
+    // //--------------------------------------------//
+	// point_data * vertex_ptr = (point_data *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(point_data), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+	// size_t _j = 0;
+    // float radious = 1.0;
+	// for (size_t i = 0; i < _max_num_shape; i++)
+	// {
+    //     // Center
+	// 	vertex_ptr[_j].position[0] = 2.0*radious*(i/_num_vertex_per_shape);
+	// 	vertex_ptr[_j].position[1] = 0.0f;
+	// 	vertex_ptr[_j].position[2] = 0.0f;
+	// 	vertex_ptr[_j].color[0] = 1.0f; //
+	// 	vertex_ptr[_j].color[1] = 1.0f; //
+	// 	vertex_ptr[_j].color[2] = 1.0f; //
+    //     _j++;
+	// }
+	// glUnmapBuffer(GL_ARRAY_BUFFER);
+    // //--------------------------------------------//
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(point_data), NULL);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(point_data), (void *)(sizeof(glm::vec3) + sizeof(float) )  );
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(point_data), (void *)(sizeof(glm::vec3))  );
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 
-    m_shape.indexCount = _max_num_vertex;
+    // m_shape.indexCount = _max_num_vertex;
+    m_shape.indexCount = 0;
     //--------------------------------------------//
 
+
+    // test
+    reset_line_list();
+    std::vector<point_data> a_line;
+    float space = 1.0;
+    for (size_t i = 0; i < _max_num_shape; i++){
+        a_line.emplace_back(
+            glm::vec3(2.0f*space*i, 0.0f, 2.0f*space*i),
+            glm::vec3(1.0f, 0.0f, 0.0f)
+        );
+    }
+    push_back_a_line( a_line );
+    // end test
 
 }
 void rmPolyLines3D::Update(float dt){
@@ -108,9 +122,9 @@ void rmPolyLines3D::_draw_one_poly_line(std::vector<point_data> &a_line_in){
     update_GL_data(a_line_in);
 
     // Setting
-    glLineWidth(2.0);
+    glLineWidth(5.0);
     // Draw the element
-    glDrawArrays(GL_LINES, 0, m_shape.indexCount); // draw part of points
+    glDrawArrays(GL_LINE_STRIP, 0, m_shape.indexCount); // draw part of points
     //--------------------------------//
     glLineWidth(1.0); // default line width
 }
@@ -122,7 +136,7 @@ void rmPolyLines3D::update_GL_data(std::vector<point_data> &a_line_in){
     }
 
     // vao vbo
-    glBindVertexArray(m_shape.vao);
+    // glBindVertexArray(m_shape.vao);
     glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
 
 
