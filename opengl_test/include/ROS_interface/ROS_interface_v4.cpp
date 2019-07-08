@@ -3,7 +3,7 @@
 // using std::vector;
 // using std::string;
 
-#define TOTAL_NUM_THREAD_FOR_ROS_CB     6 // Use 6 threads
+#define MAX_NUM_THREAD_FOR_ROS_CB     20 // 6 // Use 6 threads
 
 // Constructors
 ROS_INTERFACE::ROS_INTERFACE():
@@ -17,7 +17,7 @@ ROS_INTERFACE::ROS_INTERFACE():
     _current_slice_time(), _global_delay(0.1f)
 {
     //
-    _num_ros_cb_thread = TOTAL_NUM_THREAD_FOR_ROS_CB;
+    _num_ros_cb_thread = MAX_NUM_THREAD_FOR_ROS_CB;
     //
     // ros::init(argc, argv, "ROS_interface", ros::init_options::AnonymousName);
     // Remember to call setup_node()
@@ -33,7 +33,7 @@ ROS_INTERFACE::ROS_INTERFACE(int argc, char **argv):
     _current_slice_time(), _global_delay(0.1f)
 {
     //
-    _num_ros_cb_thread = TOTAL_NUM_THREAD_FOR_ROS_CB;
+    _num_ros_cb_thread = MAX_NUM_THREAD_FOR_ROS_CB;
     //
     ros::init(argc, argv, "ROS_interface", ros::init_options::AnonymousName);
 }
@@ -311,10 +311,12 @@ void ROS_INTERFACE::_ROS_worker(){
 
 
     // Start spinning and loop to the end
+    _num_ros_cb_thread = get_count_of_all_topics();
+    if (_num_ros_cb_thread > MAX_NUM_THREAD_FOR_ROS_CB){ _num_ros_cb_thread = MAX_NUM_THREAD_FOR_ROS_CB;}
     ros::AsyncSpinner spinner(_num_ros_cb_thread); // Use ? threads
     spinner.start();
     _is_started = true; // The flag for informing the other part of system that the ROS has begun.
-    std::cout << "ros_iterface started\n";
+    std::cout << "ros_iterface started with [" << _num_ros_cb_thread <<"] threads for callbacks.\n";
 
     // tf2
     tfListener_ptr.reset( new tf2_ros::TransformListener(tfBuffer) );
@@ -872,17 +874,19 @@ void ROS_INTERFACE::_ITRICamObj_CB(const msgs::CamObj::ConstPtr& msg, const MSG:
     std::shared_ptr<msgs::DetectedObjectArray> _data_ptr(new msgs::DetectedObjectArray() );
     _data_ptr->objects.resize( msg->camObj.size() );
     for (size_t i=0; i < msg->camObj.size(); ++i ){
-        _data_ptr->objects[i].camInfo.u = msg->camObj[i].x;
-        _data_ptr->objects[i].camInfo.v = msg->camObj[i].y;
-        _data_ptr->objects[i].camInfo.width = msg->camObj[i].width;
-        _data_ptr->objects[i].camInfo.height = msg->camObj[i].height;
-        _data_ptr->objects[i].camInfo.id = msg->camObj[i].id;
-        _data_ptr->objects[i].camInfo.prob = msg->camObj[i].prob;
+        auto &_data_obj = _data_ptr->objects[i];
+        auto &_msg_obj = msg->camObj[i];
+        _data_obj.camInfo.u = _msg_obj.x;
+        _data_obj.camInfo.v = _msg_obj.y;
+        _data_obj.camInfo.width = _msg_obj.width;
+        _data_obj.camInfo.height = _msg_obj.height;
+        _data_obj.camInfo.id = _msg_obj.id;
+        _data_obj.camInfo.prob = _msg_obj.prob;
         //
-        _data_ptr->objects[i].classId = msg->camObj[i].cls;
-        _data_ptr->objects[i].distance = msg->camObj[i].distance;
-        _data_ptr->objects[i].bPoint = msg->camObj[i].boxPoint;
-        _data_ptr->objects[i].fusionSourceId = msg->camObj[i].sourceType;
+        _data_obj.classId = _msg_obj.cls;
+        _data_obj.distance = _msg_obj.distance;
+        _data_obj.bPoint = _msg_obj.boxPoint;
+        _data_obj.fusionSourceId = _msg_obj.sourceType;
     }
     // put
     // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address

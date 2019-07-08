@@ -194,7 +194,7 @@ void rmlv2TagBoundingBox2D::update_GL_data(){
 	{
         //
         auto & _box = msg_out_ptr->objects[i];
-        box_param_cv _a_box_param_cv(_box.camInfo.x, _box.camInfo.y, _box.camInfo.width, _box.camInfo.height, _box.classId);
+        box_param_cv _a_box_param_cv(_box.camInfo.u, _box.camInfo.v, _box.camInfo.width, _box.camInfo.height, _box.classId);
         box_param_gl _a_box_param_gl;
         convert_cv_to_normalized_gl(_a_box_param_cv, _a_box_param_gl);
         if (!is_gl_box_valid(_a_box_param_gl)){
@@ -205,7 +205,7 @@ void rmlv2TagBoundingBox2D::update_GL_data(){
         glm::vec3 _box_color = rmlv2TagBoundingBox2D_ns::get_obj_class_color(_a_box_param_gl.obj_class);
         if (is_perspected){
             text2Din3D_list.emplace_back(
-                "#" + std::to_string(_box.id) + " cls: " + std::to_string(_box.cls),
+                "#" + std::to_string(_box.camInfo.id) + " cls: " + std::to_string(_box.classId),
                 _a_box_param_gl.xy_list[0],
                 0.1,
                 _box_color,
@@ -215,7 +215,7 @@ void rmlv2TagBoundingBox2D::update_GL_data(){
             );
         }else{
             text2Dflat_list.emplace_back(
-                "#" + std::to_string(_box.id) + " cls: " + std::to_string(_box.cls),
+                "#" + std::to_string(_box.camInfo.id) + " cls: " + std::to_string(_box.classId),
                 _a_box_param_gl.xy_list[0],
                 24,
                 _box_color,

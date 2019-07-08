@@ -353,7 +353,7 @@ void rmBoundingBox2D::update_GL_data(){
 	{
         //
         auto & _box = msg_out_ptr->objects[i];
-        box_param_cv _a_box_param_cv(_box.camInfo.x, _box.camInfo.y, _box.camInfo.width, _box.camInfo.height, _box.classId);
+        box_param_cv _a_box_param_cv(_box.camInfo.u, _box.camInfo.v, _box.camInfo.width, _box.camInfo.height, _box.classId);
         box_param_gl _a_box_param_gl;
         convert_cv_to_normalized_gl(_a_box_param_cv, _a_box_param_gl);
         if (!is_gl_box_valid(_a_box_param_gl)){
