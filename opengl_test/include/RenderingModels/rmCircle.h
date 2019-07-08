@@ -42,6 +42,8 @@ public:
     void insert_circle(const std::vector<circle_data> & data_list_in );
     //-------------------------------------//
 
+    inline void set_line_width(float line_width_in){ _line_width = line_width_in; }
+
 protected:
     void Init();
     virtual void LoadModel();
@@ -50,6 +52,8 @@ protected:
     // std::shared_ptr< msgs::LidRoi > msg_out_ptr;
     // ros::Time msg_time;
     std::string _frame_id;
+
+    float _line_width;
 
 
 private:

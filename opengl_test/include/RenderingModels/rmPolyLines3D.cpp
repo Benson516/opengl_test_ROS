@@ -44,7 +44,8 @@ void rmPolyLines3D::Init(){
     // Init model matrices
 	m_shape.model = glm::mat4(1.0);
     attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
-
+    //
+    _line_width = 1.0f;
 
     //Load model to shader _program_ptr
 	LoadModel();
@@ -85,7 +86,7 @@ void rmPolyLines3D::LoadModel(){
     m_shape.indexCount = 0;
     //--------------------------------------------//
 
-
+    /*
     // test
     reset_line_list();
     std::vector<point_data> a_line;
@@ -98,6 +99,7 @@ void rmPolyLines3D::LoadModel(){
     }
     push_back_a_line( a_line );
     // end test
+    */
 
 }
 void rmPolyLines3D::Update(float dt){
@@ -129,7 +131,7 @@ void rmPolyLines3D::Update(ROS_API &ros_api){
     }
     //--------------------------------//
     // end Update transform
-    
+
 }
 
 
@@ -156,7 +158,7 @@ void rmPolyLines3D::_draw_one_poly_line(std::vector<point_data> &a_line_in){
     update_GL_data(a_line_in);
 
     // Setting
-    glLineWidth(5.0);
+    glLineWidth(_line_width);
     // Draw the element
     glDrawArrays(GL_LINE_STRIP, 0, m_shape.indexCount); // draw part of points
     //--------------------------------//

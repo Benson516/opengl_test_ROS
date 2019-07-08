@@ -41,6 +41,9 @@ public:
     void push_back_a_line_queue(const std::queue<point_data> & a_line_queue_in );
     //-------------------------------------//
 
+    //
+    inline void set_line_width(float line_width_in){ _line_width = line_width_in; }
+
 protected:
     void Init();
     virtual void LoadModel();
@@ -52,6 +55,9 @@ protected:
 
     void _draw_one_poly_line(std::vector<point_data> &a_line_in);
     void update_GL_data(std::vector<point_data> &a_line_in);
+
+
+    float _line_width;
 
 private:
     // model info

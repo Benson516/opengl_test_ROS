@@ -33,6 +33,10 @@ void rmlv2ObjectTracking::Init(){
 
 void rmlv2ObjectTracking::LoadModel(){
 
+    // Line width
+    rm_polylines3D.set_line_width(5.0f);
+    rm_circle.set_line_width(1.0f);
+
 }
 
 void rmlv2ObjectTracking::Update(float dt){
@@ -97,7 +101,7 @@ void rmlv2ObjectTracking::update_GL_data(){
         _point_1_ptr = &(msg_out_ptr->objects[i].bPoint.p0);
         _point_2_ptr = &(msg_out_ptr->objects[i].bPoint.p7);
         glm::vec3 point_pose = 0.5f*(glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z) + glm::vec3(_point_2_ptr->x, _point_2_ptr->y, _point_2_ptr->z)) + glm::vec3(0.0f, 0.0f, 0.0f);
-
+        float diag_distance = glm::l2Norm(glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z) - glm::vec3(_point_2_ptr->x, _point_2_ptr->y, _point_2_ptr->z));
 
         // Reset count
         std::map<int,int>::iterator it_1 = obj_miss_count.find(obj_id);
@@ -138,6 +142,14 @@ void rmlv2ObjectTracking::update_GL_data(){
         //-------------------------//
         */
 
+        // Only insert the circle at the last point
+        auto point_tmp = a_line_queue.back();
+        circle_list.emplace_back(
+            point_tmp.position,
+            diag_distance*0.7, //1.0f,
+            glm::vec3(1.0f, 1.0f, 0.0f)
+        );
+
 
     }
 
@@ -152,7 +164,7 @@ void rmlv2ObjectTracking::update_GL_data(){
     // Clear line
     for (std::map<int,int>::iterator it=obj_miss_count.begin(); it!=obj_miss_count.end(); ++it){
         it->second++;
-        if (it->second > 5){ // test, miss count
+        if (it->second > 50){ // test, miss count
             // line_map[it->first] = std::queue<rmPolyLines3D::point_data>();
             // it->second = 0;
             line_map.erase(it->first);

@@ -46,7 +46,7 @@ void rmCircle::Init(){
     // Init model matrices
 	m_shape.model = glm::mat4(1.0);
     attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
-
+    _line_width = 1.0f;
 
     //Load model to shader _program_ptr
 	LoadModel();
@@ -86,7 +86,8 @@ void rmCircle::LoadModel(){
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
 
-    m_shape.indexCount = _max_num_vertex;
+    // m_shape.indexCount = _max_num_vertex;
+    m_shape.indexCount = 0;
     //--------------------------------------------//
 
 
@@ -154,7 +155,7 @@ void rmCircle::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
 
     // Setting
-    glLineWidth(5.0);
+    glLineWidth(_line_width);
     // Draw the element according to ebo
     // glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
     glDrawArrays(GL_POINTS, 0, m_shape.indexCount); // draw part of points
