@@ -24,6 +24,7 @@ public:
 
 protected:
     void Init();
+    virtual void LoadModel();
     //
     int _ROS_topic_id;
     // std::shared_ptr< msgs::LidRoi > msg_out_ptr;
@@ -31,13 +32,15 @@ protected:
     // ros::Time msg_time;
 
     //
-    rmLidarBoundingBox rm_box;
+    rmCircle rm_circle;
     rmText3D_v2 rm_text;
 
     void update_GL_data();
 
 private:
+    
 
+    // 3D text
     std::vector<rmText3D_v2::text_billboard_data> text_list;
 
 };
