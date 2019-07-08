@@ -119,23 +119,23 @@ void rmLidarBoundingBox::Update(float dt){
 }
 void rmLidarBoundingBox::Update(ROS_INTERFACE &ros_interface){
     // Update the data (buffer variables) here
-
-    // test, use transform
-    ros::Time msg_time;
-    bool _result = ros_interface.get_ITRI3DBoundingBox( _ROS_topic_id, msg_out_ptr, msg_time);
-
-    if (_result){
-        update_GL_data();
-    }
-
-    // Note: We get the transform update even if there is no new content in for maximum smoothness
-    //      (the tf will update even there is no data)
-    bool tf_successed = false;
-    glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, false));
-    // glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, true, msg_time));
-    // m_shape.model = _model_tf;
-    set_pose_modle_ref_by_world(_model_tf);
-    // Common::print_out_mat4(_model_tf);
+    //
+    // // test, use transform
+    // ros::Time msg_time;
+    // bool _result = ros_interface.get_ITRI3DBoundingBox( _ROS_topic_id, msg_out_ptr, msg_time);
+    //
+    // if (_result){
+    //     update_GL_data();
+    // }
+    //
+    // // Note: We get the transform update even if there is no new content in for maximum smoothness
+    // //      (the tf will update even there is no data)
+    // bool tf_successed = false;
+    // glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, false));
+    // // glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, true, msg_time));
+    // // m_shape.model = _model_tf;
+    // set_pose_modle_ref_by_world(_model_tf);
+    // // Common::print_out_mat4(_model_tf);
 
 
 }

@@ -837,29 +837,37 @@ void ROS_INTERFACE::_ITRI3DBoundingBox_CB(const msgs::LidRoi::ConstPtr& msg, con
     // Conversion
     std::shared_ptr<msgs::DetectedObjectArray> _data_ptr(new msgs::DetectedObjectArray() );
     _data_ptr->objects.resize( msg->lidRoiBox.size() );
-    for (size_t i=0; i < msg->camObj.size(); ++i ){
+    for (size_t i=0; i < msg->lidRoiBox.size(); ++i ){
         auto &_data_obj = _data_ptr->objects[i];
         auto &_msg_obj = msg->lidRoiBox[i];
         _data_obj.camInfo.id = i; // Use the sequence number as id
-        //
-        _data_obj.bPoint = _msg_obj;
         _data_obj.classId = 0; // _msg_obj.cls;
+        //
+        _data_obj.bPoint.p0 = _msg_obj.p0;
+        _data_obj.bPoint.p1 = _msg_obj.p1;
+        _data_obj.bPoint.p2 = _msg_obj.p2;
+        _data_obj.bPoint.p3 = _msg_obj.p3;
+        _data_obj.bPoint.p4 = _msg_obj.p4;
+        _data_obj.bPoint.p5 = _msg_obj.p5;
+        _data_obj.bPoint.p6 = _msg_obj.p6;
+        _data_obj.bPoint.p7 = _msg_obj.p7;
+
     }
     // put
     // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
     // bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
-    bool result = async_buffer_list[params.topic_id]->put_void( &(*_data_obj), true, _time_in, false);
+    bool result = async_buffer_list[params.topic_id]->put_void( &(*_data_ptr), true, _time_in, false);
     if (!result){ std::cout << params.name << ": buffer full.\n"; }
 }
-bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, msgs::LidRoi & content_out){
+bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, msgs::DetectedObjectArray & content_out){
     // front and pop
     return ( async_buffer_list[topic_id]->front_void(&content_out, true, _current_slice_time, false) );
 }
-bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::LidRoi > & content_out_ptr){
+bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::DetectedObjectArray > & content_out_ptr){
     // front and pop
     return ( async_buffer_list[topic_id]->front_void(&content_out_ptr, true, _current_slice_time, true) );
 }
-bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::LidRoi > & content_out_ptr, ros::Time &msg_stamp){
+bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::DetectedObjectArray > & content_out_ptr, ros::Time &msg_stamp){
     // front and pop
     bool result = ( async_buffer_list[topic_id]->front_void(&content_out_ptr, true, _current_slice_time, true) );
     msg_stamp = toROStime( async_buffer_list[topic_id]->get_stamp() );

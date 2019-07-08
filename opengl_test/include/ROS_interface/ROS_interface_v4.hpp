@@ -205,9 +205,9 @@ public:
     bool get_ITRIPointCloud(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out);
     bool get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr);
     bool get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp);
-    bool get_ITRI3DBoundingBox(const int topic_id, msgs::LidRoi & content_out);
-    bool get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::LidRoi > & content_out_ptr);
-    bool get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::LidRoi > & content_out_ptr, ros::Time &msg_stamp);
+    bool get_ITRI3DBoundingBox(const int topic_id, msgs::DetectedObjectArray & content_out);
+    bool get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::DetectedObjectArray > & content_out_ptr);
+    bool get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::DetectedObjectArray > & content_out_ptr, ros::Time &msg_stamp);
     //---------------------------------------------------------//
 
     // Sending methods for each type of message
