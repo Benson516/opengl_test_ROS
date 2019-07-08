@@ -123,24 +123,67 @@ void rmlv2ObjectTracking::update_GL_data(){
         while(a_line_queue.size() > 100){ // test, track for 50 points
             a_line_queue.pop();
         }
-        rm_polylines3D.push_back_a_line_queue(a_line_queue);
+        // rm_polylines3D.push_back_a_line_queue(a_line_queue);
         //-------------------------//
 
-        /*
-        // A set of circles
-        //-------------------------//
-        std::queue<rmPolyLines3D::point_data> point_queue_tmp = a_line_queue;
-        while ( !point_queue_tmp.empty() ){
-            auto point_tmp = point_queue_tmp.front();
-            circle_list.emplace_back(
-                point_tmp.position,
-                0.5f,
-                glm::vec3(1.0f, 0.0f, 0.0f)
-            );
-            point_queue_tmp.pop();
+
+        // // // A set of circles
+        // // //-------------------------//
+        // // std::queue<rmPolyLines3D::point_data> point_queue_tmp = a_line_queue;
+        // // while ( !point_queue_tmp.empty() ){
+        // //     auto point_tmp = point_queue_tmp.front();
+        // //     circle_list.emplace_back(
+        // //         point_tmp.position,
+        // //         0.5f,
+        // //         glm::vec3(1.0f, 0.0f, 0.0f)
+        // //     );
+        // //     point_queue_tmp.pop();
+        // // }
+        // // //-------------------------//
+        //
+        //
+        // // Only insert the circle at the last point
+        // auto point_tmp = a_line_queue.back();
+        // circle_list.emplace_back(
+        //     point_tmp.position,
+        //     diag_distance*0.7, //1.0f,
+        //     glm::vec3(1.0f, 1.0f, 0.0f)
+        // );
+
+
+    }
+
+
+    // Iterate through tracked objects
+    for (std::map<int,int>::iterator it=obj_miss_count.begin(); it!=obj_miss_count.end(); ++it){
+        it->second++;
+        if (it->second > 50){ // test, miss count
+            // line_map[it->first] = std::queue<rmPolyLines3D::point_data>();
+            // it->second = 0;
+            line_map.erase(it->first);
+            obj_miss_count.erase(it);
+            continue;
+        }else if (it->second < 0){
+            it->second = 0;
         }
-        //-------------------------//
-        */
+
+        // Draw lines and circles
+        std::queue<rmPolyLines3D::point_data> &a_line_queue = line_map[it->first];
+        rm_polylines3D.push_back_a_line_queue(a_line_queue);
+
+        // // A set of circles
+        // //-------------------------//
+        // std::queue<rmPolyLines3D::point_data> point_queue_tmp = a_line_queue;
+        // while ( !point_queue_tmp.empty() ){
+        //     auto point_tmp = point_queue_tmp.front();
+        //     circle_list.emplace_back(
+        //         point_tmp.position,
+        //         0.5f,
+        //         glm::vec3(1.0f, 0.0f, 0.0f)
+        //     );
+        //     point_queue_tmp.pop();
+        // }
+        // //-------------------------//
 
         // Only insert the circle at the last point
         auto point_tmp = a_line_queue.back();
@@ -149,32 +192,12 @@ void rmlv2ObjectTracking::update_GL_data(){
             diag_distance*0.7, //1.0f,
             glm::vec3(1.0f, 1.0f, 0.0f)
         );
-
-
-    }
-
-    // Insert circles
-    rm_circle.insert_circle(circle_list);
-
-
-    // Insert texts
-    // rm_text.insert_text(text_list);
-
-
-    // Clear line
-    for (std::map<int,int>::iterator it=obj_miss_count.begin(); it!=obj_miss_count.end(); ++it){
-        it->second++;
-        if (it->second > 50){ // test, miss count
-            // line_map[it->first] = std::queue<rmPolyLines3D::point_data>();
-            // it->second = 0;
-            line_map.erase(it->first);
-            obj_miss_count.erase(it);
-        }else if (it->second < 0){
-            it->second = 0;
-        }
     }
     // std::cout << "line_map.size() = " << line_map.size() << ", ";
     // std::cout << "obj_miss_count.size() = " << obj_miss_count.size() << "\n";
 
-
+    // Insert circles
+    rm_circle.insert_circle(circle_list);
+    // Insert texts
+    // rm_text.insert_text(text_list);
 }
