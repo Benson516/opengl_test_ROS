@@ -19,12 +19,12 @@ public:
     inline glm::mat4 * get_model_m_ptr(){ return &(m_shape.model); }
 
     //
-    void insert_section_vertexes(std::vector<const glm::vec3> &section_vertexes_in){ section_vertexes = section_vertexes_in;}
-    void insert_curve_Points(std::vector<const glm::vec3> &curve_Points_in);
+    inline void insert_section_vertexes(const std::vector<glm::vec3> &section_vertexes_in){ section_vertexes = section_vertexes_in;}
+    void insert_curve_Points(const std::vector<glm::vec3> &curve_Points_in);
 
     //
-    void set_colr_head(const glm::vec3 & _color_in){ _color_head = color_in; }
-    void set_colr_tail(const glm::vec3 & _color_in){ _color_tail = color_in; }
+    void set_colr_head(const glm::vec3 & color_in){ _color_head = color_in; }
+    void set_colr_tail(const glm::vec3 & color_in){ _color_tail = color_in; }
 
 protected:
     void Init();

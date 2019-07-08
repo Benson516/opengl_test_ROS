@@ -103,7 +103,7 @@ void rmSweepingObject::LoadModel(){
     // Directly assign data to memory of GPU
     //--------------------------------------------//
 	vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex_of_curve * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    double _size = 1.0;
+    float _size = 1.0f;
     for (size_t i = 0; i < m_shape.indexCount; i++)
 	{
 		vertex_ptr[i].position = _size*_curve_Points[i];
@@ -182,7 +182,7 @@ void rmSweepingObject::update_GL_data(){
 
 
 
-void rmSweepingObject::insert_curve_Points(std::vector<const glm::vec3> &curve_Points_in){
+void rmSweepingObject::insert_curve_Points(const std::vector<glm::vec3> &curve_Points_in){
     _curve_Points = curve_Points_in;
     m_shape.indexCount = _curve_Points.size();
     _update_lookat_matrix_list();
@@ -197,7 +197,7 @@ void rmSweepingObject::insert_curve_Points(std::vector<const glm::vec3> &curve_P
 	{
 		vertex_ptr[i].position = _curve_Points[i];
         float _ratio = (float(i))/ float(m_shape.indexCount);
-        vertex_ptr[i].color = (1.0f - _ratio) * _color_head + _ratio * _color_tail
+        vertex_ptr[i].color = (1.0f - _ratio) * _color_head + _ratio * _color_tail;
 	}
 	glUnmapBuffer(GL_ARRAY_BUFFER);
     //--------------------------------------------//
