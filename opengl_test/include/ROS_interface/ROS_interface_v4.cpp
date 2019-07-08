@@ -253,7 +253,8 @@ void ROS_INTERFACE::_ROS_worker(){
     for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
         MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
         // SPSC Buffer
-        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::LidRoi > (_tmp_params.buffer_length) );
+        // async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::LidRoi > (_tmp_params.buffer_length) );
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::DetectedObjectArray > (_tmp_params.buffer_length) );
         //
         // subs_id, pub_id
         if (_tmp_params.is_input){
@@ -833,9 +834,21 @@ bool ROS_INTERFACE::send_ITRIPointCloud(const int topic_id, const pcl::PointClou
 void ROS_INTERFACE::_ITRI3DBoundingBox_CB(const msgs::LidRoi::ConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+    // Conversion
+    std::shared_ptr<msgs::DetectedObjectArray> _data_ptr(new msgs::DetectedObjectArray() );
+    _data_ptr->objects.resize( msg->lidRoiBox.size() );
+    for (size_t i=0; i < msg->camObj.size(); ++i ){
+        auto &_data_obj = _data_ptr->objects[i];
+        auto &_msg_obj = msg->lidRoiBox[i];
+        _data_obj.camInfo.id = i; // Use the sequence number as id
+        //
+        _data_obj.bPoint = _msg_obj;
+        _data_obj.classId = 0; // _msg_obj.cls;
+    }
     // put
     // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
-    bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    // bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    bool result = async_buffer_list[params.topic_id]->put_void( &(*_data_obj), true, _time_in, false);
     if (!result){ std::cout << params.name << ": buffer full.\n"; }
 }
 bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, msgs::LidRoi & content_out){
