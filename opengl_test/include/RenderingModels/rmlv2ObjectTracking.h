@@ -4,6 +4,7 @@
 #include "rmBaseModel.h"
 
 //
+#include "rmPolyLines3D.h"
 #include "rmCircle.h"
 #include "rmText3D_v2.h"
 
@@ -32,13 +33,14 @@ protected:
     // ros::Time msg_time;
 
     //
+    rmPolyLines3D rm_polylines3D;
     rmCircle rm_circle;
     rmText3D_v2 rm_text;
 
     void update_GL_data();
 
 private:
-    
+
 
     // 3D text
     std::vector<rmText3D_v2::text_billboard_data> text_list;

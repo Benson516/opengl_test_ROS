@@ -9,6 +9,7 @@ rmlv2ObjectTracking::rmlv2ObjectTracking(
 ):
     _ROS_topic_id(_ROS_topic_id_in),
     //
+    rm_polylines3D(_path_Assets_in, _ROS_topic_id_in),
     rm_circle(_path_Assets_in),
     rm_text(_path_Assets_in, _ROS_topic_id_in)
 {
