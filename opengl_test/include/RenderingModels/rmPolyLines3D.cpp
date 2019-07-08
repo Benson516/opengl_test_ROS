@@ -18,9 +18,8 @@ void rmPolyLines3D::Init(){
     //
 	_program_ptr.reset( new ShaderProgram() );
     // Load shaders
-    _program_ptr->AttachShader(get_full_Shader_path("Circle.vs.glsl"), GL_VERTEX_SHADER);
-    _program_ptr->AttachShader(get_full_Shader_path("Circle.gs.glsl"), GL_GEOMETRY_SHADER);
-    _program_ptr->AttachShader(get_full_Shader_path("Circle.fs.glsl"), GL_FRAGMENT_SHADER);
+    _program_ptr->AttachShader(get_full_Shader_path("PolyLines3D.vs.glsl"), GL_VERTEX_SHADER);
+    _program_ptr->AttachShader(get_full_Shader_path("PolyLines3D.fs.glsl"), GL_FRAGMENT_SHADER);
     // Link _program_ptr
 	_program_ptr->LinkProgram();
     //
@@ -44,10 +43,10 @@ void rmPolyLines3D::LoadModel(){
 
     glGenBuffers(1, &m_shape.vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo);
-    glBufferData(GL_ARRAY_BUFFER, _max_num_vertex * sizeof(circle_data), NULL, GL_DYNAMIC_DRAW); // test, change to dynamic draw to assign point cloud
+    glBufferData(GL_ARRAY_BUFFER, _max_num_vertex * sizeof(point_data), NULL, GL_DYNAMIC_DRAW); // test, change to dynamic draw to assign point cloud
     // Directly assign data to memory of GPU
     //--------------------------------------------//
-	circle_data * vertex_ptr = (circle_data *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(circle_data), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+	point_data * vertex_ptr = (point_data *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(point_data), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 	size_t _j = 0;
     float radious = 1.0;
 	for (size_t i = 0; i < _max_num_shape; i++)
@@ -56,7 +55,6 @@ void rmPolyLines3D::LoadModel(){
 		vertex_ptr[_j].position[0] = 2.0*radious*(i/_num_vertex_per_shape);
 		vertex_ptr[_j].position[1] = 0.0f;
 		vertex_ptr[_j].position[2] = 0.0f;
-        vertex_ptr[_j].radious     = radious;
 		vertex_ptr[_j].color[0] = 1.0f; //
 		vertex_ptr[_j].color[1] = 1.0f; //
 		vertex_ptr[_j].color[2] = 1.0f; //
@@ -65,34 +63,13 @@ void rmPolyLines3D::LoadModel(){
 	glUnmapBuffer(GL_ARRAY_BUFFER);
     //--------------------------------------------//
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(circle_data), NULL);
-    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(circle_data), (void *)(sizeof(glm::vec3) )  );
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(circle_data), (void *)(sizeof(glm::vec3) + sizeof(float) )  );
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(point_data), NULL);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(point_data), (void *)(sizeof(glm::vec3) + sizeof(float) )  );
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
 
     m_shape.indexCount = _max_num_vertex;
     //--------------------------------------------//
-
-
-    /*
-    // test
-    vector<circle_data> data_test;
-    float __radious = 0.5;
-    for (size_t _k=0; _k < 10; ++_k){
-        data_test.push_back(
-            circle_data(
-                glm::vec3(10.0f, -2.0*__radious*(_k/_num_vertex_per_shape), 0.0f),
-                __radious,
-                glm::vec3(0.6f, 0.6f, 0.2f)
-            )
-        );
-        insert_circle(data_test);
-    }
-    //
-    */
-
 
 
 }
@@ -117,23 +94,29 @@ void rmPolyLines3D::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
 
-    // Setting
-    glLineWidth(5.0);
-    // Draw the element according to ebo
-    // glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
-    glDrawArrays(GL_POINTS, 0, m_shape.indexCount); // draw part of points
-    //--------------------------------//
-    glLineWidth(1.0); // default line width
+    // Loop for all lines
+    for (size_t i=0; i < line_list.size(); ++i){
+        _draw_one_poly_line( line_list[i] );
+    }
+
     _program_ptr->CloseProgram();
 }
 
 
+void rmPolyLines3D::_draw_one_poly_line(std::vector<point_data> &a_line_in){
+    // Update vbo
+    update_GL_data(a_line_in);
 
+    // Setting
+    glLineWidth(2.0);
+    // Draw the element
+    glDrawArrays(GL_LINES, 0, m_shape.indexCount); // draw part of points
+    //--------------------------------//
+    glLineWidth(1.0); // default line width
+}
 
-// Insert method for circle
-//-------------------------------------//
-void rmPolyLines3D::insert_circle(const vector<circle_data> & data_list_in ){
-    long long num_shape = data_list_in.size();
+void rmPolyLines3D::update_GL_data(std::vector<point_data> &a_line_in){
+    long long num_shape = a_line_in.size();
     if (num_shape > _max_num_shape){
         num_shape = _max_num_shape;
     }
@@ -144,14 +127,19 @@ void rmPolyLines3D::insert_circle(const vector<circle_data> & data_list_in ){
 
 
     m_shape.indexCount = num_shape * _num_vertex_per_shape;
-    circle_data * vertex_ptr = (circle_data *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_shape * _num_vertex_per_shape * sizeof(circle_data), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    // circle_data * vertex_ptr = (circle_data *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_shape * _num_vertex_per_shape * sizeof(circle_data), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+    point_data * vertex_ptr = (point_data *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_shape * _num_vertex_per_shape * sizeof(point_data), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     size_t _j = 0;
-    for (size_t i = 0; i < (num_shape*_num_vertex_per_shape); i++)
-    {
+    for (size_t i = 0; i < (num_shape*_num_vertex_per_shape); i++){
         //
-        vertex_ptr[i] = data_list_in[i];
+        vertex_ptr[i] = a_line_in[i];
     }
     glUnmapBuffer(GL_ARRAY_BUFFER);
+}
+
+
+// Insert method for circle
+//-------------------------------------//
+void rmPolyLines3D::push_back_a_line(const vector<point_data> & a_line_in ){
+    line_list.push_back(a_line_in);
 }
 //-------------------------------------//

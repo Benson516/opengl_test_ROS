@@ -21,12 +21,13 @@
 #include "rmlv2TagBoundingBox2D.h"
 #include "rmlv2TagBoundingBox3D.h"
 #include "rmGrid.h"
-// The following are not finished yet
+#include "rmPolyLines3D.h"
 #include "rmSweepingObject.h"
 #include "rmText2D.h"
 // #include "rmText3D.h"
 #include "rmText3D_v2.h"
 #include "rmCircle.h"
+// The following are not finished yet
 
 //
 

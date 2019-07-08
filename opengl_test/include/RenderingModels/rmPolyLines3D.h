@@ -3,25 +3,22 @@
 
 #include "rmBaseModel.h"
 
-#include <queue>          // std::queue
+// #include <queue>          // std::queue
 
 class rmPolyLines3D : public rmBaseModel
 {
 public:
 
     // The structure for point
-    struct circle_data
+    struct point_data
 	{
 		glm::vec3     position;
-        float         radious;
 		glm::vec3     color;
-        circle_data(
+        point_data(
             glm::vec3     position_in=glm::vec3(0.0f),
-            float         radious_in=1.0f,
     		glm::vec3     color_in=glm::vec3(1.0f)
         ):
             position(position_in),
-            radious(radious_in),
             color(color_in)
         {}
 	};
@@ -36,7 +33,8 @@ public:
 
     // Insert method for circle
     //-------------------------------------//
-    void insert_circle(const vector<circle_data> & data_list_in );
+    void reset_line_list() {    line_list.clear();  }
+    void push_back_a_line(const vector<point_data> & a_line_in );
     //-------------------------------------//
 
 protected:
@@ -47,6 +45,8 @@ protected:
     std::shared_ptr< msgs::LidRoi > msg_out_ptr;
     // ros::Time msg_time;
 
+    void _draw_one_poly_line(std::vector<point_data> &a_line_in);
+    void update_GL_data(std::vector<point_data> &a_line_in);
 
 private:
     // model info
@@ -77,7 +77,7 @@ private:
 	} uniforms;
 
     // buffer
-    std::vector<circle_data> circle_buffer;
+    std::vector< std::vector<point_data> > line_list;
 
 
 };
