@@ -40,6 +40,7 @@ public:
     // Insert method for circle
     //-------------------------------------//
     void insert_circle(const std::vector<circle_data> & data_list_in );
+    void insert_circle(const std::map<int, circle_data> & data_map_in );
     //-------------------------------------//
 
     inline void set_line_width(float line_width_in){ _line_width = line_width_in; }

@@ -25,6 +25,11 @@ public:
     void Update(ROS_API &ros_api);
 	void Render(std::shared_ptr<ViewManager> &_camera_ptr);
 
+    //
+    inline void set_max_miss_count(int max_miss_count_in){ _max_miss_count = max_miss_count_in; }
+    inline void set_max_track_points(int max_track_points_in){ _max_track_points = max_track_points_in; }
+    //
+    size_t get_num_tracked_object(){ return obj_miss_count.size(); }
 
 protected:
     void Init();
@@ -42,6 +47,10 @@ protected:
 
     void update_GL_data();
 
+    // Parameters
+    int _max_miss_count;
+    int _max_track_points;
+
 private:
 
 
@@ -50,6 +59,7 @@ private:
 
     // buffer map: id --> a_line
     std::map<int, std::queue<rmPolyLines3D::point_data> > line_map;
+    std::map<int, rmCircle::circle_data> circle_map;
     std::map<int, int> obj_miss_count;
 
 };

@@ -182,12 +182,28 @@ void rmCircle::insert_circle(const std::vector<circle_data> & data_list_in ){
 
     m_shape.indexCount = num_shape * _num_vertex_per_shape;
     circle_data * vertex_ptr = (circle_data *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_shape * _num_vertex_per_shape * sizeof(circle_data), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    // circle_data * vertex_ptr = (circle_data *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_shape * _num_vertex_per_shape * sizeof(circle_data), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    size_t _j = 0;
-    for (size_t i = 0; i < (num_shape*_num_vertex_per_shape); i++)
-    {
-        //
+    for (size_t i = 0; i < (num_shape*_num_vertex_per_shape); i++){
         vertex_ptr[i] = data_list_in[i];
+    }
+    glUnmapBuffer(GL_ARRAY_BUFFER);
+}
+void rmCircle::insert_circle(const std::map<int, circle_data> & data_map_in ){
+    long long num_shape = data_map_in.size();
+    if (num_shape > _max_num_shape){
+        num_shape = _max_num_shape;
+    }
+
+    // vao vbo
+    glBindVertexArray(m_shape.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
+
+
+    m_shape.indexCount = num_shape * _num_vertex_per_shape;
+    circle_data * vertex_ptr = (circle_data *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_shape * _num_vertex_per_shape * sizeof(circle_data), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+    size_t i = 0;
+    for (auto it=data_map_in.cbegin(); it != data_map_in.cend(); ++it){
+        vertex_ptr[i] = it->second;
+        i++;
     }
     glUnmapBuffer(GL_ARRAY_BUFFER);
 }

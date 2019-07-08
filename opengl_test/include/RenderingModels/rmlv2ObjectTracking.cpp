@@ -37,6 +37,14 @@ void rmlv2ObjectTracking::LoadModel(){
     rm_polylines3D.set_line_width(5.0f);
     rm_circle.set_line_width(1.0f);
 
+    //
+    float max_track_time = 10; // sec
+    float max_miss_sec = 10; // sec.
+    float sample_rate = 10.0; // Hz
+    //
+    _max_miss_count = max_track_time*sample_rate;
+    _max_track_points = max_miss_sec*sample_rate;
+
 }
 
 void rmlv2ObjectTracking::Update(float dt){
@@ -76,7 +84,6 @@ void rmlv2ObjectTracking::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
 void rmlv2ObjectTracking::update_GL_data(){
     // Reset
-    rm_polylines3D.reset_line_list();
     text_list.clear();
     //
     if (msg_out_ptr->objects.size() == 0){
@@ -84,13 +91,14 @@ void rmlv2ObjectTracking::update_GL_data(){
         rm_text.insert_text(text_list);
         return;
     }
+
     long long num_box = msg_out_ptr->objects.size();
     // if (num_box > _max_num_box){
     //     num_box = _max_num_box;
     // }
 
     // Initialize
-    std::vector<rmCircle::circle_data> circle_list;
+    // std::vector<rmCircle::circle_data> circle_list;
 
     auto * _point_1_ptr = &(msg_out_ptr->objects[0].bPoint.p0);
     auto * _point_2_ptr = &(msg_out_ptr->objects[0].bPoint.p0);
@@ -120,12 +128,19 @@ void rmlv2ObjectTracking::update_GL_data(){
             point_pose,
             glm::vec3(1.0f, 0.0f, 0.0f)
         );
-        while(a_line_queue.size() > 100){ // test, track for 50 points
+        while(a_line_queue.size() > _max_track_points){ // test, track for 100 points
             a_line_queue.pop();
         }
         // rm_polylines3D.push_back_a_line_queue(a_line_queue);
         //-------------------------//
 
+        // Circle
+        auto point_tmp = a_line_queue.back();
+        circle_map[obj_id] = rmCircle::circle_data(
+                                    point_tmp.position,
+                                    diag_distance*0.5, //1.0f,
+                                    glm::vec3(1.0f, 1.0f, 0.0f)
+                                );
 
         // // // A set of circles
         // // //-------------------------//
@@ -157,47 +172,57 @@ void rmlv2ObjectTracking::update_GL_data(){
     // Iterate through tracked objects
     for (std::map<int,int>::iterator it=obj_miss_count.begin(); it!=obj_miss_count.end(); ++it){
         it->second++;
-        if (it->second > 50){ // test, miss count
+        if (it->second > _max_miss_count){ // test, miss count
             // line_map[it->first] = std::queue<rmPolyLines3D::point_data>();
             // it->second = 0;
             line_map.erase(it->first);
+            circle_map.erase(it->first);
             obj_miss_count.erase(it);
             continue;
         }else if (it->second < 0){
             it->second = 0;
         }
+    }
 
-        // Draw lines and circles
+    // Draw lines and circles
+    rm_polylines3D.reset_line_list();
+    for (std::map<int,int>::iterator it=obj_miss_count.begin(); it!=obj_miss_count.end(); ++it){
         std::queue<rmPolyLines3D::point_data> &a_line_queue = line_map[it->first];
         rm_polylines3D.push_back_a_line_queue(a_line_queue);
 
-        // // A set of circles
-        // //-------------------------//
-        // std::queue<rmPolyLines3D::point_data> point_queue_tmp = a_line_queue;
-        // while ( !point_queue_tmp.empty() ){
-        //     auto point_tmp = point_queue_tmp.front();
-        //     circle_list.emplace_back(
-        //         point_tmp.position,
-        //         0.5f,
-        //         glm::vec3(1.0f, 0.0f, 0.0f)
-        //     );
-        //     point_queue_tmp.pop();
-        // }
-        // //-------------------------//
+        // // // A set of circles
+        // // //-------------------------//
+        // // std::queue<rmPolyLines3D::point_data> point_queue_tmp = a_line_queue;
+        // // while ( !point_queue_tmp.empty() ){
+        // //     auto point_tmp = point_queue_tmp.front();
+        // //     circle_list.emplace_back(
+        // //         point_tmp.position,
+        // //         0.5f,
+        // //         glm::vec3(1.0f, 0.0f, 0.0f)
+        // //     );
+        // //     point_queue_tmp.pop();
+        // // }
+        // // //-------------------------//
+        //
+        //
+        // // Only insert the circle at the last point
+        // auto point_tmp = a_line_queue.back();
+        // circle_list.emplace_back(
+        //     point_tmp.position,
+        //     diag_distance*0.7, //1.0f,
+        //     glm::vec3(1.0f, 1.0f, 0.0f)
+        // );
 
-        // Only insert the circle at the last point
-        auto point_tmp = a_line_queue.back();
-        circle_list.emplace_back(
-            point_tmp.position,
-            diag_distance*0.7, //1.0f,
-            glm::vec3(1.0f, 1.0f, 0.0f)
-        );
     }
     // std::cout << "line_map.size() = " << line_map.size() << ", ";
+    // std::cout << "circle_map.size() = " << circle_map.size() << ", ";
     // std::cout << "obj_miss_count.size() = " << obj_miss_count.size() << "\n";
 
     // Insert circles
-    rm_circle.insert_circle(circle_list);
+    // rm_circle.insert_circle(circle_list);
+    rm_circle.insert_circle(circle_map);
+
+
     // Insert texts
     // rm_text.insert_text(text_list);
 }
