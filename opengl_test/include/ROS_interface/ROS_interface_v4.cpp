@@ -272,7 +272,8 @@ void ROS_INTERFACE::_ROS_worker(){
     for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
         MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
         // SPSC Buffer
-        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::CamObj > (_tmp_params.buffer_length) );
+        // async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::CamObj > (_tmp_params.buffer_length) );
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::DetectedObjectArray > (_tmp_params.buffer_length) );
         //
         // subs_id, pub_id
         if (_tmp_params.is_input){
@@ -867,9 +868,26 @@ bool ROS_INTERFACE::send_ITRI3DBoundingBox(const int topic_id, const msgs::LidRo
 void ROS_INTERFACE::_ITRICamObj_CB(const msgs::CamObj::ConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+    // Convertion
+    std::shared_ptr<msgs::DetectedObjectArray> _data_ptr(new msgs::DetectedObjectArray() );
+    _data_ptr->objects.resize( msg->camObj.size() );
+    for (size_t i=0; i < msg->camObj.size(); ++i ){
+        _data_ptr->objects[i].camInfo.u = msg->camObj[i].x;
+        _data_ptr->objects[i].camInfo.v = msg->camObj[i].y;
+        _data_ptr->objects[i].camInfo.width = msg->camObj[i].width;
+        _data_ptr->objects[i].camInfo.height = msg->camObj[i].height;
+        _data_ptr->objects[i].camInfo.id = msg->camObj[i].id;
+        _data_ptr->objects[i].camInfo.prob = msg->camObj[i].prob;
+        //
+        _data_ptr->objects[i].classId = msg->camObj[i].cls;
+        _data_ptr->objects[i].distance = msg->camObj[i].distance;
+        _data_ptr->objects[i].bPoint = msg->camObj[i].boxPoint;
+        _data_ptr->objects[i].fusionSourceId = msg->camObj[i].sourceType;
+    }
     // put
     // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
-    bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    // bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    bool result = async_buffer_list[params.topic_id]->put_void( &(*_data_ptr), true, _time_in, false);
     if (!result){ std::cout << params.name << ": buffer full.\n"; }
 }
 //---------------------------------------------------------------//

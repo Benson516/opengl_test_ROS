@@ -85,7 +85,7 @@ void rmlv2TagBoundingBox2D::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 }
 
 
-
+/*
 void rmlv2TagBoundingBox2D::update_GL_data(){
     // Reset
     if (is_perspected){
@@ -105,12 +105,10 @@ void rmlv2TagBoundingBox2D::update_GL_data(){
         return;
     }
     long long num_box = msg_out_ptr->camObj.size();
-    /*
-    if (num_box > _max_num_box){
-        num_box = _max_num_box;
-    }
-    */
 
+    // if (num_box > _max_num_box){
+    //     num_box = _max_num_box;
+    // }
 
     //
     size_t _box_count = 0;
@@ -127,16 +125,6 @@ void rmlv2TagBoundingBox2D::update_GL_data(){
         _box_count++;
         //
         glm::vec3 _box_color = rmlv2TagBoundingBox2D_ns::get_obj_class_color(_a_box_param_gl.obj_class);
-        /*
-        for (size_t _k=0; _k <_num_vertex_per_box; ++_k ){
-            vertex_ptr[_j].position[0] = _a_box_param_gl.xy_list[_k][0];
-    		vertex_ptr[_j].position[1] = _a_box_param_gl.xy_list[_k][1];
-            vertex_ptr[_j].color[0] = _box_color[0]; //
-    		vertex_ptr[_j].color[1] = _box_color[1]; //
-    		vertex_ptr[_j].color[2] = _box_color[2]; //
-            _j++;
-        }
-        */
         if (is_perspected){
             text2Din3D_list.emplace_back(
                 "#" + std::to_string(_box.id) + " cls: " + std::to_string(_box.cls),
@@ -171,7 +159,84 @@ void rmlv2TagBoundingBox2D::update_GL_data(){
         rm_text.insert_text(text2Dflat_list);
     }
 }
+*/
 
+
+void rmlv2TagBoundingBox2D::update_GL_data(){
+    // Reset
+    if (is_perspected){
+        text2Din3D_list.clear();
+    }else{
+        text2Dflat_list.clear();
+    }
+
+    //
+    if (msg_out_ptr->objects.size() == 0){
+        // Insert texts
+        if (is_perspected){
+            rm_text.insert_text(text2Din3D_list);
+        }else{
+            rm_text.insert_text(text2Dflat_list);
+        }
+        return;
+    }
+    long long num_box = msg_out_ptr->objects.size();
+    /*
+    if (num_box > _max_num_box){
+        num_box = _max_num_box;
+    }
+    */
+
+
+    //
+    size_t _box_count = 0;
+    for (size_t i = 0; i < num_box; i++)
+	{
+        //
+        auto & _box = msg_out_ptr->objects[i];
+        box_param_cv _a_box_param_cv(_box.camInfo.x, _box.camInfo.y, _box.camInfo.width, _box.camInfo.height, _box.classId);
+        box_param_gl _a_box_param_gl;
+        convert_cv_to_normalized_gl(_a_box_param_cv, _a_box_param_gl);
+        if (!is_gl_box_valid(_a_box_param_gl)){
+            continue; // Don't add to buffer
+        }
+        _box_count++;
+        //
+        glm::vec3 _box_color = rmlv2TagBoundingBox2D_ns::get_obj_class_color(_a_box_param_gl.obj_class);
+        if (is_perspected){
+            text2Din3D_list.emplace_back(
+                "#" + std::to_string(_box.id) + " cls: " + std::to_string(_box.cls),
+                _a_box_param_gl.xy_list[0],
+                0.1,
+                _box_color,
+                rmText3D_v2::ALIGN_X::LEFT,
+                rmText3D_v2::ALIGN_Y::BUTTON,
+                1
+            );
+        }else{
+            text2Dflat_list.emplace_back(
+                "#" + std::to_string(_box.id) + " cls: " + std::to_string(_box.cls),
+                _a_box_param_gl.xy_list[0],
+                24,
+                _box_color,
+                rmText3D_v2::ALIGN_X::LEFT,
+                rmText3D_v2::ALIGN_Y::BUTTON,
+                1,
+                0,
+                !is_moveable,
+                false
+            );
+        }
+        //
+	}
+
+    // Insert texts
+    if (is_perspected){
+        rm_text.insert_text(text2Din3D_list);
+    }else{
+        rm_text.insert_text(text2Dflat_list);
+    }
+}
 
 
 void rmlv2TagBoundingBox2D::setBoardSize(float width_in, float height_in){
