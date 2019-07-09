@@ -47,7 +47,7 @@ protected:
     rmCircle rm_circle;
     rmText3D_v2 rm_text;
 
-    void update_GL_data(const ROS_API &ros_api);
+    void update_GL_data(ROS_API &ros_api);
 
     // Parameters
     int _max_miss_count;

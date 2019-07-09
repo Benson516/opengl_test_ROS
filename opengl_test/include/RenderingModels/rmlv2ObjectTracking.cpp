@@ -64,7 +64,7 @@ void rmlv2ObjectTracking::Update(ROS_API &ros_api){
     _result = ros_api.get_message(_ROS_topic_id, msg_out_ptr, msg_time);
 
     if (_result){
-        update_GL_data();
+        update_GL_data(ros_api);
         // rm_text.insert_text();
     }
 
@@ -84,7 +84,7 @@ void rmlv2ObjectTracking::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
 
 
-void rmlv2ObjectTracking::update_GL_data(const ROS_API &ros_api){
+void rmlv2ObjectTracking::update_GL_data(ROS_API &ros_api){
     // Reset
     text_list.clear();
     //
@@ -122,7 +122,8 @@ void rmlv2ObjectTracking::update_GL_data(const ROS_API &ros_api){
         int obj_id = msg_out_ptr->objects[i].camInfo.id;
         _point_1_ptr = &(msg_out_ptr->objects[i].bPoint.p0);
         _point_2_ptr = &(msg_out_ptr->objects[i].bPoint.p7);
-        glm::vec3 point_pose = tf_box_to_ref*(  0.5f*(glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z) + glm::vec3(_point_2_ptr->x, _point_2_ptr->y, _point_2_ptr->z)) + glm::vec3(0.0f, 0.0f, 0.0f)  );
+        glm::vec3 point_pose_ori = (  0.5f*(glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z) + glm::vec3(_point_2_ptr->x, _point_2_ptr->y, _point_2_ptr->z)) + glm::vec3(0.0f, 0.0f, 0.0f)  );
+        glm::vec3 point_pose = ( tf_box_to_ref*glm::vec4(point_pose_ori, 1.0f) ).xyz();
         float diag_distance = glm::l2Norm(glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z) - glm::vec3(_point_2_ptr->x, _point_2_ptr->y, _point_2_ptr->z));
 
         // Reset count
