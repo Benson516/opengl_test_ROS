@@ -5,13 +5,15 @@
 
 rmlv2ObjectTracking::rmlv2ObjectTracking(
     std::string _path_Assets_in,
-    int _ROS_topic_id_in
+    int _ROS_topic_id_in,
+    std::string ref_frame_in
 ):
     _ROS_topic_id(_ROS_topic_id_in),
+    _ref_frame(ref_frame_in),
     //
-    rm_polylines3D(_path_Assets_in, _ROS_topic_id_in),
-    rm_circle(_path_Assets_in, _ROS_topic_id_in),
-    rm_text(_path_Assets_in, _ROS_topic_id_in)
+    rm_polylines3D(_path_Assets_in, ref_frame_in),
+    rm_circle(_path_Assets_in, ref_frame_in),
+    rm_text(_path_Assets_in, ref_frame_in)
 {
     // init_paths(_path_Assets_in);
     //
@@ -82,7 +84,7 @@ void rmlv2ObjectTracking::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
 
 
-void rmlv2ObjectTracking::update_GL_data(){
+void rmlv2ObjectTracking::update_GL_data(const ROS_API &ros_api){
     // Reset
     text_list.clear();
     //
@@ -91,6 +93,18 @@ void rmlv2ObjectTracking::update_GL_data(){
         rm_text.insert_text(text_list);
         return;
     }
+
+
+    // Update transform
+    //--------------------------------//
+    glm::mat4 tf_box_to_ref(1.0f);
+    if (_ref_frame.size() > 0){
+        // Get tf
+        bool tf_successed = false;
+        tf_box_to_ref = ROStf2GLMmatrix(ros_api.get_tf(_ref_frame, ros_api.ros_interface.get_topic_param(_ROS_topic_id).frame_id, tf_successed));
+        // end Get tf
+    }
+    //--------------------------------//
 
     long long num_box = msg_out_ptr->objects.size();
     // if (num_box > _max_num_box){
@@ -108,7 +122,7 @@ void rmlv2ObjectTracking::update_GL_data(){
         int obj_id = msg_out_ptr->objects[i].camInfo.id;
         _point_1_ptr = &(msg_out_ptr->objects[i].bPoint.p0);
         _point_2_ptr = &(msg_out_ptr->objects[i].bPoint.p7);
-        glm::vec3 point_pose = 0.5f*(glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z) + glm::vec3(_point_2_ptr->x, _point_2_ptr->y, _point_2_ptr->z)) + glm::vec3(0.0f, 0.0f, 0.0f);
+        glm::vec3 point_pose = tf_box_to_ref*(  0.5f*(glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z) + glm::vec3(_point_2_ptr->x, _point_2_ptr->y, _point_2_ptr->z)) + glm::vec3(0.0f, 0.0f, 0.0f)  );
         float diag_distance = glm::l2Norm(glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z) - glm::vec3(_point_2_ptr->x, _point_2_ptr->y, _point_2_ptr->z));
 
         // Reset count

@@ -17,7 +17,8 @@ class rmlv2ObjectTracking : public rmBaseModel
 public:
     rmlv2ObjectTracking(
         std::string _path_Assets_in,
-        int _ROS_topic_id_in
+        int _ROS_topic_id_in,
+        std::string ref_frame_in
     );
     //
 	void Update(float dt);
@@ -39,13 +40,14 @@ protected:
     // std::shared_ptr< msgs::LidRoi > msg_out_ptr;
     std::shared_ptr< msgs::DetectedObjectArray > msg_out_ptr;
     // ros::Time msg_time;
+    std::string _ref_frame; // The reference frame for tracking
 
     //
     rmPolyLines3D rm_polylines3D;
     rmCircle rm_circle;
     rmText3D_v2 rm_text;
 
-    void update_GL_data();
+    void update_GL_data(const ROS_API &ros_api);
 
     // Parameters
     int _max_miss_count;
