@@ -117,11 +117,11 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 
 
 
-
-    // Lidar bounding box
-    _rm_BaseModel.push_back( std::shared_ptr<rmlv2TagBoundingBox3D>(new rmlv2TagBoundingBox3D(_Assets_path, int(MSG_ID::lidar_bounding_box_1)) ) );
     // rmlv2ObjectTracking
     _rm_BaseModel.push_back( std::shared_ptr<rmlv2ObjectTracking>(new rmlv2ObjectTracking(_Assets_path, int(MSG_ID::lidar_bounding_box_1), "map") ) );
+    // Lidar bounding box
+    _rm_BaseModel.push_back( std::shared_ptr<rmlv2TagBoundingBox3D>(new rmlv2TagBoundingBox3D(_Assets_path, int(MSG_ID::lidar_bounding_box_1)) ) );
+
 
 
     // Bounding boc 2D
