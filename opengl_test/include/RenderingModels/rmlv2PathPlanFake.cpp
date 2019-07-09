@@ -86,7 +86,8 @@ void rmlv2PathPlanFake::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
 void rmlv2PathPlanFake::update_GL_data(){
 
-    glm::vec3 pose2D_0(-5.5f, 0.0f, 0.0f);
+    glm::vec3 pose2D_0(0.0f, 0.0f, 0.0f);
+    // glm::vec3 pose2D_0(-5.5f, 0.0f, 0.0f);
     glm::vec2 twist2D( msg_out_ptr->ego_speed, msg_out_ptr->yaw_rate*0.017453292519943295 );
 
 

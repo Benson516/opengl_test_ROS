@@ -44,7 +44,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     std::shared_ptr<rmText3D_v2> _text3D_ptr;
     // Bounding box 2D
     std::shared_ptr<rmlv2TagBoundingBox2D> _box2D_ptr;
-
+    // rmlv2PathPlanFake
+    std::shared_ptr<rmlv2PathPlanFake> _fake_path_ptr;
 
     /*
     // Back ground image (static)
@@ -131,8 +132,11 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 
     // Sweeping object
     // _rm_BaseModel.push_back( std::shared_ptr<rmSweepingObject>(new rmSweepingObject(_Assets_path, "base" ) ) );
+
     // rmlv2PathPlanFake
-    _rm_BaseModel.push_back( std::shared_ptr<rmlv2PathPlanFake>(new rmlv2PathPlanFake(_Assets_path, int(MSG_ID::vehicle_info_1) ) ) );
+    _fake_path_ptr.reset(   new rmlv2PathPlanFake(_Assets_path, int(MSG_ID::vehicle_info_1) )   );
+    _fake_path_ptr->Translate(glm::vec3(-5.5f, 0.0f, 0.0f));
+    _rm_BaseModel.push_back( _fake_path_ptr );
 
 
     // Circle
