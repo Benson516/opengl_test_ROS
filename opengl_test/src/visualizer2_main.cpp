@@ -285,12 +285,15 @@ void My_Display()
     // period_in.stamp();   period_in.show_msec();
     //
 #endif
-
-    // test
+    /*
+    // test, showing speed
     std::shared_ptr< msgs::VehInfo > _veh_info_ptr;
-    if (ros_api.get_message<msgs::VehInfo>(MSG_ID::vehicle_info_1, _veh_info_ptr)){
-        std::cout << "Speed (km/h): " << (_veh_info_ptr->ego_speed)*3.6 << "\n";
+    if (ros_api.get_message( int(MSG_ID::vehicle_info_1), _veh_info_ptr)){
+        std::cout << "Speed (km/h): " << (_veh_info_ptr->ego_speed)*3.6 << ", ";
+        std::cout << "yaw_rate (deg/s): " << (_veh_info_ptr->yaw_rate) << "\n";
     }
+    */
+
 
     //---------------------------------//
     // end ROS_interface

@@ -624,7 +624,7 @@ bool ROS_INTERFACE::get_any_pointcloud(const int topic_id, std::shared_ptr< pcl:
 // Bool
 //---------------------------------------------------------------//
 // input
-void ROS_INTERFACE::_Bool_CB(const msgs::Bool::ConstPtr& msg, const MSG::T_PARAMS & params){
+void ROS_INTERFACE::_Bool_CB(const std_msgs::Bool::ConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
     // put
@@ -635,7 +635,7 @@ void ROS_INTERFACE::_Bool_CB(const msgs::Bool::ConstPtr& msg, const MSG::T_PARAM
 // Int32
 //---------------------------------------------------------------//
 // input
-void ROS_INTERFACE::_Int32_CB(const msgs::Int32::ConstPtr& msg, const MSG::T_PARAMS & params){
+void ROS_INTERFACE::_Int32_CB(const std_msgs::Int32::ConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
     // put
