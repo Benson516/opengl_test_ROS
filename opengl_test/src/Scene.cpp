@@ -4,7 +4,7 @@
 Scene::Scene():
     camera_mode(0)
 {
-
+    switchCameraMode(0);
 }
 Scene::Scene(std::string pkg_path_in):
     camera_mode(0)
@@ -12,6 +12,7 @@ Scene::Scene(std::string pkg_path_in):
 	_camera_ptr.reset(new ViewManager());
     _pkg_path = (pkg_path_in);
     _Assets_path = (pkg_path_in + "Assets/");
+    switchCameraMode(0);
 
     // Image
     std::shared_ptr<rmImageBoard> _image_board_ptr;
@@ -161,6 +162,16 @@ void Scene::Update(ROS_INTERFACE &ros_interface){
     // ros_interface.update_current_slice_time();
     // ros_interface.set_ref_frame("base");
 
+    switch(camera_mode){
+        case 0: // Follow
+            ros_interface.set_ref_frame("base");
+            break;
+        case 1: // Static
+            ros_interface.set_ref_frame("map");
+            break;
+        default:
+            break;
+    }
     /*
     // Camera
     bool is_sucessed = false;
@@ -193,7 +204,7 @@ void Scene::Update(ROS_API &ros_api){
         case 0: // Follow
             ros_api.ros_interface.set_ref_frame("base");
             break;
-        case 1: // Steady
+        case 1: // Static
             ros_api.ros_interface.set_ref_frame("map");
             break;
         default:
@@ -316,7 +327,7 @@ void Scene::switchCameraMode(int mode_in, ROS_API &ros_api){
                 _camera_ptr->Reset();
                 break;
             }
-        case 1: // Steady
+        case 1: // Static
             {
                 // Set the default view matrix
                 glm::vec3 eyePosition(0.0f, 0.0f, 12.0f);
@@ -325,10 +336,11 @@ void Scene::switchCameraMode(int mode_in, ROS_API &ros_api){
                 _camera_ptr->SetDefaultViewMatrix( lookAt(eyePosition, eyeLookPosition, up) );
                 // Set the default camera model matrix (the inverse)
                 glm::mat4 translationMatrix(1.0);
+                translationMatrix = glm::translate(translationMatrix, glm::vec3(0.0f, 0.0f, 20.0f) );
                 glm::mat4 rotationMatrix(1.0);
                 rotationMatrix = glm::rotate(rotationMatrix, deg2rad(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)); // z-axis
                 // rotationMatrix = glm::rotate(rotationMatrix, deg2rad(75.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // y-axis
-                rotationMatrix = glm::rotate(rotationMatrix, deg2rad(45.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // y-axis
+                // rotationMatrix = glm::rotate(rotationMatrix, deg2rad(45.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // y-axis
                 _camera_ptr->SetDefaultTansformMatrix( translationMatrix*rotationMatrix );
                 // Camera reference pose
                 bool is_sucessed = false;
