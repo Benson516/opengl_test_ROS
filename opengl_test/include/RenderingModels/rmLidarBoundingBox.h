@@ -17,6 +17,10 @@ public:
     //
     inline glm::mat4 * get_model_m_ptr(){ return &(m_shape.model); }
 
+    //
+    inline void set_color(const glm::vec3 &color_in){ _color = color_in; }
+    inline void set_alpha(float alpha_in){ _alpha = alpha_in; }
+
 protected:
     void Init();
     virtual void LoadModel();
@@ -27,6 +31,10 @@ protected:
     // ros::Time msg_time;
 
     void update_GL_data();
+
+    // Params
+    glm::vec3 _color;
+    float _alpha;
 
 private:
     // model info
@@ -64,6 +72,7 @@ private:
 	{
 		GLint  mv_matrix;
 		GLint  proj_matrix;
+        GLint  alpha;
 	} uniforms;
 
     std::vector<vertex_p_c> box_template;
