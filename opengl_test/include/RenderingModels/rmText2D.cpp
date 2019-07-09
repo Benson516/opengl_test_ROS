@@ -41,7 +41,14 @@ void rmText2D::Update(ROS_API &ros_api){
     // test
     static int _count = 0;
 
-    insert_text( text2D_data( "This is 2D text: " + std::to_string(_count), glm::vec2(0.5, 0.8) ) );
+    insert_text(
+        text2D_data(
+            "This is 2D text: " + std::to_string(_count),
+            glm::vec2(0.5, 0.8),
+            0.2,
+            glm::vec3(1.0f, 0.5f, 0.0f)
+        )
+    );
     _count++;
 }
 void rmText2D::Render(std::shared_ptr<ViewManager> &_camera_ptr){
@@ -83,7 +90,13 @@ void rmText2D::_draw_one_text2D(std::shared_ptr<ViewManager> &_camera_ptr, text2
     //
     */
 
+    glColor3f(_data_in.color.x, _data_in.color.y, _data_in.color.z);
+
+    // glScalef(0.1,0.1,1.0);
+
     text2D_output(_data_in.position_2D.x, _data_in.position_2D.y, _data_in.text);
+
+    glColor3f(1,1,1);
 }
 //--------------------------------------------------------//
 
