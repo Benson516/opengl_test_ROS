@@ -1,7 +1,9 @@
 #include "rmLidarBoundingBox.h"
 
 namespace rmLidarBoundingBox_ns{
-    const GLuint box_idx_data[] = {
+
+    // 36 points
+    const GLuint faced_box_idx_data[] = {
         0,1,2,
         2,3,0,
         5,6,2,
@@ -15,6 +17,13 @@ namespace rmLidarBoundingBox_ns{
         4,0,3,
         3,7,4,
     };
+
+    // 12 points
+    const GLuint wired_box_idx_data[] = {
+        0,1, 1,2, 2,3, 3,0,
+        4,5, 5,6, 6,7, 7,4,
+        1,5, 2,6 3,7, 0,4,
+    };
 }
 
 
@@ -25,6 +34,7 @@ rmLidarBoundingBox::rmLidarBoundingBox(std::string _path_Assets_in, int _ROS_top
     _path_Shaders_sub_dir += "BoundingBox3D/";
     init_paths(_path_Assets_in);
     //
+    _is_wired = false;
     _num_vertex_idx_per_box = 6*(3*2);
     _num_vertex_per_box = 8;
     _max_num_box = 1000;
@@ -103,7 +113,7 @@ void rmLidarBoundingBox::LoadModel(){
     long long _offset_box = 0;
 	for (size_t i = 0; i < _max_num_vertex_idx; i++)
 	{
-        _idx_ptr[i] = rmLidarBoundingBox_ns::box_idx_data[_idx_idx] + _offset_box;
+        _idx_ptr[i] = rmLidarBoundingBox_ns::faced_box_idx_data[_idx_idx] + _offset_box;
         // std::cout << "_idx_ptr[" << i << "] = " << _idx_ptr[i] << "\n";
         _idx_idx++;
         if (_idx_idx >= _num_vertex_idx_per_box){
@@ -199,11 +209,74 @@ void rmLidarBoundingBox::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
     glUniform1f(uniforms.alpha, _alpha);
     // Draw the element according to ebo
-    glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
+    if (_is_wired){
+        glDrawElements(GL_LINES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
+    }else{
+        glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
+    }
     // glDrawArrays(GL_TRIANGLES, 0, 3*5); // draw part of points
     //--------------------------------//
     _program_ptr->CloseProgram();
 }
+
+
+void rmLidarBoundingBox::display_in_wire(bool is_wire_in){
+    _is_wired = is_wire_in;
+    if (_is_wired){
+        // wire
+        _num_vertex_idx_per_box = 12;
+        _max_num_vertex_idx = _max_num_box*(long long)(_num_vertex_idx_per_box);
+        //
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_shape.ebo);
+        // Directly assign data to memory of GPU
+        //--------------------------------------------//
+    	GLuint * _idx_ptr = (GLuint *)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, _max_num_vertex_idx * sizeof(GLuint), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+    	size_t _idx_idx = 0;
+        long long _offset_box = 0;
+    	for (size_t i = 0; i < _max_num_vertex_idx; i++)
+    	{
+            _idx_ptr[i] = rmLidarBoundingBox_ns::wired_box_idx_data[_idx_idx] + _offset_box;
+            // std::cout << "_idx_ptr[" << i << "] = " << _idx_ptr[i] << "\n";
+            _idx_idx++;
+            if (_idx_idx >= _num_vertex_idx_per_box){
+                _idx_idx = 0;
+                _offset_box += _num_vertex_per_box;
+            }
+    	}
+    	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+        // m_shape.indexCount = _max_num_vertex_idx;
+        m_shape.indexCount = 0;
+        //--------------------------------------------//
+    }else{
+        // face
+        _num_vertex_idx_per_box = 6*(3*2);
+        _max_num_vertex_idx = _max_num_box*(long long)(_num_vertex_idx_per_box);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_shape.ebo);
+        // Directly assign data to memory of GPU
+        //--------------------------------------------//
+    	GLuint * _idx_ptr = (GLuint *)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, _max_num_vertex_idx * sizeof(GLuint), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+    	size_t _idx_idx = 0;
+        long long _offset_box = 0;
+    	for (size_t i = 0; i < _max_num_vertex_idx; i++)
+    	{
+            _idx_ptr[i] = rmLidarBoundingBox_ns::faced_box_idx_data[_idx_idx] + _offset_box;
+            // std::cout << "_idx_ptr[" << i << "] = " << _idx_ptr[i] << "\n";
+            _idx_idx++;
+            if (_idx_idx >= _num_vertex_idx_per_box){
+                _idx_idx = 0;
+                _offset_box += _num_vertex_per_box;
+            }
+    	}
+    	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+        // m_shape.indexCount = _max_num_vertex_idx;
+        m_shape.indexCount = 0;
+        //--------------------------------------------//
+    }
+
+}
+
+
+
 
 /*
 void rmLidarBoundingBox::update_GL_data(){

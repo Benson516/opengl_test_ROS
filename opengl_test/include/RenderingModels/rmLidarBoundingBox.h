@@ -20,6 +20,7 @@ public:
     //
     inline void set_color(const glm::vec3 &color_in){ _color = color_in; }
     inline void set_alpha(float alpha_in){ _alpha = alpha_in; }
+    void display_in_wire(bool is_wire_in);
 
 protected:
     void Init();
@@ -35,6 +36,7 @@ protected:
     // Params
     glm::vec3 _color;
     float _alpha;
+    bool _is_wired;
 
 private:
     // model info
