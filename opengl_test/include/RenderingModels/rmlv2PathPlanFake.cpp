@@ -17,6 +17,35 @@ rmlv2PathPlanFake::rmlv2PathPlanFake(
 	Init();
 }
 void rmlv2PathPlanFake::Init(){
+    //
+    _sim_time = 15.0f; // sec.
+    _granularity = glm::vec2(0.2f, 0.087f); // 20 cm, 5 deg.
+    _max_sim_point = 90;
+
+    //
+    section_vertexes.resize(4);
+    //
+    section_vertexes[0] = glm::vec3(0.0f, -1.0f, -1.0f);
+    section_vertexes[1] = glm::vec3(0.0f, -1.0f, 1.0f);
+    section_vertexes[2] = glm::vec3(0.0f, 1.0f, 1.0f);
+    section_vertexes[3] = glm::vec3(0.0f, 1.0f, -1.0f);
+    glm::mat4 _delta_T = glm::scale(glm::mat4(1.0), glm::vec3(1.0f, 0.1f, 1.0f) );
+    //
+    // section_vertexes[0] = glm::vec3(-1.0f, -1.0f, 0.0f);
+    // section_vertexes[1] = glm::vec3(-1.0f, 1.0f, 0.0f);
+    // section_vertexes[2] = glm::vec3(1.0f, 1.0f, 0.01f);
+    // section_vertexes[3] = glm::vec3(1.0f, -1.0f, 0.01f);
+    // glm::mat4 _delta_T = glm::translate(glm::mat4(1.0), glm::vec3(3.0f, 0.0f, -2.0f) );
+    // _delta_T = glm::scale(_delta_T, glm::vec3(4.0f, 1.4f, 1.0f) );
+    //
+    for (size_t i=0; i < section_vertexes.size(); ++i){
+        section_vertexes[i] = (_delta_T * glm::vec4(section_vertexes[i], 1.0f)).xyz();
+    }
+    rm_path.insert_section_vertexes(section_vertexes);
+
+    rm_path.set_colr_head( glm::vec3(1.0f, 0.5f, 0.0f) );
+    rm_path.set_colr_tail( glm::vec3(0.0f, 0.5f, 1.0f) );
+
 
     // For adjusting the model pose by public methods
     attach_pose_model_by_model_ref_ptr( *rm_path.get_model_m_ptr() );
@@ -57,18 +86,17 @@ void rmlv2PathPlanFake::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
 void rmlv2PathPlanFake::update_GL_data(){
 
-    glm::vec3 pose2D_0(-12.0f, 0.0f, 0.0f);
+    glm::vec3 pose2D_0(-5.5f, 0.0f, 0.0f);
     glm::vec2 twist2D( msg_out_ptr->ego_speed, msg_out_ptr->yaw_rate*0.017453292519943295 );
 
-    float _sim_time = 3.0f; // sec.
-    glm::vec2 _granularity(0.1f, 0.017f); // 10 cm, 1 deg.
+
 
     //
-    in num_steps = 0;
+    int num_steps = 0;
     float dT = _sim_time;
     //
     int idx_primary_axis = 0;
-    glm::vec2 cross_freq = glm::abs(_twist2D/_granularity);
+    glm::vec2 cross_freq = glm::abs(twist2D/_granularity);
     // Find the primary axis (between translation and rotation)
     if (cross_freq.x >= cross_freq.y){
         idx_primary_axis = 0;
@@ -78,11 +106,17 @@ void rmlv2PathPlanFake::update_GL_data(){
     if (cross_freq[idx_primary_axis] <= 0.0){
         // Not moving
         dT = _sim_time;
-        num_steps = 2;
+        num_steps = 1;
     } else{
         // else
         dT = 1.0/cross_freq[idx_primary_axis]; // Positive value
-        num_steps = int( ceil(self.sim_time/dT) );
+        num_steps = int( ceil(_sim_time/dT) );
+    }
+
+    // Saturation
+    if (num_steps > _max_sim_point){
+        num_steps = _max_sim_point;
+        dT = _sim_time/float(num_steps);
     }
 
     // Calculate path
@@ -94,8 +128,9 @@ void rmlv2PathPlanFake::update_GL_data(){
         get_pose2D_sim(pose2D_0, twist2D, sim_T, pose2D_path);
         _path.push_back(pose2D_path);
     }
+    // std::cout << "_path.size() = " << _path.size() << "\n";
 
-    insert_curve_Points(_path);
+    rm_path.insert_curve_Points(_path);
 
     // // Reset
     // text_list.clear();

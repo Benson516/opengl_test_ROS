@@ -27,7 +27,7 @@ protected:
     //
     int _ROS_topic_id;
     // std::shared_ptr< msgs::LidRoi > msg_out_ptr;
-    std::shared_ptr< msgs::ITRICarInfo > msg_out_ptr;
+    std::shared_ptr< msgs::VehInfo  > msg_out_ptr;
     // ros::Time msg_time;
 
     //
@@ -38,8 +38,13 @@ protected:
 
     void get_pose2D_sim(const glm::vec3 &pose2D_0, const glm::vec2 &twist2D, double dT, glm::vec3 &pose2D_out);
 
-private:
+    // Param
+    float _sim_time; // sec.
+    glm::vec2 _granularity; // 20 cm, 5 deg.
+    int _max_sim_point;
 
+private:
+    std::vector<glm::vec3> section_vertexes;
     std::vector<glm::vec3> _path;
     std::vector<rmText3D_v2::text_billboard_data> text_list;
 

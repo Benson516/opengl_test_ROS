@@ -130,7 +130,9 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     // _rm_BaseModel.push_back( std::shared_ptr<rmlv2TagBoundingBox2D>(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_1)) ) );
 
     // Sweeping object
-    _rm_BaseModel.push_back( std::shared_ptr<rmSweepingObject>(new rmSweepingObject(_Assets_path, "base" ) ) );
+    // _rm_BaseModel.push_back( std::shared_ptr<rmSweepingObject>(new rmSweepingObject(_Assets_path, "base" ) ) );
+    // rmlv2PathPlanFake
+    _rm_BaseModel.push_back( std::shared_ptr<rmlv2PathPlanFake>(new rmlv2PathPlanFake(_Assets_path, int(MSG_ID::vehicle_info_1) ) ) );
 
 
     // Circle
