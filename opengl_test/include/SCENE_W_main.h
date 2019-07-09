@@ -118,10 +118,12 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 
 
     // rmlv2ObjectTracking
-    _rm_BaseModel.push_back( std::shared_ptr<rmlv2ObjectTracking>(new rmlv2ObjectTracking(_Assets_path, int(MSG_ID::lidar_bounding_box_1), "map") ) );
-    // Lidar bounding box
-    _rm_BaseModel.push_back( std::shared_ptr<rmlv2TagBoundingBox3D>(new rmlv2TagBoundingBox3D(_Assets_path, int(MSG_ID::lidar_bounding_box_1)) ) );
+    _rm_BaseModel.push_back( std::shared_ptr<rmlv2ObjectTracking>(new rmlv2ObjectTracking(_Assets_path, int(MSG_ID::lidar_bounding_box_tracking_1), "map") ) );
+    // Taged Lidar bounding box (tracking, rendering in wire)
+    _rm_BaseModel.push_back( std::shared_ptr<rmlv2TagBoundingBox3D>(new rmlv2TagBoundingBox3D(_Assets_path, int(MSG_ID::lidar_bounding_box_tracking_1)) ) );
 
+    // Lidar bounding box (rendering in face)
+    // _rm_BaseModel.push_back( std::shared_ptr<rmLidarBoundingBox>(new rmLidarBoundingBox(_Assets_path, int(MSG_ID::lidar_bounding_box_1)) ) );
 
 
     // Bounding boc 2D

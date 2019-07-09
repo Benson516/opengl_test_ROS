@@ -18,11 +18,11 @@ namespace rmLidarBoundingBox_ns{
         3,7,4,
     };
 
-    // 12 points
+    // 24 points
     const GLuint wired_box_idx_data[] = {
         0,1, 1,2, 2,3, 3,0,
         4,5, 5,6, 6,7, 7,4,
-        1,5, 2,6 3,7, 0,4,
+        1,5, 2,6, 3,7, 0,4,
     };
 }
 
@@ -210,7 +210,9 @@ void rmLidarBoundingBox::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     glUniform1f(uniforms.alpha, _alpha);
     // Draw the element according to ebo
     if (_is_wired){
+        glLineWidth(_line_width);
         glDrawElements(GL_LINES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
+        glLineWidth(1.0);
     }else{
         glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
     }
@@ -224,7 +226,7 @@ void rmLidarBoundingBox::display_in_wire(bool is_wire_in){
     _is_wired = is_wire_in;
     if (_is_wired){
         // wire
-        _num_vertex_idx_per_box = 12;
+        _num_vertex_idx_per_box = 12*2;
         _max_num_vertex_idx = _max_num_box*(long long)(_num_vertex_idx_per_box);
         //
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_shape.ebo);

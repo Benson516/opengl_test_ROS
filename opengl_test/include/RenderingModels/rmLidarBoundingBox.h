@@ -20,6 +20,7 @@ public:
     //
     inline void set_color(const glm::vec3 &color_in){ _color = color_in; }
     inline void set_alpha(float alpha_in){ _alpha = alpha_in; }
+    inline void set_line_width(float line_width_in){ _line_width = line_width_in; }
     void display_in_wire(bool is_wire_in);
 
 protected:
@@ -36,6 +37,8 @@ protected:
     // Params
     glm::vec3 _color;
     float _alpha;
+    float _line_width;
+    // Rendering mode
     bool _is_wired;
 
 private:
