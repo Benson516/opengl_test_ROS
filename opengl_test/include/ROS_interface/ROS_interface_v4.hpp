@@ -65,6 +65,8 @@ namespace MSG{
     // The identifier for message types
     // Note: the type of the enum is defaultly int
     enum class M_TYPE{
+        Bool,
+        Int32,
         String,
         tfGeoPoseStamped,
         Image,
@@ -72,6 +74,9 @@ namespace MSG{
         ITRIPointCloud,
         ITRI3DBoundingBox,
         ITRICamObj,
+        ITRIDetectedObjectArray,
+        ITRICarInfoCarA,
+        ITRICarInfo,
         NUM_MSG_TYPE
     };
 
@@ -204,9 +209,9 @@ public:
     bool get_ITRIPointCloud(const int topic_id, pcl::PointCloud<pcl::PointXYZI> & content_out);
     bool get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr);
     bool get_ITRIPointCloud(const int topic_id, std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & content_out_ptr, ros::Time &msg_stamp);
-    bool get_ITRI3DBoundingBox(const int topic_id, msgs::LidRoi & content_out);
-    bool get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::LidRoi > & content_out_ptr);
-    bool get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::LidRoi > & content_out_ptr, ros::Time &msg_stamp);
+    bool get_ITRI3DBoundingBox(const int topic_id, msgs::DetectedObjectArray & content_out);
+    bool get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::DetectedObjectArray > & content_out_ptr);
+    bool get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::DetectedObjectArray > & content_out_ptr, ros::Time &msg_stamp);
     //---------------------------------------------------------//
 
     // Sending methods for each type of message
@@ -365,29 +370,33 @@ private:
 
     // Callbacks
     //---------------------------------------------------------//
+    // Bool
+    void _Bool_CB(const std_msgs::Bool::ConstPtr& msg, const MSG::T_PARAMS & params);
+    // Int32
+    void _Int32_CB(const std_msgs::Int32::ConstPtr& msg, const MSG::T_PARAMS & params);
     // String
     void _String_CB(const std_msgs::String::ConstPtr& msg, const MSG::T_PARAMS & params);
     // bool _String_pub();
-
     // tfGeoPoseStamped
     void _tfGeoPoseStamped_CB(const geometry_msgs::PoseStamped::ConstPtr& msg, const MSG::T_PARAMS & params);
-
     // Image
     void _Image_CB(const sensor_msgs::ImageConstPtr& msg, const MSG::T_PARAMS & params);
-
     // PointCloud2
     void _PointCloud2_CB(const sensor_msgs::PointCloud2::ConstPtr& msg, const MSG::T_PARAMS & params);
     std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > _PointCloud2_tmp_ptr; // tmp cloud
-
     // ITRIPointCloud
     void _ITRIPointCloud_CB(const msgs::PointCloud::ConstPtr& msg, const MSG::T_PARAMS & params);
     std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > _ITRIPointCloud_tmp_ptr; // tmp cloud
-
     // ITRI3DBoundingBox
     void _ITRI3DBoundingBox_CB(const msgs::LidRoi::ConstPtr& msg, const MSG::T_PARAMS & params);
-
     // ITRICamObj
     void _ITRICamObj_CB(const msgs::CamObj::ConstPtr& msg, const MSG::T_PARAMS & params);
+    // ITRIDetectedObjectArray
+    void _ITRIDetectedObjectArray_CB(const msgs::DetectedObjectArray::ConstPtr& msg, const MSG::T_PARAMS & params);
+    // ITRICarInfoCarA
+    void _ITRICarInfoCarA_CB(const msgs::TaichungVehInfo::ConstPtr& msg, const MSG::T_PARAMS & params);
+    // ITRICarInfo
+    void _ITRICarInfo_CB(const msgs::VehInfo::ConstPtr& msg, const MSG::T_PARAMS & params);
     //---------------------------------------------------------//
 
 }; // end of the class ROS_INTERFACE

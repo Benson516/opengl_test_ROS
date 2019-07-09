@@ -4,7 +4,21 @@
 
 
 
-rmCircle::rmCircle(std::string _path_Assets_in){
+rmCircle::rmCircle(std::string _path_Assets_in, std::string frame_id_in):
+    _frame_id(frame_id_in)
+{
+    _path_Shaders_sub_dir += "Circle/";
+    init_paths(_path_Assets_in);
+    //
+    _num_vertex_per_shape = 1;
+    _max_num_shape = 1000;
+    _max_num_vertex = _max_num_shape*(long long)(_num_vertex_per_shape);
+    //
+	Init();
+}
+rmCircle::rmCircle(std::string _path_Assets_in, int _ROS_topic_id_in):
+    _ROS_topic_id(_ROS_topic_id_in)
+{
     _path_Shaders_sub_dir += "Circle/";
     init_paths(_path_Assets_in);
     //
@@ -32,7 +46,7 @@ void rmCircle::Init(){
     // Init model matrices
 	m_shape.model = glm::mat4(1.0);
     attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
-
+    _line_width = 1.0f;
 
     //Load model to shader _program_ptr
 	LoadModel();
@@ -72,7 +86,8 @@ void rmCircle::LoadModel(){
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
 
-    m_shape.indexCount = _max_num_vertex;
+    // m_shape.indexCount = _max_num_vertex;
+    m_shape.indexCount = 0;
     //--------------------------------------------//
 
 
@@ -105,6 +120,28 @@ void rmCircle::Update(ROS_INTERFACE &ros_interface){
 
 void rmCircle::Update(ROS_API &ros_api){
     // Update the data (buffer variables) here
+
+    // Update transform
+    //--------------------------------//
+    if (_frame_id.size() > 0){
+        // Get tf
+        bool tf_successed = false;
+        glm::mat4 _model_tf = ROStf2GLMmatrix(ros_api.get_tf(_frame_id, tf_successed));
+        set_pose_modle_ref_by_world(_model_tf);
+        // end Get tf
+    }else{
+        if ( ros_api.ros_interface.is_topic_got_frame(_ROS_topic_id) ){
+            // Get tf
+            bool tf_successed = false;
+            glm::mat4 _model_tf = ROStf2GLMmatrix(ros_api.get_tf(_ROS_topic_id, tf_successed));
+            set_pose_modle_ref_by_world(_model_tf);
+            // end Get tf
+        }
+    }
+    //--------------------------------//
+    // end Update transform
+
+
 }
 
 
@@ -118,7 +155,7 @@ void rmCircle::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
 
     // Setting
-    glLineWidth(5.0);
+    glLineWidth(_line_width);
     // Draw the element according to ebo
     // glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
     glDrawArrays(GL_POINTS, 0, m_shape.indexCount); // draw part of points
@@ -132,7 +169,7 @@ void rmCircle::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
 // Insert method for circle
 //-------------------------------------//
-void rmCircle::insert_circle(const vector<circle_data> & data_list_in ){
+void rmCircle::insert_circle(const std::vector<circle_data> & data_list_in ){
     long long num_shape = data_list_in.size();
     if (num_shape > _max_num_shape){
         num_shape = _max_num_shape;
@@ -145,12 +182,28 @@ void rmCircle::insert_circle(const vector<circle_data> & data_list_in ){
 
     m_shape.indexCount = num_shape * _num_vertex_per_shape;
     circle_data * vertex_ptr = (circle_data *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_shape * _num_vertex_per_shape * sizeof(circle_data), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    // circle_data * vertex_ptr = (circle_data *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_shape * _num_vertex_per_shape * sizeof(circle_data), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    size_t _j = 0;
-    for (size_t i = 0; i < (num_shape*_num_vertex_per_shape); i++)
-    {
-        //
+    for (size_t i = 0; i < (num_shape*_num_vertex_per_shape); i++){
         vertex_ptr[i] = data_list_in[i];
+    }
+    glUnmapBuffer(GL_ARRAY_BUFFER);
+}
+void rmCircle::insert_circle(const std::map<int, circle_data> & data_map_in ){
+    long long num_shape = data_map_in.size();
+    if (num_shape > _max_num_shape){
+        num_shape = _max_num_shape;
+    }
+
+    // vao vbo
+    glBindVertexArray(m_shape.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
+
+
+    m_shape.indexCount = num_shape * _num_vertex_per_shape;
+    circle_data * vertex_ptr = (circle_data *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_shape * _num_vertex_per_shape * sizeof(circle_data), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+    size_t i = 0;
+    for (auto it=data_map_in.cbegin(); it != data_map_in.cend(); ++it){
+        vertex_ptr[i] = it->second;
+        i++;
     }
     glUnmapBuffer(GL_ARRAY_BUFFER);
 }

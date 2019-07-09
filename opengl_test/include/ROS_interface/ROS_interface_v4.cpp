@@ -3,7 +3,7 @@
 // using std::vector;
 // using std::string;
 
-#define TOTAL_NUM_THREAD_FOR_ROS_CB     6 // Use 6 threads
+#define MAX_NUM_THREAD_FOR_ROS_CB     20 // 6 // Use 6 threads
 
 // Constructors
 ROS_INTERFACE::ROS_INTERFACE():
@@ -17,7 +17,7 @@ ROS_INTERFACE::ROS_INTERFACE():
     _current_slice_time(), _global_delay(0.1f)
 {
     //
-    _num_ros_cb_thread = TOTAL_NUM_THREAD_FOR_ROS_CB;
+    _num_ros_cb_thread = MAX_NUM_THREAD_FOR_ROS_CB;
     //
     // ros::init(argc, argv, "ROS_interface", ros::init_options::AnonymousName);
     // Remember to call setup_node()
@@ -33,7 +33,7 @@ ROS_INTERFACE::ROS_INTERFACE(int argc, char **argv):
     _current_slice_time(), _global_delay(0.1f)
 {
     //
-    _num_ros_cb_thread = TOTAL_NUM_THREAD_FOR_ROS_CB;
+    _num_ros_cb_thread = MAX_NUM_THREAD_FOR_ROS_CB;
     //
     ros::init(argc, argv, "ROS_interface", ros::init_options::AnonymousName);
 }
@@ -147,7 +147,42 @@ void ROS_INTERFACE::_ROS_worker(){
     async_buffer_list.resize( _topic_param_list.size() );
     //
 
-
+    // Bool
+    _msg_type = int(MSG::M_TYPE::Bool);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< bool > (_tmp_params.buffer_length) );
+        //
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe<std_msgs::Bool>( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_Bool_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise<std_msgs::Bool>( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
+    // Int32
+    _msg_type = int(MSG::M_TYPE::Int32);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< long long > (_tmp_params.buffer_length) );
+        //
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe<std_msgs::Int32>( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_Int32_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise<std_msgs::Int32>( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
     // String
     _msg_type = int(MSG::M_TYPE::String);
     for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
@@ -253,7 +288,8 @@ void ROS_INTERFACE::_ROS_worker(){
     for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
         MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
         // SPSC Buffer
-        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::LidRoi > (_tmp_params.buffer_length) );
+        // async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::LidRoi > (_tmp_params.buffer_length) );
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::DetectedObjectArray > (_tmp_params.buffer_length) );
         //
         // subs_id, pub_id
         if (_tmp_params.is_input){
@@ -272,7 +308,8 @@ void ROS_INTERFACE::_ROS_worker(){
     for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
         MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
         // SPSC Buffer
-        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::CamObj > (_tmp_params.buffer_length) );
+        // async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::CamObj > (_tmp_params.buffer_length) );
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::DetectedObjectArray > (_tmp_params.buffer_length) );
         //
         // subs_id, pub_id
         if (_tmp_params.is_input){
@@ -286,15 +323,75 @@ void ROS_INTERFACE::_ROS_worker(){
         }
     }
 
+    // ITRIDetectedObjectArray
+    _msg_type = int(MSG::M_TYPE::ITRIDetectedObjectArray);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::DetectedObjectArray > (_tmp_params.buffer_length) );
+        //
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe< msgs::DetectedObjectArray >( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_ITRIDetectedObjectArray_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise< msgs::DetectedObjectArray >( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
+
+    // ITRICarInfoCarA
+    _msg_type = int(MSG::M_TYPE::ITRICarInfoCarA);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        // async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::TaichungVehInfo > (_tmp_params.buffer_length) );
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::VehInfo > (_tmp_params.buffer_length) );
+        //
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe< msgs::TaichungVehInfo >( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_ITRICarInfoCarA_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise< msgs::TaichungVehInfo >( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
+
+    // ITRICarInfo
+    _msg_type = int(MSG::M_TYPE::ITRICarInfo);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::VehInfo > (_tmp_params.buffer_length) );
+        //
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe< msgs::VehInfo >( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_ITRICarInfo_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise< msgs::VehInfo >( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
+
     //----------------------------------//
 
 
 
     // Start spinning and loop to the end
+    _num_ros_cb_thread = get_count_of_all_topics();
+    if (_num_ros_cb_thread > MAX_NUM_THREAD_FOR_ROS_CB){ _num_ros_cb_thread = MAX_NUM_THREAD_FOR_ROS_CB;}
     ros::AsyncSpinner spinner(_num_ros_cb_thread); // Use ? threads
     spinner.start();
     _is_started = true; // The flag for informing the other part of system that the ROS has begun.
-    std::cout << "ros_iterface started\n";
+    std::cout << "ros_iterface started with [" << _num_ros_cb_thread <<"] threads for callbacks.\n";
 
     // tf2
     tfListener_ptr.reset( new tf2_ros::TransformListener(tfBuffer) );
@@ -515,9 +612,37 @@ bool ROS_INTERFACE::get_any_pointcloud(const int topic_id, std::shared_ptr< pcl:
 //---------------------------------------------------------//
 
 
+
+
+
+
+
+
 // Callbacks and public methods of each message type
 //---------------------------------------------------------------//
 
+// Bool
+//---------------------------------------------------------------//
+// input
+void ROS_INTERFACE::_Bool_CB(const std_msgs::Bool::ConstPtr& msg, const MSG::T_PARAMS & params){
+    // Time
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+    // put
+    // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
+    bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    if (!result){ std::cout << params.name << ": buffer full.\n"; }
+}
+// Int32
+//---------------------------------------------------------------//
+// input
+void ROS_INTERFACE::_Int32_CB(const std_msgs::Int32::ConstPtr& msg, const MSG::T_PARAMS & params){
+    // Time
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+    // put
+    // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
+    bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    if (!result){ std::cout << params.name << ": buffer full.\n"; }
+}
 // String
 //---------------------------------------------------------------//
 // input
@@ -805,20 +930,40 @@ bool ROS_INTERFACE::send_ITRIPointCloud(const int topic_id, const pcl::PointClou
 void ROS_INTERFACE::_ITRI3DBoundingBox_CB(const msgs::LidRoi::ConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+    // Conversion
+    std::shared_ptr<msgs::DetectedObjectArray> _data_ptr(new msgs::DetectedObjectArray() );
+    _data_ptr->objects.resize( msg->lidRoiBox.size() );
+    for (size_t i=0; i < msg->lidRoiBox.size(); ++i ){
+        auto &_data_obj = _data_ptr->objects[i];
+        auto &_msg_obj = msg->lidRoiBox[i];
+        _data_obj.camInfo.id = i; // Use the sequence number as id
+        _data_obj.classId = 0; // _msg_obj.cls;
+        //
+        _data_obj.bPoint.p0 = _msg_obj.p0;
+        _data_obj.bPoint.p1 = _msg_obj.p1;
+        _data_obj.bPoint.p2 = _msg_obj.p2;
+        _data_obj.bPoint.p3 = _msg_obj.p3;
+        _data_obj.bPoint.p4 = _msg_obj.p4;
+        _data_obj.bPoint.p5 = _msg_obj.p5;
+        _data_obj.bPoint.p6 = _msg_obj.p6;
+        _data_obj.bPoint.p7 = _msg_obj.p7;
+
+    }
     // put
     // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
-    bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    // bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    bool result = async_buffer_list[params.topic_id]->put_void( &(*_data_ptr), true, _time_in, false);
     if (!result){ std::cout << params.name << ": buffer full.\n"; }
 }
-bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, msgs::LidRoi & content_out){
+bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, msgs::DetectedObjectArray & content_out){
     // front and pop
     return ( async_buffer_list[topic_id]->front_void(&content_out, true, _current_slice_time, false) );
 }
-bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::LidRoi > & content_out_ptr){
+bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::DetectedObjectArray > & content_out_ptr){
     // front and pop
     return ( async_buffer_list[topic_id]->front_void(&content_out_ptr, true, _current_slice_time, true) );
 }
-bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::LidRoi > & content_out_ptr, ros::Time &msg_stamp){
+bool ROS_INTERFACE::get_ITRI3DBoundingBox(const int topic_id, std::shared_ptr< msgs::DetectedObjectArray > & content_out_ptr, ros::Time &msg_stamp){
     // front and pop
     bool result = ( async_buffer_list[topic_id]->front_void(&content_out_ptr, true, _current_slice_time, true) );
     msg_stamp = toROStime( async_buffer_list[topic_id]->get_stamp() );
@@ -836,10 +981,104 @@ bool ROS_INTERFACE::send_ITRI3DBoundingBox(const int topic_id, const msgs::LidRo
 }
 //---------------------------------------------------------------//
 
-// ITRI3DBoundingBox
+// ITRICamObj
 //---------------------------------------------------------------//
 // input
 void ROS_INTERFACE::_ITRICamObj_CB(const msgs::CamObj::ConstPtr& msg, const MSG::T_PARAMS & params){
+    // Time
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+    // Convertion
+    std::shared_ptr<msgs::DetectedObjectArray> _data_ptr(new msgs::DetectedObjectArray() );
+    _data_ptr->objects.resize( msg->camObj.size() );
+    for (size_t i=0; i < msg->camObj.size(); ++i ){
+        auto &_data_obj = _data_ptr->objects[i];
+        auto &_msg_obj = msg->camObj[i];
+        _data_obj.camInfo.u = _msg_obj.x;
+        _data_obj.camInfo.v = _msg_obj.y;
+        _data_obj.camInfo.width = _msg_obj.width;
+        _data_obj.camInfo.height = _msg_obj.height;
+        _data_obj.camInfo.id = _msg_obj.id;
+        _data_obj.camInfo.prob = _msg_obj.prob;
+        //
+        _data_obj.classId = _msg_obj.cls;
+        _data_obj.distance = _msg_obj.distance;
+        _data_obj.bPoint = _msg_obj.boxPoint;
+        _data_obj.fusionSourceId = _msg_obj.sourceType;
+    }
+    // put
+    // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
+    // bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    bool result = async_buffer_list[params.topic_id]->put_void( &(*_data_ptr), true, _time_in, false);
+    if (!result){ std::cout << params.name << ": buffer full.\n"; }
+}
+//---------------------------------------------------------------//
+
+
+// ITRIDetectedObjectArray
+//---------------------------------------------------------------//
+// input
+void ROS_INTERFACE::_ITRIDetectedObjectArray_CB(const msgs::DetectedObjectArray::ConstPtr& msg, const MSG::T_PARAMS & params){
+    // Time
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+    // put
+    // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
+    bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    if (!result){ std::cout << params.name << ": buffer full.\n"; }
+}
+//---------------------------------------------------------------//
+
+// ITRICarInfoCarA
+//---------------------------------------------------------------//
+// input
+void ROS_INTERFACE::_ITRICarInfoCarA_CB(const msgs::TaichungVehInfo::ConstPtr& msg, const MSG::T_PARAMS & params){
+    // Time
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+    // Conversion
+    std::shared_ptr<msgs::VehInfo> _data_ptr(new msgs::VehInfo);
+    //
+    _data_ptr->ego_x = msg->ego_x;
+    _data_ptr->ego_y = msg->ego_y;
+    _data_ptr->ego_z = msg->ego_z;
+    _data_ptr->ego_heading = msg->ego_heading;
+    _data_ptr->ego_speed = msg->ego_speed;
+    _data_ptr->yaw_rate = msg->yaw_rate;
+    //
+    _data_ptr->ukf_ego_x = msg->ukf_ego_x;
+    _data_ptr->ukf_ego_y = msg->ukf_ego_y;
+    _data_ptr->ukf_ego_heading = msg->ukf_ego_heading;
+    _data_ptr->ukf_ego_speed = msg->ukf_ego_speed;
+    //
+    _data_ptr->road_id = msg->road_id;
+    _data_ptr->lanewidth = msg->lanewidth;
+    _data_ptr->stoptolane = msg->stoptolane;
+    _data_ptr->gps_fault_flag = msg->gps_fault_flag;
+    //
+    _data_ptr->path1_to_v_x = msg->path1_to_v_x;
+    _data_ptr->path1_to_v_y = msg->path1_to_v_y;
+    _data_ptr->path2_to_v_x = msg->path2_to_v_x;
+    _data_ptr->path2_to_v_y = msg->path2_to_v_y;
+    //
+    _data_ptr->path3_to_v_x = msg->path3_to_v_x;
+    _data_ptr->path3_to_v_y = msg->path3_to_v_y;
+    _data_ptr->path4_to_v_x = msg->path4_to_v_x;
+    _data_ptr->path4_to_v_y = msg->path4_to_v_y;
+    //
+    _data_ptr->path5_to_v_x = msg->path5_to_v_x;
+    _data_ptr->path5_to_v_y = msg->path5_to_v_y;
+    _data_ptr->path6_to_v_x = msg->path6_to_v_x;
+    _data_ptr->path6_to_v_y = msg->path6_to_v_y;
+    // put
+    // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
+    // bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    bool result = async_buffer_list[params.topic_id]->put_void( &(*_data_ptr), true, _time_in, false);
+    if (!result){ std::cout << params.name << ": buffer full.\n"; }
+}
+//---------------------------------------------------------------//
+
+// ITRICarInfo
+//---------------------------------------------------------------//
+// input
+void ROS_INTERFACE::_ITRICarInfo_CB(const msgs::VehInfo::ConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
     // put

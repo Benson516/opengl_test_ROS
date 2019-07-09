@@ -117,19 +117,26 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 
 
 
+    // rmlv2ObjectTracking
+    _rm_BaseModel.push_back( std::shared_ptr<rmlv2ObjectTracking>(new rmlv2ObjectTracking(_Assets_path, int(MSG_ID::lidar_bounding_box_tracking_1), "map") ) );
+    // Taged Lidar bounding box (tracking, rendering in wire)
+    _rm_BaseModel.push_back( std::shared_ptr<rmlv2TagBoundingBox3D>(new rmlv2TagBoundingBox3D(_Assets_path, int(MSG_ID::lidar_bounding_box_tracking_1)) ) );
 
-    // Lidar bounding box
-    _rm_BaseModel.push_back( std::shared_ptr<rmlv2TagBoundingBox3D>(new rmlv2TagBoundingBox3D(_Assets_path, int(MSG_ID::lidar_bounding_box_1)) ) );
+    // Lidar bounding box (rendering in face)
+    // _rm_BaseModel.push_back( std::shared_ptr<rmLidarBoundingBox>(new rmLidarBoundingBox(_Assets_path, int(MSG_ID::lidar_bounding_box_1)) ) );
 
-    // Bounding boc 2D
+
+    // Bounding box 2D
     // _rm_BaseModel.push_back( std::shared_ptr<rmlv2TagBoundingBox2D>(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_1)) ) );
 
     // Sweeping object
-    _rm_BaseModel.push_back( std::shared_ptr<rmSweepingObject>(new rmSweepingObject(_Assets_path ) ) );
+    _rm_BaseModel.push_back( std::shared_ptr<rmSweepingObject>(new rmSweepingObject(_Assets_path, "base" ) ) );
 
 
     // Circle
-    _rm_BaseModel.push_back( std::shared_ptr<rmCircle>(new rmCircle(_Assets_path ) ) );
+    // _rm_BaseModel.push_back( std::shared_ptr<rmCircle>(new rmCircle(_Assets_path, "base" ) ) );
+    // rmPolyLines3D
+    // _rm_BaseModel.push_back( std::shared_ptr<rmPolyLines3D>(new rmPolyLines3D(_Assets_path, "base") ) );
 
 
 

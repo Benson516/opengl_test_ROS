@@ -111,7 +111,7 @@ void cv_windows_setup(){
 //----------------------------------------------------//
 // Shape			m_shape;
 ViewManager		m_camera;
-TwBar			*bar;
+TwBar			*bar_1_ptr;
 vec2			m_screenSize;
 // vector<Shape>   m_shapes;
 int				m_currentShape;
@@ -169,22 +169,25 @@ void setupGUI()
 #endif
 
 	TwGLUTModifiersFunc(glutGetModifiers); // <-- This is just for key modifiers
-	bar = TwNewBar("Properties");
+
+
+    bar_1_ptr = TwNewBar("Properties");
 	TwDefine(" Properties size='220 300' ");
 	TwDefine(" Properties fontsize='3' color='0 0 0' alpha=180 ");  // http://anttweakbar.sourceforge.net/doc/tools:anttweakbar:twbarparamsyntax
 
-	TwAddVarRO(bar, "time", TW_TYPE_FLOAT, &m_fps, " label='FPS' help='Frame Per Second(FPS)' ");
+	TwAddVarRO(bar_1_ptr, "time", TW_TYPE_FLOAT, &m_fps, " label='FPS' help='Frame Per Second(FPS)' ");
+    // menu
 	{
 		TwEnumVal shapeEV[NUM_SHAPES] = { { SHAPE_BOX, "Box" },{ SHAPE_FISH, "Fish" },{ SHAPE_TEAPOT, "Teapot" } };
 		TwType shapeType = TwDefineEnum("ShapeType", shapeEV, NUM_SHAPES);
-		TwAddVarRW(bar, "Shape", shapeType, &m_currentShape, " keyIncr='<' keyDecr='>' help='Change object shape.' ");
+		TwAddVarRW(bar_1_ptr, "Shape", shapeType, &m_currentShape, " keyIncr='<' keyDecr='>' help='Change object shape.' ");
 	}
 
-	TwAddVarRW(bar, "Zoom", TW_TYPE_FLOAT, &m_zoom, " min=0.01 max=3.0 step=0.01 help='Camera zoom in/out' ");
-	TwAddVarRW(bar, "BackgroundColor", TW_TYPE_COLOR3F, value_ptr(m_backgroundColor), " label='Background Color' opened=true help='Used in glClearColor' ");
-	TwAddVarCB(bar, "AutoRotate", TW_TYPE_BOOL32, SetAutoRotateCB, GetAutoRotateCB, NULL, " label='Auto-rotate' key=space help='Toggle auto-rotate mode.' ");
-	TwAddVarCB(bar, "OthoToggle", TW_TYPE_BOOL32, SetIsOthoCB, GetIsOthoCB, NULL, " label='Is Orthographic' key=space help='Toggle orthogonal camera' ");
-	TwAddButton(bar, "ResetRotation", ResetRotationCB, NULL, " label='Reset Rotation' ");
+	TwAddVarRW(bar_1_ptr, "Zoom", TW_TYPE_FLOAT, &m_zoom, " min=0.01 max=3.0 step=0.01 help='Camera zoom in/out' ");
+	TwAddVarRW(bar_1_ptr, "BackgroundColor", TW_TYPE_COLOR3F, value_ptr(m_backgroundColor), " label='Background Color' opened=true help='Used in glClearColor' ");
+	TwAddVarCB(bar_1_ptr, "AutoRotate", TW_TYPE_BOOL32, SetAutoRotateCB, GetAutoRotateCB, NULL, " label='Auto-rotate' key=space help='Toggle auto-rotate mode.' ");
+	TwAddVarCB(bar_1_ptr, "OthoToggle", TW_TYPE_BOOL32, SetIsOthoCB, GetIsOthoCB, NULL, " label='Is Orthographic' key=space help='Toggle orthogonal camera' ");
+	TwAddButton(bar_1_ptr, "ResetRotation", ResetRotationCB, NULL, " label='Reset Rotation' ");
 }
 //----------------------------------------------------//
 
@@ -282,6 +285,15 @@ void My_Display()
     // period_in.stamp();   period_in.show_msec();
     //
 #endif
+    /*
+    // test, showing speed
+    std::shared_ptr< msgs::VehInfo > _veh_info_ptr;
+    if (ros_api.get_message( int(MSG_ID::vehicle_info_1), _veh_info_ptr)){
+        std::cout << "Speed (km/h): " << (_veh_info_ptr->ego_speed)*3.6 << ", ";
+        std::cout << "yaw_rate (deg/s): " << (_veh_info_ptr->yaw_rate) << "\n";
+    }
+    */
+
 
     //---------------------------------//
     // end ROS_interface
@@ -384,7 +396,7 @@ void My_Timer(int val)
 void My_Mouse(int button, int state, int x, int y)
 {
     if (TwEventMouseButtonGLUT(button, state, x, y)){
-        TwRefreshBar(bar);
+        TwRefreshBar(bar_1_ptr);
         return;
     }
     // Update all_scenes

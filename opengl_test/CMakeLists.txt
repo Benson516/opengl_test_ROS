@@ -142,10 +142,12 @@ set(ALL_RENDER_MODELS
     ${RENDER_MODEL_PATH}rmSweepingObject.cpp
     ${RENDER_MODEL_PATH}rmBoundingBox2D.cpp
     ${RENDER_MODEL_PATH}rmGrid.cpp
-    #
+    ${RENDER_MODEL_PATH}rmPolyLines3D.cpp
     ${RENDER_MODEL_PATH}rmCircle.cpp
     ${RENDER_MODEL_PATH}rmlv2TagBoundingBox2D.cpp
     ${RENDER_MODEL_PATH}rmlv2TagBoundingBox3D.cpp
+    #
+    ${RENDER_MODEL_PATH}rmlv2ObjectTracking.cpp
 )
 
 

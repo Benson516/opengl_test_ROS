@@ -42,7 +42,8 @@ protected:
     virtual void LoadModel();
     //
     int _ROS_topic_id;
-    std::shared_ptr< msgs::CamObj > msg_out_ptr;
+    // std::shared_ptr< msgs::CamObj > msg_out_ptr;
+    std::shared_ptr< msgs::DetectedObjectArray > msg_out_ptr;
     // ros::Time msg_time;
 
     // Settings

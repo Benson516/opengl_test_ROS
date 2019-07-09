@@ -1,7 +1,9 @@
 #include "rmLidarBoundingBox.h"
 
 namespace rmLidarBoundingBox_ns{
-    const GLuint box_idx_data[] = {
+
+    // 36 points
+    const GLuint faced_box_idx_data[] = {
         0,1,2,
         2,3,0,
         5,6,2,
@@ -15,6 +17,13 @@ namespace rmLidarBoundingBox_ns{
         4,0,3,
         3,7,4,
     };
+
+    // 24 points
+    const GLuint wired_box_idx_data[] = {
+        0,1, 1,2, 2,3, 3,0,
+        4,5, 5,6, 6,7, 7,4,
+        1,5, 2,6, 3,7, 0,4,
+    };
 }
 
 
@@ -22,8 +31,10 @@ namespace rmLidarBoundingBox_ns{
 rmLidarBoundingBox::rmLidarBoundingBox(std::string _path_Assets_in, int _ROS_topic_id_in):
     _ROS_topic_id(_ROS_topic_id_in)
 {
+    _path_Shaders_sub_dir += "BoundingBox3D/";
     init_paths(_path_Assets_in);
     //
+    _is_wired = false;
     _num_vertex_idx_per_box = 6*(3*2);
     _num_vertex_per_box = 8;
     _max_num_box = 1000;
@@ -47,10 +58,16 @@ void rmLidarBoundingBox::Init(){
     // Cache uniform variable id
 	uniforms.proj_matrix = glGetUniformLocation(_program_ptr->GetID(), "proj_matrix");
 	uniforms.mv_matrix = glGetUniformLocation(_program_ptr->GetID(), "mv_matrix");
+    uniforms.alpha = glGetUniformLocation(_program_ptr->GetID(), "alpha");
 
     // Init model matrices
 	m_shape.model = glm::mat4(1.0);
     attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
+
+    // Params
+    _color = glm::vec3(0.29803922, 0.71372549, 0.88235294);
+    _alpha = 0.5;
+
 
     //Load model to shader _program_ptr
 	LoadModel();
@@ -73,9 +90,7 @@ void rmLidarBoundingBox::LoadModel(){
 		vertex_ptr[i].position[0] = box_size * box_template[_j].position[0] + 1*box_size*(i/_num_vertex_per_box);
 		vertex_ptr[i].position[1] = box_size * box_template[_j].position[1] + 1*box_size*(i/_num_vertex_per_box);
 		vertex_ptr[i].position[2] = box_size * box_template[_j].position[2] + 1*box_size*(i/_num_vertex_per_box);
-		vertex_ptr[i].color[0] = 1.0f; //
-		vertex_ptr[i].color[1] = 1.0f; //
-		vertex_ptr[i].color[2] = 1.0f; //
+        vertex_ptr[i].color = _color;
         _j++;
         _j = _j%_num_vertex_per_box;
 	}
@@ -98,7 +113,7 @@ void rmLidarBoundingBox::LoadModel(){
     long long _offset_box = 0;
 	for (size_t i = 0; i < _max_num_vertex_idx; i++)
 	{
-        _idx_ptr[i] = rmLidarBoundingBox_ns::box_idx_data[_idx_idx] + _offset_box;
+        _idx_ptr[i] = rmLidarBoundingBox_ns::faced_box_idx_data[_idx_idx] + _offset_box;
         // std::cout << "_idx_ptr[" << i << "] = " << _idx_ptr[i] << "\n";
         _idx_idx++;
         if (_idx_idx >= _num_vertex_idx_per_box){
@@ -119,23 +134,23 @@ void rmLidarBoundingBox::Update(float dt){
 }
 void rmLidarBoundingBox::Update(ROS_INTERFACE &ros_interface){
     // Update the data (buffer variables) here
-
-    // test, use transform
-    ros::Time msg_time;
-    bool _result = ros_interface.get_ITRI3DBoundingBox( _ROS_topic_id, msg_out_ptr, msg_time);
-
-    if (_result){
-        update_GL_data();
-    }
-
-    // Note: We get the transform update even if there is no new content in for maximum smoothness
-    //      (the tf will update even there is no data)
-    bool tf_successed = false;
-    glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, false));
-    // glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, true, msg_time));
-    // m_shape.model = _model_tf;
-    set_pose_modle_ref_by_world(_model_tf);
-    // Common::print_out_mat4(_model_tf);
+    //
+    // // test, use transform
+    // ros::Time msg_time;
+    // bool _result = ros_interface.get_ITRI3DBoundingBox( _ROS_topic_id, msg_out_ptr, msg_time);
+    //
+    // if (_result){
+    //     update_GL_data();
+    // }
+    //
+    // // Note: We get the transform update even if there is no new content in for maximum smoothness
+    // //      (the tf will update even there is no data)
+    // bool tf_successed = false;
+    // glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, false));
+    // // glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, true, msg_time));
+    // // m_shape.model = _model_tf;
+    // set_pose_modle_ref_by_world(_model_tf);
+    // // Common::print_out_mat4(_model_tf);
 
 
 }
@@ -192,14 +207,80 @@ void rmLidarBoundingBox::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     // The transformation matrices and projection matrices
     glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
+    glUniform1f(uniforms.alpha, _alpha);
     // Draw the element according to ebo
-    glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
+    if (_is_wired){
+        glLineWidth(_line_width);
+        glDrawElements(GL_LINES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
+        glLineWidth(1.0);
+    }else{
+        glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
+    }
     // glDrawArrays(GL_TRIANGLES, 0, 3*5); // draw part of points
     //--------------------------------//
     _program_ptr->CloseProgram();
 }
 
 
+void rmLidarBoundingBox::display_in_wire(bool is_wire_in){
+    _is_wired = is_wire_in;
+    if (_is_wired){
+        // wire
+        _num_vertex_idx_per_box = 12*2;
+        _max_num_vertex_idx = _max_num_box*(long long)(_num_vertex_idx_per_box);
+        //
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_shape.ebo);
+        // Directly assign data to memory of GPU
+        //--------------------------------------------//
+    	GLuint * _idx_ptr = (GLuint *)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, _max_num_vertex_idx * sizeof(GLuint), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+    	size_t _idx_idx = 0;
+        long long _offset_box = 0;
+    	for (size_t i = 0; i < _max_num_vertex_idx; i++)
+    	{
+            _idx_ptr[i] = rmLidarBoundingBox_ns::wired_box_idx_data[_idx_idx] + _offset_box;
+            // std::cout << "_idx_ptr[" << i << "] = " << _idx_ptr[i] << "\n";
+            _idx_idx++;
+            if (_idx_idx >= _num_vertex_idx_per_box){
+                _idx_idx = 0;
+                _offset_box += _num_vertex_per_box;
+            }
+    	}
+    	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+        // m_shape.indexCount = _max_num_vertex_idx;
+        m_shape.indexCount = 0;
+        //--------------------------------------------//
+    }else{
+        // face
+        _num_vertex_idx_per_box = 6*(3*2);
+        _max_num_vertex_idx = _max_num_box*(long long)(_num_vertex_idx_per_box);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_shape.ebo);
+        // Directly assign data to memory of GPU
+        //--------------------------------------------//
+    	GLuint * _idx_ptr = (GLuint *)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, _max_num_vertex_idx * sizeof(GLuint), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+    	size_t _idx_idx = 0;
+        long long _offset_box = 0;
+    	for (size_t i = 0; i < _max_num_vertex_idx; i++)
+    	{
+            _idx_ptr[i] = rmLidarBoundingBox_ns::faced_box_idx_data[_idx_idx] + _offset_box;
+            // std::cout << "_idx_ptr[" << i << "] = " << _idx_ptr[i] << "\n";
+            _idx_idx++;
+            if (_idx_idx >= _num_vertex_idx_per_box){
+                _idx_idx = 0;
+                _offset_box += _num_vertex_per_box;
+            }
+    	}
+    	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+        // m_shape.indexCount = _max_num_vertex_idx;
+        m_shape.indexCount = 0;
+        //--------------------------------------------//
+    }
+
+}
+
+
+
+
+/*
 void rmLidarBoundingBox::update_GL_data(){
     long long num_box = msg_out_ptr->lidRoiBox.size();
     if (num_box > _max_num_box){
@@ -289,6 +370,88 @@ void rmLidarBoundingBox::update_GL_data(){
         vertex_ptr[_j].color[0] = 1.0f; // If we don't keep udating the color, the color will be lost when resizing the window.
         vertex_ptr[_j].color[1] = 1.0f;
         vertex_ptr[_j].color[2] = 1.0f;
+        _j++;
+        //
+    }
+    glUnmapBuffer(GL_ARRAY_BUFFER);
+}
+*/
+
+
+
+void rmLidarBoundingBox::update_GL_data(){
+    long long num_box = msg_out_ptr->objects.size();
+    if (num_box > _max_num_box){
+        num_box = _max_num_box;
+    }
+
+    // vao vbo
+    glBindVertexArray(m_shape.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
+
+
+    m_shape.indexCount = num_box*_num_vertex_idx_per_box;
+    vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+    // vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_box * _num_vertex_per_box * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+    auto * _point_ptr = &(msg_out_ptr->objects[0].bPoint.p0);
+    size_t _j = 0;
+    for (size_t i = 0; i < num_box; i++)
+    {
+        //
+        _point_ptr = &(msg_out_ptr->objects[i].bPoint.p0);
+        vertex_ptr[_j].position[0] = (_point_ptr)->x;
+        vertex_ptr[_j].position[1] = (_point_ptr)->y;
+        vertex_ptr[_j].position[2] = (_point_ptr )->z;
+        vertex_ptr[_j].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
+        _j++;
+        //
+        _point_ptr = &(msg_out_ptr->objects[i].bPoint.p1);
+        vertex_ptr[_j].position[0] = (_point_ptr)->x;
+        vertex_ptr[_j].position[1] = (_point_ptr)->y;
+        vertex_ptr[_j].position[2] = (_point_ptr )->z;
+        vertex_ptr[_j].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
+        _j++;
+        //
+        _point_ptr = &(msg_out_ptr->objects[i].bPoint.p2);
+        vertex_ptr[_j].position[0] = (_point_ptr)->x;
+        vertex_ptr[_j].position[1] = (_point_ptr)->y;
+        vertex_ptr[_j].position[2] = (_point_ptr )->z;
+        vertex_ptr[_j].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
+        _j++;
+        //
+        _point_ptr = &(msg_out_ptr->objects[i].bPoint.p3);
+        vertex_ptr[_j].position[0] = (_point_ptr)->x;
+        vertex_ptr[_j].position[1] = (_point_ptr)->y;
+        vertex_ptr[_j].position[2] = (_point_ptr )->z;
+        vertex_ptr[_j].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
+        _j++;
+        //
+        _point_ptr = &(msg_out_ptr->objects[i].bPoint.p4);
+        vertex_ptr[_j].position[0] = (_point_ptr)->x;
+        vertex_ptr[_j].position[1] = (_point_ptr)->y;
+        vertex_ptr[_j].position[2] = (_point_ptr )->z;
+        vertex_ptr[_j].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
+        _j++;
+        //
+        _point_ptr = &(msg_out_ptr->objects[i].bPoint.p5);
+        vertex_ptr[_j].position[0] = (_point_ptr)->x;
+        vertex_ptr[_j].position[1] = (_point_ptr)->y;
+        vertex_ptr[_j].position[2] = (_point_ptr )->z;
+        vertex_ptr[_j].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
+        _j++;
+        //
+        _point_ptr = &(msg_out_ptr->objects[i].bPoint.p6);
+        vertex_ptr[_j].position[0] = (_point_ptr)->x;
+        vertex_ptr[_j].position[1] = (_point_ptr)->y;
+        vertex_ptr[_j].position[2] = (_point_ptr )->z;
+        vertex_ptr[_j].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
+        _j++;
+        //
+        _point_ptr = &(msg_out_ptr->objects[i].bPoint.p7);
+        vertex_ptr[_j].position[0] = (_point_ptr)->x;
+        vertex_ptr[_j].position[1] = (_point_ptr)->y;
+        vertex_ptr[_j].position[2] = (_point_ptr )->z;
+        vertex_ptr[_j].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
         _j++;
         //
     }

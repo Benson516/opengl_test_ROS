@@ -17,15 +17,29 @@ public:
     //
     inline glm::mat4 * get_model_m_ptr(){ return &(m_shape.model); }
 
+    //
+    inline void set_color(const glm::vec3 &color_in){ _color = color_in; }
+    inline void set_alpha(float alpha_in){ _alpha = alpha_in; }
+    inline void set_line_width(float line_width_in){ _line_width = line_width_in; }
+    void display_in_wire(bool is_wire_in);
+
 protected:
     void Init();
     virtual void LoadModel();
     //
     int _ROS_topic_id;
-    std::shared_ptr< msgs::LidRoi > msg_out_ptr;
+    // std::shared_ptr< msgs::LidRoi > msg_out_ptr;
+    std::shared_ptr< msgs::DetectedObjectArray > msg_out_ptr;
     // ros::Time msg_time;
 
     void update_GL_data();
+
+    // Params
+    glm::vec3 _color;
+    float _alpha;
+    float _line_width;
+    // Rendering mode
+    bool _is_wired;
 
 private:
     // model info
@@ -63,6 +77,7 @@ private:
 	{
 		GLint  mv_matrix;
 		GLint  proj_matrix;
+        GLint  alpha;
 	} uniforms;
 
     std::vector<vertex_p_c> box_template;

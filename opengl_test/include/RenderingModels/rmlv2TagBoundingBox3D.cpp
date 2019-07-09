@@ -16,7 +16,11 @@ rmlv2TagBoundingBox3D::rmlv2TagBoundingBox3D(
 	Init();
 }
 void rmlv2TagBoundingBox3D::Init(){
-
+    // Box params
+    // rm_box.set_color(glm::vec3(1.0f, 0.5f, 0.0f)); // Orange
+    // rm_box.display_in_wire(true);
+    // rm_box.set_line_width(1.0f);
+    // rm_box.set_alpha(1.0f);
 
     // For adjusting the model pose by public methods
     attach_pose_model_by_model_ref_ptr( *rm_box.get_model_m_ptr() );
@@ -56,7 +60,7 @@ void rmlv2TagBoundingBox3D::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 }
 
 
-
+/*
 void rmlv2TagBoundingBox3D::update_GL_data(){
     // Reset
     text_list.clear();
@@ -67,19 +71,15 @@ void rmlv2TagBoundingBox3D::update_GL_data(){
         return;
     }
     long long num_box = msg_out_ptr->lidRoiBox.size();
-    /*
-    if (num_box > _max_num_box){
-        num_box = _max_num_box;
-    }
-    */
+    // if (num_box > _max_num_box){
+    //     num_box = _max_num_box;
+    // }
 
     auto * _point_1_ptr = &(msg_out_ptr->lidRoiBox[0].p0);
     auto * _point_2_ptr = &(msg_out_ptr->lidRoiBox[0].p0);
     size_t _j = 0;
     for (size_t i = 0; i < num_box; i++)
     {
-        //
-
         // _point_1_ptr = &(msg_out_ptr->lidRoiBox[i].p0);
         // text_list.emplace_back(
         //     "#" + std::to_string(i),
@@ -90,11 +90,61 @@ void rmlv2TagBoundingBox3D::update_GL_data(){
         //     rmText3D_v2::ALIGN_X::LEFT,
         //     rmText3D_v2::ALIGN_Y::BUTTON
         // );
-
         _point_1_ptr = &(msg_out_ptr->lidRoiBox[i].p1);
         _point_2_ptr = &(msg_out_ptr->lidRoiBox[i].p6);
         text_list.emplace_back(
             "#" + std::to_string(i),
+            0.5f*(glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z) + glm::vec3(_point_2_ptr->x, _point_2_ptr->y, _point_2_ptr->z)) + glm::vec3(0.0f, 0.0f, 0.5f),
+            glm::vec2(0.0f),
+            1.0f,
+            glm::vec3(0.0f, 1.0f, 0.0f),
+            rmText3D_v2::ALIGN_X::CENTER,
+            rmText3D_v2::ALIGN_Y::BUTTON
+        );
+    }
+
+
+    // Insert texts
+    rm_text.insert_text(text_list);
+
+}
+*/
+
+void rmlv2TagBoundingBox3D::update_GL_data(){
+    // Reset
+    text_list.clear();
+    //
+    if (msg_out_ptr->objects.size() == 0){
+        // Insert texts
+        rm_text.insert_text(text_list);
+        return;
+    }
+    long long num_box = msg_out_ptr->objects.size();
+    // if (num_box > _max_num_box){
+    //     num_box = _max_num_box;
+    // }
+
+    auto * _point_1_ptr = &(msg_out_ptr->objects[0].bPoint.p0);
+    auto * _point_2_ptr = &(msg_out_ptr->objects[0].bPoint.p0);
+    size_t _j = 0;
+    for (size_t i = 0; i < num_box; i++)
+    {
+        std::string _s_tag( "#" + std::to_string( msg_out_ptr->objects[i].camInfo.id ) );
+
+        // _point_1_ptr = &(msg_out_ptr->objects[i].bPoint.p0);
+        // text_list.emplace_back(
+        //     _s_tag,
+        //     glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z),
+        //     glm::vec2(0.0f),
+        //     1.0f,
+        //     glm::vec3(0.0f, 1.0f, 0.0f),
+        //     rmText3D_v2::ALIGN_X::LEFT,
+        //     rmText3D_v2::ALIGN_Y::BUTTON
+        // );
+        _point_1_ptr = &(msg_out_ptr->objects[i].bPoint.p1);
+        _point_2_ptr = &(msg_out_ptr->objects[i].bPoint.p6);
+        text_list.emplace_back(
+            _s_tag,
             0.5f*(glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z) + glm::vec3(_point_2_ptr->x, _point_2_ptr->y, _point_2_ptr->z)) + glm::vec3(0.0f, 0.0f, 0.5f),
             glm::vec2(0.0f),
             1.0f,

@@ -377,6 +377,8 @@ void rmText3D_v2::Update(ROS_INTERFACE &ros_interface){
 void rmText3D_v2::Update(ROS_API &ros_api){
     // Update the data (buffer variables) here
 
+    // Update transform
+    //--------------------------------//
     if (_frame_id.size() > 0){
         // Get tf
         bool tf_successed = false;
@@ -392,6 +394,8 @@ void rmText3D_v2::Update(ROS_API &ros_api){
             // end Get tf
         }
     }
+    //--------------------------------//
+    // end Update transform
 
 
     // // test
