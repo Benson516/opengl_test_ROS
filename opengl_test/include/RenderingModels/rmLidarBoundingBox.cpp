@@ -327,56 +327,56 @@ void rmLidarBoundingBox::update_GL_data(){
         vertex_ptr[_j].position[0] = (_point_ptr)->x;
         vertex_ptr[_j].position[1] = (_point_ptr)->y;
         vertex_ptr[_j].position[2] = (_point_ptr )->z;
-        vertex_ptr[i].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
+        vertex_ptr[_j].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
         _j++;
         //
         _point_ptr = &(msg_out_ptr->objects[i].bPoint.p1);
         vertex_ptr[_j].position[0] = (_point_ptr)->x;
         vertex_ptr[_j].position[1] = (_point_ptr)->y;
         vertex_ptr[_j].position[2] = (_point_ptr )->z;
-        vertex_ptr[i].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
+        vertex_ptr[_j].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
         _j++;
         //
         _point_ptr = &(msg_out_ptr->objects[i].bPoint.p2);
         vertex_ptr[_j].position[0] = (_point_ptr)->x;
         vertex_ptr[_j].position[1] = (_point_ptr)->y;
         vertex_ptr[_j].position[2] = (_point_ptr )->z;
-        vertex_ptr[i].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
+        vertex_ptr[_j].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
         _j++;
         //
         _point_ptr = &(msg_out_ptr->objects[i].bPoint.p3);
         vertex_ptr[_j].position[0] = (_point_ptr)->x;
         vertex_ptr[_j].position[1] = (_point_ptr)->y;
         vertex_ptr[_j].position[2] = (_point_ptr )->z;
-        vertex_ptr[i].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
+        vertex_ptr[_j].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
         _j++;
         //
         _point_ptr = &(msg_out_ptr->objects[i].bPoint.p4);
         vertex_ptr[_j].position[0] = (_point_ptr)->x;
         vertex_ptr[_j].position[1] = (_point_ptr)->y;
         vertex_ptr[_j].position[2] = (_point_ptr )->z;
-        vertex_ptr[i].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
+        vertex_ptr[_j].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
         _j++;
         //
         _point_ptr = &(msg_out_ptr->objects[i].bPoint.p5);
         vertex_ptr[_j].position[0] = (_point_ptr)->x;
         vertex_ptr[_j].position[1] = (_point_ptr)->y;
         vertex_ptr[_j].position[2] = (_point_ptr )->z;
-        vertex_ptr[i].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
+        vertex_ptr[_j].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
         _j++;
         //
         _point_ptr = &(msg_out_ptr->objects[i].bPoint.p6);
         vertex_ptr[_j].position[0] = (_point_ptr)->x;
         vertex_ptr[_j].position[1] = (_point_ptr)->y;
         vertex_ptr[_j].position[2] = (_point_ptr )->z;
-        vertex_ptr[i].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
+        vertex_ptr[_j].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
         _j++;
         //
         _point_ptr = &(msg_out_ptr->objects[i].bPoint.p7);
         vertex_ptr[_j].position[0] = (_point_ptr)->x;
         vertex_ptr[_j].position[1] = (_point_ptr)->y;
         vertex_ptr[_j].position[2] = (_point_ptr )->z;
-        vertex_ptr[i].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
+        vertex_ptr[_j].color = _color; // If we don't keep udating the color, the color will be lost when resizing the window.
         _j++;
         //
     }

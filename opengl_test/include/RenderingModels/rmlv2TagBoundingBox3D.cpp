@@ -17,7 +17,7 @@ rmlv2TagBoundingBox3D::rmlv2TagBoundingBox3D(
 }
 void rmlv2TagBoundingBox3D::Init(){
 
-
+    // rm_box.set_color(glm::vec3(1.0f, 0.5f, 0.0f)); // Orange
     // For adjusting the model pose by public methods
     attach_pose_model_by_model_ref_ptr( *rm_box.get_model_m_ptr() );
     attach_pose_model_by_model_ref_ptr( *rm_text.get_model_m_ptr() );
