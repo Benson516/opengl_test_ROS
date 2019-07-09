@@ -8,7 +8,7 @@ rmSweepingObject::rmSweepingObject(std::string _path_Assets_in, std::string fram
     _path_Shaders_sub_dir += "SweepObject/";
     init_paths(_path_Assets_in);
     //
-    _max_num_vertex_of_curve = 100;
+    _max_num_vertex_of_curve = 100; // 100;
     _max_num_vertex_of_shape = 50;
     //
 	Init();
@@ -184,6 +184,10 @@ void rmSweepingObject::update_GL_data(){
 
 void rmSweepingObject::insert_curve_Points(const std::vector<glm::vec3> &curve_Points_in){
     _curve_Points = curve_Points_in;
+    if (_curve_Points.size() > _max_num_vertex_of_curve){
+        std::cout << "Warn: Too many _curve_Points: size = " << _curve_Points.size() << "\n";
+        _curve_Points.resize(_max_num_vertex_of_curve);
+    }
     m_shape.indexCount = _curve_Points.size();
     _update_lookat_matrix_list();
 

@@ -63,7 +63,7 @@ public:
     // text2D in 3D space
     /*
     Note: position_2D can be the following
-    pos_mode:
+    pos_mode, size_mode:
         0 - OpenCV pixel x:[0,ncol] "right", y:[0,nrow] "down"
         1 - OpenGL normalizd coordinate x:[-1,1] "right", y:[-1,1] "up"
     ---

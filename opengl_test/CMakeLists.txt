@@ -146,8 +146,10 @@ set(ALL_RENDER_MODELS
     ${RENDER_MODEL_PATH}rmCircle.cpp
     ${RENDER_MODEL_PATH}rmlv2TagBoundingBox2D.cpp
     ${RENDER_MODEL_PATH}rmlv2TagBoundingBox3D.cpp
-    #
     ${RENDER_MODEL_PATH}rmlv2ObjectTracking.cpp
+    #
+    ${RENDER_MODEL_PATH}rmlv2PathPlanFake.cpp
+
 )
 
 
