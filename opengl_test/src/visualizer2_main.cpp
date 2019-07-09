@@ -286,6 +286,12 @@ void My_Display()
     //
 #endif
 
+    // test
+    std::shared_ptr< msgs::VehInfo > _veh_info_ptr;
+    if (ros_api.get_message<msgs::VehInfo>(MSG_ID::vehicle_info_1, _veh_info_ptr)){
+        std::cout << "Speed (km/h): " << (_veh_info_ptr->ego_speed)*3.6 << "\n";
+    }
+
     //---------------------------------//
     // end ROS_interface
 

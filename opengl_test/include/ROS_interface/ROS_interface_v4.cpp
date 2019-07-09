@@ -147,7 +147,42 @@ void ROS_INTERFACE::_ROS_worker(){
     async_buffer_list.resize( _topic_param_list.size() );
     //
 
-
+    // Bool
+    _msg_type = int(MSG::M_TYPE::Bool);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< bool > (_tmp_params.buffer_length) );
+        //
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe<std_msgs::Bool>( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_Bool_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise<std_msgs::Bool>( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
+    // Int32
+    _msg_type = int(MSG::M_TYPE::Int32);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< long long > (_tmp_params.buffer_length) );
+        //
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe<std_msgs::Int32>( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_Int32_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise<std_msgs::Int32>( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
     // String
     _msg_type = int(MSG::M_TYPE::String);
     for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
@@ -304,6 +339,45 @@ void ROS_INTERFACE::_ROS_worker(){
             // Publish
             _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
             _publisher_list.push_back( _nh.advertise< msgs::DetectedObjectArray >( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
+
+    // ITRICarInfoCarA
+    _msg_type = int(MSG::M_TYPE::ITRICarInfoCarA);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        // async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::TaichungVehInfo > (_tmp_params.buffer_length) );
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::VehInfo > (_tmp_params.buffer_length) );
+        //
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe< msgs::TaichungVehInfo >( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_ITRICarInfoCarA_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise< msgs::TaichungVehInfo >( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
+
+    // ITRICarInfo
+    _msg_type = int(MSG::M_TYPE::ITRICarInfo);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::VehInfo > (_tmp_params.buffer_length) );
+        //
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe< msgs::VehInfo >( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_ITRICarInfo_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise< msgs::VehInfo >( _tmp_params.name, _tmp_params.ROS_queue) );
         }
     }
 
@@ -547,6 +621,28 @@ bool ROS_INTERFACE::get_any_pointcloud(const int topic_id, std::shared_ptr< pcl:
 // Callbacks and public methods of each message type
 //---------------------------------------------------------------//
 
+// Bool
+//---------------------------------------------------------------//
+// input
+void ROS_INTERFACE::_Bool_CB(const msgs::Bool::ConstPtr& msg, const MSG::T_PARAMS & params){
+    // Time
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+    // put
+    // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
+    bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    if (!result){ std::cout << params.name << ": buffer full.\n"; }
+}
+// Int32
+//---------------------------------------------------------------//
+// input
+void ROS_INTERFACE::_Int32_CB(const msgs::Int32::ConstPtr& msg, const MSG::T_PARAMS & params){
+    // Time
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+    // put
+    // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
+    bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    if (!result){ std::cout << params.name << ": buffer full.\n"; }
+}
 // String
 //---------------------------------------------------------------//
 // input
@@ -922,6 +1018,67 @@ void ROS_INTERFACE::_ITRICamObj_CB(const msgs::CamObj::ConstPtr& msg, const MSG:
 //---------------------------------------------------------------//
 // input
 void ROS_INTERFACE::_ITRIDetectedObjectArray_CB(const msgs::DetectedObjectArray::ConstPtr& msg, const MSG::T_PARAMS & params){
+    // Time
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+    // put
+    // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
+    bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    if (!result){ std::cout << params.name << ": buffer full.\n"; }
+}
+//---------------------------------------------------------------//
+
+// ITRICarInfoCarA
+//---------------------------------------------------------------//
+// input
+void ROS_INTERFACE::_ITRICarInfoCarA_CB(const msgs::TaichungVehInfo::ConstPtr& msg, const MSG::T_PARAMS & params){
+    // Time
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+    // Conversion
+    std::shared_ptr<msgs::VehInfo> _data_ptr(new msgs::VehInfo);
+    //
+    _data_ptr->ego_x = msg->ego_x;
+    _data_ptr->ego_y = msg->ego_y;
+    _data_ptr->ego_z = msg->ego_z;
+    _data_ptr->ego_heading = msg->ego_heading;
+    _data_ptr->ego_speed = msg->ego_speed;
+    _data_ptr->yaw_rate = msg->yaw_rate;
+    //
+    _data_ptr->ukf_ego_x = msg->ukf_ego_x;
+    _data_ptr->ukf_ego_y = msg->ukf_ego_y;
+    _data_ptr->ukf_ego_heading = msg->ukf_ego_heading;
+    _data_ptr->ukf_ego_speed = msg->ukf_ego_speed;
+    //
+    _data_ptr->road_id = msg->road_id;
+    _data_ptr->lanewidth = msg->lanewidth;
+    _data_ptr->stoptolane = msg->stoptolane;
+    _data_ptr->gps_fault_flag = msg->gps_fault_flag;
+    //
+    _data_ptr->path1_to_v_x = msg->path1_to_v_x;
+    _data_ptr->path1_to_v_y = msg->path1_to_v_y;
+    _data_ptr->path2_to_v_x = msg->path2_to_v_x;
+    _data_ptr->path2_to_v_y = msg->path2_to_v_y;
+    //
+    _data_ptr->path3_to_v_x = msg->path3_to_v_x;
+    _data_ptr->path3_to_v_y = msg->path3_to_v_y;
+    _data_ptr->path4_to_v_x = msg->path4_to_v_x;
+    _data_ptr->path4_to_v_y = msg->path4_to_v_y;
+    //
+    _data_ptr->path5_to_v_x = msg->path5_to_v_x;
+    _data_ptr->path5_to_v_y = msg->path5_to_v_y;
+    _data_ptr->path6_to_v_x = msg->path6_to_v_x;
+    _data_ptr->path6_to_v_y = msg->path6_to_v_y;
+    // put
+    // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
+    // bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    bool result = async_buffer_list[params.topic_id]->put_void( &(*_data_ptr), true, _time_in, false);
+    if (!result){ std::cout << params.name << ": buffer full.\n"; }
+}
+//---------------------------------------------------------------//
+
+// ITRICarInfo
+//---------------------------------------------------------------//
+// input
+void ROS_INTERFACE::_ITRICarInfo_CB(const msgs::VehInfo::ConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
     // put

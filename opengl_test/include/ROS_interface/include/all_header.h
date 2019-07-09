@@ -18,7 +18,9 @@
 #include <tf2_ros/transform_listener.h>
 #include <geometry_msgs/TransformStamped.h>
 
-// MSG: string
+// MSG: (ROS std_msgs)
+#include <std_msgs/Bool.h>
+#include <std_msgs/Int32.h>
 #include <std_msgs/String.h>
 
 // MSG: GeoPoseStamped
@@ -42,6 +44,11 @@
 #include <msgs/CamObj.h>
 // MSG: ITRIDetectedObjectArray
 #include <msgs/DetectedObjectArray.h>
+
+// MSG: ITRICarInfoCarA
+#include <msgs/TaichungVehInfo.h>
+// MSG: ITRICarInfo
+#include <msgs/VehInfo.h>
 //--------------------------------------------//
 
 // Core libraries

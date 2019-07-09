@@ -136,6 +136,8 @@ bool ROS_API::_set_up_topics(){
         ros_interface.add_a_topic("LiDAR_Track", int(M_TYPE::ITRICamObj), true, 10, 20, "base"); // <-- The tracking resuly is on map frame
         ros_interface.add_a_topic("CamMsg", int(M_TYPE::ITRICamObj), true, 10, 20, "base");
         ros_interface.add_a_topic("CamObj4", int(M_TYPE::ITRICamObj), true, 10, 20, "base");
+        // Vehicle info
+        ros_interface.add_a_topic("taichung_veh_info", int(M_TYPE::ITRICarInfoCarA), true, 10, 20, "base");
 
         /*
         // Counts
