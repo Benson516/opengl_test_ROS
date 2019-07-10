@@ -253,9 +253,9 @@ public:
     inline glm::mat4 * get_model_m_ptr(){ return &(m_shape.model); }
 
     void setup_params(int im_width_in, int im_height_in){
-        im_width = im_width_in;
-        im_height = im_height_in;
-        im_aspect = float(im_width) / float(im_height);
+        im_pixel_width = im_width_in;
+        im_pixel_height = im_height_in;
+        im_aspect = float(im_pixel_width) / float(im_pixel_height);
         updateBoardSize();
     }
 
@@ -341,8 +341,8 @@ protected:
 
     // The image params
     // Note: The origin of the image is at its center.
-    int im_width;
-    int im_height;
+    int im_pixel_width;
+    int im_pixel_height;
     float im_aspect; // w / h
     // Params
     float board_width; // meter or ratio to viewport

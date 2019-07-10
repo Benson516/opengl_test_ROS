@@ -228,11 +228,16 @@ void Scene::Update(ROS_API &ros_api){
 		_rm_BaseModel[i]->Update(ros_api);
         // evaluation
         // period_Update.stamp(); period_Update.show_usec();
-        //
 	}
+
 }
 
 void Scene::Reshape(int full_window_width, int full_window_height){
+    _camera_ptr->SetWindowSize(full_window_width, full_window_height);
+
+    for (int i = 0; i < _rm_BaseModel.size(); i++){
+		_rm_BaseModel[i]->Reshape( _camera_ptr->GetViewportSize() );
+	}
 
 }
 

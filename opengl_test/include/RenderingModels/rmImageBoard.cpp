@@ -21,7 +21,8 @@ rmImageBoard::rmImageBoard(
     is_moveable(is_moveable_in),
     is_color_transformed(is_color_transformed_in),
     board_width(1.0), board_height(1.0), board_aspect_ratio(1.0),
-    board_shape_mode(0)
+    board_shape_mode(0),
+    is_using_cv_pose(false)
     // fps_of_update(image_file_in)
 {
     _path_Shaders_sub_dir += "ImageBoard/";
@@ -44,7 +45,8 @@ rmImageBoard::rmImageBoard(
     is_color_transformed(is_color_transformed_in),
     _ROS_topic_id(_ROS_topic_id_in),
     board_width(1.0), board_height(1.0), board_aspect_ratio(1.0),
-    board_shape_mode(0)
+    board_shape_mode(0),
+    is_using_cv_pose(false)
     // fps_of_update( std::string("Image ") + std::to_string(_ROS_topic_id_in) )
 {
     _path_Shaders_sub_dir += "ImageBoard/";
@@ -135,8 +137,8 @@ void rmImageBoard::LoadModel(){
         std::cout << "start loading <" << textName << ">\n";
     	TextureData tdata = Common::Load_png(get_full_Assets_path(textName).c_str());
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, tdata.width, tdata.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata.data);
-        m_shape.width = tdata.width;
-        m_shape.height = tdata.height;
+        im_pixel_width = tdata.width;
+        im_pixel_height = tdata.height;
     }
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -253,10 +255,10 @@ void rmImageBoard::Render(std::shared_ptr<ViewManager> &_camera_ptr){
         glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
     }else{
         if (is_moveable){
-            if ( !glm::all(glm::equal(_viewport_size, _camera_ptr->GetViewportSize() ) ) ){
-                _viewport_size = _camera_ptr->GetViewportSize();
-                updateBoardSize();
-            }
+            // if ( !glm::all(glm::equal(_viewport_size, _camera_ptr->GetViewportSize() ) ) ){
+            //     _viewport_size = _camera_ptr->GetViewportSize();
+            //     updateBoardGeo();
+            // }
             // Note: the rotation is mainly for z-axis rotation
             // Note 2: The tranalation/rotation/scale is based on the "center" of the image
             // m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
@@ -280,15 +282,23 @@ void rmImageBoard::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     _program_ptr->CloseProgram();
 }
 
+void rmImageBoard::Reshape(const glm::ivec2 & viewport_size_in){
+    _viewport_size = viewport_size_in;
+    // _viewport_size = _camera_ptr->GetViewportSize();
+    if (is_using_cv_pose){
+        updateBoardGeo();
+    }
+}
+
 
 
 
 void rmImageBoard::update_GL_data(){
     //
-    if (m_shape.width != msg_out_ptr->cols || m_shape.height != msg_out_ptr->rows){
-        m_shape.width = msg_out_ptr->cols;
-        m_shape.height = msg_out_ptr->rows;
-        updateBoardSize();
+    if (im_pixel_width != msg_out_ptr->cols || im_pixel_height != msg_out_ptr->rows){
+        im_pixel_width = msg_out_ptr->cols;
+        im_pixel_height = msg_out_ptr->rows;
+        updateBoardGeo();
     }
 
 
@@ -325,7 +335,7 @@ void rmImageBoard::setBoardSize(float width_in, float height_in){
     m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height,1.0f) );
 }
 void rmImageBoard::setBoardSize(float size_in, bool is_width){ // Using the aspect ratio from pixel data
-    board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+    board_aspect_ratio = float(im_pixel_width)/float(im_pixel_height);
     if (is_width){
         board_shape_mode = 1;
         board_width = size_in;
@@ -339,7 +349,7 @@ void rmImageBoard::setBoardSize(float size_in, bool is_width){ // Using the aspe
     m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
 }
 void rmImageBoard::setBoardSizeRatio(float ratio_in, bool is_width){ // Only use when is_perspected==false is_moveable==true
-    board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+    board_aspect_ratio = float(im_pixel_width)/float(im_pixel_height);
     if (is_width){
         board_shape_mode = 3;
         board_width = ratio_in;
@@ -358,26 +368,98 @@ void rmImageBoard::updateBoardSize(){
             // Nothing to do
             break;
         case 1: // fixed width
-            board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+            board_aspect_ratio = float(im_pixel_width)/float(im_pixel_height);
             board_height = board_width / board_aspect_ratio;
             m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
             break;
         case 2: // fixed height
-            board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+            board_aspect_ratio = float(im_pixel_width)/float(im_pixel_height);
             board_width = board_height * board_aspect_ratio;
             m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
             break;
         case 3: // fixed width ratio relative to viewport
-            board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+            board_aspect_ratio = float(im_pixel_width)/float(im_pixel_height);
             board_height = (board_width*_viewport_size[0]) / (board_aspect_ratio*_viewport_size[1]);
             m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
             break;
         case 4: // fixed height ratio ralative to viewport
-            board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
+            board_aspect_ratio = float(im_pixel_width)/float(im_pixel_height);
             board_width = (board_height*_viewport_size[1]) * board_aspect_ratio / float(_viewport_size[0]);
             m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
             break;
         default:
             break;
     }
+}
+
+
+void rmImageBoard::setBoardPositionCVPixel(
+    int cv_x,
+    int cv_y,
+    int ref_point_mode_in,
+    ALIGN_X     align_x_in,
+    ALIGN_Y     align_y_in
+){
+    is_using_cv_pose = true;
+    /*
+    ref_point_mode:
+    0: upper-left corner
+    1: upper-right corner
+    2: lower-left corner
+    3: lower-right corner
+    */
+    cv_pose = glm::ivec2(cv_x, cv_y);
+    ref_point_mode = ref_point_mode_in;
+    board_align_x = align_x_in;
+    board_align_y = align_y_in;
+}
+void rmImageBoard::updateBoardPosition(){
+    glm::ivec2 cv_ref(0,0);
+    switch(ref_point_mode){
+        case 0:
+            break;
+        case 1:
+            cv_ref = glm::ivec2(_viewport_size[0], 0);
+            break;
+        case 2:
+            cv_ref = glm::ivec2(0, _viewport_size[1]);
+            break;
+        case 3:
+            cv_ref = glm::ivec2(_viewport_size[0], _viewport_size[1]);
+            break;
+        default:
+            break;
+    }
+    //
+    switch(board_align_x){
+        case ALIGN_X::LEFT:
+            cv_ref += glm::ivec2(board_width*_viewport_size[0]/2, 0);
+            break;
+        case ALIGN_X::CENTER:
+            break;
+        case ALIGN_X::RIGHT:
+            cv_ref -= glm::ivec2(board_width*_viewport_size[0]/2, 0);
+            break;
+        default:
+            break;
+    }
+    switch(board_align_y){
+        case ALIGN_Y::TOP:
+            cv_ref += glm::ivec2(0, board_height*_viewport_size[1]/2);
+            break;
+        case ALIGN_Y::CENTER:
+            break;
+        case ALIGN_Y::BUTTON:
+            cv_ref -= glm::ivec2(0, board_height*_viewport_size[1]/2);
+            break;
+        default:
+            break;
+    }
+    glm::vec2 gl_pose;
+    gl_pose.x = float(cv_pose.x + cv_ref.x)/float(_viewport_size.x) * 2.0 - 1.0;
+    gl_pose.y = float(cv_pose.y + cv_ref.y)/float(_viewport_size.y) * -2.0 + 1.0;
+    std::cout << "gl_pose = (" << gl_pose.x << ", " << gl_pose.y << "\n";
+    //
+    translateMatrix = translate(glm::mat4(1.0), glm::vec3(gl_pose, 0.0f));
+    update_pose_model_by_model_ref();
 }

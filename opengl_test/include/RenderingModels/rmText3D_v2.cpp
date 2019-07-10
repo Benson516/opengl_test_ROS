@@ -913,7 +913,7 @@ void rmText3D_v2::setBoardSize(float width_in, float height_in){
     m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height,1.0f) );
 }
 void rmText3D_v2::setBoardSize(float size_in, bool is_width){ // Using the aspect ratio from pixel data
-    board_aspect_ratio = float(im_width)/float(im_height);
+    board_aspect_ratio = float(im_pixel_width)/float(im_pixel_width);
     if (is_width){
         board_shape_mode = 1;
         board_width = size_in;
@@ -927,7 +927,7 @@ void rmText3D_v2::setBoardSize(float size_in, bool is_width){ // Using the aspec
     m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
 }
 void rmText3D_v2::setBoardSizeRatio(float ratio_in, bool is_width){ // Only use when is_perspected==false is_moveable==true
-    board_aspect_ratio = float(im_width)/float(im_height);
+    board_aspect_ratio = float(im_pixel_width)/float(im_pixel_width);
     if (is_width){
         board_shape_mode = 3;
         board_width = ratio_in;
@@ -946,22 +946,22 @@ void rmText3D_v2::updateBoardSize(){
             // Nothing to do
             break;
         case 1: // fixed width
-            board_aspect_ratio = float(im_width)/float(im_height);
+            board_aspect_ratio = float(im_pixel_width)/float(im_pixel_width);
             board_height = board_width / board_aspect_ratio;
             m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
             break;
         case 2: // fixed height
-            board_aspect_ratio = float(im_width)/float(im_height);
+            board_aspect_ratio = float(im_pixel_width)/float(im_pixel_width);
             board_width = board_height * board_aspect_ratio;
             m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
             break;
         case 3: // fixed width ratio relative to viewport
-            board_aspect_ratio = float(im_width)/float(im_height);
+            board_aspect_ratio = float(im_pixel_width)/float(im_pixel_width);
             board_height = (board_width*_viewport_size[0]) / (board_aspect_ratio*_viewport_size[1]);
             m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
             break;
         case 4: // fixed height ratio ralative to viewport
-            board_aspect_ratio = float(im_width)/float(im_height);
+            board_aspect_ratio = float(im_pixel_width)/float(im_pixel_width);
             board_width = (board_height*_viewport_size[1]) * board_aspect_ratio / float(_viewport_size[0]);
             m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
             break;

@@ -16,7 +16,6 @@ class rmBaseModel{
 
 public:
 	rmBaseModel();
-    rmBaseModel(std::string _path_Assets_in);
     rmBaseModel(std::string _path_Assets_in, std::string modelFile, std::string textFile);
 	~rmBaseModel();
     //
@@ -24,7 +23,7 @@ public:
     virtual void Update(ROS_INTERFACE &ros_interface);
     virtual void Update(ROS_API &ros_api);
 	virtual void Render(std::shared_ptr<ViewManager> &_camera_ptr);
-
+    virtual void Reshape(const glm::ivec2 & viewport_size_in){  _viewport_size = viewport_size_in; }
     // Matrix operation
     //------------------------------------------------//
     // Legacy "Pre-" operations
@@ -80,7 +79,28 @@ protected:
     std::vector<glm::mat4 *>  _pose_model_by_model_ref_ptr_list;
     glm::mat4 _tmp_pose_model_by_model_ref;
     glm::mat4 _pose_modle_ref_by_world;
-    //
+
+
+    // // The image params
+    // // Note: The origin of the image is at its center.
+    // int im_pixel_width;
+    // int im_pixel_height;
+    // float im_aspect; // w / h
+    // // Params
+    // float board_width; // meter or ratio to viewport
+    // float board_height; // meter or ratio to viewport
+    // float board_aspect_ratio; // w/h
+    // int board_shape_mode;
+    // // mode:
+    // // 0 - fixed size
+    // // 1 - fixed width
+    // // 2 - fixed height
+    // // 3 - fixed width ratio relative to viewport
+    // // 4 - fixed height ratio ralative to viewport
+
+    // Shape of viewport
+    glm::ivec2 _viewport_size; // (w,h)
+
 	//
     virtual void Init();
     virtual void LoadModel();

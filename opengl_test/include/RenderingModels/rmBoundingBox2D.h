@@ -23,9 +23,9 @@ public:
     inline glm::mat4 * get_model_m_ptr(){ return &(m_shape.model); }
 
     void setup_params(int im_width_in, int im_height_in, int image_offset_in_box_cv_x_in, int image_offset_in_box_cv_y_in){
-        im_width = im_width_in;
-        im_height = im_height_in;
-        im_aspect = float(im_width) / float(im_height);
+        im_pixel_width = im_width_in;
+        im_pixel_height = im_height_in;
+        im_aspect = float(im_pixel_width) / float(im_pixel_height);
         image_offset_in_box_cv_x = image_offset_in_box_cv_x_in;
         image_offset_in_box_cv_y = image_offset_in_box_cv_y_in;
         updateBoardSize();
@@ -113,8 +113,8 @@ private:
     };
     // The image params
     // Note: The origin of the image is at its center.
-    int im_width;
-    int im_height;
+    int im_pixel_width;
+    int im_pixel_height;
     float im_aspect; // w / h
     // The box coordinate relative to image, normally (0,0)
     int image_offset_in_box_cv_x;
@@ -122,15 +122,15 @@ private:
     //
     inline void toNormGL(int cv_x, int cv_y, float &gl_x, float &gl_y){
         // Convert CV coordinate to normalized GL coordinate x:[-1,1], y:[-1,1]
-        gl_x = (cv_x - image_offset_in_box_cv_x)/float(im_width) * 2.0 - 1.0;
-        gl_y = (cv_y - image_offset_in_box_cv_y)/float(im_height) * -2.0 + 1.0;
+        gl_x = (cv_x - image_offset_in_box_cv_x)/float(im_pixel_width) * 2.0 - 1.0;
+        gl_y = (cv_y - image_offset_in_box_cv_y)/float(im_pixel_height) * -2.0 + 1.0;
     }
     void convert_cv_to_normalized_gl(const box_param_cv &box_cv_in, box_param_gl & box_gl_out){
         box_gl_out.obj_class = box_cv_in.obj_class;
         float gl_x, gl_y;
         // float gl_w, gl_h;
-        // gl_w = box_cv_in.width/float(im_width);
-        // gl_h = box_cv_in.height/float(im_height);
+        // gl_w = box_cv_in.width/float(im_pixel_width);
+        // gl_h = box_cv_in.height/float(im_pixel_height);
         int _w = box_cv_in.width;
         int _h = box_cv_in.height;
         int _i = 0;

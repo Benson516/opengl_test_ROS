@@ -365,7 +365,8 @@ void My_Reshape(int width, int height)
     // Render all_scenes
     //--------------------//
     for (size_t i=0; i < all_scenes.size(); ++i){
-        all_scenes[i]->GetCamera()->SetWindowSize(windows_width, windows_height);
+        // all_scenes[i]->GetCamera()->SetWindowSize(windows_width, windows_height);
+        all_scenes[i]->Reshape(windows_width, windows_height);
     }
     //--------------------//
 

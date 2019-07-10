@@ -69,19 +69,20 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     */
 
 
-    /*
+
     // Top-level top-centered back image (dynamic) <-- "Rear-sight mirror"
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_rear_center), false, true, true) );
     _image_board_ptr->alpha = 1.0;
     _image_board_ptr->color_transform = glm::vec4(1.0f);
-    // _image_board_ptr->Translate(glm::vec3(0.0f, 0.0f, 1.0f)); // Move to ackground
-    _image_board_ptr->Translate(glm::vec3(0.0f, 0.8f, 0.0f)); // Move to up-center
+    _image_board_ptr->setBoardPositionCVPixel(0, 0, 1, rmImageBoard::ALIGN_X::RIGHT, rmImageBoard::ALIGN_Y::TOP );
+    // _image_board_ptr->Translate(glm::vec3(0.0f, 0.0f, 1.0f)); // Move to background
+    // _image_board_ptr->Translate(glm::vec3(0.0f, 0.8f, 0.0f)); // Move to up-center
     _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI); // Flip vertically
     // _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI/6.0);
     // _image_board_ptr->Scale( glm::vec3(0.2f, 0.2f, 0.5f));
     _image_board_ptr->setBoardSizeRatio(0.2, false);
     _rm_BaseModel.push_back( _image_board_ptr );
-    */
+
 
 
     // Grid ground
