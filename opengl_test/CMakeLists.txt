@@ -137,6 +137,7 @@ set(ALL_RENDER_MODELS
     ${RENDER_MODEL_PATH}rmPointCloud.cpp
     ${RENDER_MODEL_PATH}rmLidarBoundingBox.cpp
     ${RENDER_MODEL_PATH}rmImageBoard.cpp
+    ${RENDER_MODEL_PATH}rmColorBoard.cpp
     ${RENDER_MODEL_PATH}rmText2D.cpp
     # ${RENDER_MODEL_PATH}rmText3D.cpp
     ${RENDER_MODEL_PATH}rmText3D_v2.cpp
@@ -148,7 +149,6 @@ set(ALL_RENDER_MODELS
     ${RENDER_MODEL_PATH}rmlv2TagBoundingBox2D.cpp
     ${RENDER_MODEL_PATH}rmlv2TagBoundingBox3D.cpp
     ${RENDER_MODEL_PATH}rmlv2ObjectTracking.cpp
-    #
     ${RENDER_MODEL_PATH}rmlv2PathPlanFake.cpp
 
 )

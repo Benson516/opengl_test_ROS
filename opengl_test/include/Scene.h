@@ -17,6 +17,7 @@
 #include "rmPointCloud.h"
 #include "rmLidarBoundingBox.h"
 #include "rmImageBoard.h"
+#include "rmColorBoard.h"
 #include "rmBoundingBox2D.h"
 #include "rmlv2TagBoundingBox2D.h"
 #include "rmlv2TagBoundingBox3D.h"

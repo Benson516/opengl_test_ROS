@@ -30,19 +30,6 @@ Note:
 class rmImageBoard : public rmBaseModel
 {
 public:
-    // Different alignment
-    //--------------------------------------//
-    enum class ALIGN_X{
-        LEFT,
-        CENTER,
-        RIGHT
-    };
-    enum class ALIGN_Y{
-        TOP,
-        CENTER,
-        BUTTON
-    };
-    //--------------------------------------//
 
     rmImageBoard(
         std::string _path_Assets_in,
@@ -92,6 +79,7 @@ protected:
     int _ROS_topic_id;
     std::shared_ptr<cv::Mat> msg_out_ptr;
     // ros::Time msg_time;
+    // std::string _frame_id;
 
     // Settings
     bool is_perspected;
