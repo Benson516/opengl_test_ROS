@@ -80,7 +80,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI); // Flip vertically
     // _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI/6.0);
     // _image_board_ptr->Scale( glm::vec3(0.2f, 0.2f, 0.5f));
-    _image_board_ptr->setBoardSizeRatio(0.2, false);
+    // _image_board_ptr->setBoardSizeRatio(0.2f, false);
+    _image_board_ptr->setBoardSizePixel(100, false);
     _rm_BaseModel.push_back( _image_board_ptr );
 
 

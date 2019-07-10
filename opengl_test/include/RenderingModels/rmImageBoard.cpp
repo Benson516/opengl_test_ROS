@@ -348,26 +348,25 @@ void rmImageBoard::setBoardSize(float size_in, bool is_width){ // Using the aspe
 }
 void rmImageBoard::setBoardSizeRatio(float ratio_in, bool is_width){ // Only use when is_perspected==false is_moveable==true
     board_aspect_ratio = float(im_pixel_width)/float(im_pixel_height);
+    board_size_ratio = ratio_in;
     if (is_width){
         board_shape_mode = 3;
-        board_width = ratio_in;
-        // board_height = board_width / board_aspect_ratio;
-        board_height = (board_width*_viewport_size[0]) / (board_aspect_ratio*_viewport_size[1]);
+        board_width = _viewport_size[0] * board_size_ratio;
+        board_height = board_width / board_aspect_ratio;
     }else{
         board_shape_mode = 4;
-        board_height = ratio_in;
-        // board_width = board_height * board_aspect_ratio;
-        board_width = (board_height*_viewport_size[1]) * board_aspect_ratio / float(_viewport_size[0]);
+        board_height = _viewport_size[1] * board_size_ratio;
+        board_width = board_height * board_aspect_ratio;
     }
     //
-    m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
+    m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width / _viewport_size[0], board_height / _viewport_size[1], 1.0f) );
 }
-void rmImageBoard::setBoardSizePixel(int px_width_in, int px_width_in){
+void rmImageBoard::setBoardSizePixel(int px_width_in, int px_heighth_in){
     board_shape_mode = 5;
     board_width = float(px_width_in);
-    board_height = float(px_width_in);
+    board_height = float(px_heighth_in);
     board_aspect_ratio = board_width/board_height;
-    m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width / _viewport_size[0], board_height / _viewport_size[1]) );
+    m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width / _viewport_size[0], board_height / _viewport_size[1], 1.0f) );
 }
 void rmImageBoard::setBoardSizePixel(int pixel_in, bool is_width){
     board_aspect_ratio = float(im_pixel_width)/float(im_pixel_height);
@@ -380,7 +379,7 @@ void rmImageBoard::setBoardSizePixel(int pixel_in, bool is_width){
         board_height = pixel_in;
         board_width = board_height * board_aspect_ratio;
     }
-    m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width / _viewport_size[0], board_height / _viewport_size[1]) );
+    m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width / _viewport_size[0], board_height / _viewport_size[1], 1.0f) );
 }
 void rmImageBoard::updateBoardSize(){
     board_aspect_ratio = float(im_pixel_width)/float(im_pixel_height);
@@ -397,26 +396,28 @@ void rmImageBoard::updateBoardSize(){
             board_width = board_height * board_aspect_ratio;
             m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
             break;
-        case 3: // fixed width ratio relative to viewport
-            board_height = (board_width*_viewport_size[0]) / (board_aspect_ratio*_viewport_size[1]);
-            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
+        case 3:  // fixed width ratio relative to viewport
+            board_width = _viewport_size[0] * board_size_ratio;
+            board_height = board_width / board_aspect_ratio;
+            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width / _viewport_size[0], board_height / _viewport_size[1], 1.0f) );
             break;
-        case 4: // fixed height ratio ralative to viewport
-            board_width = (board_height*_viewport_size[1]) * board_aspect_ratio / float(_viewport_size[0]);
-            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
+        case 4: // fixed height ratio relative to viewport
+            board_height = _viewport_size[1] * board_size_ratio;
+            board_width = board_height * board_aspect_ratio;
+            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width / _viewport_size[0], board_height / _viewport_size[1], 1.0f) );
             break;
         case 5:
             board_aspect_ratio = board_width/board_height;
-            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width / _viewport_size[0], board_height / _viewport_size[1]) );
+            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width / _viewport_size[0], board_height / _viewport_size[1], 1.0f) );
             break;
-        case 6: // fixed width pixel
+        case 6:  // fixed width pixel
             board_height = board_width / board_aspect_ratio;
-            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width / _viewport_size[0], board_height / _viewport_size[1]) );
+            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width / _viewport_size[0], board_height / _viewport_size[1], 1.0f) );
             break;
         case 7: // fixed height pixel
             board_width = board_height * board_aspect_ratio;
-            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width / _viewport_size[0], board_height / _viewport_size[1]) );
-            break;
+            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width / _viewport_size[0], board_height / _viewport_size[1], 1.0f) );
+                break;
         default:
             break;
     }
@@ -463,24 +464,24 @@ void rmImageBoard::updateBoardPosition(){
     //
     switch(board_align_x){
         case ALIGN_X::LEFT:
-            cv_ref += glm::ivec2(board_width*_viewport_size[0]/2, 0);
+            cv_ref += glm::ivec2(board_width/2, 0);
             break;
         case ALIGN_X::CENTER:
             break;
         case ALIGN_X::RIGHT:
-            cv_ref -= glm::ivec2(board_width*_viewport_size[0]/2, 0);
+            cv_ref -= glm::ivec2(board_width/2, 0);
             break;
         default:
             break;
     }
     switch(board_align_y){
         case ALIGN_Y::TOP:
-            cv_ref += glm::ivec2(0, board_height*_viewport_size[1]/2);
+            cv_ref += glm::ivec2(0, board_height/2);
             break;
         case ALIGN_Y::CENTER:
             break;
         case ALIGN_Y::BUTTON:
-            cv_ref -= glm::ivec2(0, board_height*_viewport_size[1]/2);
+            cv_ref -= glm::ivec2(0, board_height/2);
             break;
         default:
             break;
@@ -488,7 +489,7 @@ void rmImageBoard::updateBoardPosition(){
     glm::vec2 gl_pose;
     gl_pose.x = float(cv_pose.x + cv_ref.x)/float(_viewport_size.x) * 2.0 - 1.0;
     gl_pose.y = float(cv_pose.y + cv_ref.y)/float(_viewport_size.y) * -2.0 + 1.0;
-    std::cout << "gl_pose = (" << gl_pose.x << ", " << gl_pose.y << "\n";
+    std::cout << "gl_pose = (" << gl_pose.x << ", " << gl_pose.y << ")\n";
     //
     translateMatrix = translate(glm::mat4(1.0), glm::vec3(gl_pose, 0.0f));
     update_pose_model_by_model_ref();
