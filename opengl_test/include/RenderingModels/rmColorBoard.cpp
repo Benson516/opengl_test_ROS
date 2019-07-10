@@ -15,7 +15,7 @@ rmColorBoard::rmColorBoard(
     std::string frame_id_in,
     glm::vec4 color_vec4_in,
     bool is_perspected_in,
-    bool is_moveable_in,
+    bool is_moveable_in
 ):
     _frame_id(frame_id_in),
     color_vec4(color_vec4_in),
@@ -24,7 +24,6 @@ rmColorBoard::rmColorBoard(
 {
     _path_Shaders_sub_dir += "ImageBoard/";
     init_paths(_path_Assets_in);
-    textName = image_file_in;
     //
 	Init();
 }
@@ -33,7 +32,7 @@ rmColorBoard::rmColorBoard(
     int _ROS_topic_id_in,
     glm::vec4 color_vec4_in,
     bool is_perspected_in,
-    bool is_moveable_in,
+    bool is_moveable_in
 ):
     _ROS_topic_id(_ROS_topic_id_in),
     color_vec4(color_vec4_in),
@@ -42,7 +41,6 @@ rmColorBoard::rmColorBoard(
 {
     _path_Shaders_sub_dir += "ImageBoard/";
     init_paths(_path_Assets_in);
-    textName = image_file_in;
     //
 	Init();
 }

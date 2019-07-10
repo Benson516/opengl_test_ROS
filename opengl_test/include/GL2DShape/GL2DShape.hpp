@@ -61,7 +61,7 @@ public:
     // 3: lower-right corner
 
     // Update method
-    void updateBoardGeo(const glm::ivec2 &viewportsize_in, float aspect_ratio_in=1.0f);
+    void updateBoardGeo(const glm::ivec2 &viewportsize_in, float aspect_ratio_in=-1.0f);
 
     // Getting methods
     inline bool get_shape(glm::mat4 &shape_out){ shape_out = _shape;    return true; }

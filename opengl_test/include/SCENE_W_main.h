@@ -46,6 +46,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     std::shared_ptr<rmlv2TagBoundingBox2D> _box2D_ptr;
     // rmlv2PathPlanFake
     std::shared_ptr<rmlv2PathPlanFake> _fake_path_ptr;
+    // rmColorBoard
+    std::shared_ptr<rmColorBoard> _color_board_ptr;
 
     /*
     // Back ground image (static)
@@ -297,6 +299,14 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
         _rm_BaseModel.push_back( _text3D_ptr );
     }
     */
+
+
+
+    // rmColorBoard
+    _color_board_ptr.reset( new rmColorBoard(_Assets_path, "base", glm::vec4(0.0f, 0.2f, 0.8f, 0.5f), false, true ) );
+    _color_board_ptr->shape.setBoardSizePixel(150, 100);
+    _color_board_ptr->shape.setBoardPositionCVPixel(-10,10,1,ALIGN_X::RIGHT, ALIGN_Y::TOP );
+    _rm_BaseModel.push_back( _color_board_ptr );
 
 
 
