@@ -1,7 +1,7 @@
 #include "GL2DShape.hpp"
 
 
-GL2DShape::GL2DShape(float original_board_size_in):
+GL2DShape::GL2DShape(glm::vec2 original_board_size_in):
     original_board_size(original_board_size_in),
     _shape(1.0f), _translation_m(1.0f),
     board_width(1.0), board_height(1.0), board_aspect_ratio(1.0),
@@ -19,10 +19,10 @@ void GL2DShape::setBoardSize(float width_in, float height_in){
     board_height = height_in;
     board_aspect_ratio = board_width/board_height;
     //
-    _shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width/(original_board_size.x), board_height/(original_board_size.y), 1.0f) );
+    updateBoardSize();
 }
 void GL2DShape::setBoardSize(float size_in, bool is_width){ // Using the aspect ratio from pixel data
-    board_aspect_ratio = float(im_pixel_width)/float(im_pixel_height);
+    // board_aspect_ratio = float(im_pixel_width)/float(im_pixel_height);
     if (is_width){
         board_shape_mode = 1;
         board_width = size_in;
@@ -33,10 +33,10 @@ void GL2DShape::setBoardSize(float size_in, bool is_width){ // Using the aspect 
         board_width = board_height * board_aspect_ratio;
     }
     //
-    _shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width/(original_board_size.x), board_height/(original_board_size.y), 1.0f) );
+    updateBoardSize();
 }
 void GL2DShape::setBoardSizeRatio(float ratio_in, bool is_width){ // Only use when is_perspected==false is_moveable==true
-    board_aspect_ratio = float(im_pixel_width)/float(im_pixel_height);
+    // board_aspect_ratio = float(im_pixel_width)/float(im_pixel_height);
     board_size_ratio = ratio_in;
     if (is_width){
         board_shape_mode = 3;
@@ -48,17 +48,17 @@ void GL2DShape::setBoardSizeRatio(float ratio_in, bool is_width){ // Only use wh
         board_width = board_height * board_aspect_ratio;
     }
     //
-    _shape = glm::scale(glm::mat4(1.0f), glm::vec3( (board_width/_viewport_size[0])*(2.0f/original_board_size.x), (board_height/_viewport_size[1])*(2.0f/original_board_size.y), 1.0f) );
+    updateBoardSize();
 }
 void GL2DShape::setBoardSizePixel(int px_width_in, int px_heighth_in){
     board_shape_mode = 5;
     board_width = float(px_width_in);
     board_height = float(px_heighth_in);
     board_aspect_ratio = board_width/board_height;
-    _shape = glm::scale(glm::mat4(1.0f), glm::vec3( (board_width/_viewport_size[0])*(2.0f/original_board_size.x), (board_height/_viewport_size[1])*(2.0f/original_board_size.y), 1.0f) );
+    updateBoardSize();
 }
 void GL2DShape::setBoardSizePixel(int pixel_in, bool is_width){
-    board_aspect_ratio = float(im_pixel_width)/float(im_pixel_height);
+    // board_aspect_ratio = float(im_pixel_width)/float(im_pixel_height);
     if (is_width){
         board_shape_mode = 6;
         board_width = pixel_in;
@@ -68,10 +68,10 @@ void GL2DShape::setBoardSizePixel(int pixel_in, bool is_width){
         board_height = pixel_in;
         board_width = board_height * board_aspect_ratio;
     }
-    _shape = glm::scale(glm::mat4(1.0f), glm::vec3( (board_width/_viewport_size[0])*(2.0f/original_board_size.x), (board_height/_viewport_size[1])*(2.0f/original_board_size.y), 1.0f) );
+    updateBoardSize();
 }
 void GL2DShape::updateBoardSize(){
-    board_aspect_ratio = float(im_pixel_width)/float(im_pixel_height);
+    // board_aspect_ratio = float(im_pixel_width)/float(im_pixel_height);
     switch(board_shape_mode){
         case 0: // fixed size
             // Nothing to do
@@ -135,6 +135,7 @@ void GL2DShape::setBoardPositionCVPixel(
     ref_point_mode = ref_point_mode_in;
     board_align_x = align_x_in;
     board_align_y = align_y_in;
+    updateBoardPosition();
 }
 void GL2DShape::updateBoardPosition(){
     glm::ivec2 cv_ref(0,0);
@@ -181,7 +182,7 @@ void GL2DShape::updateBoardPosition(){
     glm::vec2 gl_pose;
     gl_pose.x = float(cv_pose.x + cv_ref.x)/float(_viewport_size.x) * 2.0 - 1.0;
     gl_pose.y = float(cv_pose.y + cv_ref.y)/float(_viewport_size.y) * -2.0 + 1.0;
-    std::cout << "gl_pose = (" << gl_pose.x << ", " << gl_pose.y << ")\n";
+    // std::cout << "gl_pose = (" << gl_pose.x << ", " << gl_pose.y << ")\n";
     //
     _translation_m = translate(glm::mat4(1.0), glm::vec3(gl_pose, 0.0f));
 }
@@ -191,8 +192,9 @@ void GL2DShape::updateBoardPosition(){
 
 // Update
 //------------------------------------------------------//
-void GL2DShape::updateBoardGeo(const glm::ivec2 &viewportsize_in){
+void GL2DShape::updateBoardGeo(const glm::ivec2 &viewportsize_in, float aspect_ratio_in){
     _viewport_size = viewportsize_in;
+    board_aspect_ratio = aspect_ratio_in;
     updateBoardSize(); // Do this first
     if (is_using_cv_pose){
         updateBoardPosition();

@@ -96,6 +96,7 @@ include_directories(
     include/Common/
     include/ViewManager/
     include/Shader/
+    include/GL2DShape/
     include/RenderingModels/
     #
 	external/AntTweakBar-1.16/include/

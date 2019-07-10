@@ -38,7 +38,7 @@ class GL2DShape{
 public:
 
 
-    GL2DShape(float original_board_size_in=glm::vec2(2.0f, 2.0f) );
+    GL2DShape(glm::vec2 original_board_size_in=glm::vec2(2.0f, 2.0f) );
 
     // Set board size
     void setBoardSize(float width_in, float height_in); // 3D space
@@ -61,11 +61,17 @@ public:
     // 3: lower-right corner
 
     // Update method
-    void updateBoardGeo(const glm::ivec2 &viewportsize_in);
+    void updateBoardGeo(const glm::ivec2 &viewportsize_in, float aspect_ratio_in=1.0f);
 
     // Getting methods
-    inline glm::mat4 get_shape(){ return _shape; }
-    inline glm::mat4 get_tranlate(){ return _translation_m; }
+    inline bool get_shape(glm::mat4 &shape_out){ shape_out = _shape;    return true; }
+    inline bool get_tranlate(glm::mat4 & translation_m_out){
+        if (is_using_cv_pose){
+            translation_m_out = _translation_m;
+            return true;
+        }
+        return false;
+    }
 
 private:
 
@@ -76,12 +82,12 @@ private:
     void updateBoardPosition();
 
     //
-    glm:::vec2 original_board_size;
+    glm::vec2 original_board_size;
 
     // Note: The origin of the image is at its center.
-    int im_pixel_width;
-    int im_pixel_height;
-    float im_aspect; // w / h
+    // int im_pixel_width;
+    // int im_pixel_height;
+    // float im_aspect; // w / h
     // Params
     float board_width; // meter or pixel
     float board_height; // meter or pixel

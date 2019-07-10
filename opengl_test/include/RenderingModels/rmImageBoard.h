@@ -75,10 +75,11 @@ public:
     // For usage, please refer to the GL2DShape
     GL2DShape shape;
     void updateBoardGeo(){
-        shape.updateBoardGeo(_viewport_size);
-        m_shape.shape = shape.get_shape();
-        translateMatrix = shape.get_tranlate();
-        update_pose_model_by_model_ref();
+        shape.updateBoardGeo(_viewport_size, float(im_pixel_width)/float(im_pixel_height));
+        shape.get_shape(m_shape.shape);
+        if ( shape.get_tranlate(translateMatrix) ){
+            update_pose_model_by_model_ref();
+        }        
     }
 
 
@@ -115,6 +116,10 @@ private:
         glm::mat4 model;
     };
     Shape m_shape;
+
+    // Image
+    int im_pixel_width;
+    int im_pixel_height;
 
     //
     std::string textName;
