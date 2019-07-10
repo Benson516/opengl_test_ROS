@@ -137,8 +137,8 @@ void rmlv2TagBoundingBox2D::update_GL_data(){
                 _a_box_param_gl.xy_list[0],
                 0.1,
                 _box_color,
-                rmText3D_v2::ALIGN_X::LEFT,
-                rmText3D_v2::ALIGN_Y::BUTTON,
+                ALIGN_X::LEFT,
+                ALIGN_Y::BUTTON,
                 1
             );
         }else{
@@ -147,8 +147,8 @@ void rmlv2TagBoundingBox2D::update_GL_data(){
                 _a_box_param_gl.xy_list[0],
                 24,
                 _box_color,
-                rmText3D_v2::ALIGN_X::LEFT,
-                rmText3D_v2::ALIGN_Y::BUTTON,
+                ALIGN_X::LEFT,
+                ALIGN_Y::BUTTON,
                 1,
                 0,
                 !is_moveable,
@@ -215,8 +215,8 @@ void rmlv2TagBoundingBox2D::update_GL_data(){
                 _a_box_param_gl.xy_list[0],
                 0.1,
                 _box_color,
-                rmText3D_v2::ALIGN_X::LEFT,
-                rmText3D_v2::ALIGN_Y::BUTTON,
+                ALIGN_X::LEFT,
+                ALIGN_Y::BUTTON,
                 1
             );
         }else{
@@ -225,8 +225,8 @@ void rmlv2TagBoundingBox2D::update_GL_data(){
                 _a_box_param_gl.xy_list[0],
                 24,
                 _box_color,
-                rmText3D_v2::ALIGN_X::LEFT,
-                rmText3D_v2::ALIGN_Y::BUTTON,
+                ALIGN_X::LEFT,
+                ALIGN_Y::BUTTON,
                 1,
                 0,
                 !is_moveable,

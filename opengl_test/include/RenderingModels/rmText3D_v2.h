@@ -34,20 +34,19 @@ struct atlas;
 class rmText3D_v2 : public rmBaseModel
 {
 public:
-
-    // Different alignment
-    //--------------------------------------//
-    enum class ALIGN_X{
-        LEFT,
-        CENTER,
-        RIGHT
-    };
-    enum class ALIGN_Y{
-        TOP,
-        CENTER,
-        BUTTON
-    };
-    //--------------------------------------//
+    // // Different alignment
+    // //--------------------------------------//
+    // enum class ALIGN_X{
+    //     LEFT,
+    //     CENTER,
+    //     RIGHT
+    // };
+    // enum class ALIGN_Y{
+    //     TOP,
+    //     CENTER,
+    //     BUTTON
+    // };
+    // //--------------------------------------//
 
     /*
     Requirements:
