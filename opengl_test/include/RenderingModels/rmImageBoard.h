@@ -72,6 +72,7 @@ public:
     glm::vec4 color_transform;
 
     // Shape
+    //-------------------------------------------//
     // For usage, please refer to the GL2DShape
     GL2DShape shape;
     void updateBoardGeo(){
@@ -79,8 +80,9 @@ public:
         shape.get_shape(m_shape.shape);
         if ( shape.get_tranlate(translateMatrix) ){
             update_pose_model_by_model_ref();
-        }        
+        }
     }
+    //-------------------------------------------//
 
 
 protected:

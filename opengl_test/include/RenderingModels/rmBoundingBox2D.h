@@ -2,6 +2,7 @@
 #define RM_BOUNDINGBOX_2D_H
 
 #include "rmBaseModel.h"
+#include "GL2DShape.hpp" // GL2DShape
 
 
 
@@ -19,6 +20,7 @@ public:
     void Update(ROS_INTERFACE &ros_interface);
     void Update(ROS_API &ros_api);
 	void Render(std::shared_ptr<ViewManager> &_camera_ptr);
+    void Reshape(const glm::ivec2 & viewport_size_in);
     //
     inline glm::mat4 * get_model_m_ptr(){ return &(m_shape.model); }
 
@@ -28,14 +30,22 @@ public:
         im_aspect = float(im_pixel_width) / float(im_pixel_height);
         image_offset_in_box_cv_x = image_offset_in_box_cv_x_in;
         image_offset_in_box_cv_y = image_offset_in_box_cv_y_in;
-        updateBoardSize();
+        updateBoardGeo();
     }
 
-    // Set board size
-    void setBoardSize(float width_in, float height_in); // 3D space
-    void setBoardSize(float size_in, bool is_width); // 3D space / Using the aspect ratio from pixel data
-    void setBoardSizeRatio(float ratio_in, bool is_width); // Only use when is_perspected==false is_moveable==true
-    void updateBoardSize();
+
+    // Shape
+    //-------------------------------------------//
+    // For usage, please refer to the GL2DShape
+    GL2DShape shape;
+    void updateBoardGeo(){
+        shape.updateBoardGeo(_viewport_size, float(im_pixel_width)/float(im_pixel_height));
+        shape.get_shape(m_shape.shape);
+        if ( shape.get_tranlate(translateMatrix) ){
+            update_pose_model_by_model_ref();
+        }
+    }
+    //-------------------------------------------//
 
 protected:
     void Init();
@@ -49,19 +59,6 @@ protected:
     // Settings
     bool is_perspected;
     bool is_moveable;
-
-    // Params
-    float board_width; // meter
-    float board_height; // meter
-    float board_aspect_ratio; // w/h
-    int board_shape_mode;
-    glm::ivec2 _viewport_size; // (w,h)
-    // mode:
-    // 0 - fixed size
-    // 1 - fixed width
-    // 2 - fixed height
-    // 3 - fixed width ratio relative to viewport
-    // 4 - fixed height ratio ralative to viewport
 
     void update_GL_data();
 

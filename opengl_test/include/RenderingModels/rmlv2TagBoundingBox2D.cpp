@@ -83,6 +83,12 @@ void rmlv2TagBoundingBox2D::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     rm_box.Render(_camera_ptr);
     rm_text.Render(_camera_ptr);
 }
+void rmlv2TagBoundingBox2D::Reshape(const glm::ivec2 & viewport_size_in){
+    _viewport_size = viewport_size_in;
+    updateBoardGeo();
+    rm_box.Reshape(_viewport_size);
+    rm_text.Reshape(_viewport_size);
+}
 
 
 /*
@@ -236,18 +242,4 @@ void rmlv2TagBoundingBox2D::update_GL_data(){
     }else{
         rm_text.insert_text(text2Dflat_list);
     }
-}
-
-
-void rmlv2TagBoundingBox2D::setBoardSize(float width_in, float height_in){
-    rm_box.setBoardSize(width_in, height_in);
-    rm_text.setBoardSize(width_in, height_in);
-}
-void rmlv2TagBoundingBox2D::setBoardSize(float size_in, bool is_width){ // Using the aspect ratio from pixel data
-    rm_box.setBoardSize(size_in, is_width);
-    rm_text.setBoardSize(size_in, is_width);
-}
-void rmlv2TagBoundingBox2D::setBoardSizeRatio(float ratio_in, bool is_width){ // Only use when is_perspected==false is_moveable==true
-    rm_box.setBoardSize(ratio_in, is_width);
-    rm_text.setBoardSize(ratio_in, is_width);
 }
