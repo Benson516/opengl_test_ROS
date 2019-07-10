@@ -194,11 +194,15 @@ target_link_libraries(ViewManager_v2 ${ALL_GL_LIBS} Common )
 
 add_library (Shader STATIC include/Shader/Shader.cpp)
 target_link_libraries(Shader ${ALL_GL_LIBS} Common )
+
+add_library (GL2DShape STATIC include/GL2DShape/GL2DShape.cpp)
+target_link_libraries(GL2DShape ${ALL_GL_LIBS} Common )
 #---------------------------------------------------#
 set(ALL_GL_UTIL_LIBS
     # ViewManager
     ViewManager_v2
     Shader
+    GL2DShape
 )
 
 # test_1
