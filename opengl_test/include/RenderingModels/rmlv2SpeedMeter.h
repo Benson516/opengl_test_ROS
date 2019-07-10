@@ -15,8 +15,8 @@ public:
         std::string _path_Assets_in,
         int _ROS_topic_id_in,
         std::string frame_id_in="",
-        glm::vec4 color_vec4_in=glm::vec4(0.0f,0.0f,0.0f,0.5f),
-        bool is_perspected_in=true,
+        glm::vec4 color_vec4_in=glm::vec4(1.0f,0.0f,0.0f,0.5f),
+        bool is_perspected_in=false,
         bool is_moveable_in=true
     );
     //
@@ -24,6 +24,7 @@ public:
     void Update(ROS_INTERFACE &ros_interface);
     void Update(ROS_API &ros_api);
 	void Render(std::shared_ptr<ViewManager> &_camera_ptr);
+    void Reshape(const glm::ivec2 & viewport_size_in);
 
 
 protected:
@@ -33,7 +34,7 @@ protected:
     // std::shared_ptr< msgs::LidRoi > msg_out_ptr;
     std::shared_ptr< msgs::VehInfo > msg_out_ptr;
     // ros::Time msg_time;
-    std::string _frame_id;
+    // std::string _frame_id;
 
     //
     rmColorBoard rm_board;

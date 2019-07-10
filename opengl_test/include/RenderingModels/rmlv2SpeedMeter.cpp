@@ -27,7 +27,7 @@ void rmlv2SpeedMeter::Init(){
 
 
     rm_board.shape.setBoardSizePixel(200, 100);
-    rm_board.shape.setBoardPositionCVPixel(5,5,1,ALIGN_X::RIGHT, ALIGN_Y::TOP);
+    rm_board.shape.setBoardPositionCVPixel(-5,5,1,ALIGN_X::RIGHT, ALIGN_Y::TOP);
     rm_text.shape = rm_board.shape;
 }
 
@@ -62,6 +62,11 @@ void rmlv2SpeedMeter::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     rm_text.Render(_camera_ptr);
 }
 
+void rmlv2SpeedMeter::Reshape(const glm::ivec2 & viewport_size_in){
+    rm_board.Reshape(viewport_size_in);
+    rm_text.shape = rm_board.shape;
+    rm_text.Reshape(viewport_size_in);
+}
 
 void rmlv2SpeedMeter::update_GL_data(){
     // Reset
@@ -69,21 +74,21 @@ void rmlv2SpeedMeter::update_GL_data(){
 
 
     //
-    std::cout << "Speed (km/h): " << (msg_out_ptr->ego_speed)*3.6 << ", ";
-    std::cout << "yaw_rate (deg/s): " << (msg_out_ptr->yaw_rate) << "\n";
+    // std::cout << "Speed (km/h): " << (msg_out_ptr->ego_speed)*3.6 << ", ";
+    // std::cout << "yaw_rate (deg/s): " << (msg_out_ptr->yaw_rate) << "\n";
 
-    std::string _str_out( std::to_string( int((msg_out_ptr->ego_speed)*3.6) ) + " km/r" );
+    std::string _str_out( std::to_string( ((msg_out_ptr->ego_speed)*3.6) ) + " km/r" );
 
     text2D_flat_list.emplace_back(
         _str_out,
-        glm::vec2(0.0f),
+        glm::vec2( 100.0f, 100.0f),
         48,
-        glm::vec3(1.0f, 0.5f, 0.0f),
+        glm::vec3(0.0f, 0.5f, 1.0f),
         ALIGN_X::RIGHT,
-        ALIGN_Y::BUTTON,
+        ALIGN_Y::CENTER,
         0,
         0,
-        false, // relative to board
+        false,
         false
     );
 

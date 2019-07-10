@@ -407,11 +407,11 @@ void rmText3D_v2::Update(ROS_API &ros_api){
     // }
     // */
     //
-    // // 2D text
+    // 2D text
     // insert_text( text2Dflat_data( "text2Dflat\n\tpos_mode=1\n\tsize_mode=0\n\tis_fullviewport=true\n\tis_background=false\nseq: " + std::to_string(_count), glm::vec2(0.5f), 24, glm::vec3(0.0f,0.0f,1.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1, 0, true, false) );
     // insert_text( text2Dflat_data( "text2Dflat\n\tpos_mode=1\n\tsize_mode=0\n\tis_fullviewport=true\n\tis_background=true\nseq: " + std::to_string(_count), glm::vec2(-0.5f), 24, glm::vec3(0.0f,0.0f,0.5f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1, 0, true, true) );
-    // //
-    // // insert_text( text2Dflat_data( "--text2Dflat\n\tpos_mode=1\n\tsize_mode=0\n\tis_fullviewport=false\n\tis_background=false\nseq: " + std::to_string(_count), glm::vec2(-1.0f, 1.0f), 24, glm::vec3(1.0f,0.0f,0.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 1, 0, false, false) );
+    //
+    // insert_text( text2Dflat_data( "--text2Dflat\n\tpos_mode=1\n\tsize_mode=0\n\tis_fullviewport=false\n\tis_background=false\nseq: " + std::to_string(_count), glm::vec2(-1.0f, 1.0f), 24, glm::vec3(1.0f,0.0f,0.0f) , ALIGN_X::LEFT, ALIGN_Y::TOP, 0, 0, false, false) );
     //
     // //
     // insert_text( text3D_data("Text3D") );
@@ -547,14 +547,14 @@ void rmText3D_v2::_draw_one_text2Dflat(std::shared_ptr<ViewManager> &_camera_ptr
     }else{ // Note full viewport
         //
         if (_data_in.pos_mode == 0){
-            glm::vec2 _factor(2.0/(shape.board_width*float(_viewport_size[0])), 2.0/(shape.board_height*float(_viewport_size[1])) );
-            nl_position_2D = _data_in.position_2D * _factor * glm::vec2(1.0f, -1.0f) + glm::vec2(-1.0f, 1.0f);
+            glm::vec2 _factor(2.0/float(shape.board_width), 2.0/float(shape.board_height) );
+            nl_position_2D = (_data_in.position_2D * _factor) * glm::vec2(1.0f, -1.0f) + glm::vec2(-1.0f, 1.0f);
         }else{ // 1
             nl_position_2D = _data_in.position_2D;       // [-1, 1]
         }
         //
         if (_data_in.size_mode == 0){
-            glm::vec2 _factor(2.0/(shape.board_width*float(_viewport_size[0])), 2.0/(shape.board_height*float(_viewport_size[1])) );
+            glm::vec2 _factor(2.0/float(shape.board_width), 2.0/float(shape.board_height) );
             nl_size = glm::vec2(_data_in.size) * _factor; // the size in ratio of the whole board --> OpenGL coordinate: [-1, 1]
         }else{
             nl_size[0] = _data_in.size * 2.0 / shape.board_aspect_ratio; //  the size is based i=on "height"
