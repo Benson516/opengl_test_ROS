@@ -13,29 +13,29 @@
 // nickname for topic_id
 enum class MSG_ID{
     // tfGeoPoseStamped
-    ego_pose_0,
+    ego_pose,
     // Image
 #ifdef __SUB_IMAGES__
-    camera_0, // front-right
-    camera_1, // front-center
-    camera_2, // front-left
-    camera_3, // front top-down
-    camera_4, // right-front
-    camera_5, // right-rear
-    camera_6, // left-front
-    camera_7, // left-rear
-    camera_8, // back
+    camera_front_right, // front-right
+    camera_front_center, // front-center
+    camera_front_left, // front-left
+    camera_front_top, // front top-down
+    camera_right_fore, // right-front
+    camera_right_rear, // right-rear
+    camera_left_fore, // left-front
+    camera_left_rear, // left-rear
+    camera_rear_center, // back
 #endif // __SUB_IMAGES__
     // ITRIPointCloud
 #ifdef __SUB_POINT_CLOUD__
-    point_cloud_1,
+    point_cloud_raw,
     point_cloud_map,
 #endif
-    lidar_bounding_box_1,
-    lidar_bounding_box_tracking_1,
-    bounding_box_image_front_1,
-    bounding_box_image_front_top_1,
-    vehicle_info_1
+    lidar_bounding_box_raw,
+    lidar_bounding_box_tracking,
+    bounding_box_image_front_all,
+    bounding_box_image_front_top,
+    vehicle_info
     // NUM_TOPICS
 };
 

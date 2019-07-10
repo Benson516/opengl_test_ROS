@@ -39,14 +39,14 @@ SCENE_W2::SCENE_W2(std::string pkg_path_in)
 
 
     // Back ground image rmImageDynamicBackground
-    // std::shared_ptr<rmImageDynamicBackground> _image_background_2_ptr(new rmImageDynamicBackground(_Assets_path, int(MSG_ID::camera_2)) );
-    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_2), false, false, true) );
+    // std::shared_ptr<rmImageDynamicBackground> _image_background_2_ptr(new rmImageDynamicBackground(_Assets_path, int(MSG_ID::camera_front_left)) );
+    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_left), false, false, true) );
     _image_background_2_ptr->alpha = 1.0;
     _image_background_2_ptr->color_transform = glm::vec4(1.0f);
     _rm_BaseModel.push_back( _image_background_2_ptr );
 
     // Bounding box for front-left camera
-    _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_1), false, false ) );
+    _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_all), false, false ) );
     _box2D_ptr->setup_params(608, 384, 608*0, 0);
     // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
