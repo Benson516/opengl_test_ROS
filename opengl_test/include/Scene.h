@@ -29,8 +29,9 @@
 #include "rmText3D_v2.h"
 #include "rmCircle.h"
 #include "rmlv2ObjectTracking.h"
-// The following are not finished yet
 #include "rmlv2PathPlanFake.h"
+// The following are not finished yet
+#include "rmlv2SpeedMeter.h"
 
 //
 
