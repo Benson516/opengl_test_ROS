@@ -74,6 +74,8 @@ public:
     void setBoardSize(float width_in, float height_in); // 3D space
     void setBoardSize(float size_in, bool is_width); // 3D space / Using the aspect ratio from pixel data
     void setBoardSizeRatio(float ratio_in, bool is_width); // Only use when is_perspected==false is_moveable==true
+    void setBoardSizePixel(int px_width_in, int px_width_in);
+    void setBoardSizePixel(int pixel_in, bool is_width);
     void updateBoardSize();
     // TIME_STAMP::FPS fps_of_update;
 
@@ -95,7 +97,9 @@ public:
 
     inline void updateBoardGeo(){
         updateBoardSize(); // Do this first
-        updateBoardPosition();
+        if (is_using_cv_pose){
+            updateBoardPosition();
+        }
     }
 
 
@@ -127,8 +131,11 @@ protected:
     // 0 - fixed size
     // 1 - fixed width
     // 2 - fixed height
-    // 3 - fixed width ratio relative to viewport
-    // 4 - fixed height ratio ralative to viewport
+    // 3 - (2D) fixed width ratio relative to viewport
+    // 4 - (2D) fixed height ratio ralative to viewport
+    // 5 - (2D) fixed pixel size
+    // 6 - (2D) fixed pixel width
+    // 7 - (2D) fixed pixel height
 
     // Board position
     bool is_using_cv_pose;
