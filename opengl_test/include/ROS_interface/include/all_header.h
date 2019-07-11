@@ -49,6 +49,10 @@
 #include <msgs/TaichungVehInfo.h>
 // MSG: ITRICarInfo
 #include <msgs/VehInfo.h>
+
+
+// MSG: GUI2_op
+#include <opengl_test/GUI2_op.h>
 //--------------------------------------------//
 
 // Core libraries
