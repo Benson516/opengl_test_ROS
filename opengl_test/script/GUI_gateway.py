@@ -13,7 +13,7 @@ GUI_cmd_pub = rospy.Publisher('GUI2/operation', GUI2_op, queue_size=10)
 GUI_cmd_pub_seq = 0
 
 GUI_state = GUI2_op()
-GUI_state.header.seq = -1
+
 GUI_state_seq = 0
 GUI_state_seq_old = 0
 
@@ -30,6 +30,8 @@ class GUI_GATEWAY(object):
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
     def json_in_out(self):
+        global GUI_cmd_pub, GUI_cmd_pub_seq
+        global GUI_state, GUI_state_seq, GUI_state_seq_old
         j_in = None
         try:
             j_in = cherrypy.request.json
