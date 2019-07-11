@@ -15,7 +15,7 @@ public:
         std::string _path_Assets_in,
         int _ROS_topic_id_in,
         std::string frame_id_in="",
-        glm::vec4 color_vec4_in=glm::vec4(1.0f,0.0f,0.0f,0.5f),
+        glm::vec4 color_vec4_in=glm::vec4(0.3f,0.3f,0.3f,0.3f),
         bool is_perspected_in=false,
         bool is_moveable_in=true
     );

@@ -5,7 +5,7 @@
 #include "GL2DShape.hpp" // GL2DShape
 
 #include <queue>          // std::queue
-
+#include <sstream>        // for to_string_p
 
 // #include <map> // std::map
 // FreeType
@@ -24,6 +24,16 @@ Note 2:
     Based on the current implemtation, the 2D text is not efficient as it could be.
 //------------------------------//
 */
+
+// to_string_with_precision
+template <typename T>
+std::string to_string_p(const T a_value, const int n = 6)
+{
+    std::ostringstream out;
+    out.precision(n);
+    out << std::fixed << a_value;
+    return out.str();
+}
 
 
 // atlas

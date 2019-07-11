@@ -16,21 +16,6 @@ struct atlas {
 	unsigned int w;			// width of texture in pixels
 	unsigned int h;			// height of texture in pixels
 
-    /*
-	struct {
-		float ax;	// advance.x
-		float ay;	// advance.y
-
-		float bw;	// bitmap.width;
-		float bh;	// bitmap.height;
-
-		float bl;	// bitmap_left;
-		float bt;	// bitmap_top;
-
-		float tx;	// x offset of glyph in texture coordinates
-		float ty;	// y offset of glyph in texture coordinates
-	} _ch[TOTAL_CHAR];		// character information
-    */
     struct {
 		int ax;	// advance.x
 		int ay;	// advance.y
@@ -726,8 +711,10 @@ void rmText3D_v2::RenderText(
     glUniform3f( uniforms.textColor, color.x, color.y, color.z);
 
     // Calculate the bound
-    float _max_w = 0;
-    float _max_h = 0;
+    float x_min = x_in;
+    float x_max = x_in;
+    float y_min = y_in;
+    float y_max = y_in;
 
 
     //
@@ -775,8 +762,26 @@ void rmText3D_v2::RenderText(
 		x += _atlas_ptr->_ch[*p].ax * scale_x;
 		y += _atlas_ptr->_ch[*p].ay * scale_y;
 
+
+        // Find out the boundaries
+        //----------------------------//
+        if (x_max < (x2+w)){
+            x_max = (x2+w);
+        }
+        if (x_min > (x2)){
+            x_min = (x2);
+        }
+        if (y_max < -(y2)){
+            y_max = -(y2);
+        }
+        if (y_min > -(y2+h)){
+            y_min = -(y2+h);
+        }
+        //----------------------------//
+
+
 		/* Skip glyphs that have no pixels */
-		if (!w || !h) // For example: space - " "
+		if (!w || !h) // For example: space --> " "
 			continue;
 
         /*
@@ -785,7 +790,6 @@ void rmText3D_v2::RenderText(
         | / |
         3 - 4
         */
-        // T1
 		coords[_idx_count++] = (point) {
     		x2, -y2,
             _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty};
@@ -795,67 +799,66 @@ void rmText3D_v2::RenderText(
 		coords[_idx_count++] = (point) {
     		x2, -y2-h,
             _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h)};
-
-        // T2
-        /*
-        coords[_idx_count++] = (point) {
-    		x2+w, -y2,
-            _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->w), _atlas_ptr->_ch[*p].ty};
-		coords[_idx_count++] = (point) {
-    		x2, -y2-h,
-            _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h)};
-        */
 		coords[_idx_count++] = (point) {
     		x2+w, -y2-h,
             _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->w), _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h)};
 
-        if (_max_w < (x2+w)){
-            _max_w = (x2+w);
-        }
-        if (_max_h < (y2+h)){
-            _max_h = (y2+h);
-        }
+        // Check if the definition of point is correct
+        // if ( (-y2) >= (-y2-h)){
+        //     std::cout << "right\n";
+        // }else{
+        //     std::cout << "wrong\n";
+        // }
         //
+
+
         _valid_word_count++;
 
 	}
 
-    // ref_point
+    float _max_w = x_max - x_min;
+    float _max_h = y_max - y_min;
+    // std::cout << "(_max_w, _max_h) = " << _max_w << ", "<<  _max_h << "\n";
 
+    // ref_point
     // Method 1: too precise that it will vibrate when word change
     // ref_point = glm::vec2(_max_w/2.0f, -1*_max_h/2.0f);
-
     // Method 2: less precise, using word (per line) count and line count
     float _space_x = 2*(_atlas_ptr->_ch[' '].ax * scale_x);
     float _space_y = _atlas_ptr->font_size * scale_y;
     //
+    ref_point = glm::vec2(x_min - x_in, y_max - y_in);
+    //
     switch (align_x){
         case ALIGN_X::LEFT:
-            ref_point[0] = 0.0f;
+            ref_point[0] += 0.0f;
             break;
         case ALIGN_X::CENTER:
-            ref_point[0] = _max_word_per_line*_space_x/2.0f;
+            ref_point[0] += _max_word_per_line*_space_x/2.0f;
             break;
         case ALIGN_X::RIGHT:
-            ref_point[0] = _max_w;
+            ref_point[0] += _max_w;
             break;
         default:
-            ref_point[0] = 0.0f;
+            // std::cout << "default align_x\n";
+            ref_point[0] += 0.0f;
             break;
     }
     switch (align_y){
         case ALIGN_Y::TOP:
-            ref_point[1] = 0.0f;
+            ref_point[1] += 0.0f;
             break;
         case ALIGN_Y::CENTER:
             // ref_point[1] = -1*_line_count*_space_y/2.0f;
-            ref_point[1] = -1*_max_h/2.0f;
+            ref_point[1] += -1*(_max_h/2.0f);
+            // std::cout << "ref_point = " << ref_point.x << ", " << ref_point.y << "\n";
             break;
         case ALIGN_Y::BUTTON:
-            ref_point[1] = -1*_max_h;
+            ref_point[1] += -1*_max_h;
             break;
         default:
-            ref_point[1] = 0.0f;
+            // std::cout << "default align_y\n";
+            ref_point[1] += 0.0f;
             break;
     }
     // ref_point = glm::vec2(_max_word_per_line*_space_x/2.0f, -1*_line_count*_space_y/2.0f);
