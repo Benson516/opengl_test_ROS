@@ -301,6 +301,9 @@ void My_Display()
         std::cout << "image3D: " << _GUI2_op_ptr->image3D << "\n";
         std::cout << "image_surr: " << _GUI2_op_ptr->image_surr << "\n";
         std::cout << "cam_motion: " << _GUI2_op_ptr->cam_motion << "\n";
+        //
+        all_scenes[0]->KeyBoardEvent('c', ros_api);
+        //
         ros_api.ros_interface.send_GUI2_op( int(MSG_ID::GUI_operatio), *_GUI2_op_ptr);
     }
     //
