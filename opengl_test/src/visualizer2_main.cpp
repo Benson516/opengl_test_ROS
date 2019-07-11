@@ -280,6 +280,14 @@ void My_Display()
     }
     //--------------------//
 
+    // Interacting with ROS topic (on behave of each scene)
+    //--------------------//
+    for (size_t i=0; i < all_scenes.size(); ++i){
+        all_scenes[i]->ROSTopicEvent(ros_api);
+    }
+    //--------------------//
+
+
 #ifdef __DEBUG__
     // evaluation
     // period_in.stamp();   period_in.show_msec();
@@ -293,6 +301,7 @@ void My_Display()
         std::cout << "yaw_rate (deg/s): " << (_veh_info_ptr->yaw_rate) << "\n";
     }
     */
+    /*
     // test, showing operations
     std::shared_ptr< opengl_test::GUI2_op > _GUI2_op_ptr;
     if (ros_api.get_message( int(MSG_ID::GUI_operatio), _GUI2_op_ptr)){
@@ -307,27 +316,27 @@ void My_Display()
         ros_api.ros_interface.send_GUI2_op( int(MSG_ID::GUI_operatio), *_GUI2_op_ptr);
     }
     //
-
+    */
 
     //---------------------------------//
     // end ROS_interface
 
 
-    #ifdef __OPENCV_WINDOW__
-        // Image
-        int num_image = NUM_IMAGE;
-        int image_topic_id = int(MSG_ID::camera_front_right);
-        vector<bool> is_image_updated(num_image, false);
-        for (size_t i=0; i < num_image; ++i){
-            is_image_updated[i] = ros_api.ros_interface.get_Image( (image_topic_id+i), image_out_ptr_list[i]);
+#ifdef __OPENCV_WINDOW__
+    // Image
+    int num_image = NUM_IMAGE;
+    int image_topic_id = int(MSG_ID::camera_front_right);
+    vector<bool> is_image_updated(num_image, false);
+    for (size_t i=0; i < num_image; ++i){
+        is_image_updated[i] = ros_api.ros_interface.get_Image( (image_topic_id+i), image_out_ptr_list[i]);
+    }
+    for (size_t i=0; i < num_image; ++i){
+        if (is_image_updated[i]){
+            imshow(window_names[i], *image_out_ptr_list[i]);
+            waitKey(1);
         }
-        for (size_t i=0; i < num_image; ++i){
-            if (is_image_updated[i]){
-                imshow(window_names[i], *image_out_ptr_list[i]);
-                waitKey(1);
-            }
-        }
-    #endif
+    }
+#endif
 
     // OpenGL, GLUT
     //---------------------------------//

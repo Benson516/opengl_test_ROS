@@ -3,6 +3,7 @@ import random
 import string
 import json
 import cherrypy
+import threading
 #
 import rospy
 from opengl_test.msg import * # test
@@ -79,12 +80,19 @@ def GUI2_state_CB(msg):
     GUI_state_seq += 1
     print("[GUI-gateway] GUI state recieved.")
 
-
+def wait_for_close():
+    while not rospy.is_shutdown():
+        rospy.sleep(0.5)
+    cherrypy.engine.exit()
 
 if __name__ == '__main__':
     # ROS
     rospy.init_node('GUI_gateway', anonymous=True)
     rospy.Subscriber("GUI2/state", GUI2_op, GUI2_state_CB)
+
+    _t = threading.Thread(target=wait_for_close)
+    # _t.daemon = True
+    _t.start()
 
     # HTTP server
     cherrypy.server.socket_host = '0.0.0.0'
@@ -92,4 +100,4 @@ if __name__ == '__main__':
     cherrypy.server.thread_pool = 10
     cherrypy.quickstart(GUI_GATEWAY())
 
-    print("End og GUI_gateway")
+    print("End of GUI_gateway")
