@@ -302,7 +302,7 @@ void My_Display()
     #ifdef __OPENCV_WINDOW__
         // Image
         int num_image = NUM_IMAGE;
-        int image_topic_id = int(MSG_ID::camera_0);
+        int image_topic_id = int(MSG_ID::camera_front_right);
         vector<bool> is_image_updated(num_image, false);
         for (size_t i=0; i < num_image; ++i){
             is_image_updated[i] = ros_api.ros_interface.get_Image( (image_topic_id+i), image_out_ptr_list[i]);
@@ -365,7 +365,8 @@ void My_Reshape(int width, int height)
     // Render all_scenes
     //--------------------//
     for (size_t i=0; i < all_scenes.size(); ++i){
-        all_scenes[i]->GetCamera()->SetWindowSize(windows_width, windows_height);
+        // all_scenes[i]->GetCamera()->SetWindowSize(windows_width, windows_height);
+        all_scenes[i]->Reshape(windows_width, windows_height);
     }
     //--------------------//
 

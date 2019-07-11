@@ -96,6 +96,7 @@ include_directories(
     include/Common/
     include/ViewManager/
     include/Shader/
+    include/GL2DShape/
     include/RenderingModels/
     #
 	external/AntTweakBar-1.16/include/
@@ -136,6 +137,7 @@ set(ALL_RENDER_MODELS
     ${RENDER_MODEL_PATH}rmPointCloud.cpp
     ${RENDER_MODEL_PATH}rmLidarBoundingBox.cpp
     ${RENDER_MODEL_PATH}rmImageBoard.cpp
+    ${RENDER_MODEL_PATH}rmColorBoard.cpp
     ${RENDER_MODEL_PATH}rmText2D.cpp
     # ${RENDER_MODEL_PATH}rmText3D.cpp
     ${RENDER_MODEL_PATH}rmText3D_v2.cpp
@@ -147,8 +149,8 @@ set(ALL_RENDER_MODELS
     ${RENDER_MODEL_PATH}rmlv2TagBoundingBox2D.cpp
     ${RENDER_MODEL_PATH}rmlv2TagBoundingBox3D.cpp
     ${RENDER_MODEL_PATH}rmlv2ObjectTracking.cpp
-    #
     ${RENDER_MODEL_PATH}rmlv2PathPlanFake.cpp
+    ${RENDER_MODEL_PATH}rmlv2SpeedMeter.cpp
 
 )
 
@@ -194,11 +196,15 @@ target_link_libraries(ViewManager_v2 ${ALL_GL_LIBS} Common )
 
 add_library (Shader STATIC include/Shader/Shader.cpp)
 target_link_libraries(Shader ${ALL_GL_LIBS} Common )
+
+add_library (GL2DShape STATIC include/GL2DShape/GL2DShape.cpp)
+target_link_libraries(GL2DShape ${ALL_GL_LIBS} Common )
 #---------------------------------------------------#
 set(ALL_GL_UTIL_LIBS
     # ViewManager
     ViewManager_v2
     Shader
+    GL2DShape
 )
 
 # test_1

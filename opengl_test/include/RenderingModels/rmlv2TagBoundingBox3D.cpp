@@ -87,8 +87,8 @@ void rmlv2TagBoundingBox3D::update_GL_data(){
         //     glm::vec2(0.0f),
         //     1.0f,
         //     glm::vec3(0.0f, 1.0f, 0.0f),
-        //     rmText3D_v2::ALIGN_X::LEFT,
-        //     rmText3D_v2::ALIGN_Y::BUTTON
+        //     ALIGN_X::LEFT,
+        //     ALIGN_Y::BUTTON
         // );
         _point_1_ptr = &(msg_out_ptr->lidRoiBox[i].p1);
         _point_2_ptr = &(msg_out_ptr->lidRoiBox[i].p6);
@@ -98,8 +98,8 @@ void rmlv2TagBoundingBox3D::update_GL_data(){
             glm::vec2(0.0f),
             1.0f,
             glm::vec3(0.0f, 1.0f, 0.0f),
-            rmText3D_v2::ALIGN_X::CENTER,
-            rmText3D_v2::ALIGN_Y::BUTTON
+            ALIGN_X::CENTER,
+            ALIGN_Y::BUTTON
         );
     }
 
@@ -138,8 +138,8 @@ void rmlv2TagBoundingBox3D::update_GL_data(){
         //     glm::vec2(0.0f),
         //     1.0f,
         //     glm::vec3(0.0f, 1.0f, 0.0f),
-        //     rmText3D_v2::ALIGN_X::LEFT,
-        //     rmText3D_v2::ALIGN_Y::BUTTON
+        //     ALIGN_X::LEFT,
+        //     ALIGN_Y::BUTTON
         // );
         _point_1_ptr = &(msg_out_ptr->objects[i].bPoint.p1);
         _point_2_ptr = &(msg_out_ptr->objects[i].bPoint.p6);
@@ -149,8 +149,8 @@ void rmlv2TagBoundingBox3D::update_GL_data(){
             glm::vec2(0.0f),
             1.0f,
             glm::vec3(0.0f, 1.0f, 0.0f),
-            rmText3D_v2::ALIGN_X::CENTER,
-            rmText3D_v2::ALIGN_Y::BUTTON
+            ALIGN_X::CENTER,
+            ALIGN_Y::BUTTON
         );
     }
 

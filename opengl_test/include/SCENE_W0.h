@@ -39,7 +39,7 @@ SCENE_W0::SCENE_W0(std::string pkg_path_in)
 
     // Back ground image rmImageDynamicBackground
     // std::shared_ptr<rmImageDynamicBackground> _image_background_2_ptr(new rmImageDynamicBackground(_Assets_path, int(MSG_ID::camera_2)) );
-    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_7), false, false, true) );
+    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_left_rear), false, false, true) );
     _image_background_2_ptr->alpha = 1.0;
     _image_background_2_ptr->color_transform = glm::vec4(1.0f);
     _rm_BaseModel.push_back( _image_background_2_ptr );

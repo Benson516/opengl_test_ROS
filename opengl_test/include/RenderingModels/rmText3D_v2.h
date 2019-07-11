@@ -2,9 +2,10 @@
 #define RM_TEXT_3D_v2_H
 
 #include "rmBaseModel.h"
+#include "GL2DShape.hpp" // GL2DShape
 
 #include <queue>          // std::queue
-
+#include <sstream>        // for to_string_p
 
 // #include <map> // std::map
 // FreeType
@@ -24,6 +25,16 @@ Note 2:
 //------------------------------//
 */
 
+// to_string_with_precision
+template <typename T>
+std::string to_string_p(const T a_value, const int n = 6)
+{
+    std::ostringstream out;
+    out.precision(n);
+    out << std::fixed << a_value;
+    return out.str();
+}
+
 
 // atlas
 struct atlas;
@@ -33,20 +44,19 @@ struct atlas;
 class rmText3D_v2 : public rmBaseModel
 {
 public:
-
-    // Different alignment
-    //--------------------------------------//
-    enum class ALIGN_X{
-        LEFT,
-        CENTER,
-        RIGHT
-    };
-    enum class ALIGN_Y{
-        TOP,
-        CENTER,
-        BUTTON
-    };
-    //--------------------------------------//
+    // // Different alignment
+    // //--------------------------------------//
+    // enum class ALIGN_X{
+    //     LEFT,
+    //     CENTER,
+    //     RIGHT
+    // };
+    // enum class ALIGN_Y{
+    //     TOP,
+    //     CENTER,
+    //     BUTTON
+    // };
+    // //--------------------------------------//
 
     /*
     Requirements:
@@ -249,14 +259,15 @@ public:
     void Update(ROS_INTERFACE &ros_interface);
     void Update(ROS_API &ros_api);
 	void Render(std::shared_ptr<ViewManager> &_camera_ptr);
+    void Reshape(const glm::ivec2 & viewport_size_in);
     //
     inline glm::mat4 * get_model_m_ptr(){ return &(m_shape.model); }
 
     void setup_params(int im_width_in, int im_height_in){
-        im_width = im_width_in;
-        im_height = im_height_in;
-        im_aspect = float(im_width) / float(im_height);
-        updateBoardSize();
+        im_pixel_width = im_width_in;
+        im_pixel_height = im_height_in;
+        im_aspect = float(im_pixel_width) / float(im_pixel_height);
+        updateBoardGeo();
     }
 
     // Insert method for texts
@@ -299,11 +310,18 @@ public:
     //-------------------------------------//
 
 
-    // Set board size
-    void setBoardSize(float width_in, float height_in); // 3D space
-    void setBoardSize(float size_in, bool is_width); // 3D space / Using the aspect ratio from pixel data
-    void setBoardSizeRatio(float ratio_in, bool is_width); // Only use when is_perspected==false is_moveable==true
-    void updateBoardSize();
+    // Shape
+    //-------------------------------------------//
+    // For usage, please refer to the GL2DShape
+    GL2DShape shape;
+    void updateBoardGeo(){
+        shape.updateBoardGeo(_viewport_size, float(im_pixel_width)/float(im_pixel_height));
+        shape.get_shape(m_shape.shape);
+        if ( shape.get_tranlate(translateMatrix) ){
+            update_pose_model_by_model_ref();
+        }
+    }
+    //-------------------------------------------//
 
 
 protected:
@@ -341,22 +359,11 @@ protected:
 
     // The image params
     // Note: The origin of the image is at its center.
-    int im_width;
-    int im_height;
+    int im_pixel_width;
+    int im_pixel_height;
     float im_aspect; // w / h
-    // Params
-    float board_width; // meter or ratio to viewport
-    float board_height; // meter or ratio to viewport
-    float board_aspect_ratio; // w/h
-    int board_shape_mode;
-    glm::ivec2 _viewport_size; // (w,h)
-    // mode:
-    // 0 - fixed size
-    // 1 - fixed width
-    // 2 - fixed height
-    // 3 - fixed width ratio relative to viewport
-    // 4 - fixed height ratio ralative to viewport
-    //--------------------------------------------------------//
+    //
+
 
 
 private:

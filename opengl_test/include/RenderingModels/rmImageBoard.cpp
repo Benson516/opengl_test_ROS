@@ -19,9 +19,7 @@ rmImageBoard::rmImageBoard(
 ):
     is_perspected(is_perspected_in),
     is_moveable(is_moveable_in),
-    is_color_transformed(is_color_transformed_in),
-    board_width(1.0), board_height(1.0), board_aspect_ratio(1.0),
-    board_shape_mode(0)
+    is_color_transformed(is_color_transformed_in)
     // fps_of_update(image_file_in)
 {
     _path_Shaders_sub_dir += "ImageBoard/";
@@ -42,9 +40,7 @@ rmImageBoard::rmImageBoard(
     is_perspected(is_perspected_in),
     is_moveable(is_moveable_in),
     is_color_transformed(is_color_transformed_in),
-    _ROS_topic_id(_ROS_topic_id_in),
-    board_width(1.0), board_height(1.0), board_aspect_ratio(1.0),
-    board_shape_mode(0)
+    _ROS_topic_id(_ROS_topic_id_in)
     // fps_of_update( std::string("Image ") + std::to_string(_ROS_topic_id_in) )
 {
     _path_Shaders_sub_dir += "ImageBoard/";
@@ -135,8 +131,8 @@ void rmImageBoard::LoadModel(){
         std::cout << "start loading <" << textName << ">\n";
     	TextureData tdata = Common::Load_png(get_full_Assets_path(textName).c_str());
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, tdata.width, tdata.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata.data);
-        m_shape.width = tdata.width;
-        m_shape.height = tdata.height;
+        im_pixel_width = tdata.width;
+        im_pixel_height = tdata.height;
     }
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -253,10 +249,10 @@ void rmImageBoard::Render(std::shared_ptr<ViewManager> &_camera_ptr){
         glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
     }else{
         if (is_moveable){
-            if ( !glm::all(glm::equal(_viewport_size, _camera_ptr->GetViewportSize() ) ) ){
-                _viewport_size = _camera_ptr->GetViewportSize();
-                updateBoardSize();
-            }
+            // if ( !glm::all(glm::equal(_viewport_size, _camera_ptr->GetViewportSize() ) ) ){
+            //     _viewport_size = _camera_ptr->GetViewportSize();
+            //     updateBoardGeo();
+            // }
             // Note: the rotation is mainly for z-axis rotation
             // Note 2: The tranalation/rotation/scale is based on the "center" of the image
             // m_shape.model = translateMatrix * rotateMatrix * scaleMatrix;
@@ -280,15 +276,21 @@ void rmImageBoard::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     _program_ptr->CloseProgram();
 }
 
+void rmImageBoard::Reshape(const glm::ivec2 & viewport_size_in){
+    _viewport_size = viewport_size_in;
+    // _viewport_size = _camera_ptr->GetViewportSize();
+    updateBoardGeo();
+}
+
 
 
 
 void rmImageBoard::update_GL_data(){
     //
-    if (m_shape.width != msg_out_ptr->cols || m_shape.height != msg_out_ptr->rows){
-        m_shape.width = msg_out_ptr->cols;
-        m_shape.height = msg_out_ptr->rows;
-        updateBoardSize();
+    if (im_pixel_width != msg_out_ptr->cols || im_pixel_height != msg_out_ptr->rows){
+        im_pixel_width = msg_out_ptr->cols;
+        im_pixel_height = msg_out_ptr->rows;
+        updateBoardGeo();
     }
 
 
@@ -309,75 +311,4 @@ void rmImageBoard::update_GL_data(){
     // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, flipped_image.width, flipped_image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, flipped_image.data);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, flipped_image.cols, flipped_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, flipped_image.data);
     //
-}
-
-
-
-
-
-
-void rmImageBoard::setBoardSize(float width_in, float height_in){
-    board_shape_mode = 0;
-    board_width = width_in;
-    board_height = height_in;
-    board_aspect_ratio = board_width/board_height;
-    //
-    m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height,1.0f) );
-}
-void rmImageBoard::setBoardSize(float size_in, bool is_width){ // Using the aspect ratio from pixel data
-    board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
-    if (is_width){
-        board_shape_mode = 1;
-        board_width = size_in;
-        board_height = board_width / board_aspect_ratio;
-    }else{
-        board_shape_mode = 2;
-        board_height = size_in;
-        board_width = board_height * board_aspect_ratio;
-    }
-    //
-    m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
-}
-void rmImageBoard::setBoardSizeRatio(float ratio_in, bool is_width){ // Only use when is_perspected==false is_moveable==true
-    board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
-    if (is_width){
-        board_shape_mode = 3;
-        board_width = ratio_in;
-        board_height = board_width / board_aspect_ratio;
-    }else{
-        board_shape_mode = 4;
-        board_height = ratio_in;
-        board_width = board_height * board_aspect_ratio;
-    }
-    //
-    m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
-}
-void rmImageBoard::updateBoardSize(){
-    switch(board_shape_mode){
-        case 0: // fixed size
-            // Nothing to do
-            break;
-        case 1: // fixed width
-            board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
-            board_height = board_width / board_aspect_ratio;
-            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
-            break;
-        case 2: // fixed height
-            board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
-            board_width = board_height * board_aspect_ratio;
-            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( 0.5*board_width, 0.5*board_height, 1.0f) );
-            break;
-        case 3: // fixed width ratio relative to viewport
-            board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
-            board_height = (board_width*_viewport_size[0]) / (board_aspect_ratio*_viewport_size[1]);
-            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
-            break;
-        case 4: // fixed height ratio ralative to viewport
-            board_aspect_ratio = float(m_shape.width)/float(m_shape.height);
-            board_width = (board_height*_viewport_size[1]) * board_aspect_ratio / float(_viewport_size[0]);
-            m_shape.shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width, board_height, 1.0f) );
-            break;
-        default:
-            break;
-    }
 }

@@ -17,6 +17,7 @@
 #include "rmPointCloud.h"
 #include "rmLidarBoundingBox.h"
 #include "rmImageBoard.h"
+#include "rmColorBoard.h"
 #include "rmBoundingBox2D.h"
 #include "rmlv2TagBoundingBox2D.h"
 #include "rmlv2TagBoundingBox3D.h"
@@ -28,8 +29,9 @@
 #include "rmText3D_v2.h"
 #include "rmCircle.h"
 #include "rmlv2ObjectTracking.h"
-// The following are not finished yet
 #include "rmlv2PathPlanFake.h"
+// The following are not finished yet
+#include "rmlv2SpeedMeter.h"
 
 //
 
