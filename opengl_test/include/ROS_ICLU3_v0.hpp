@@ -35,7 +35,9 @@ enum class MSG_ID{
     lidar_bounding_box_tracking,
     bounding_box_image_front_all,
     bounding_box_image_front_top,
-    vehicle_info
+    vehicle_info,
+    GUI_operatio,
+    GUI_state,
     // NUM_TOPICS
 };
 

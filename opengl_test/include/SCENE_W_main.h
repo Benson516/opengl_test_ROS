@@ -10,6 +10,9 @@ class SCENE_W_main : public Scene
 public:
 	SCENE_W_main(std::string pkg_path_in);
 
+    // Interaction events
+    void ROSTopicEvent(ROS_API &ros_api);
+
 private:
     inline static bool cal_viewport_w(int w, int h, int &cx, int &cy, int &vw, int &vh){
         double asp = 1.5833333333;
@@ -315,6 +318,77 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _rm_BaseModel.push_back( std::shared_ptr<rmlv2SpeedMeter>( new rmlv2SpeedMeter(_Assets_path, int(MSG_ID::vehicle_info) ) ) );
 
 
+}
+
+
+
+
+
+// Interaction events
+//------------------------------------------------------//
+void SCENE_W_main::ROSTopicEvent(ROS_API &ros_api){
+    std::shared_ptr< opengl_test::GUI2_op > _GUI2_op_ptr;
+    bool result = ros_api.get_message( int(MSG_ID::GUI_operatio), _GUI2_op_ptr);
+    if (!result){
+        return;
+    }
+    // else
+    std::cout << "---\n";
+    std::cout << "cam_type: " << _GUI2_op_ptr->cam_type << "\n";
+    std::cout << "image3D: " << _GUI2_op_ptr->image3D << "\n";
+    std::cout << "image_surr: " << _GUI2_op_ptr->image_surr << "\n";
+    std::cout << "cam_motion: " << _GUI2_op_ptr->cam_motion << "\n";
+
+    // State
+    //----------------------------------------//
+    // cam_type
+    if (_GUI2_op_ptr->cam_type == "follow"){
+        switchCameraMode( 0, ros_api);
+    }else if (_GUI2_op_ptr->cam_type == "static"){
+        switchCameraMode( 1, ros_api);
+    }else if (_GUI2_op_ptr->cam_type == "toggle_cam"){
+        KeyBoardEvent('c', ros_api);
+    }
+    // image3D
+    if (_GUI2_op_ptr->image3D == "on"){
+        //
+    }else if (_GUI2_op_ptr->image3D == "off"){
+        //
+    }
+    // image_surr
+    if (_GUI2_op_ptr->image_surr == "on"){
+        //
+    }else if (_GUI2_op_ptr->image_surr == "off"){
+        //
+    }
+    //----------------------------------------//
+    // Event
+    //----------------------------------------//
+    // cam_motion
+    if (_GUI2_op_ptr->cam_motion == "reset"){
+        KeyBoardEvent('z', ros_api);
+    }else if (_GUI2_op_ptr->cam_motion == "zoom_in"){
+        KeyBoardEvent('w', ros_api);
+    }else if (_GUI2_op_ptr->cam_motion == "zoom_out"){
+        KeyBoardEvent('s', ros_api);
+    }
+    //----------------------------------------//
+
+    //Response
+    //----------------------------------------//
+    opengl_test::GUI2_op res_data;
+    // cam_type
+    if (camera_mode == 0)
+        res_data.cam_type = "follow";
+    else if (camera_mode == 1)
+        res_data.cam_type = "static";
+    // image3D
+    res_data.image3D = "on";
+    // image_surr
+    res_data.image_surr = "on";
+    //----------------------------------------//
+    //
+    ros_api.ros_interface.send_GUI2_op( int(MSG_ID::GUI_operatio), res_data);
 }
 
 #endif  // SCENE_W_MAIN_H

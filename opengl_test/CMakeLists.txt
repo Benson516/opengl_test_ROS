@@ -43,10 +43,11 @@ add_subdirectory (external)
 
 
 
-# file(GLOB SOURCES_MESSAGE *.msg)
-# add_message_files(
-#   ${SOURCES_MESSAGE}
-# )
+file(GLOB SOURCES_MESSAGE *.msg)
+add_message_files(
+  ${SOURCES_MESSAGE}
+)
+
 
 generate_messages(
   DEPENDENCIES

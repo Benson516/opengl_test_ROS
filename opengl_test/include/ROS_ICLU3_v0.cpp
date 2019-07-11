@@ -138,6 +138,9 @@ bool ROS_API::_set_up_topics(){
         ros_interface.add_a_topic("CamObj4", int(M_TYPE::ITRICamObj), true, 10, 20, "base");
         // Vehicle info
         ros_interface.add_a_topic("taichung_veh_info", int(M_TYPE::ITRICarInfoCarA), true, 100, 100, "base");
+        // GUI operatios
+        ros_interface.add_a_topic("GUI2/operation", int(M_TYPE::GUI2_op), true, 100, 100);
+        ros_interface.add_a_topic("GUI2/state", int(M_TYPE::GUI2_op), false, 100, 1);
 
         /*
         // Counts

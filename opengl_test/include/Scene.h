@@ -47,15 +47,16 @@ public:
     void Update(ROS_API &ros_api);
     void Reshape(int full_window_width, int full_window_height);
 
-    //
-    void MouseEvent(int button,int state,int x,int y);
-	void KeyBoardEvent(int key);
-	void KeyBoardEvent(unsigned char key, ROS_API &ros_api);
-	void MenuEvent(int item);
+    // Interaction events
+    virtual void ROSTopicEvent(ROS_API &ros_api);
+    virtual void MouseEvent(int button,int state,int x,int y);
+	virtual void KeyBoardEvent(int key);
+	virtual void KeyBoardEvent(unsigned char key, ROS_API &ros_api);
+	virtual void MenuEvent(int item);
 
     // Camera mode
     // Follow, steady, ...etc.
-    void switchCameraMode(int mode_in, ROS_API &ros_api);
+    virtual void switchCameraMode(int mode_in, ROS_API &ros_api);
 
     // ViewManager
     std::shared_ptr<ViewManager> GetCamera(){ return _camera_ptr; }

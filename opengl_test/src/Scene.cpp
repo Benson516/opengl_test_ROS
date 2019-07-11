@@ -241,6 +241,13 @@ void Scene::Reshape(int full_window_width, int full_window_height){
 
 }
 
+
+
+// Interaction events
+//------------------------------------------------------//
+void Scene::ROSTopicEvent(ROS_API &ros_api){
+    // Default: None
+}
 void Scene::MouseEvent(int button, int state, int x, int y){
 	_camera_ptr->mouseEvents(button, state, x, y);
 }

@@ -201,6 +201,24 @@ void ROS_INTERFACE::_ROS_worker(){
             _publisher_list.push_back( _nh.advertise<std_msgs::String>( _tmp_params.name, _tmp_params.ROS_queue) );
         }
     }
+    // GUI2_op
+    _msg_type = int(MSG::M_TYPE::GUI2_op);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< opengl_test::GUI2_op > (_tmp_params.buffer_length) );
+        //
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe< opengl_test::GUI2_op >( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_GUI2_op_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise< opengl_test::GUI2_op >( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
 
     // tfGeoPoseStamped
     _msg_type = int(MSG::M_TYPE::tfGeoPoseStamped);
@@ -632,6 +650,8 @@ void ROS_INTERFACE::_Bool_CB(const std_msgs::Bool::ConstPtr& msg, const MSG::T_P
     bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
     if (!result){ std::cout << params.name << ": buffer full.\n"; }
 }
+//---------------------------------------------------------------//
+
 // Int32
 //---------------------------------------------------------------//
 // input
@@ -643,6 +663,8 @@ void ROS_INTERFACE::_Int32_CB(const std_msgs::Int32::ConstPtr& msg, const MSG::T
     bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
     if (!result){ std::cout << params.name << ": buffer full.\n"; }
 }
+//---------------------------------------------------------------//
+
 // String
 //---------------------------------------------------------------//
 // input
@@ -674,9 +696,31 @@ bool ROS_INTERFACE::send_string(const int topic_id, const std::string &content_i
     msg.data = content_in;
     _publisher_list[ _ps_id ].publish(msg);
     // ROS_INFO("%s", msg.data.c_str());
+    return true;
 }
 //---------------------------------------------------------------//
 
+// GUI2_op
+//---------------------------------------------------------------//
+// input
+void ROS_INTERFACE::_GUI2_op_CB(const opengl_test::GUI2_op::ConstPtr& msg, const MSG::T_PARAMS & params){
+    // Time
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+    // put
+    // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
+    bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    if (!result){ std::cout << params.name << ": buffer full.\n"; }
+}
+bool ROS_INTERFACE::send_GUI2_op(const int topic_id, const opengl_test::GUI2_op &content_in){
+    // pub_subs_id
+    //------------------------------------//
+    int _ps_id = _pub_subs_id_list[topic_id];
+    //------------------------------------//
+    // Directly publish the message
+    _publisher_list[ _ps_id ].publish(content_in);
+    return true;
+}
+//---------------------------------------------------------------//
 
 // tfGeoPoseStamped
 //---------------------------------------------------------------//
