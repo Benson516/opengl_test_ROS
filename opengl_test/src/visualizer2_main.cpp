@@ -183,6 +183,7 @@ void setupGUI()
 
 
     bar_1_ptr = TwNewBar("Properties");
+    TwDefine(" Properties position='0 0' ");
 	TwDefine(" Properties size='270 450' "); // 220, 300
 	TwDefine(" Properties fontsize='3' color='0 0 0' alpha=180 ");  // http://anttweakbar.sourceforge.net/doc/tools:anttweakbar:twbarparamsyntax
 
