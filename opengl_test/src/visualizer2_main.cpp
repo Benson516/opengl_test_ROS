@@ -114,9 +114,11 @@ ViewManager		m_camera;
 TwBar			*bar_1_ptr;
 vec2			m_screenSize;
 // vector<Shape>   m_shapes;
-int				m_currentShape;
+int				m_currentCamera;
+int             m_currentCamera_old;
 float			m_zoom = 3.0f;
-float			m_fps = 0;
+float			m_fps_d = 0;
+std::vector<float> m_fps_topic;
 unsigned int	m_frames = 0;
 unsigned int    m_currentTime = 0;
 unsigned int    m_timebase = 0;
@@ -124,26 +126,31 @@ bool			m_autoRotate;
 bool			m_isOthogonol;
 vec3			m_backgroundColor = vec3(0.486, 0.721, 0.918);
 //
-typedef enum { SHAPE_BOX = 0, SHAPE_FISH, SHAPE_TEAPOT, NUM_SHAPES } ModelShape;
+typedef enum { CAM_FOLLOW = 0, CAM_STATIC, NUM_CAMERA_MODE } ModelCamera;
 
-void TW_CALL SetAutoRotateCB(const void *value, void *clientData)
-{
-	// m_autoRotate = *(const int *)value;
-}
-void TW_CALL GetAutoRotateCB(void *value, void *clientData)
-{
-	// *(int *)value = m_autoRotate;
-}
-void TW_CALL SetIsOthoCB(const void *value, void *clientData)
+// void TW_CALL SetAutoRotateCB(const void *value, void *clientData)
+// {
+// 	// m_autoRotate = *(const int *)value;
+// }
+// void TW_CALL GetAutoRotateCB(void *value, void *clientData)
+// {
+// 	// *(int *)value = m_autoRotate;
+// }
+void TW_CALL SetStaticCam(const void *value, void *clientData)
 {
 	// m_isOthogonol = *(const int *)value;
 	// m_camera.ToggleOrtho();
+    for (size_t i=0; i < all_scenes.size(); ++i){
+        // all_scenes[i]->KeyBoardEvent('c', ros_api);
+        all_scenes[i]->switchCameraMode( *(int *)(value), ros_api);
+    }
 }
-void TW_CALL GetIsOthoCB(void *value, void *clientData)
+void TW_CALL GetStaticCam(void *value, void *clientData)
 {
 	// *(int *)value = m_isOthogonol;
+    *(int *)value = all_scenes[0]->get_camera_mode();
 }
-void TW_CALL ResetRotationCB(void * clientData)
+void TW_CALL ResetViewCB(void * clientData)
 {
     /*
 	m_camera.SetRotation(0, 0);
@@ -152,6 +159,10 @@ void TW_CALL ResetRotationCB(void * clientData)
 		m_shapes[i].rotation = vec3(0);
 	}
     */
+
+    for (size_t i=0; i < all_scenes.size(); ++i){
+        all_scenes[i]->KeyBoardEvent('z', ros_api);
+    }
 	glutPostRedisplay();
 }
 
@@ -172,22 +183,35 @@ void setupGUI()
 
 
     bar_1_ptr = TwNewBar("Properties");
-	TwDefine(" Properties size='220 300' ");
+	TwDefine(" Properties size='270 450' "); // 220, 300
 	TwDefine(" Properties fontsize='3' color='0 0 0' alpha=180 ");  // http://anttweakbar.sourceforge.net/doc/tools:anttweakbar:twbarparamsyntax
 
-	TwAddVarRO(bar_1_ptr, "time", TW_TYPE_FLOAT, &m_fps, " label='FPS' help='Frame Per Second(FPS)' ");
+    // FPS of display
+	TwAddVarRO(bar_1_ptr, "fps_d", TW_TYPE_FLOAT, &m_fps_d, " label='FPS-display' help='Frame Per Second(FPS)' ");
+    //
+    TwAddSeparator(bar_1_ptr, "Sep1", "");
+    // FPS of camera
+    ros_api.update();
+    m_fps_topic.resize( ros_api.ros_interface.get_count_of_all_topics(), 0.0f);
+    for (int topic_idx = int(MSG_ID::camera_front_right); topic_idx < ros_api.ros_interface.get_count_of_all_topics(); ++topic_idx ){
+        TwAddVarRO(bar_1_ptr, ("fps_" + std::to_string(topic_idx)).c_str(), TW_TYPE_FLOAT, &(m_fps_topic[topic_idx]), (" label='FPS-" + ros_api.ros_interface.get_topic_name(topic_idx) + "' help='Frame Per Second(FPS)' ").c_str() );
+    }
+    //
+    TwAddSeparator(bar_1_ptr, "Sep2", "");
     // menu
 	{
-		TwEnumVal shapeEV[NUM_SHAPES] = { { SHAPE_BOX, "Box" },{ SHAPE_FISH, "Fish" },{ SHAPE_TEAPOT, "Teapot" } };
-		TwType shapeType = TwDefineEnum("ShapeType", shapeEV, NUM_SHAPES);
-		TwAddVarRW(bar_1_ptr, "Shape", shapeType, &m_currentShape, " keyIncr='<' keyDecr='>' help='Change object shape.' ");
+		TwEnumVal cameraEV[NUM_CAMERA_MODE] = { { CAM_FOLLOW, "follow" },{ CAM_STATIC, "static" } };
+		TwType cameraType = TwDefineEnum("camType", cameraEV, NUM_CAMERA_MODE);
+		TwAddVarRW(bar_1_ptr, "CamMode", cameraType, &m_currentCamera, " keyIncr='<' keyDecr='>' help='Change view mode.' ");
 	}
 
-	TwAddVarRW(bar_1_ptr, "Zoom", TW_TYPE_FLOAT, &m_zoom, " min=0.01 max=3.0 step=0.01 help='Camera zoom in/out' ");
-	TwAddVarRW(bar_1_ptr, "BackgroundColor", TW_TYPE_COLOR3F, value_ptr(m_backgroundColor), " label='Background Color' opened=true help='Used in glClearColor' ");
-	TwAddVarCB(bar_1_ptr, "AutoRotate", TW_TYPE_BOOL32, SetAutoRotateCB, GetAutoRotateCB, NULL, " label='Auto-rotate' key=space help='Toggle auto-rotate mode.' ");
-	TwAddVarCB(bar_1_ptr, "OthoToggle", TW_TYPE_BOOL32, SetIsOthoCB, GetIsOthoCB, NULL, " label='Is Orthographic' key=space help='Toggle orthogonal camera' ");
-	TwAddButton(bar_1_ptr, "ResetRotation", ResetRotationCB, NULL, " label='Reset Rotation' ");
+	// TwAddVarRW(bar_1_ptr, "Zoom", TW_TYPE_FLOAT, &m_zoom, " min=0.01 max=3.0 step=0.01 help='Camera zoom in/out' ");
+	// TwAddVarRW(bar_1_ptr, "BackgroundColor", TW_TYPE_COLOR3F, value_ptr(m_backgroundColor), " label='Background Color' opened=true help='Used in glClearColor' ");
+	// TwAddVarCB(bar_1_ptr, "AutoRotate", TW_TYPE_BOOL32, SetAutoRotateCB, GetAutoRotateCB, NULL, " label='Auto-rotate' key=space help='Toggle auto-rotate mode.' ");
+
+    TwAddSeparator(bar_1_ptr, "Sep3", "");
+    TwAddVarCB(bar_1_ptr, "IsStaticCam", TW_TYPE_BOOL32, SetStaticCam, GetStaticCam, NULL, " label='Is static view' key=space help='Is static view mode' ");
+	TwAddButton(bar_1_ptr, "ResetView", ResetViewCB, NULL, " label='Reset view' ");
 }
 //----------------------------------------------------//
 
@@ -226,8 +250,40 @@ void My_Init()
 
 TIME_STAMP::Period period_frame_pre("pre frame");
 TIME_STAMP::Period period_frame_post("post frame");
+TIME_STAMP::FPS    fps_display("fps_display");
 void My_Display()
 {
+    // FPS of the display
+    fps_display.stamp();
+    m_fps_d = fps_display.fps;
+    // FPS for topics
+    for (size_t i=0; i < m_fps_topic.size(); ++i){
+        m_fps_topic[i] = ros_api.fps_list[i].fps;
+    }
+    // m_currentTime = glutGet(GLUT_ELAPSED_TIME);
+	// if (m_currentTime - m_timebase > 1000)
+	// {
+	// 	m_fps_d = (m_frames * 1000) / (m_currentTime - m_timebase);
+	// 	m_frames = 0;
+	// 	m_timebase = m_currentTime;
+    //     // std::cout << "m_fps_d = " << m_fps_d << "\n";
+	// }
+	// m_frames++;
+
+    // Camera mode
+    if (m_currentCamera != m_currentCamera_old){
+        for (size_t i=0; i < all_scenes.size(); ++i){
+            // all_scenes[i]->KeyBoardEvent('c', ros_api);
+            all_scenes[i]->switchCameraMode( m_currentCamera, ros_api);
+        }
+        m_currentCamera = all_scenes[0]->get_camera_mode();
+        m_currentCamera_old = m_currentCamera;
+    }else{
+        m_currentCamera = all_scenes[0]->get_camera_mode();
+    }
+    TwRefreshBar(bar_1_ptr);
+
+
     // evaluation
     TIME_STAMP::Period period_in("part");
     TIME_STAMP::Period period_all_func("full display");
@@ -265,6 +321,7 @@ void My_Display()
     }
     // end FPS show
     */
+
 
 #ifdef __DEBUG__
     // evaluation
