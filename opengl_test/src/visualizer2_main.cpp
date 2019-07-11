@@ -297,11 +297,11 @@ void My_Display()
     std::shared_ptr< opengl_test::GUI2_op > _GUI2_op_ptr;
     if (ros_api.get_message( int(MSG_ID::GUI_operatio), _GUI2_op_ptr)){
         std::cout << "---\n";
-        std::cout << "cam_type: " << _veh_info_ptr->cam_type << "\n";
-        std::cout << "image3D: " << _veh_info_ptr->image3D << "\n";
-        std::cout << "image_surr: " << _veh_info_ptr->image_surr << "\n";
-        std::cout << "cam_motion: " << _veh_info_ptr->cam_motion << "\n";
-        ros_api.ros_interface.send_GUI2_op(*_GUI2_op_ptr);
+        std::cout << "cam_type: " << _GUI2_op_ptr->cam_type << "\n";
+        std::cout << "image3D: " << _GUI2_op_ptr->image3D << "\n";
+        std::cout << "image_surr: " << _GUI2_op_ptr->image_surr << "\n";
+        std::cout << "cam_motion: " << _GUI2_op_ptr->cam_motion << "\n";
+        ros_api.ros_interface.send_GUI2_op( int(MSG_ID::GUI_operatio), *_GUI2_op_ptr);
     }
     //
 

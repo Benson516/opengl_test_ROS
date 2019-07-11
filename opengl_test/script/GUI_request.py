@@ -8,7 +8,7 @@ port = '6060'
 
 # payload = {'data1':1, 'data2':'2', 'data3':[1,2,3], 'data4':None}
 payload = dict()
-payload["cam_type"] = "follow"
+payload["cam_type"] = "static"
 payload["image3D"] = "on"
 payload["image_surr"] = "on"
 payload["cam_motion"] = ""

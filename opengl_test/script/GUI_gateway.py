@@ -74,6 +74,7 @@ class GUI_GATEWAY(object):
 
 
 def GUI2_state_CB(msg):
+    global GUI_state, GUI_state_seq
     GUI_state = msg
     GUI_state_seq += 1
     print("[GUI-gateway] GUI state recieved.")
