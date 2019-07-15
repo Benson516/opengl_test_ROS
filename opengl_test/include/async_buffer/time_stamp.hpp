@@ -258,12 +258,12 @@ namespace TIME_STAMP{
 
         FPS(): seq(0)
         {
-            a_Ts = 0.3;
+            a_Ts = 0.1;
             T_filtered = 0.0;
         }
         FPS(std::string name_in): seq(0), name(name_in)
         {
-            a_Ts = 0.3;
+            a_Ts = 0.1;
             T_filtered = 0.0;
         }
         void set_name(std::string name_in){ name = name_in; }

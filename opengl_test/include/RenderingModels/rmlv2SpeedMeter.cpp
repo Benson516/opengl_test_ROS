@@ -84,7 +84,7 @@ void rmlv2SpeedMeter::update_GL_data(){
     // std::cout << "Speed (km/h): " << (msg_out_ptr->ego_speed)*3.6 << ", ";
     // std::cout << "yaw_rate (deg/s): " << (msg_out_ptr->yaw_rate) << "\n";
 
-    std::string _str_out( to_string_p( ((msg_out_ptr->ego_speed)*3.6), 1 ) + " km/hr" );
+    std::string _str_out( all_header::to_string_p( ((msg_out_ptr->ego_speed)*3.6), 1 ) + " km/hr" );
 
     text2D_flat_list.emplace_back(
         _str_out,

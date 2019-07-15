@@ -55,6 +55,7 @@ public:
 	virtual void MenuEvent(int item);
 
     // Camera mode
+    int get_camera_mode(){ return camera_mode; }
     // Follow, steady, ...etc.
     virtual void switchCameraMode(int mode_in, ROS_API &ros_api);
 

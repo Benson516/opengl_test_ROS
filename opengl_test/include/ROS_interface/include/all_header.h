@@ -209,5 +209,17 @@ struct CLUSTER_INFO
 typedef struct CLUSTER_INFO CLUSTER_INFO;
 */
 
+// to_string_with_precision
+namespace all_header{
+    template <typename T>
+    std::string to_string_p(const T a_value, const int n = 6)
+    {
+        std::ostringstream out;
+        out.precision(n);
+        out << std::fixed << a_value;
+        return out.str();
+    }
+}
+
 
 #endif /* ALL_HEADER_H_ */
