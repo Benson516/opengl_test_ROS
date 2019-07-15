@@ -119,7 +119,7 @@ void rmlv2ObjectTracking::update_GL_data(ROS_API &ros_api){
     size_t _j = 0;
     for (size_t i = 0; i < num_box; i++)
     {
-        int obj_id = msg_out_ptr->objects[i].camInfo.id;
+        long long obj_id = msg_out_ptr->objects[i].camInfo.id;
         _point_1_ptr = &(msg_out_ptr->objects[i].bPoint.p0);
         _point_2_ptr = &(msg_out_ptr->objects[i].bPoint.p7);
         glm::vec3 point_pose_ori = (  0.5f*(glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z) + glm::vec3(_point_2_ptr->x, _point_2_ptr->y, _point_2_ptr->z)) + glm::vec3(0.0f, 0.0f, 0.0f)  );
@@ -127,7 +127,7 @@ void rmlv2ObjectTracking::update_GL_data(ROS_API &ros_api){
         float diag_distance = glm::l2Norm(glm::vec3(_point_1_ptr->x, _point_1_ptr->y, _point_1_ptr->z) - glm::vec3(_point_2_ptr->x, _point_2_ptr->y, _point_2_ptr->z));
 
         // Reset count
-        std::map<int,int>::iterator it_1 = obj_miss_count.find(obj_id);
+        std::map<long long,int>::iterator it_1 = obj_miss_count.find(obj_id);
         if (it_1 == obj_miss_count.end()){
             obj_miss_count[obj_id] = 0;
         }else{
@@ -185,7 +185,7 @@ void rmlv2ObjectTracking::update_GL_data(ROS_API &ros_api){
 
 
     // Iterate through tracked objects
-    for (std::map<int,int>::iterator it=obj_miss_count.begin(); it!=obj_miss_count.end(); ++it){
+    for (std::map<long long,int>::iterator it=obj_miss_count.begin(); it!=obj_miss_count.end(); ++it){
         it->second++;
         if (it->second > _max_miss_count){ // test, miss count
             // line_map[it->first] = std::queue<rmPolyLines3D::point_data>();
@@ -201,7 +201,7 @@ void rmlv2ObjectTracking::update_GL_data(ROS_API &ros_api){
 
     // Draw lines and circles
     rm_polylines3D.reset_line_list();
-    for (std::map<int,int>::iterator it=obj_miss_count.begin(); it!=obj_miss_count.end(); ++it){
+    for (std::map<long long,int>::iterator it=obj_miss_count.begin(); it!=obj_miss_count.end(); ++it){
         std::queue<rmPolyLines3D::point_data> &a_line_queue = line_map[it->first];
         rm_polylines3D.push_back_a_line_queue(a_line_queue);
 

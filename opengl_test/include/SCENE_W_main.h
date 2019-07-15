@@ -344,9 +344,9 @@ void SCENE_W_main::ROSTopicEvent(ROS_API &ros_api){
     //----------------------------------------//
     // cam_type
     if (_GUI2_op_ptr->cam_type == "follow"){
-        switchCameraMode( 0, ros_api);
+        switchCameraMotionMode( 0, ros_api);
     }else if (_GUI2_op_ptr->cam_type == "static"){
-        switchCameraMode( 1, ros_api);
+        switchCameraMotionMode( 1, ros_api);
     }else if (_GUI2_op_ptr->cam_type == "toggle_cam"){
         KeyBoardEvent('c', ros_api);
     }
@@ -379,9 +379,9 @@ void SCENE_W_main::ROSTopicEvent(ROS_API &ros_api){
     //----------------------------------------//
     opengl_test::GUI2_op res_data;
     // cam_type
-    if (camera_mode == 0)
+    if (camera_motion_mode == 0)
         res_data.cam_type = "follow";
-    else if (camera_mode == 1)
+    else if (camera_motion_mode == 1)
         res_data.cam_type = "static";
     // image3D
     res_data.image3D = "on";
