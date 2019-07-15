@@ -100,8 +100,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     _rm_BaseModel.push_back( _rmGrid_ptr );
     */
 
-
-    // BaseModel
+    /*
+    // rmModelLoaderObj
 	std::shared_ptr<rmModelLoaderObj> bottle( new rmModelLoaderObj(_Assets_path, "Potion_bottle.obj", "bottle_mana.png") );
 	std::shared_ptr<rmModelLoaderObj> box( new rmModelLoaderObj(_Assets_path, "box_realistic.obj", "box_texture_color.png") );
 	bottle->Scale(glm::vec3(0.01, 0.01, 0.01));
@@ -109,6 +109,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 	bottle->Translate(glm::vec3(0.0, 0.5, 0.0));
 	_rm_BaseModel.push_back(bottle);
 	_rm_BaseModel.push_back(box);
+    */
 
 
 
@@ -275,22 +276,22 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 
 
 
-    _text3D_ptr.reset( new rmText3D_v2(_Assets_path, "base" ) );
-    _text3D_ptr->Translate(glm::vec3(1.0f, -2.0f, -2.0f));
-    _text3D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
-    _text3D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
-    _text3D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
+    // _text3D_ptr.reset( new rmText3D_v2(_Assets_path, "base" ) );
+    // _text3D_ptr->Translate(glm::vec3(1.0f, -2.0f, -2.0f));
+    // _text3D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
+    // _text3D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
+    // _text3D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
+    // // _text3D_ptr->setBoardSizeRatio(0.5, true);
+    // // _text3D_ptr->Translate(glm::vec3(-0.5f, -0.5f, 0.0f));
+    // // _text3D_ptr->Scale( glm::vec3(3.5f));
+    // // _text3D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    // _rm_BaseModel.push_back( _text3D_ptr );
+
 
     /*
-    _text3D_ptr->setBoardSizeRatio(0.5, true);
-    _text3D_ptr->Translate(glm::vec3(-0.5f, -0.5f, 0.0f));
-    */
-    // _text3D_ptr->Scale( glm::vec3(3.5f));
-    // _text3D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    _rm_BaseModel.push_back( _text3D_ptr );
-
     _text2D_ptr.reset( new rmText2D() );
     _rm_BaseModel.push_back( _text2D_ptr );
+    */
 
 
     // test, rmText3D:    400 x "Hello world" --> CPU 104%, GPU 85%

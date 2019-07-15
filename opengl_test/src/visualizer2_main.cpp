@@ -197,10 +197,12 @@ void setupGUI()
     // FPS of camera
     ros_api.update();
     // m_fps_topic.resize( ros_api.ros_interface.get_count_of_all_topics(), 0.0f);
+    // for (int topic_idx = int(MSG_ID::camera_front_right); topic_idx < ros_api.ros_interface.get_count_of_all_topics(); ++topic_idx ){
+    //     TwAddVarRO(bar_1_ptr, ("fps_" + std::to_string(topic_idx)).c_str(), TW_TYPE_FLOAT, &(m_fps_topic[topic_idx]), (" label='FPS-" + ros_api.ros_interface.get_topic_name(topic_idx) + "' help='Frame Per Second(FPS)' ").c_str() );
+    // }
     m_fps_topic_str.resize( ros_api.ros_interface.get_count_of_all_topics(), "0.0");
     for (int topic_idx = int(MSG_ID::camera_front_right); topic_idx < ros_api.ros_interface.get_count_of_all_topics(); ++topic_idx ){
-        // TwAddVarRO(bar_1_ptr, ("fps_" + std::to_string(topic_idx)).c_str(), TW_TYPE_FLOAT, &(m_fps_topic[topic_idx]), (" label='FPS-" + ros_api.ros_interface.get_topic_name(topic_idx) + "' help='Frame Per Second(FPS)' ").c_str() );
-        TwAddVarRO(bar_1_ptr, ("fps_" + std::to_string(topic_idx)).c_str(), TW_TYPE_STDSTRING, &(m_fps_d_str[topic_idx]), (" label='FPS-" + ros_api.ros_interface.get_topic_name(topic_idx) + "' help='Frame Per Second(FPS)' ").c_str() );
+        TwAddVarRO(bar_1_ptr, ("fps_" + std::to_string(topic_idx)).c_str(), TW_TYPE_STDSTRING, &(m_fps_topic_str[topic_idx]), (" label='FPS-" + ros_api.ros_interface.get_topic_name(topic_idx) + "' help='Frame Per Second(FPS)' ").c_str() );
     }
     //
     TwAddSeparator(bar_1_ptr, "Sep2", "");
@@ -264,10 +266,13 @@ void My_Display()
     // m_fps_d = fps_display.fps;
     m_fps_d_str = all_header::to_string_p(fps_display.fps, 1);
     // FPS for topics
-    for (size_t i=0; i < m_fps_d_str.size(); ++i){
-        // m_fps_topic[i] = ros_api.fps_list[i].fps;
+    // for (size_t i=0; i < m_fps_topic.size(); ++i){
+    //     m_fps_topic[i] = ros_api.fps_list[i].fps;
+    // }
+    for (size_t i=0; i < m_fps_topic_str.size(); ++i){
         m_fps_topic_str[i] = all_header::to_string_p(ros_api.fps_list[i].fps, 1);
     }
+
     // m_currentTime = glutGet(GLUT_ELAPSED_TIME);
 	// if (m_currentTime - m_timebase > 1000)
 	// {
