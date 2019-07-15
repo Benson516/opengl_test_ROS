@@ -721,7 +721,9 @@ void rmText3D_v2::RenderText(
     float x = x_in;
     float y = y_in;
 
-	point coords[ 6 * text.size() ];
+	// point vector_list[ 4 * text.size() ];
+    std::vector<point> vector_list( 4 * text.size() );
+    // vector_list.resize( 4 * text.size() );
 	int _idx_count = 0;
     int _valid_word_count = 0;
 
@@ -790,18 +792,27 @@ void rmText3D_v2::RenderText(
         | / |
         3 - 4
         */
-		coords[_idx_count++] = (point) {
+        // float _x_left = x2;
+        // float _x_right = x2+w;
+        // float _y_up = -y2;
+        // float _y_down = -y2-h;
+        //
+        float s_left = _atlas_ptr->_ch[*p].tx;
+        float s_right = _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->w);
+        float t_up = _atlas_ptr->_ch[*p].ty;
+        float t_down = _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h);
+		vector_list[_idx_count++] = (point) {
     		x2, -y2,
-            _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty};
-		coords[_idx_count++] = (point) {
+            s_left, t_up};
+		vector_list[_idx_count++] = (point) {
     		x2+w, -y2,
-            _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->w), _atlas_ptr->_ch[*p].ty};
-		coords[_idx_count++] = (point) {
+            s_right, t_up};
+		vector_list[_idx_count++] = (point) {
     		x2, -y2-h,
-            _atlas_ptr->_ch[*p].tx, _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h)};
-		coords[_idx_count++] = (point) {
+            s_left, t_down};
+		vector_list[_idx_count++] = (point) {
     		x2+w, -y2-h,
-            _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->w), _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h)};
+            s_right, t_down};
 
         // Check if the definition of point is correct
         // if ( (-y2) >= (-y2-h)){
@@ -871,7 +882,7 @@ void rmText3D_v2::RenderText(
 
 
 	// Draw all the character on the screen in one go
-	// glBufferData(GL_ARRAY_BUFFER, sizeof coords, coords, GL_DYNAMIC_DRAW);
+	// glBufferData(GL_ARRAY_BUFFER, sizeof vector_list, vector_list, GL_DYNAMIC_DRAW);
 
 
     // Directly assign data to memory of GPU
@@ -879,7 +890,7 @@ void rmText3D_v2::RenderText(
     point * vertex_ptr = (point *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _idx_count* sizeof(point), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     for (size_t i = 0; i < _idx_count; i++)
     {
-        vertex_ptr[i] = coords[i];
+        vertex_ptr[i] = vector_list[i];
     }
     glUnmapBuffer(GL_ARRAY_BUFFER);
     //--------------------------------------------//
