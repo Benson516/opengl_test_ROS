@@ -19,6 +19,22 @@ bool ROS_API::start(int argc, char **argv, std::string node_name_in){
     ros_interface.setup_node(argc, argv, node_name_in);
     // Setup topics
     _set_up_topics();
+    //
+    // Initialize vectors
+    if (!_is_initialized){
+        //
+        got_on_any_topic.resize( ros_interface.get_count_of_all_topics(), false);
+        any_ptr_list.resize( ros_interface.get_count_of_all_topics() );
+        msg_time_list.resize( ros_interface.get_count_of_all_topics(), ros::Time(0) );
+        // FPS
+        fps_list.resize( ros_interface.get_count_of_all_topics() );
+        for(size_t i=0; i < fps_list.size(); ++i){
+            fps_list[i].set_name( ros_interface.get_topic_name(i) );
+        }
+        // end FPS
+        _is_initialized = true;
+    }
+    //
     // start
     return ros_interface.start();
 }
@@ -38,21 +54,21 @@ bool ROS_API::update(){
     bool _updated = false;
 
 
-    // Initialize vectors
-    if (!_is_initialized){
-        //
-        got_on_any_topic.resize( ros_interface.get_count_of_all_topics(), false);
-        any_ptr_list.resize( ros_interface.get_count_of_all_topics() );
-        msg_time_list.resize( ros_interface.get_count_of_all_topics(), ros::Time(0) );
-        // FPS
-        fps_list.resize( ros_interface.get_count_of_all_topics() );
-        for(size_t i=0; i < fps_list.size(); ++i){
-            fps_list[i].set_name( ros_interface.get_topic_name(i) );
-        }
-        // end FPS
-        _is_initialized = true;
-    }
-    //
+    // // Initialize vectors
+    // if (!_is_initialized){
+    //     //
+    //     got_on_any_topic.resize( ros_interface.get_count_of_all_topics(), false);
+    //     any_ptr_list.resize( ros_interface.get_count_of_all_topics() );
+    //     msg_time_list.resize( ros_interface.get_count_of_all_topics(), ros::Time(0) );
+    //     // FPS
+    //     fps_list.resize( ros_interface.get_count_of_all_topics() );
+    //     for(size_t i=0; i < fps_list.size(); ++i){
+    //         fps_list[i].set_name( ros_interface.get_topic_name(i) );
+    //     }
+    //     // end FPS
+    //     _is_initialized = true;
+    // }
+    // //
 
     // All topics
     for (int topic_id=0; topic_id < any_ptr_list.size(); ++topic_id){

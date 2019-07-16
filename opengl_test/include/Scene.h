@@ -55,9 +55,11 @@ public:
 	virtual void MenuEvent(int item);
 
     // Camera mode
-    int get_camera_mode(){ return camera_mode; }
-    // Follow, steady, ...etc.
-    virtual void switchCameraMode(int mode_in, ROS_API &ros_api);
+    int get_camera_motion_mode(){ return camera_motion_mode; }
+    // Follow, static, ...etc.
+    virtual void resetDefaultCaemraModel(ROS_API &ros_api);
+    virtual void switchCameraMotionMode(int mode_in, ROS_API &ros_api);
+    virtual void switchCameraViewMode(int mode_in, ROS_API &ros_api);
 
     // ViewManager
     std::shared_ptr<ViewManager> GetCamera(){ return _camera_ptr; }
@@ -67,7 +69,11 @@ protected:
     std::string _Assets_path;
 	std::shared_ptr<ViewManager> _camera_ptr;
 
-    int camera_mode;
+    // camera motion
+    int camera_motion_mode;
+    std::string camera_frame_id;
+    // Camera view
+    int camera_view_mode;
 
     // Render models
     std::vector< std::shared_ptr<rmBaseModel> > _rm_BaseModel;

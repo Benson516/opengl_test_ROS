@@ -60,9 +60,9 @@ private:
     std::vector<rmText3D_v2::text_billboard_data> text_list;
 
     // buffer map: id --> a_line
-    std::map<int, std::queue<rmPolyLines3D::point_data> > line_map;
-    std::map<int, rmCircle::circle_data> circle_map;
-    std::map<int, int> obj_miss_count;
+    std::map<long long, std::queue<rmPolyLines3D::point_data> > line_map;
+    std::map<long long, rmCircle::circle_data> circle_map;
+    std::map<long long, int> obj_miss_count;
 
 };
 

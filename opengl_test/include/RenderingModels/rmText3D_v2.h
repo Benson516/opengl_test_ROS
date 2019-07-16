@@ -380,6 +380,7 @@ private:
     	GLfloat s;
     	GLfloat t;
     };
+    // std::vector<point> vector_list;
 
     //uniform id
 	struct

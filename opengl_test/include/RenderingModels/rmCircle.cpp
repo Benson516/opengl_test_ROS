@@ -187,7 +187,7 @@ void rmCircle::insert_circle(const std::vector<circle_data> & data_list_in ){
     }
     glUnmapBuffer(GL_ARRAY_BUFFER);
 }
-void rmCircle::insert_circle(const std::map<int, circle_data> & data_map_in ){
+void rmCircle::insert_circle(const std::map<long long, circle_data> & data_map_in ){
     long long num_shape = data_map_in.size();
     if (num_shape > _max_num_shape){
         num_shape = _max_num_shape;

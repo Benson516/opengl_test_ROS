@@ -144,13 +144,13 @@ void TW_CALL SetStaticCam(const void *value, void *clientData)
 	// m_camera.ToggleOrtho();
     for (size_t i=0; i < all_scenes.size(); ++i){
         // all_scenes[i]->KeyBoardEvent('c', ros_api);
-        all_scenes[i]->switchCameraMode( *(int *)(value), ros_api);
+        all_scenes[i]->switchCameraMotionMode( *(int *)(value), ros_api);
     }
 }
 void TW_CALL GetStaticCam(void *value, void *clientData)
 {
 	// *(int *)value = m_isOthogonol;
-    *(int *)value = all_scenes[0]->get_camera_mode();
+    *(int *)value = all_scenes[0]->get_camera_motion_mode();
 }
 void TW_CALL ResetViewCB(void * clientData)
 {
@@ -195,7 +195,6 @@ void setupGUI()
     //
     TwAddSeparator(bar_1_ptr, "Sep1", "");
     // FPS of camera
-    ros_api.update();
     // m_fps_topic.resize( ros_api.ros_interface.get_count_of_all_topics(), 0.0f);
     // for (int topic_idx = int(MSG_ID::camera_front_right); topic_idx < ros_api.ros_interface.get_count_of_all_topics(); ++topic_idx ){
     //     TwAddVarRO(bar_1_ptr, ("fps_" + std::to_string(topic_idx)).c_str(), TW_TYPE_FLOAT, &(m_fps_topic[topic_idx]), (" label='FPS-" + ros_api.ros_interface.get_topic_name(topic_idx) + "' help='Frame Per Second(FPS)' ").c_str() );
@@ -287,12 +286,12 @@ void My_Display()
     if (m_currentCamera != m_currentCamera_old){
         for (size_t i=0; i < all_scenes.size(); ++i){
             // all_scenes[i]->KeyBoardEvent('c', ros_api);
-            all_scenes[i]->switchCameraMode( m_currentCamera, ros_api);
+            all_scenes[i]->switchCameraMotionMode( m_currentCamera, ros_api);
         }
-        m_currentCamera = all_scenes[0]->get_camera_mode();
+        m_currentCamera = all_scenes[0]->get_camera_motion_mode();
         m_currentCamera_old = m_currentCamera;
     }else{
-        m_currentCamera = all_scenes[0]->get_camera_mode();
+        m_currentCamera = all_scenes[0]->get_camera_motion_mode();
     }
     TwRefreshBar(bar_1_ptr);
 
