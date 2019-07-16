@@ -41,10 +41,13 @@ public:
     Scene();
 	Scene(std::string pkg_path_in);
     //
+    inline void enable(bool enable_in){  is_enabled = enable_in;  }
+    //
 	void Render();
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
     void Update(ROS_API &ros_api);
+    void Reshape();
     void Reshape(int full_window_width, int full_window_height);
 
     // Interaction events
@@ -65,13 +68,14 @@ public:
     std::shared_ptr<ViewManager> GetCamera(){ return _camera_ptr; }
 
 protected:
+    bool is_enabled;
     std::string _pkg_path;
     std::string _Assets_path;
 	std::shared_ptr<ViewManager> _camera_ptr;
 
     // camera motion
     int camera_motion_mode;
-    std::string camera_frame_id;
+    std::string camera_ref_frame;
     // Camera view
     int camera_view_mode;
 
