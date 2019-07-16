@@ -24,6 +24,13 @@ private:
         vh = h-im_h;
         return true;
     }
+    inline static bool cal_viewport_w_1(int w, int h, int &cx, int &cy, int &vw, int &vh){
+        cx = 0;
+        cy = 0;
+        vw = w;
+        vh = h;
+        return true;
+    }
 
 };
 
@@ -31,7 +38,13 @@ private:
 SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 {
 	_camera_ptr.reset(new ViewManager());
-    _camera_ptr->assign_cal_viewport(&cal_viewport_w);
+    // _camera_ptr->assign_cal_viewport(&cal_viewport_w);
+    // Layout
+    //----------------------------------------//
+    attach_cal_viewport_func_ptr(0, &cal_viewport_w);
+    attach_cal_viewport_func_ptr(1, &cal_viewport_w_1);
+    switch_layout(0);
+    //----------------------------------------//
 
     _pkg_path = (pkg_path_in);
     _Assets_path = (pkg_path_in + "Assets/");

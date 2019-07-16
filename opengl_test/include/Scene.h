@@ -41,7 +41,9 @@ public:
     Scene();
 	Scene(std::string pkg_path_in);
     //
-    inline void enable(bool enable_in){  is_enabled = enable_in;  }
+    void enable(bool enable_in);
+    void attach_cal_viewport_func_ptr(int layout_id, bool (*)( int , int ,int &, int &, int &, int &) );
+    bool switch_layout(int layout_id);
     //
 	void Render();
 	void Update(float dt);
@@ -79,8 +81,20 @@ protected:
     // Camera view
     int camera_view_mode;
 
+    int _layout_mode;
+    std::map<int, bool (*)( int , int ,int &, int &, int &, int &)> _cal_viewport_map;
+
     // Render models
     std::vector< std::shared_ptr<rmBaseModel> > _rm_BaseModel;
+
+
+    static bool cal_viewport_dis(int w, int h, int &cx, int &cy, int &vw, int &vh){
+        cx = 0;
+        cy = 0;
+        vw = 1;
+        vh = 0;
+        return true;
+    }
 };
 
 #endif  // Scene_H

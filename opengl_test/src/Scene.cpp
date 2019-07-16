@@ -3,12 +3,14 @@
 // Default constructor, derived class will call this
 Scene::Scene():
     is_enabled(true),
+    _layout_mode(0),
     camera_motion_mode(0),camera_ref_frame("base"),
     camera_view_mode(0)
 {
 }
 Scene::Scene(std::string pkg_path_in):
     is_enabled(true),
+    _layout_mode(0),
     camera_motion_mode(0), camera_ref_frame("base"),
     camera_view_mode(0)
 {
@@ -134,9 +136,39 @@ Scene::Scene(std::string pkg_path_in):
 
 }
 
+void Scene::enable(bool enable_in){
+    is_enabled = enable_in;
+    if (is_enabled){
+        Reshape();
+        _camera_ptr->Reset();
+    }else{
+        _camera_ptr->assign_cal_viewport( &cal_viewport_dis );
+        Reshape();
+        _camera_ptr->Reset();
+    }
+}
+void Scene::attach_cal_viewport_func_ptr(int layout_id, bool (*_func)( int , int ,int &, int &, int &, int &) ){
+    _cal_viewport_map[layout_id] = _func;
+}
+bool Scene::switch_layout(int layout_id){
+    _layout_mode = layout_id;
+    auto it_1 = _cal_viewport_map.find(_layout_mode);
+    if (it_1 == _cal_viewport_map.end()){
+        // No this layout, just disable this scene
+        std::cout << "No layout #" << layout_id << ", Disable this scene.\n";
+        enable(false);
+    }else{
+        _camera_ptr->assign_cal_viewport( it_1->second );
+        std::cout << "Switch to layout #" << layout_id << "\n";
+        enable(true);
+    }
+    std::cout << "here\n";
+    return is_enabled;
+}
+
 void Scene::Render(){
     //
-    if (!is_enabled){   return; }
+    // if (!is_enabled){   return; }
     //
 
     // test, set viewport and reset screen
@@ -286,10 +318,15 @@ void Scene::KeyBoardEvent(unsigned char key, ROS_API &ros_api){
 		_rm_BaseModel[1]->Translate(glm::vec3(0.1, 0, 0));
 		break;
     */
+    case 'l':
+    case 'L':
+        switch_layout( (_layout_mode+1)%2 );
+        break;
     case 'z':
 	case 'Z':
         resetDefaultCaemraModel(ros_api);
-        // Note: the viewManager also listen to this key and will reset the camera model
+        _camera_ptr->Reset();
+        //  (removed-->) Note: the viewManager also listen to this key and will reset the camera model
 		break;
     case 'c':
 	case 'C':
@@ -334,8 +371,8 @@ void Scene::resetDefaultCaemraModel(ROS_API &ros_api){
     if (is_sucessed){
         _camera_ptr->SetDefaultCameraModelInv( _tf_world_by_base );
     }
-    // Reset camera
-    _camera_ptr->Reset();
+    // // Reset camera
+    // _camera_ptr->Reset();
 }
 void Scene::switchCameraMotionMode(int mode_in, ROS_API &ros_api){
     camera_motion_mode = mode_in;
@@ -357,6 +394,8 @@ void Scene::switchCameraMotionMode(int mode_in, ROS_API &ros_api){
             break;
     }
     resetDefaultCaemraModel(ros_api);
+    // Reset camera
+    _camera_ptr->Reset();
 }
 void Scene::switchCameraViewMode(int mode_in, ROS_API &ros_api){
     camera_view_mode = mode_in;
