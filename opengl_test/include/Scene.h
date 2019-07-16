@@ -59,6 +59,10 @@ public:
 	virtual void KeyBoardEvent(unsigned char key, ROS_API &ros_api);
 	virtual void MenuEvent(int item);
 
+    //
+    virtual void perSceneKeyBoardEvent(unsigned char key){  /*empty*/ }
+    //
+
     // Camera mode
     int get_camera_motion_mode(){ return camera_motion_mode; }
     // Follow, static, ...etc.

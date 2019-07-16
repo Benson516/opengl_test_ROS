@@ -162,7 +162,7 @@ bool Scene::switch_layout(int layout_id){
         std::cout << "Switch to layout #" << layout_id << "\n";
         enable(true);
     }
-    std::cout << "here\n";
+    // std::cout << "here\n";
     return is_enabled;
 }
 
@@ -180,7 +180,8 @@ void Scene::Render(){
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
-		_rm_BaseModel[i]->Render(_camera_ptr);
+        if ( _rm_BaseModel[i]->get_enable())
+		      _rm_BaseModel[i]->Render(_camera_ptr);
 	}
     glDisable(GL_BLEND);
     // glDisable(GL_DEPTH_TEST);
@@ -192,7 +193,8 @@ void Scene::Update(float dt){
 
     // rmBaseModel
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
-		_rm_BaseModel[i]->Update(dt);
+        if ( _rm_BaseModel[i]->get_enable())
+		      _rm_BaseModel[i]->Update(dt);
 	}
 }
 void Scene::Update(ROS_INTERFACE &ros_interface){
@@ -224,7 +226,8 @@ void Scene::Update(ROS_INTERFACE &ros_interface){
     // TIME_STAMP::Period period_Update("Update");
     // rmBaseModel
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
-		_rm_BaseModel[i]->Update(ros_interface);
+        if ( _rm_BaseModel[i]->get_enable())
+		      _rm_BaseModel[i]->Update(ros_interface);
         // evaluation
         // period_Update.stamp(); period_Update.show_usec();
         //
@@ -259,7 +262,8 @@ void Scene::Update(ROS_API &ros_api){
     // TIME_STAMP::Period period_Update("Update");
     // rmBaseModel
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
-		_rm_BaseModel[i]->Update(ros_api);
+        if ( _rm_BaseModel[i]->get_enable())
+		      _rm_BaseModel[i]->Update(ros_api);
         // evaluation
         // period_Update.stamp(); period_Update.show_usec();
 	}
@@ -297,7 +301,7 @@ void Scene::KeyBoardEvent(int key){
 void Scene::KeyBoardEvent(unsigned char key, ROS_API &ros_api){
 
 
-
+    // Gloabal key
 	switch (key)
 	{
     /*
@@ -338,6 +342,9 @@ void Scene::KeyBoardEvent(unsigned char key, ROS_API &ros_api){
 	default:
 		break;
 	}
+
+    // Customizable key
+    perSceneKeyBoardEvent(key);
 
     // Camera operations
     _camera_ptr->keyEvents(key);
