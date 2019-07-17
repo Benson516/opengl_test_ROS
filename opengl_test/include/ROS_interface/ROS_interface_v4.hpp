@@ -71,6 +71,7 @@ namespace MSG{
         GUI2_op,
         tfGeoPoseStamped,
         Image,
+        CompressedImage,
         PointCloud2,
         ITRIPointCloud,
         ITRI3DBoundingBox,
@@ -397,6 +398,8 @@ private:
     void _tfGeoPoseStamped_CB(const geometry_msgs::PoseStamped::ConstPtr& msg, const MSG::T_PARAMS & params);
     // Image
     void _Image_CB(const sensor_msgs::ImageConstPtr& msg, const MSG::T_PARAMS & params);
+    // CompressedImage
+    void _CompressedImage_CB(const sensor_msgs::CompressedImageConstPtr& msg, const MSG::T_PARAMS & params);
     // PointCloud2
     void _PointCloud2_CB(const sensor_msgs::PointCloud2::ConstPtr& msg, const MSG::T_PARAMS & params);
     std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > _PointCloud2_tmp_ptr; // tmp cloud

@@ -292,6 +292,28 @@ void ROS_INTERFACE::_ROS_worker(){
             _image_publisher_list.push_back( _ros_it.advertise( _tmp_params.name, _tmp_params.ROS_queue) );
         }
     }
+    // CompressedImage
+    _msg_type = int(MSG::M_TYPE::CompressedImage);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        {
+            std::shared_ptr< async_buffer<cv::Mat> > _tmpcv_buff_ptr( new async_buffer<cv::Mat>(_tmp_params.buffer_length) );
+            _tmpcv_buff_ptr->assign_copy_func(&_cv_Mat_copy_func);
+            async_buffer_list[_tmp_params.topic_id] = _tmpcv_buff_ptr;
+        }
+        //
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe< sensor_msgs::CompressedImage >( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_CompressedImage_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise< sensor_msgs::CompressedImage >( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
 
     // PointCloud2
     _msg_type = int(MSG::M_TYPE::PointCloud2);
@@ -864,6 +886,30 @@ bool ROS_INTERFACE::send_Image(const int topic_id, const cv::Mat &content_in){
     cv_bridge::CvImagePtr cv_ptr;
     _cv_Mat_copy_func(cv_ptr->image, content_in);
     _image_publisher_list[ _ps_id ].publish(cv_ptr->toImageMsg());
+}
+//---------------------------------------------------------------//
+
+// CompressedImage
+//---------------------------------------------------------------//
+// input
+void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstPtr& msg, const MSG::T_PARAMS & params){
+    // Time
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+
+    cv::Mat image
+    try{
+        image = cv::imdecode(cv::Mat(msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
+    }
+    catch (cv_bridge::Exception& e){
+        ROS_ERROR("Could not convert to image!");
+    }
+
+    // put
+    bool result = async_buffer_list[params.topic_id]->put_void( &(image), true, _time_in, false);
+    //
+    if (!result){
+        std::cout << params.name << ": buffer full.\n";
+    }
 }
 //---------------------------------------------------------------//
 
