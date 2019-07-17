@@ -403,10 +403,10 @@ private:
     // PointCloud2
     // void _PointCloud2_CB(const sensor_msgs::PointCloud2::ConstPtr& msg, const MSG::T_PARAMS & params);
     void _PointCloud2_CB(const pcl::PCLPointCloud2ConstPtr& msg, const MSG::T_PARAMS & params);
-    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > _PointCloud2_tmp_ptr; // tmp cloud
+    std::vector< std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > > _PointCloud2_tmp_ptr_list; // tmp cloud
     // ITRIPointCloud
     void _ITRIPointCloud_CB(const msgs::PointCloud::ConstPtr& msg, const MSG::T_PARAMS & params);
-    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > _ITRIPointCloud_tmp_ptr; // tmp cloud
+    std::vector< std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > >  _ITRIPointCloud_tmp_ptr_list; // tmp cloud
     // ITRI3DBoundingBox
     void _ITRI3DBoundingBox_CB(const msgs::LidRoi::ConstPtr& msg, const MSG::T_PARAMS & params);
     // ITRICamObj

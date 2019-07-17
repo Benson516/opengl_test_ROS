@@ -921,7 +921,10 @@ void ROS_INTERFACE::_PointCloud2_CB(const pcl::PCLPointCloud2ConstPtr& msg, cons
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
 
     // Take the reference to _tmp_in_ptr
-    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & _tmp_cloud_ptr = _PointCloud2_tmp_ptr; // tmp cloud
+    if ( _PointCloud2_tmp_ptr_list.size() <= _topic_tid_list[params.topic_id] ){
+        _PointCloud2_tmp_ptr_list.resize( _topic_tid_list[params.topic_id]+1 );
+    }
+    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & _tmp_cloud_ptr = _PointCloud2_tmp_ptr_list[ _topic_tid_list[params.topic_id] ]; // tmp cloud
     if (!_tmp_cloud_ptr){
         _tmp_cloud_ptr.reset(new pcl::PointCloud<pcl::PointXYZI>);
     }
@@ -967,9 +970,11 @@ void ROS_INTERFACE::_ITRIPointCloud_CB(const msgs::PointCloud::ConstPtr& msg, co
     // tmp cloud
     // Note 1: this have been moved to be a member of the class, so that it won't keep constructing and destructing.
     // Note 2: the pointer is changed to std::shared_ptr instead of the original boost pointer
-
     // Take the reference to _tmp_in_ptr
-    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & _tmp_cloud_ptr = _ITRIPointCloud_tmp_ptr; // tmp cloud
+    if ( _ITRIPointCloud_tmp_ptr_list.size() <= _topic_tid_list[params.topic_id] ){
+        _ITRIPointCloud_tmp_ptr_list.resize( _topic_tid_list[params.topic_id]+1 );
+    }
+    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & _tmp_cloud_ptr = _ITRIPointCloud_tmp_ptr_list[ _topic_tid_list[params.topic_id] ]; // tmp cloud
     if (!_tmp_cloud_ptr){
         _tmp_cloud_ptr.reset(new pcl::PointCloud<pcl::PointXYZI>);
     }
