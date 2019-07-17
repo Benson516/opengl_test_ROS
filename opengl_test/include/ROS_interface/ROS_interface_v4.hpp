@@ -401,7 +401,8 @@ private:
     // CompressedImage
     void _CompressedImage_CB(const sensor_msgs::CompressedImageConstPtr& msg, const MSG::T_PARAMS & params);
     // PointCloud2
-    void _PointCloud2_CB(const sensor_msgs::PointCloud2::ConstPtr& msg, const MSG::T_PARAMS & params);
+    // void _PointCloud2_CB(const sensor_msgs::PointCloud2::ConstPtr& msg, const MSG::T_PARAMS & params);
+    void _PointCloud2_CB(const pcl::PCLPointCloud2ConstPtr& msg, const MSG::T_PARAMS & params);
     std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > _PointCloud2_tmp_ptr; // tmp cloud
     // ITRIPointCloud
     void _ITRIPointCloud_CB(const msgs::PointCloud::ConstPtr& msg, const MSG::T_PARAMS & params);

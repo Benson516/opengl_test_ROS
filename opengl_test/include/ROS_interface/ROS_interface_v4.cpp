@@ -326,11 +326,11 @@ void ROS_INTERFACE::_ROS_worker(){
         if (_tmp_params.is_input){
             // Subscribe
             _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
-            _subscriber_list.push_back( _nh.subscribe<sensor_msgs::PointCloud2>( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_PointCloud2_CB, this, _1, _tmp_params)  ) );
+            _subscriber_list.push_back( _nh.subscribe<pcl::PCLPointCloud2>( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_PointCloud2_CB, this, _1, _tmp_params)  ) );
         }else{
             // Publish
             _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
-            _publisher_list.push_back( _nh.advertise<sensor_msgs::PointCloud2>( _tmp_params.name, _tmp_params.ROS_queue) );
+            _publisher_list.push_back( _nh.advertise<pcl::PCLPointCloud2>( _tmp_params.name, _tmp_params.ROS_queue) );
         }
     }
 
@@ -896,7 +896,7 @@ void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstP
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
 
-    cv::Mat image
+    cv::Mat image;
     try{
         image = cv::imdecode(cv::Mat(msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
     }
@@ -916,7 +916,7 @@ void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstP
 // PointCloud2
 //---------------------------------------------------------------//
 // input
-void ROS_INTERFACE::_PointCloud2_CB(const sensor_msgs::PointCloud2::ConstPtr& msg, const MSG::T_PARAMS & params){
+void ROS_INTERFACE::_PointCloud2_CB(const pcl::PCLPointCloud2ConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
 
@@ -927,10 +927,10 @@ void ROS_INTERFACE::_PointCloud2_CB(const sensor_msgs::PointCloud2::ConstPtr& ms
     }
 
     // convert cloud
-    pcl::PCLPointCloud2 pcl_pc;
-    pcl_conversions::toPCL(*msg, pcl_pc);
-    pcl::fromPCLPointCloud2(pcl_pc, *_tmp_cloud_ptr);
-    std::cout << "============ Lidar map loaded ============\n  ";
+    // pcl::PCLPointCloud2 pcl_pc;
+    // pcl_conversions::toPCL(*msg, pcl_pc);
+    pcl::fromPCLPointCloud2(*msg, *_tmp_cloud_ptr);
+    // std::cout << "============ Lidar map loaded ============\n  ";
     //
 
     // Add to buffer

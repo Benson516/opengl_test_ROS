@@ -7,15 +7,17 @@
 #include <ROS_interface_v4.hpp>
 
 #define __DEBUG__
-#define __SUB_IMAGES__
-#define __SUB_POINT_CLOUD__
+// #define __SUB_IMAGES__
+// #define __SUB_POINT_CLOUD__
+
+// #define __ROS_INTERFACE_V1__
+#define __ROS_INTERFACE_V2__
 
 // nickname for topic_id
 enum class MSG_ID{
     // tfGeoPoseStamped
     ego_pose,
     // Image
-#ifdef __SUB_IMAGES__
     camera_front_right, // front-right
     camera_front_center, // front-center
     camera_front_left, // front-left
@@ -25,12 +27,10 @@ enum class MSG_ID{
     camera_left_fore, // left-front
     camera_left_rear, // left-rear
     camera_rear_center, // back
-#endif // __SUB_IMAGES__
     // ITRIPointCloud
-#ifdef __SUB_POINT_CLOUD__
     point_cloud_raw,
     point_cloud_map,
-#endif
+    //
     lidar_bounding_box_raw,
     lidar_bounding_box_tracking,
     bounding_box_image_front_all,
@@ -74,7 +74,7 @@ public:
     bool get_any_message(const int topic_id, boost::any & content_out_ptr, ros::Time &msg_stamp);
     //
     template <class _T> bool get_message(const int topic_id, _T & content_out){
-        if ( !got_on_any_topic[topic_id] ){
+        if ( topic_id >= got_on_any_topic.size() || !got_on_any_topic[topic_id] ){
             return false;
         }
         std::shared_ptr< _T > *_ptr_ptr = boost::any_cast< std::shared_ptr< _T > >( &(any_ptr_list[topic_id]) );
@@ -82,7 +82,7 @@ public:
         return true;
     }
     template <class _T> bool get_message(const int topic_id, std::shared_ptr<_T> & content_out_ptr){
-        if ( !got_on_any_topic[topic_id] ){
+        if ( topic_id >= got_on_any_topic.size() || !got_on_any_topic[topic_id] ){
             return false;
         }
         std::shared_ptr< _T > *_ptr_ptr = boost::any_cast< std::shared_ptr< _T > >( &(any_ptr_list[topic_id]) );
@@ -90,7 +90,7 @@ public:
         return true;
     }
     template <class _T> bool get_message(const int topic_id, std::shared_ptr<_T> & content_out_ptr, ros::Time &msg_stamp){
-        if ( !got_on_any_topic[topic_id] ){
+        if ( topic_id >= got_on_any_topic.size() || !got_on_any_topic[topic_id] ){
             return false;
         }
         std::shared_ptr< _T > *_ptr_ptr = boost::any_cast< std::shared_ptr< _T > >( &(any_ptr_list[topic_id]) );

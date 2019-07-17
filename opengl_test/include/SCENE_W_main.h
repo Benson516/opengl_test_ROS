@@ -107,7 +107,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 
     // Grid ground
     _rmGrid_ptr.reset(new rmGrid(_Assets_path, "map", "base" ) );
-    _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -6.0f, false);
+    // _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -6.0f, false);
+    _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -2.2f, true);
     _rm_BaseModel.push_back( _rmGrid_ptr );
     /*
     // Grid local
