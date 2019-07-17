@@ -189,6 +189,9 @@ void setupGUI()
 	TwDefine(" Properties size='270 450' "); // 220, 300
 	TwDefine(" Properties fontsize='3' color='0 0 0' alpha=180 ");  // http://anttweakbar.sourceforge.net/doc/tools:anttweakbar:twbarparamsyntax
 
+    // gui_name
+    TwAddVarRO(bar_1_ptr, "gui_name", TW_TYPE_STDSTRING, &(ros_api.gui_name), " label='GUI name' help='The name of this GUI' ");
+    TwAddSeparator(bar_1_ptr, "Sep0", "");
     // FPS of display
     // TwAddVarRO(bar_1_ptr, "fps_d", TW_TYPE_FLOAT, &m_fps_d, " label='FPS-display' help='Frame Per Second(FPS)' ");
 	TwAddVarRO(bar_1_ptr, "fps_d", TW_TYPE_STDSTRING, &m_fps_d_str, " label='FPS-display' help='Frame Per Second(FPS)' ");
@@ -201,7 +204,8 @@ void setupGUI()
     // }
     m_fps_topic_str.resize( ros_api.ros_interface.get_count_of_all_topics(), "0.0");
     for (int topic_idx = int(MSG_ID::camera_front_right); topic_idx < ros_api.ros_interface.get_count_of_all_topics(); ++topic_idx ){
-        TwAddVarRO(bar_1_ptr, ("fps_" + std::to_string(topic_idx)).c_str(), TW_TYPE_STDSTRING, &(m_fps_topic_str[topic_idx]), (" label='FPS-" + ros_api.ros_interface.get_topic_name(topic_idx) + "' help='Frame Per Second(FPS)' ").c_str() );
+        if ( ros_api.ros_interface.get_topic_param(topic_idx).topic_id >= 0)
+            TwAddVarRO(bar_1_ptr, ("fps_" + std::to_string(topic_idx)).c_str(), TW_TYPE_STDSTRING, &(m_fps_topic_str[topic_idx]), (" label='FPS-" + ros_api.ros_interface.get_topic_name(topic_idx) + "' help='Frame Per Second(FPS)' ").c_str() );
     }
     //
     TwAddSeparator(bar_1_ptr, "Sep2", "");
