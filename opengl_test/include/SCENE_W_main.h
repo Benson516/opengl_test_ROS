@@ -16,6 +16,7 @@ public:
     void perSceneKeyBoardEvent(unsigned char key);
 
     std::vector<size_t> enable_ctr_id_list_image;
+    bool is_enable_image3D;
 private:
     inline static bool cal_viewport_w(int w, int h, int &cx, int &cy, int &vw, int &vh){
         double asp = 1.5833333333;
@@ -38,7 +39,8 @@ private:
 };
 
 
-SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
+SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
+    is_enable_image3D(true)
 {
 	_camera_ptr.reset(new ViewManager());
     // _camera_ptr->assign_cal_viewport(&cal_viewport_w);
@@ -374,9 +376,11 @@ void SCENE_W_main::perSceneKeyBoardEvent(unsigned char key){
     case 'i':
     case 'I':
         // Toggle enable
+        is_enable_image3D = !is_enable_image3D;
         for (size_t i=0; i < enable_ctr_id_list_image.size(); ++i){
             auto _ptr = &(_rm_BaseModel[ enable_ctr_id_list_image[i] ]);
-            (*_ptr)->set_enable( !((*_ptr)->get_enable()) );
+            // (*_ptr)->set_enable( !((*_ptr)->get_enable()) );
+            (*_ptr)->set_enable( is_enable_image3D );
         }
         break;
 	default:
@@ -393,44 +397,68 @@ void SCENE_W_main::ROSTopicEvent(ROS_API &ros_api){
     if (!result){
         return;
     }
+
+    // Filter by "gui_name"
+    if (_GUI2_op_ptr->gui_name != ros_api.gui_name){
+        return;
+    }
     // else
     std::cout << "---\n";
-    std::cout << "cam_type: " << _GUI2_op_ptr->cam_type << "\n";
+    std::cout << "gui_name: " << _GUI2_op_ptr->gui_name << "\n";
+    std::cout << "cam_view_mode: " << _GUI2_op_ptr->cam_view_mode << "\n";
+    std::cout << "cam_motion_mode: " << _GUI2_op_ptr->cam_motion_mode << "\n";
     std::cout << "image3D: " << _GUI2_op_ptr->image3D << "\n";
     std::cout << "image_surr: " << _GUI2_op_ptr->image_surr << "\n";
-    std::cout << "cam_motion: " << _GUI2_op_ptr->cam_motion << "\n";
+    std::cout << "cam_op: " << _GUI2_op_ptr->cam_op << "\n";
+    std::cout << "record_op: " << _GUI2_op_ptr->record_op << "\n";
 
     // State
     //----------------------------------------//
-    // cam_type
-    if (_GUI2_op_ptr->cam_type == "follow"){
+    // cam_view_mode
+    if (_GUI2_op_ptr->cam_view_mode == "close"){
+        switchCameraViewMode( 0, ros_api);
+    }else if (_GUI2_op_ptr->cam_view_mode == "over"){
+        switchCameraViewMode( 1, ros_api);
+    }else if (_GUI2_op_ptr->cam_view_mode == "bird"){
+        switchCameraViewMode( 2, ros_api);
+    }else if (_GUI2_op_ptr->cam_view_mode == "toggle"){
+        KeyBoardEvent('v', ros_api);
+    }
+    // cam_motion_mode
+    if (_GUI2_op_ptr->cam_motion_mode == "follow"){
         switchCameraMotionMode( 0, ros_api);
-    }else if (_GUI2_op_ptr->cam_type == "static"){
+    }else if (_GUI2_op_ptr->cam_motion_mode == "static"){
         switchCameraMotionMode( 1, ros_api);
-    }else if (_GUI2_op_ptr->cam_type == "toggle_cam"){
+    }else if (_GUI2_op_ptr->cam_motion_mode == "toggle"){
         KeyBoardEvent('c', ros_api);
     }
     // image3D
     if (_GUI2_op_ptr->image3D == "on"){
-        //
+        // enable
+        if (!is_enable_image3D){
+            perSceneKeyBoardEvent('i');
+        }
     }else if (_GUI2_op_ptr->image3D == "off"){
-        //
+        // disable
+        if (is_enable_image3D){
+            perSceneKeyBoardEvent('i');
+        }
     }
     // image_surr
     if (_GUI2_op_ptr->image_surr == "on"){
-        //
+        switch_layout( 0 ); // mode 0: on
     }else if (_GUI2_op_ptr->image_surr == "off"){
-        //
+        switch_layout( 1 ); // mode 1: off
     }
     //----------------------------------------//
     // Event
     //----------------------------------------//
     // cam_motion
-    if (_GUI2_op_ptr->cam_motion == "reset"){
+    if (_GUI2_op_ptr->cam_op == "reset"){
         KeyBoardEvent('z', ros_api);
-    }else if (_GUI2_op_ptr->cam_motion == "zoom_in"){
+    }else if (_GUI2_op_ptr->cam_op == "zoom_in"){
         KeyBoardEvent('w', ros_api);
-    }else if (_GUI2_op_ptr->cam_motion == "zoom_out"){
+    }else if (_GUI2_op_ptr->cam_op == "zoom_out"){
         KeyBoardEvent('s', ros_api);
     }
     //----------------------------------------//
@@ -438,15 +466,32 @@ void SCENE_W_main::ROSTopicEvent(ROS_API &ros_api){
     //Response
     //----------------------------------------//
     opengl_test::GUI2_op res_data;
-    // cam_type
+    res_data.header = _GUI2_op_ptr->header;
+    res_data.header.stamp = ros::Time::now(); // Update to current time
+    // gui_name
+    res_data.gui_name = ros_api.gui_name;
+    // cam_motion_mode
+    if (camera_view_mode == 0)
+        res_data.cam_view_mode = "close";
+    else if (camera_view_mode == 1)
+        res_data.cam_view_mode = "over";
+    else if (camera_view_mode == 2)
+        res_data.cam_view_mode = "bird";
+    // cam_motion_mode
     if (camera_motion_mode == 0)
-        res_data.cam_type = "follow";
+        res_data.cam_motion_mode = "follow";
     else if (camera_motion_mode == 1)
-        res_data.cam_type = "static";
+        res_data.cam_motion_mode = "static";
     // image3D
-    res_data.image3D = "on";
+    if (is_enable_image3D)
+        res_data.image3D = "on";
+    else
+        res_data.image3D = "off";
     // image_surr
-    res_data.image_surr = "on";
+    if (_layout_mode == 0)
+        res_data.image_surr = "on";
+    else
+        res_data.image_surr = "off";
     //----------------------------------------//
     //
     ros_api.ros_interface.send_GUI2_op( int(MSG_ID::GUI_operatio), res_data);

@@ -2,7 +2,8 @@
 
 
 ROS_API::ROS_API():
-    _is_initialized(false)
+    _is_initialized(false),
+    gui_name("passenger")
 {
     // TODO: replace the following hardcoded path to an auto-detected one
     // path_pkg = "/home/benson516_itri/catkin_ws/src/opengl_test_ROS/opengl_test/";
@@ -19,6 +20,15 @@ bool ROS_API::start(int argc, char **argv, std::string node_name_in){
     ros_interface.setup_node(argc, argv, node_name_in);
     // Setup topics
     _set_up_topics();
+
+    // Get parameters
+    //-------------------------------//
+    // Private parameters
+    ros::NodeHandle pnh("~");
+    // Param_name, variable_set, default_value
+    pnh.param<std::string>("gui_name", gui_name, gui_name);
+    //-------------------------------//
+
     //
     // Initialize vectors
     if (!_is_initialized){

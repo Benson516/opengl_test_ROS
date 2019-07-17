@@ -8,12 +8,14 @@ port = '6060'
 
 # payload = {'data1':1, 'data2':'2', 'data3':[1,2,3], 'data4':None}
 payload = dict()
-# payload["cam_type"] = "follow"
-# payload["cam_type"] = "static"
-# payload["cam_type"] = "toggle_cam"
+payload["gui_name"] = "passenger"
+# payload["cam_motion_mode"] = "follow"
+# payload["cam_motion_mode"] = "static"
+# payload["cam_motion_mode"] = "toggle"
 payload["image3D"] = "on"
 payload["image_surr"] = "on"
-payload["cam_motion"] = "reset"
+payload["cam_op"] = "reset"
+payload["record_op"] = "backup"
 print("payload(json): " + json.dumps(payload))
 # r = requests.get('http://%s:%s/json_in_data' % (IP, port), params={'data':json.dumps(payload)})
 r = requests.post('http://%s:%s/json_in_out' % (IP, port), json=payload)
