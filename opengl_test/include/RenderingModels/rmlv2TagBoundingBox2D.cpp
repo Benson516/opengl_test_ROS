@@ -12,9 +12,9 @@ namespace rmlv2TagBoundingBox2D_ns{
         glm::vec3(255, 153, 102), // bicycle
         glm::vec3(153, 255, 255), // car
         glm::vec3(255, 153, 127), // motorbike
-        glm::vec3(255, 255, 0), // not showing aeroplane
+        glm::vec3(255, 255, 0), // (not showing) aeroplane
         glm::vec3(102, 204, 255), // bus
-        glm::vec3(255, 255, 100), // not showing train
+        glm::vec3(255, 255, 100), // (not showing) train
         glm::vec3(255, 153, 102), // truck
         glm::vec3(50, 50, 50) // default
     };
@@ -23,6 +23,27 @@ namespace rmlv2TagBoundingBox2D_ns{
             return ( obj_class_colors[obj_class_in] * color_normalize_factor );
         }
         return ( default_class_color * color_normalize_factor );
+    }
+    //-------------------------------------------//
+
+    // Predefined strings
+    //-------------------------------------------//
+    std::string obj_class_string[] = {
+        std::string("person"),
+        std::string("bicycle"),
+        std::string("car"),
+        std::string("motorbike"),
+        std::string("aeroplane"),
+        std::string("bus"),
+        std::string("train"),
+        std::string("truck"),
+        std::string("unknown")
+    };
+    std::string get_obj_class_string(int obj_class_in){
+        if (obj_class_in < NUM_OBJ_CLASS){
+            return obj_class_string[obj_class_in];
+        }
+        return obj_class_string[NUM_OBJ_CLASS];
     }
     //-------------------------------------------//
 
@@ -91,82 +112,6 @@ void rmlv2TagBoundingBox2D::Reshape(const glm::ivec2 & viewport_size_in){
 }
 
 
-/*
-void rmlv2TagBoundingBox2D::update_GL_data(){
-    // Reset
-    if (is_perspected){
-        text2Din3D_list.clear();
-    }else{
-        text2Dflat_list.clear();
-    }
-
-    //
-    if (msg_out_ptr->camObj.size() == 0){
-        // Insert texts
-        if (is_perspected){
-            rm_text.insert_text(text2Din3D_list);
-        }else{
-            rm_text.insert_text(text2Dflat_list);
-        }
-        return;
-    }
-    long long num_box = msg_out_ptr->camObj.size();
-
-    // if (num_box > _max_num_box){
-    //     num_box = _max_num_box;
-    // }
-
-    //
-    size_t _box_count = 0;
-    for (size_t i = 0; i < num_box; i++)
-	{
-        //
-        auto & _box = msg_out_ptr->camObj[i];
-        box_param_cv _a_box_param_cv(_box.x, _box.y, _box.width, _box.height, _box.cls);
-        box_param_gl _a_box_param_gl;
-        convert_cv_to_normalized_gl(_a_box_param_cv, _a_box_param_gl);
-        if (!is_gl_box_valid(_a_box_param_gl)){
-            continue; // Don't add to buffer
-        }
-        _box_count++;
-        //
-        glm::vec3 _box_color = rmlv2TagBoundingBox2D_ns::get_obj_class_color(_a_box_param_gl.obj_class);
-        if (is_perspected){
-            text2Din3D_list.emplace_back(
-                "#" + std::to_string(_box.id) + " cls: " + std::to_string(_box.cls),
-                _a_box_param_gl.xy_list[0],
-                0.1,
-                _box_color,
-                ALIGN_X::LEFT,
-                ALIGN_Y::BUTTON,
-                1
-            );
-        }else{
-            text2Dflat_list.emplace_back(
-                "#" + std::to_string(_box.id) + " cls: " + std::to_string(_box.cls),
-                _a_box_param_gl.xy_list[0],
-                24,
-                _box_color,
-                ALIGN_X::LEFT,
-                ALIGN_Y::BUTTON,
-                1,
-                0,
-                !is_moveable,
-                false
-            );
-        }
-        //
-	}
-
-    // Insert texts
-    if (is_perspected){
-        rm_text.insert_text(text2Din3D_list);
-    }else{
-        rm_text.insert_text(text2Dflat_list);
-    }
-}
-*/
-
 
 void rmlv2TagBoundingBox2D::update_GL_data(){
     // Reset
@@ -208,23 +153,24 @@ void rmlv2TagBoundingBox2D::update_GL_data(){
         }
         _box_count++;
         //
-        glm::vec3 _box_color = rmlv2TagBoundingBox2D_ns::get_obj_class_color(_a_box_param_gl.obj_class);
+        glm::vec3 _tag_color = rmlv2TagBoundingBox2D_ns::get_obj_class_color(_a_box_param_gl.obj_class);
+        std::string _tag_str( "#" + std::to_string(_box.camInfo.id) + "\n" + rmlv2TagBoundingBox2D_ns::get_obj_class_string(_box.classId) );
         if (is_perspected){
             text2Din3D_list.emplace_back(
-                "#" + std::to_string(_box.camInfo.id) + " cls: " + std::to_string(_box.classId),
+                _tag_str,
                 _a_box_param_gl.xy_list[0],
                 0.1,
-                _box_color,
+                _tag_color,
                 ALIGN_X::LEFT,
                 ALIGN_Y::BUTTON,
                 1
             );
         }else{
             text2Dflat_list.emplace_back(
-                "#" + std::to_string(_box.camInfo.id) + " cls: " + std::to_string(_box.classId),
+                _tag_str,
                 _a_box_param_gl.xy_list[0],
                 24,
-                _box_color,
+                _tag_color,
                 ALIGN_X::LEFT,
                 ALIGN_Y::BUTTON,
                 1,
