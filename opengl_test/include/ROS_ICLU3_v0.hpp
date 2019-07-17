@@ -10,8 +10,8 @@
 // #define __SUB_IMAGES__
 // #define __SUB_POINT_CLOUD__
 
-// #define __ROS_INTERFACE_V1__
-#define __ROS_INTERFACE_V2__
+#define __ROS_INTERFACE_V1__
+// #define __ROS_INTERFACE_V2__
 
 // nickname for topic_id
 enum class MSG_ID{
