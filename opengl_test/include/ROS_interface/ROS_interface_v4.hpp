@@ -165,9 +165,21 @@ public:
     //
     bool setup_node(int argc, char **argv, std::string node_name_in=std::string("ROS_interface"));
     // Setting up topics
-    // Method 1: use add_a_topic to add a single topic one at a time
-    // Method 2: use load_topics to load all topics
+    // Method 1: use add_a_topic to add a single topic sequentially one at a time
+    // Method 2: use add_a_topic to add a single topic specific to topic_id
+    // Method 3: use load_topics to load all topics
     bool add_a_topic(
+        const std::string &name_in,
+        int type_in,
+        bool is_input_in,
+        size_t ROS_queue_in,
+        size_t buffer_length_in,
+        std::string frame_id_in="",
+        bool is_transform_in=false,
+        std::string to_frame_in=""
+    );
+    bool add_a_topic(
+        int topic_id_in,
         const std::string &name_in,
         int type_in,
         bool is_input_in,
@@ -273,7 +285,7 @@ public:
 
 private:
     bool _is_started;
-    size_t _num_topics;
+    // size_t _num_topics;
     size_t _num_ros_cb_thread;
 
     // Although we only use "one" thread, by using this container,

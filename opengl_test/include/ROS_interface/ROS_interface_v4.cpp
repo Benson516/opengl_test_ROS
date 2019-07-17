@@ -8,7 +8,7 @@
 // Constructors
 ROS_INTERFACE::ROS_INTERFACE():
     _is_started(false),
-    _num_topics(0),
+    // _num_topics(0),
     _msg_type_2_topic_params( size_t(MSG::M_TYPE::NUM_MSG_TYPE) ),
     //
     _ref_frame("map"), _stationary_frame("map"),
@@ -24,7 +24,7 @@ ROS_INTERFACE::ROS_INTERFACE():
 }
 ROS_INTERFACE::ROS_INTERFACE(int argc, char **argv):
     _is_started(false),
-    _num_topics(0),
+    // _num_topics(0),
     _msg_type_2_topic_params( size_t(MSG::M_TYPE::NUM_MSG_TYPE) ),
     //
     _ref_frame("map"), _stationary_frame("map"),
@@ -53,7 +53,7 @@ bool ROS_INTERFACE::setup_node(int argc, char **argv, std::string node_name_in){
 }
 // Setting up topics
 //----------------------------------------------------------------//
-// Method 1: use add_a_topic to add a single topic one at a time
+// Method 1: use add_a_topic to add a single topic sequentially one at a time
 bool ROS_INTERFACE::add_a_topic(
     const std::string &name_in,
     int type_in,
@@ -70,15 +70,45 @@ bool ROS_INTERFACE::add_a_topic(
     _topic_param_list.push_back( MSG::T_PARAMS(name_in, type_in, is_input_in, ROS_queue_in, buffer_length_in, idx_new, frame_id_in, is_transform_in, to_frame_in) );
     // Parsing parameters
     //----------------------------//
-    _num_topics = _topic_param_list.size();
+    // _num_topics = _topic_param_list.size();
     // get topic_type_id and store them in separated arrays
-    size_t i = _num_topics-1;
+    size_t i = _topic_param_list.size()-1;
     _msg_type_2_topic_params[ _topic_param_list[i].type ].push_back( _topic_param_list[i] );
     _topic_tid_list.push_back( _msg_type_2_topic_params[ _topic_param_list[i].type ].size() - 1 );
     //----------------------------//
     return true;
 }
-// Method 2: use load_topics to load all topics
+// Method 2: use add_a_topic to add a single topic specific to topic_id
+bool ROS_INTERFACE::add_a_topic(
+    int topic_id_in,
+    const std::string &name_in,
+    int type_in,
+    bool is_input_in,
+    size_t ROS_queue_in,
+    size_t buffer_length_in,
+    std::string frame_id_in,
+    bool is_transform_in,
+    std::string to_frame_in
+)
+{
+    // Add a topic
+    size_t idx_new = topic_id_in;
+    if ( idx_new >= _topic_param_list.size() ){
+        _topic_param_list.resize(idx_new+1, MSG::T_PARAMS() );
+        _topic_tid_list.resize(idx_new+1, -1 );
+    }
+    _topic_param_list[idx_new] = ( MSG::T_PARAMS(name_in, type_in, is_input_in, ROS_queue_in, buffer_length_in, idx_new, frame_id_in, is_transform_in, to_frame_in) );
+    // Parsing parameters
+    //----------------------------//
+    // _num_topics = _topic_param_list.size();
+    // get topic_type_id and store them in separated arrays
+    size_t i = idx_new; // _topic_param_list.size()-1;
+    _msg_type_2_topic_params[ _topic_param_list[i].type ].push_back( _topic_param_list[i] );
+    _topic_tid_list[idx_new] = _msg_type_2_topic_params[ _topic_param_list[i].type ].size() - 1;
+    //----------------------------//
+    return true;
+}
+// Method 3: use load_topics to load all topics
 bool ROS_INTERFACE::load_topics(const std::vector<MSG::T_PARAMS> &topic_param_list_in){
     // Filling the dataset inside the object
     // Note: Do not subscribe/advertise topic now
@@ -87,7 +117,7 @@ bool ROS_INTERFACE::load_topics(const std::vector<MSG::T_PARAMS> &topic_param_li
     _topic_param_list = topic_param_list_in;
     // Parsing parameters
     //----------------------------//
-    _num_topics = _topic_param_list.size();
+    // _num_topics = _topic_param_list.size();
     // get topic_type_id and store them in separated arrays
     for(size_t i=0; i < _topic_param_list.size(); ++i){
         // Assign the topic_id
