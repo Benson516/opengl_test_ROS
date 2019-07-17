@@ -1,0 +1,12 @@
+<launch>
+
+  <node name="GUI_passenger" pkg="opengl_test" type="visualizer2">
+      <param name="gui_name" value="passenger"/>
+  </node>
+  
+  <node name="GUI_driver" pkg="opengl_test" type="visualizer2">
+      <param name="gui_name" value="driver"/>
+  </node>
+
+ 
+</launch>

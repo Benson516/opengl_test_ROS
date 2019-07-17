@@ -397,6 +397,11 @@ void SCENE_W_main::ROSTopicEvent(ROS_API &ros_api){
     if (!result){
         return;
     }
+
+    // Filter by "gui_name"
+    if (_GUI2_op_ptr->gui_name != ros_api.gui_name){
+        return;
+    }
     // else
     std::cout << "---\n";
     std::cout << "gui_name: " << _GUI2_op_ptr->gui_name << "\n";
@@ -409,10 +414,6 @@ void SCENE_W_main::ROSTopicEvent(ROS_API &ros_api){
 
     // State
     //----------------------------------------//
-    // gui_name
-    if (_GUI2_op_ptr->gui_name == "passenger"){
-        //
-    }
     // cam_view_mode
     if (_GUI2_op_ptr->cam_view_mode == "close"){
         switchCameraViewMode( 0, ros_api);
@@ -468,7 +469,7 @@ void SCENE_W_main::ROSTopicEvent(ROS_API &ros_api){
     res_data.header = _GUI2_op_ptr->header;
     res_data.header.stamp = ros::Time::now(); // Update to current time
     // gui_name
-    res_data.gui_name = "passenger";
+    res_data.gui_name = ros_api.gui_name;
     // cam_motion_mode
     if (camera_view_mode == 0)
         res_data.cam_view_mode = "close";

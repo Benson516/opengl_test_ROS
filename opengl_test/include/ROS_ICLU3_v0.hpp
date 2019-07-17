@@ -45,6 +45,7 @@ enum class MSG_ID{
 
 class ROS_API{
 public:
+    std::string gui_name;
     // the ROS_interface
     ROS_INTERFACE ros_interface;
     std::string path_pkg;
