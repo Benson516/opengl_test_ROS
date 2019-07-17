@@ -10,7 +10,7 @@ rmlv2PathPlanFake::rmlv2PathPlanFake(
 ):
     _ROS_topic_id(_ROS_topic_id_in),
     //
-    rm_path(_path_Assets_in, _ROS_topic_id_in),
+    rm_path(_path_Assets_in, _ROS_topic_id_in, 1),
     rm_text(_path_Assets_in, _ROS_topic_id_in)
 {
     //
@@ -25,18 +25,18 @@ void rmlv2PathPlanFake::Init(){
     //
     section_vertexes.resize(4);
     //
-    section_vertexes[0] = glm::vec3(0.0f, -1.0f, -1.0f);
-    section_vertexes[1] = glm::vec3(0.0f, -1.0f, 1.0f);
-    section_vertexes[2] = glm::vec3(0.0f, 1.0f, 1.0f);
-    section_vertexes[3] = glm::vec3(0.0f, 1.0f, -1.0f);
-    glm::mat4 _delta_T = glm::scale(glm::mat4(1.0), glm::vec3(1.0f, 0.1f, 1.0f) );
+    // section_vertexes[0] = glm::vec3(0.0f, -1.0f, -1.0f);
+    // section_vertexes[1] = glm::vec3(0.0f, -1.0f, 1.0f);
+    // section_vertexes[2] = glm::vec3(0.0f, 1.0f, 1.0f);
+    // section_vertexes[3] = glm::vec3(0.0f, 1.0f, -1.0f);
+    // glm::mat4 _delta_T = glm::scale(glm::mat4(1.0), glm::vec3(1.0f, 0.1f, 1.0f) );
     //
-    // section_vertexes[0] = glm::vec3(-1.0f, -1.0f, 0.0f);
-    // section_vertexes[1] = glm::vec3(-1.0f, 1.0f, 0.0f);
-    // section_vertexes[2] = glm::vec3(1.0f, 1.0f, 0.01f);
-    // section_vertexes[3] = glm::vec3(1.0f, -1.0f, 0.01f);
-    // glm::mat4 _delta_T = glm::translate(glm::mat4(1.0), glm::vec3(3.0f, 0.0f, -2.0f) );
-    // _delta_T = glm::scale(_delta_T, glm::vec3(4.0f, 1.4f, 1.0f) );
+    section_vertexes[0] = glm::vec3(-1.0f, -1.0f, 0.0f);
+    section_vertexes[1] = glm::vec3(-1.0f, 1.0f, 0.0f);
+    section_vertexes[2] = glm::vec3(1.0f, 1.0f, 0.01f);
+    section_vertexes[3] = glm::vec3(1.0f, -1.0f, 0.01f);
+    glm::mat4 _delta_T = glm::translate(glm::mat4(1.0), glm::vec3(3.0f, 0.0f, -2.0f) );
+    _delta_T = glm::scale(_delta_T, glm::vec3(4.0f, 1.4f, 1.0f) );
     //
     for (size_t i=0; i < section_vertexes.size(); ++i){
         section_vertexes[i] = (_delta_T * glm::vec4(section_vertexes[i], 1.0f)).xyz();

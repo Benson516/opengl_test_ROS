@@ -8,8 +8,8 @@
 class rmSweepingObject : public rmBaseModel
 {
 public:
-    rmSweepingObject(std::string _path_Assets_in, std::string frame_id_in);
-    rmSweepingObject(std::string _path_Assets_in, int _ROS_topic_id_in);
+    rmSweepingObject(std::string _path_Assets_in, std::string frame_id_in, int draw_mode_in=0);
+    rmSweepingObject(std::string _path_Assets_in, int _ROS_topic_id_in, int draw_mode_in=0);
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
@@ -34,6 +34,9 @@ protected:
     // std::shared_ptr< msgs::LidRoi > msg_out_ptr;
     // ros::Time msg_time;
     std::string _frame_id;
+
+    // parameters
+    int draw_mode;
 
     void update_GL_data();
 
