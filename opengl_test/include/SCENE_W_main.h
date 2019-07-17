@@ -13,6 +13,9 @@ public:
     // Interaction events
     void ROSTopicEvent(ROS_API &ros_api);
 
+    void perSceneKeyBoardEvent(unsigned char key);
+
+    std::vector<size_t> enable_ctr_id_list_image;
 private:
     inline static bool cal_viewport_w(int w, int h, int &cx, int &cy, int &vw, int &vh){
         double asp = 1.5833333333;
@@ -24,6 +27,13 @@ private:
         vh = h-im_h;
         return true;
     }
+    inline static bool cal_viewport_w_1(int w, int h, int &cx, int &cy, int &vw, int &vh){
+        cx = 0;
+        cy = 0;
+        vw = w;
+        vh = h;
+        return true;
+    }
 
 };
 
@@ -31,7 +41,13 @@ private:
 SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 {
 	_camera_ptr.reset(new ViewManager());
-    _camera_ptr->assign_cal_viewport(&cal_viewport_w);
+    // _camera_ptr->assign_cal_viewport(&cal_viewport_w);
+    // Layout
+    //----------------------------------------//
+    attach_cal_viewport_func_ptr(0, &cal_viewport_w);
+    attach_cal_viewport_func_ptr(1, &cal_viewport_w_1);
+    switch_layout(0);
+    //----------------------------------------//
 
     _pkg_path = (pkg_path_in);
     _Assets_path = (pkg_path_in + "Assets/");
@@ -91,7 +107,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 
     // Grid ground
     _rmGrid_ptr.reset(new rmGrid(_Assets_path, "map", "base" ) );
-    _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -6.0f, false);
+    // _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -6.0f, false);
+    _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -3.0f, true);
     _rm_BaseModel.push_back( _rmGrid_ptr );
     /*
     // Grid local
@@ -178,6 +195,10 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _image_board_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
+    // Control list
+    enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
+    //
+
     // Bounding box for front-center camera
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_all), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*1, 0);
@@ -191,6 +212,9 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     // _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
+    // Control list
+    enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
+    //
 
 
     // Dynamic image, front-right camera
@@ -205,6 +229,10 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _image_board_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
+    // Control list
+    enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
+    //
+
     // Bounding box for front-right camera
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_all), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*2, 0);
@@ -218,6 +246,9 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     // _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
+    // Control list
+    enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
+    //
 
 
     // Dynamic image, front-left camera
@@ -232,6 +263,10 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _image_board_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
+    // Control list
+    enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
+    //
+
     // Bounding box for front-left camera
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_all), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*0, 0);
@@ -245,6 +280,9 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     // _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
+    // Control list
+    enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
+    //
 
 
 
@@ -260,6 +298,10 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     _image_board_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _image_board_ptr );
+    // Control list
+    enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
+    //
+
     // Bounding box for front-left camera
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_top), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*0, 0);
@@ -273,6 +315,9 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
     // _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
+    // Control list
+    enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
+    //
 
 
 
@@ -323,6 +368,21 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 
 
 
+void SCENE_W_main::perSceneKeyBoardEvent(unsigned char key){
+    switch (key)
+	{
+    case 'i':
+    case 'I':
+        // Toggle enable
+        for (size_t i=0; i < enable_ctr_id_list_image.size(); ++i){
+            auto _ptr = &(_rm_BaseModel[ enable_ctr_id_list_image[i] ]);
+            (*_ptr)->set_enable( !((*_ptr)->get_enable()) );
+        }
+        break;
+	default:
+		break;
+	}
+}
 
 
 // Interaction events
@@ -391,5 +451,7 @@ void SCENE_W_main::ROSTopicEvent(ROS_API &ros_api){
     //
     ros_api.ros_interface.send_GUI2_op( int(MSG_ID::GUI_operatio), res_data);
 }
+
+
 
 #endif  // SCENE_W_MAIN_H

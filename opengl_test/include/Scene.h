@@ -41,10 +41,15 @@ public:
     Scene();
 	Scene(std::string pkg_path_in);
     //
+    void enable(bool enable_in);
+    void attach_cal_viewport_func_ptr(int layout_id, bool (*)( int , int ,int &, int &, int &, int &) );
+    bool switch_layout(int layout_id);
+    //
 	void Render();
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
     void Update(ROS_API &ros_api);
+    void Reshape();
     void Reshape(int full_window_width, int full_window_height);
 
     // Interaction events
@@ -53,6 +58,10 @@ public:
 	virtual void KeyBoardEvent(int key);
 	virtual void KeyBoardEvent(unsigned char key, ROS_API &ros_api);
 	virtual void MenuEvent(int item);
+
+    //
+    virtual void perSceneKeyBoardEvent(unsigned char key){  /*empty*/ }
+    //
 
     // Camera mode
     int get_camera_motion_mode(){ return camera_motion_mode; }
@@ -65,18 +74,31 @@ public:
     std::shared_ptr<ViewManager> GetCamera(){ return _camera_ptr; }
 
 protected:
+    bool is_enabled;
     std::string _pkg_path;
     std::string _Assets_path;
 	std::shared_ptr<ViewManager> _camera_ptr;
 
     // camera motion
     int camera_motion_mode;
-    std::string camera_frame_id;
+    std::string camera_ref_frame;
     // Camera view
     int camera_view_mode;
 
+    int _layout_mode;
+    std::map<int, bool (*)( int , int ,int &, int &, int &, int &)> _cal_viewport_map;
+
     // Render models
     std::vector< std::shared_ptr<rmBaseModel> > _rm_BaseModel;
+
+
+    static bool cal_viewport_dis(int w, int h, int &cx, int &cy, int &vw, int &vh){
+        cx = 0;
+        cy = 0;
+        vw = 1;
+        vh = 0;
+        return true;
+    }
 };
 
 #endif  // Scene_H

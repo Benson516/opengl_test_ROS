@@ -71,6 +71,7 @@ namespace MSG{
         GUI2_op,
         tfGeoPoseStamped,
         Image,
+        CompressedImage,
         PointCloud2,
         ITRIPointCloud,
         ITRI3DBoundingBox,
@@ -165,9 +166,21 @@ public:
     //
     bool setup_node(int argc, char **argv, std::string node_name_in=std::string("ROS_interface"));
     // Setting up topics
-    // Method 1: use add_a_topic to add a single topic one at a time
-    // Method 2: use load_topics to load all topics
+    // Method 1: use add_a_topic to add a single topic sequentially one at a time
+    // Method 2: use add_a_topic to add a single topic specific to topic_id
+    // Method 3: use load_topics to load all topics
     bool add_a_topic(
+        const std::string &name_in,
+        int type_in,
+        bool is_input_in,
+        size_t ROS_queue_in,
+        size_t buffer_length_in,
+        std::string frame_id_in="",
+        bool is_transform_in=false,
+        std::string to_frame_in=""
+    );
+    bool add_a_topic(
+        int topic_id_in,
         const std::string &name_in,
         int type_in,
         bool is_input_in,
@@ -273,7 +286,7 @@ public:
 
 private:
     bool _is_started;
-    size_t _num_topics;
+    // size_t _num_topics;
     size_t _num_ros_cb_thread;
 
     // Although we only use "one" thread, by using this container,
@@ -385,12 +398,15 @@ private:
     void _tfGeoPoseStamped_CB(const geometry_msgs::PoseStamped::ConstPtr& msg, const MSG::T_PARAMS & params);
     // Image
     void _Image_CB(const sensor_msgs::ImageConstPtr& msg, const MSG::T_PARAMS & params);
+    // CompressedImage
+    void _CompressedImage_CB(const sensor_msgs::CompressedImageConstPtr& msg, const MSG::T_PARAMS & params);
     // PointCloud2
-    void _PointCloud2_CB(const sensor_msgs::PointCloud2::ConstPtr& msg, const MSG::T_PARAMS & params);
-    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > _PointCloud2_tmp_ptr; // tmp cloud
+    // void _PointCloud2_CB(const sensor_msgs::PointCloud2::ConstPtr& msg, const MSG::T_PARAMS & params);
+    void _PointCloud2_CB(const pcl::PCLPointCloud2ConstPtr& msg, const MSG::T_PARAMS & params);
+    std::vector< std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > > _PointCloud2_tmp_ptr_list; // tmp cloud
     // ITRIPointCloud
     void _ITRIPointCloud_CB(const msgs::PointCloud::ConstPtr& msg, const MSG::T_PARAMS & params);
-    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > _ITRIPointCloud_tmp_ptr; // tmp cloud
+    std::vector< std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > >  _ITRIPointCloud_tmp_ptr_list; // tmp cloud
     // ITRI3DBoundingBox
     void _ITRI3DBoundingBox_CB(const msgs::LidRoi::ConstPtr& msg, const MSG::T_PARAMS & params);
     // ITRICamObj

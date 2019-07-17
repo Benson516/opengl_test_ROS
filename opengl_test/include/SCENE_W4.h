@@ -28,7 +28,12 @@ private:
 SCENE_W4::SCENE_W4(std::string pkg_path_in)
 {
 	_camera_ptr.reset(new ViewManager());
-    _camera_ptr->assign_cal_viewport(&cal_viewport_w);
+    // _camera_ptr->assign_cal_viewport(&cal_viewport_w);
+    // Layout
+    //----------------------------------------//
+    attach_cal_viewport_func_ptr(0, &cal_viewport_w);
+    switch_layout(0);
+    //----------------------------------------//
 
     _pkg_path = (pkg_path_in);
     _Assets_path = (pkg_path_in + "Assets/");

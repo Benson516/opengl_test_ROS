@@ -2,12 +2,16 @@
 
 // Default constructor, derived class will call this
 Scene::Scene():
-    camera_motion_mode(0),camera_frame_id("base"),
+    is_enabled(true),
+    _layout_mode(0),
+    camera_motion_mode(0),camera_ref_frame("base"),
     camera_view_mode(0)
 {
 }
 Scene::Scene(std::string pkg_path_in):
-    camera_motion_mode(0), camera_frame_id("base"),
+    is_enabled(true),
+    _layout_mode(0),
+    camera_motion_mode(0), camera_ref_frame("base"),
     camera_view_mode(0)
 {
 	_camera_ptr.reset(new ViewManager());
@@ -132,7 +136,40 @@ Scene::Scene(std::string pkg_path_in):
 
 }
 
+void Scene::enable(bool enable_in){
+    is_enabled = enable_in;
+    if (is_enabled){
+        Reshape();
+        _camera_ptr->Reset();
+    }else{
+        _camera_ptr->assign_cal_viewport( &cal_viewport_dis );
+        Reshape();
+        _camera_ptr->Reset();
+    }
+}
+void Scene::attach_cal_viewport_func_ptr(int layout_id, bool (*_func)( int , int ,int &, int &, int &, int &) ){
+    _cal_viewport_map[layout_id] = _func;
+}
+bool Scene::switch_layout(int layout_id){
+    _layout_mode = layout_id;
+    auto it_1 = _cal_viewport_map.find(_layout_mode);
+    if (it_1 == _cal_viewport_map.end()){
+        // No this layout, just disable this scene
+        std::cout << "No layout #" << layout_id << ", Disable this scene.\n";
+        enable(false);
+    }else{
+        _camera_ptr->assign_cal_viewport( it_1->second );
+        std::cout << "Switch to layout #" << layout_id << "\n";
+        enable(true);
+    }
+    // std::cout << "here\n";
+    return is_enabled;
+}
+
 void Scene::Render(){
+    //
+    // if (!is_enabled){   return; }
+    //
 
     // test, set viewport and reset screen
     _camera_ptr->SwitchGLViewPortAndCleanDraw();
@@ -143,37 +180,36 @@ void Scene::Render(){
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
-		_rm_BaseModel[i]->Render(_camera_ptr);
+        if ( _rm_BaseModel[i]->get_enable())
+		      _rm_BaseModel[i]->Render(_camera_ptr);
 	}
     glDisable(GL_BLEND);
     // glDisable(GL_DEPTH_TEST);
 }
 void Scene::Update(float dt){
+    //
+    if (!is_enabled){   return; }
+    //
 
     // rmBaseModel
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
-		_rm_BaseModel[i]->Update(dt);
+        if ( _rm_BaseModel[i]->get_enable())
+		      _rm_BaseModel[i]->Update(dt);
 	}
 }
 void Scene::Update(ROS_INTERFACE &ros_interface){
+    //
+    if (!is_enabled){   return; }
+    //
+
     // Update the "_latest_tf_common_update_time"
     // ros_interface.update_latest_tf_common_update_time("map", "base");
     // ros_interface.set_global_delay(0.3);
     // ros_interface.update_current_slice_time();
     // ros_interface.set_ref_frame("base");
 
-    ros_interface.set_ref_frame( camera_frame_id );
+    ros_interface.set_ref_frame( camera_ref_frame );
 
-    // switch(camera_motion_mode){
-    //     case 0: // Follow
-    //         ros_interface.set_ref_frame("base");
-    //         break;
-    //     case 1: // Static
-    //         ros_interface.set_ref_frame("map");
-    //         break;
-    //     default:
-    //         break;
-    // }
 
     /*
     // Camera
@@ -190,30 +226,25 @@ void Scene::Update(ROS_INTERFACE &ros_interface){
     // TIME_STAMP::Period period_Update("Update");
     // rmBaseModel
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
-		_rm_BaseModel[i]->Update(ros_interface);
+        if ( _rm_BaseModel[i]->get_enable())
+		      _rm_BaseModel[i]->Update(ros_interface);
         // evaluation
         // period_Update.stamp(); period_Update.show_usec();
         //
 	}
 }
 void Scene::Update(ROS_API &ros_api){
+    //
+    if (!is_enabled){   return; }
+    //
+
     // Update the "_latest_tf_common_update_time"
     // ros_interface.update_latest_tf_common_update_time("map", "base");
     // ros_interface.set_global_delay(0.3);
     // ros_interface.update_current_slice_time();
 
-    ros_api.ros_interface.set_ref_frame( camera_frame_id );
+    ros_api.ros_interface.set_ref_frame( camera_ref_frame );
 
-    // switch(camera_motion_mode){
-    //     case 0: // Follow
-    //         ros_api.ros_interface.set_ref_frame("base");
-    //         break;
-    //     case 1: // Static
-    //         ros_api.ros_interface.set_ref_frame("map");
-    //         break;
-    //     default:
-    //         break;
-    // }
 
 
     /*
@@ -231,13 +262,18 @@ void Scene::Update(ROS_API &ros_api){
     // TIME_STAMP::Period period_Update("Update");
     // rmBaseModel
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
-		_rm_BaseModel[i]->Update(ros_api);
+        if ( _rm_BaseModel[i]->get_enable())
+		      _rm_BaseModel[i]->Update(ros_api);
         // evaluation
         // period_Update.stamp(); period_Update.show_usec();
 	}
 
 }
 
+void Scene::Reshape(){
+    glm::ivec2 w_size = _camera_ptr->GetWindowSize();
+    Reshape(w_size.x, w_size.y);
+}
 void Scene::Reshape(int full_window_width, int full_window_height){
     _camera_ptr->SetWindowSize(full_window_width, full_window_height);
 
@@ -265,7 +301,7 @@ void Scene::KeyBoardEvent(int key){
 void Scene::KeyBoardEvent(unsigned char key, ROS_API &ros_api){
 
 
-
+    // Gloabal key
 	switch (key)
 	{
     /*
@@ -286,10 +322,15 @@ void Scene::KeyBoardEvent(unsigned char key, ROS_API &ros_api){
 		_rm_BaseModel[1]->Translate(glm::vec3(0.1, 0, 0));
 		break;
     */
+    case 'l':
+    case 'L':
+        switch_layout( (_layout_mode+1)%2 );
+        break;
     case 'z':
 	case 'Z':
         resetDefaultCaemraModel(ros_api);
-        // Note: the viewManager also listen to this key and will reset the camera model
+        _camera_ptr->Reset();
+        //  (removed-->) Note: the viewManager also listen to this key and will reset the camera model
 		break;
     case 'c':
 	case 'C':
@@ -302,6 +343,9 @@ void Scene::KeyBoardEvent(unsigned char key, ROS_API &ros_api){
 		break;
 	}
 
+    // Customizable key
+    perSceneKeyBoardEvent(key);
+
     // Camera operations
     _camera_ptr->keyEvents(key);
 
@@ -309,19 +353,19 @@ void Scene::KeyBoardEvent(unsigned char key, ROS_API &ros_api){
 
 void Scene::MenuEvent(int item){
 
-	if (item == 1){
-		_rm_BaseModel[1]->Scale(glm::vec3(2.0f, 2.0f, 2.0f));
-	}
-	else if (item == 2){
-		_rm_BaseModel[1]->Scale(glm::vec3(0.5f, 0.5f, 0.5f));
-	}
+	// if (item == 1){
+	// 	_rm_BaseModel[1]->Scale(glm::vec3(2.0f, 2.0f, 2.0f));
+	// }
+	// else if (item == 2){
+	// 	_rm_BaseModel[1]->Scale(glm::vec3(0.5f, 0.5f, 0.5f));
+	// }
 }
 
 void Scene::resetDefaultCaemraModel(ROS_API &ros_api){
     // if (camera_motion_mode == 1){
     //     // Camera reference pose
     //     bool is_sucessed = false;
-    //     glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_api.ros_interface.get_tf("base", camera_frame_id, is_sucessed, false) );
+    //     glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_api.ros_interface.get_tf("base", camera_ref_frame, is_sucessed, false) );
     //     // glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("base", "map", is_sucessed, true ) );
     //     if (is_sucessed){
     //         _camera_ptr->SetDefaultCameraModelInv( _tf_world_by_base );
@@ -329,13 +373,13 @@ void Scene::resetDefaultCaemraModel(ROS_API &ros_api){
     // }
     // Camera reference pose
     bool is_sucessed = false;
-    glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_api.ros_interface.get_tf("base", camera_frame_id, is_sucessed, false) );
+    glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_api.ros_interface.get_tf("base", camera_ref_frame, is_sucessed, false) );
     // glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("base", "map", is_sucessed, true ) );
     if (is_sucessed){
         _camera_ptr->SetDefaultCameraModelInv( _tf_world_by_base );
     }
-    // Reset camera
-    _camera_ptr->Reset();
+    // // Reset camera
+    // _camera_ptr->Reset();
 }
 void Scene::switchCameraMotionMode(int mode_in, ROS_API &ros_api){
     camera_motion_mode = mode_in;
@@ -344,19 +388,21 @@ void Scene::switchCameraMotionMode(int mode_in, ROS_API &ros_api){
         case 0: // Follow
             {
                 // Set the reference frame of camera
-                camera_frame_id = "base";
+                camera_ref_frame = "base";
                 break;
             }
         case 1: // Static
             {
                 // Set the reference frame of camera
-                camera_frame_id = "map";
+                camera_ref_frame = "map";
                 break;
             }
         default:
             break;
     }
     resetDefaultCaemraModel(ros_api);
+    // Reset camera
+    _camera_ptr->Reset();
 }
 void Scene::switchCameraViewMode(int mode_in, ROS_API &ros_api){
     camera_view_mode = mode_in;

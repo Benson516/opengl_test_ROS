@@ -4,6 +4,7 @@
 rmBaseModel::rmBaseModel():
     // Note: The following field will be shared across all derived classes
     //       However, each serived class can modify this on their own.
+    flag_enable(true),
     _path_Assets_sub_dir(""),
     _path_Shaders_sub_dir("Shaders/"),
     _pose_modle_ref_by_world(1.0f), _tmp_pose_model_by_model_ref(1.0f),

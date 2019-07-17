@@ -8,7 +8,7 @@
 // Constructors
 ROS_INTERFACE::ROS_INTERFACE():
     _is_started(false),
-    _num_topics(0),
+    // _num_topics(0),
     _msg_type_2_topic_params( size_t(MSG::M_TYPE::NUM_MSG_TYPE) ),
     //
     _ref_frame("map"), _stationary_frame("map"),
@@ -24,7 +24,7 @@ ROS_INTERFACE::ROS_INTERFACE():
 }
 ROS_INTERFACE::ROS_INTERFACE(int argc, char **argv):
     _is_started(false),
-    _num_topics(0),
+    // _num_topics(0),
     _msg_type_2_topic_params( size_t(MSG::M_TYPE::NUM_MSG_TYPE) ),
     //
     _ref_frame("map"), _stationary_frame("map"),
@@ -53,7 +53,7 @@ bool ROS_INTERFACE::setup_node(int argc, char **argv, std::string node_name_in){
 }
 // Setting up topics
 //----------------------------------------------------------------//
-// Method 1: use add_a_topic to add a single topic one at a time
+// Method 1: use add_a_topic to add a single topic sequentially one at a time
 bool ROS_INTERFACE::add_a_topic(
     const std::string &name_in,
     int type_in,
@@ -70,15 +70,45 @@ bool ROS_INTERFACE::add_a_topic(
     _topic_param_list.push_back( MSG::T_PARAMS(name_in, type_in, is_input_in, ROS_queue_in, buffer_length_in, idx_new, frame_id_in, is_transform_in, to_frame_in) );
     // Parsing parameters
     //----------------------------//
-    _num_topics = _topic_param_list.size();
+    // _num_topics = _topic_param_list.size();
     // get topic_type_id and store them in separated arrays
-    size_t i = _num_topics-1;
+    size_t i = _topic_param_list.size()-1;
     _msg_type_2_topic_params[ _topic_param_list[i].type ].push_back( _topic_param_list[i] );
     _topic_tid_list.push_back( _msg_type_2_topic_params[ _topic_param_list[i].type ].size() - 1 );
     //----------------------------//
     return true;
 }
-// Method 2: use load_topics to load all topics
+// Method 2: use add_a_topic to add a single topic specific to topic_id
+bool ROS_INTERFACE::add_a_topic(
+    int topic_id_in,
+    const std::string &name_in,
+    int type_in,
+    bool is_input_in,
+    size_t ROS_queue_in,
+    size_t buffer_length_in,
+    std::string frame_id_in,
+    bool is_transform_in,
+    std::string to_frame_in
+)
+{
+    // Add a topic
+    size_t idx_new = topic_id_in;
+    if ( idx_new >= _topic_param_list.size() ){
+        _topic_param_list.resize(idx_new+1, MSG::T_PARAMS() );
+        _topic_tid_list.resize(idx_new+1, -1 );
+    }
+    _topic_param_list[idx_new] = ( MSG::T_PARAMS(name_in, type_in, is_input_in, ROS_queue_in, buffer_length_in, idx_new, frame_id_in, is_transform_in, to_frame_in) );
+    // Parsing parameters
+    //----------------------------//
+    // _num_topics = _topic_param_list.size();
+    // get topic_type_id and store them in separated arrays
+    size_t i = idx_new; // _topic_param_list.size()-1;
+    _msg_type_2_topic_params[ _topic_param_list[i].type ].push_back( _topic_param_list[i] );
+    _topic_tid_list[idx_new] = _msg_type_2_topic_params[ _topic_param_list[i].type ].size() - 1;
+    //----------------------------//
+    return true;
+}
+// Method 3: use load_topics to load all topics
 bool ROS_INTERFACE::load_topics(const std::vector<MSG::T_PARAMS> &topic_param_list_in){
     // Filling the dataset inside the object
     // Note: Do not subscribe/advertise topic now
@@ -87,7 +117,7 @@ bool ROS_INTERFACE::load_topics(const std::vector<MSG::T_PARAMS> &topic_param_li
     _topic_param_list = topic_param_list_in;
     // Parsing parameters
     //----------------------------//
-    _num_topics = _topic_param_list.size();
+    // _num_topics = _topic_param_list.size();
     // get topic_type_id and store them in separated arrays
     for(size_t i=0; i < _topic_param_list.size(); ++i){
         // Assign the topic_id
@@ -262,6 +292,28 @@ void ROS_INTERFACE::_ROS_worker(){
             _image_publisher_list.push_back( _ros_it.advertise( _tmp_params.name, _tmp_params.ROS_queue) );
         }
     }
+    // CompressedImage
+    _msg_type = int(MSG::M_TYPE::CompressedImage);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        {
+            std::shared_ptr< async_buffer<cv::Mat> > _tmpcv_buff_ptr( new async_buffer<cv::Mat>(_tmp_params.buffer_length) );
+            _tmpcv_buff_ptr->assign_copy_func(&_cv_Mat_copy_func);
+            async_buffer_list[_tmp_params.topic_id] = _tmpcv_buff_ptr;
+        }
+        //
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe< sensor_msgs::CompressedImage >( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_CompressedImage_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise< sensor_msgs::CompressedImage >( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
 
     // PointCloud2
     _msg_type = int(MSG::M_TYPE::PointCloud2);
@@ -274,11 +326,11 @@ void ROS_INTERFACE::_ROS_worker(){
         if (_tmp_params.is_input){
             // Subscribe
             _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
-            _subscriber_list.push_back( _nh.subscribe<sensor_msgs::PointCloud2>( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_PointCloud2_CB, this, _1, _tmp_params)  ) );
+            _subscriber_list.push_back( _nh.subscribe<pcl::PCLPointCloud2>( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_PointCloud2_CB, this, _1, _tmp_params)  ) );
         }else{
             // Publish
             _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
-            _publisher_list.push_back( _nh.advertise<sensor_msgs::PointCloud2>( _tmp_params.name, _tmp_params.ROS_queue) );
+            _publisher_list.push_back( _nh.advertise<pcl::PCLPointCloud2>( _tmp_params.name, _tmp_params.ROS_queue) );
         }
     }
 
@@ -837,24 +889,51 @@ bool ROS_INTERFACE::send_Image(const int topic_id, const cv::Mat &content_in){
 }
 //---------------------------------------------------------------//
 
+// CompressedImage
+//---------------------------------------------------------------//
+// input
+void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstPtr& msg, const MSG::T_PARAMS & params){
+    // Time
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+
+    cv::Mat image;
+    try{
+        image = cv::imdecode(cv::Mat(msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
+    }
+    catch (cv_bridge::Exception& e){
+        ROS_ERROR("Could not convert to image!");
+    }
+
+    // put
+    bool result = async_buffer_list[params.topic_id]->put_void( &(image), true, _time_in, false);
+    //
+    if (!result){
+        std::cout << params.name << ": buffer full.\n";
+    }
+}
+//---------------------------------------------------------------//
+
 // PointCloud2
 //---------------------------------------------------------------//
 // input
-void ROS_INTERFACE::_PointCloud2_CB(const sensor_msgs::PointCloud2::ConstPtr& msg, const MSG::T_PARAMS & params){
+void ROS_INTERFACE::_PointCloud2_CB(const pcl::PCLPointCloud2ConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
 
     // Take the reference to _tmp_in_ptr
-    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & _tmp_cloud_ptr = _PointCloud2_tmp_ptr; // tmp cloud
+    if ( _PointCloud2_tmp_ptr_list.size() <= _topic_tid_list[params.topic_id] ){
+        _PointCloud2_tmp_ptr_list.resize( _topic_tid_list[params.topic_id]+1 );
+    }
+    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & _tmp_cloud_ptr = _PointCloud2_tmp_ptr_list[ _topic_tid_list[params.topic_id] ]; // tmp cloud
     if (!_tmp_cloud_ptr){
         _tmp_cloud_ptr.reset(new pcl::PointCloud<pcl::PointXYZI>);
     }
 
     // convert cloud
-    pcl::PCLPointCloud2 pcl_pc;
-    pcl_conversions::toPCL(*msg, pcl_pc);
-    pcl::fromPCLPointCloud2(pcl_pc, *_tmp_cloud_ptr);
-    std::cout << "============ Lidar map loaded ============\n  ";
+    // pcl::PCLPointCloud2 pcl_pc;
+    // pcl_conversions::toPCL(*msg, pcl_pc);
+    pcl::fromPCLPointCloud2(*msg, *_tmp_cloud_ptr);
+    // std::cout << "============ Lidar map loaded ============\n  ";
     //
 
     // Add to buffer
@@ -891,9 +970,11 @@ void ROS_INTERFACE::_ITRIPointCloud_CB(const msgs::PointCloud::ConstPtr& msg, co
     // tmp cloud
     // Note 1: this have been moved to be a member of the class, so that it won't keep constructing and destructing.
     // Note 2: the pointer is changed to std::shared_ptr instead of the original boost pointer
-
     // Take the reference to _tmp_in_ptr
-    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & _tmp_cloud_ptr = _ITRIPointCloud_tmp_ptr; // tmp cloud
+    if ( _ITRIPointCloud_tmp_ptr_list.size() <= _topic_tid_list[params.topic_id] ){
+        _ITRIPointCloud_tmp_ptr_list.resize( _topic_tid_list[params.topic_id]+1 );
+    }
+    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & _tmp_cloud_ptr = _ITRIPointCloud_tmp_ptr_list[ _topic_tid_list[params.topic_id] ]; // tmp cloud
     if (!_tmp_cloud_ptr){
         _tmp_cloud_ptr.reset(new pcl::PointCloud<pcl::PointXYZI>);
     }

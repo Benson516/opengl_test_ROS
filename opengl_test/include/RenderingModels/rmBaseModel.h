@@ -19,6 +19,9 @@ public:
     rmBaseModel(std::string _path_Assets_in, std::string modelFile, std::string textFile);
 	~rmBaseModel();
     //
+    void set_enable(bool enable_in){ flag_enable = enable_in; }
+    bool get_enable(){ return flag_enable; }
+    //
 	virtual void Update(float dt);
     virtual void Update(ROS_INTERFACE &ros_interface);
     virtual void Update(ROS_API &ros_api);
@@ -64,6 +67,7 @@ public:
 
     TIME_STAMP::FPS fps_of_update;
 protected:
+    bool flag_enable; // This is a "passive" flag, should be used by scene.
     //
     std::string _path_Assets_sub_dir;
     std::string _path_Shaders_sub_dir;

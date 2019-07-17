@@ -54,22 +54,6 @@ bool ROS_API::update(){
     bool _updated = false;
 
 
-    // // Initialize vectors
-    // if (!_is_initialized){
-    //     //
-    //     got_on_any_topic.resize( ros_interface.get_count_of_all_topics(), false);
-    //     any_ptr_list.resize( ros_interface.get_count_of_all_topics() );
-    //     msg_time_list.resize( ros_interface.get_count_of_all_topics(), ros::Time(0) );
-    //     // FPS
-    //     fps_list.resize( ros_interface.get_count_of_all_topics() );
-    //     for(size_t i=0; i < fps_list.size(); ++i){
-    //         fps_list[i].set_name( ros_interface.get_topic_name(i) );
-    //     }
-    //     // end FPS
-    //     _is_initialized = true;
-    // }
-    // //
-
     // All topics
     for (int topic_id=0; topic_id < any_ptr_list.size(); ++topic_id){
         if ( ros_interface.is_topic_a_input(topic_id) ){
@@ -85,14 +69,14 @@ bool ROS_API::update(){
 // New interfaces - boost::any and (void *)
 //---------------------------------------------------------//
 bool ROS_API::get_any_message(const int topic_id, boost::any & content_out_ptr){
-    if ( !got_on_any_topic[topic_id] ){
+    if ( topic_id >= got_on_any_topic.size() || !got_on_any_topic[topic_id] ){
         return false;
     }
     content_out_ptr = any_ptr_list[topic_id];
     return true;
 }
 bool ROS_API::get_any_message(const int topic_id, boost::any & content_out_ptr, ros::Time &msg_stamp){
-    if ( !got_on_any_topic[topic_id] ){
+    if ( topic_id >= got_on_any_topic.size() || !got_on_any_topic[topic_id] ){
         return false;
     }
     content_out_ptr = any_ptr_list[topic_id];
@@ -129,41 +113,58 @@ geometry_msgs::TransformStamped ROS_API::get_tf(const int topic_id, bool & is_su
 bool ROS_API::_set_up_topics(){
     {
         using MSG::M_TYPE;
+#ifdef __ROS_INTERFACE_V1__
         // tfGeoPoseStamped
-        ros_interface.add_a_topic("current_pose", int(M_TYPE::tfGeoPoseStamped), true, 10, 1, "map", true, "base");
+        ros_interface.add_a_topic( int(MSG_ID::ego_pose), "current_pose", int(M_TYPE::tfGeoPoseStamped), true, 10, 1, "map", true, "base");
         // Image
-#ifdef __SUB_IMAGES__
-        ros_interface.add_a_topic("camera/1/0/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
-        ros_interface.add_a_topic("camera/1/1/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
-        ros_interface.add_a_topic("camera/1/2/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
-        ros_interface.add_a_topic("camera/0/2/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
-        ros_interface.add_a_topic("camera/2/0/image", int(M_TYPE::Image), true, 2, 20, "base");
-        ros_interface.add_a_topic("camera/2/1/image", int(M_TYPE::Image), true, 2, 20, "base");
-        ros_interface.add_a_topic("camera/0/0/image", int(M_TYPE::Image), true, 2, 20, "base");
-        ros_interface.add_a_topic("camera/0/1/image", int(M_TYPE::Image), true, 2, 20, "base");
-        ros_interface.add_a_topic("camera/2/2/image", int(M_TYPE::Image), true, 2, 20, "base");
-#endif // __SUB_IMAGES__
+        ros_interface.add_a_topic( int(MSG_ID::camera_front_right), "camera/1/0/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_front_center), "camera/1/1/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_front_left), "camera/1/2/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_front_top), "camera/0/2/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_right_fore), "camera/2/0/image", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_right_rear), "camera/2/1/image", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_left_fore), "camera/0/0/image", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_left_rear), "camera/0/1/image", int(M_TYPE::Image), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_rear_center), "camera/2/2/image", int(M_TYPE::Image), true, 2, 20, "base");
         // ITRIPointCloud
-#ifdef __SUB_POINT_CLOUD__
-        ros_interface.add_a_topic("LidFrontLeft_sync", int(M_TYPE::ITRIPointCloud), true, 2, 20, "base");
-        ros_interface.add_a_topic("points_map", int(M_TYPE::PointCloud2), true, 2, 20, "map");
-#endif // __SUB_POINT_CLOUD__
-        ros_interface.add_a_topic("LidRoi", int(M_TYPE::ITRI3DBoundingBox), true, 10, 20, "base");
-        ros_interface.add_a_topic("LiDAR_Track", int(M_TYPE::ITRICamObj), true, 10, 20, "base"); // <-- The tracking resuly is on map frame
-        ros_interface.add_a_topic("CamMsg", int(M_TYPE::ITRICamObj), true, 10, 20, "base");
-        ros_interface.add_a_topic("CamObj4", int(M_TYPE::ITRICamObj), true, 10, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::point_cloud_raw), "LidFrontLeft_sync", int(M_TYPE::ITRIPointCloud), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::point_cloud_map), "points_map", int(M_TYPE::PointCloud2), true, 2, 20, "map");
+        ros_interface.add_a_topic( int(MSG_ID::lidar_bounding_box_raw), "LidRoi", int(M_TYPE::ITRI3DBoundingBox), true, 10, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::lidar_bounding_box_tracking), "LiDAR_Track", int(M_TYPE::ITRICamObj), true, 10, 20, "base"); // <-- The tracking resuly is on map frame
+        ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_front_all), "CamMsg", int(M_TYPE::ITRICamObj), true, 10, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_front_top), "CamObj4", int(M_TYPE::ITRICamObj), true, 10, 20, "base");
         // Vehicle info
-        ros_interface.add_a_topic("taichung_veh_info", int(M_TYPE::ITRICarInfoCarA), true, 100, 100, "base");
+        ros_interface.add_a_topic( int(MSG_ID::vehicle_info), "taichung_veh_info", int(M_TYPE::ITRICarInfoCarA), true, 100, 100, "base");
         // GUI operatios
-        ros_interface.add_a_topic("GUI2/operation", int(M_TYPE::GUI2_op), true, 100, 100);
-        ros_interface.add_a_topic("GUI2/state", int(M_TYPE::GUI2_op), false, 100, 1);
-
-        /*
-        // Counts
-        num_Image = ros_interface.get_count_of_a_topic_type(M_TYPE::Image);
-        num_ITRIPointCloud = ros_interface.get_count_of_a_topic_type(M_TYPE::ITRIPointCloud);
-        num_ITRIPointCloud += ros_interface.get_count_of_a_topic_type(M_TYPE::PointCloud2);
-        */
+        ros_interface.add_a_topic( int(MSG_ID::GUI_operatio), "GUI2/operation", int(M_TYPE::GUI2_op), true, 100, 100);
+        ros_interface.add_a_topic( int(MSG_ID::GUI_state), "GUI2/state", int(M_TYPE::GUI2_op), false, 100, 1);
+#endif  // __ROS_INTERFACE_V1__
+#ifdef __ROS_INTERFACE_V2__
+        // tfGeoPoseStamped
+        ros_interface.add_a_topic( int(MSG_ID::ego_pose), "current_pose", int(M_TYPE::tfGeoPoseStamped), true, 10, 1, "map", true, "base");
+        // Image
+        ros_interface.add_a_topic( int(MSG_ID::camera_front_right), "gmsl_camera/port_a/cam_0/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_front_center), "gmsl_camera/port_a/cam_1/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_front_left), "gmsl_camera/port_a/cam_2/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_front_top), "gmsl_camera/port_b/cam_0/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_right_fore), "gmsl_camera/port_c/cam_0/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_right_rear), "gmsl_camera/port_c/cam_1/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_left_fore), "gmsl_camera/port_b/cam_1/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_left_rear), "gmsl_camera/port_b/cam_2/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_rear_center), "gmsl_camera/port_c/cam_2/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
+        // ITRIPointCloud
+        ros_interface.add_a_topic( int(MSG_ID::point_cloud_raw), "LidarAll", int(M_TYPE::PointCloud2), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::point_cloud_map), "points_map", int(M_TYPE::PointCloud2), true, 2, 20, "map");
+        ros_interface.add_a_topic( int(MSG_ID::lidar_bounding_box_raw), "LidarDetection", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::lidar_bounding_box_tracking), "LiDAR_Track", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "base"); // <-- The tracking resuly is on map frame
+        ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_front_all), "CamObjFrontCenter", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_front_top), "CamObjFrontTop", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "base");
+        // Vehicle info
+        ros_interface.add_a_topic( int(MSG_ID::vehicle_info), "veh_info", int(M_TYPE::ITRICarInfo), true, 100, 100, "base");
+        // GUI operatios
+        ros_interface.add_a_topic( int(MSG_ID::GUI_operatio), "GUI2/operation", int(M_TYPE::GUI2_op), true, 100, 100);
+        ros_interface.add_a_topic( int(MSG_ID::GUI_state), "GUI2/state", int(M_TYPE::GUI2_op), false, 100, 1);
+#endif  // __ROS_INTERFACE_V2__
     }
     //------------------------------------------------//
 }

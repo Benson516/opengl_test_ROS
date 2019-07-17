@@ -131,7 +131,7 @@ void rmlv2ObjectTracking::update_GL_data(ROS_API &ros_api){
         if (it_1 == obj_miss_count.end()){
             obj_miss_count[obj_id] = 0;
         }else{
-            obj_miss_count[obj_id] -= 2; // We will dd this by one later
+            obj_miss_count[obj_id] -= 2; // We will add this by one later
         }
         //
 
