@@ -75,7 +75,7 @@ class GUI_GATEWAY(object):
 
         # Output
         res_data = dict()
-        es_data["gui_name"] = GUI_state.gui_name
+        res_data["gui_name"] = GUI_state.gui_name
         res_data["cam_view_mode"] = GUI_state.cam_view_mode
         res_data["cam_motion_mode"] = GUI_state.cam_motion_mode
         res_data["image3D"] = GUI_state.image3D

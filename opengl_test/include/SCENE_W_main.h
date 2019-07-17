@@ -376,10 +376,10 @@ void SCENE_W_main::perSceneKeyBoardEvent(unsigned char key){
     case 'i':
     case 'I':
         // Toggle enable
+        is_enable_image3D = !is_enable_image3D;
         for (size_t i=0; i < enable_ctr_id_list_image.size(); ++i){
             auto _ptr = &(_rm_BaseModel[ enable_ctr_id_list_image[i] ]);
             // (*_ptr)->set_enable( !((*_ptr)->get_enable()) );
-            is_enable_image3D = !is_enable_image3D;
             (*_ptr)->set_enable( is_enable_image3D );
         }
         break;
