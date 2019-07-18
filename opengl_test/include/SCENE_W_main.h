@@ -11,8 +11,9 @@ public:
 	SCENE_W_main(std::string pkg_path_in);
 
     // Interaction events
-    void ROSTopicEvent(ROS_API &ros_api);
 
+    //
+    void perSceneROSTopicEvent(ROS_API &ros_api);
     void perSceneKeyBoardEvent(unsigned char key);
 
     std::vector<size_t> enable_ctr_id_list_image;
@@ -92,18 +93,9 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     */
 
 
-    /*
-    // Top-level top-centered back image (dynamic) <-- "Rear-sight mirror"
-    _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_rear_center), false, true, true) );
-    _image_board_ptr->alpha = 1.0;
-    _image_board_ptr->color_transform = glm::vec4(1.0f);
-    _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI); // Flip vertically
-    // _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI/6.0);
-    // _image_board_ptr->shape.setBoardSizeRatio(0.2f, false);
-    _image_board_ptr->shape.setBoardSizePixel(100, false);
-    _image_board_ptr->shape.setBoardPositionCVPixel(0, 0, 1, ALIGN_X::RIGHT, ALIGN_Y::TOP );
-    _rm_BaseModel.push_back( _image_board_ptr );
-    */
+
+
+
 
 
 
@@ -287,11 +279,11 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     //
 
 
-
-    // Dynamic image, front-down camera
+    /*
+    // Dynamic image, front-top camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_top), true, true, false) );
-    _image_board_ptr->Translate(glm::vec3(-3.0f, 0.0f, 8.0f));
-    _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), -M_PI/6.0); // view angle
+    _image_board_ptr->Translate(glm::vec3(0.0f, 0.0f, 8.0f));
+    _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), -60.0*M_PI/180.0); // view angle
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
     _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
@@ -304,11 +296,11 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
     //
 
-    // Bounding box for front-left camera
+    // Bounding box for front-top camera
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_top), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*0, 0);
-    _box2D_ptr->Translate(glm::vec3(-3.0f, 0.0f, 8.0f));
-    _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), -M_PI/6.0); // view angle
+    _box2D_ptr->Translate(glm::vec3(0.0f, 0.0f, 8.0f));
+    _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), -60.0*M_PI/180.0); // view angle
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _box2D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
     _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
@@ -317,6 +309,58 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
     // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
+    // Control list
+    enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
+    //
+    */
+
+    // Dynamic image, front-top camera
+    _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_top), true, true, false) );
+    _image_board_ptr->Translate(glm::vec3(0.0f, 0.0f, -1.0f));
+    _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), 75.0*M_PI/180.0); // view angle
+    _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
+    _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
+    _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
+    _image_board_ptr->shape.setBoardSize(11.08, true);
+    // _image_board_ptr->Scale( glm::vec3(3.5f));
+    // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    _image_board_ptr->alpha = 0.7;
+    _rm_BaseModel.push_back( _image_board_ptr );
+    // Control list
+    enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
+    //
+
+    // Bounding box for front-top camera
+    _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_top), true, true ) );
+    _box2D_ptr->setup_params(608, 384, 608*0, 0);
+    _box2D_ptr->Translate(glm::vec3(0.0f, 0.0f, -1.0f));
+    _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), 75.0*M_PI/180.0); // view angle
+    _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
+    _box2D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
+    _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
+    _box2D_ptr->shape.setBoardSize(11.08, true);
+    // _box2D_ptr->Scale( glm::vec3(3.5f));
+    // _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    // _box2D_ptr->alpha = 0.7;
+    _rm_BaseModel.push_back( _box2D_ptr );
+    // Control list
+    enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
+    //
+
+
+
+    // Dynamic image, rear camera (mirrored)
+    _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_rear_center), true, true, false) );
+    _image_board_ptr->Translate(glm::vec3(0.0f, 0.0f, 8.0f));
+    _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), -60.0*M_PI/180.0); // view angle
+    // _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
+    _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
+    _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
+    _image_board_ptr->shape.setBoardSize(11.08, true);
+    // _image_board_ptr->Scale( glm::vec3(3.5f));
+    // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    _image_board_ptr->alpha = 0.7;
+    _rm_BaseModel.push_back( _image_board_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
     //
@@ -362,8 +406,23 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     */
 
 
+    /*
+    // Top-level top-centered back image (dynamic) <-- "Rear-sight mirror"
+    _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_rear_center), false, true, true) );
+    _image_board_ptr->alpha = 0.9;
+    _image_board_ptr->color_transform = glm::vec4(1.0f);
+    _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI); // Flip vertically
+    // _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI/6.0);
+    // _image_board_ptr->shape.setBoardSizeRatio(0.2f, false);
+    _image_board_ptr->shape.setBoardSizePixel(150, false);
+    _image_board_ptr->shape.setBoardPositionCVPixel(-300, 0, 1, ALIGN_X::RIGHT, ALIGN_Y::TOP );
+    _rm_BaseModel.push_back( _image_board_ptr );
+    */
+
+
     // rmlv2SpeedMeter
     _rm_BaseModel.push_back( std::shared_ptr<rmlv2SpeedMeter>( new rmlv2SpeedMeter(_Assets_path, int(MSG_ID::vehicle_info) ) ) );
+
 
 
 }
@@ -391,7 +450,7 @@ void SCENE_W_main::perSceneKeyBoardEvent(unsigned char key){
 
 // Interaction events
 //------------------------------------------------------//
-void SCENE_W_main::ROSTopicEvent(ROS_API &ros_api){
+void SCENE_W_main::perSceneROSTopicEvent(ROS_API &ros_api){
     std::shared_ptr< opengl_test::GUI2_op > _GUI2_op_ptr;
     bool result = ros_api.get_message( int(MSG_ID::GUI_operatio), _GUI2_op_ptr);
     if (!result){
@@ -414,24 +473,7 @@ void SCENE_W_main::ROSTopicEvent(ROS_API &ros_api){
 
     // State
     //----------------------------------------//
-    // cam_view_mode
-    if (_GUI2_op_ptr->cam_view_mode == "close"){
-        switchCameraViewMode( 0, ros_api);
-    }else if (_GUI2_op_ptr->cam_view_mode == "over"){
-        switchCameraViewMode( 1, ros_api);
-    }else if (_GUI2_op_ptr->cam_view_mode == "bird"){
-        switchCameraViewMode( 2, ros_api);
-    }else if (_GUI2_op_ptr->cam_view_mode == "toggle"){
-        KeyBoardEvent('v', ros_api);
-    }
-    // cam_motion_mode
-    if (_GUI2_op_ptr->cam_motion_mode == "follow"){
-        switchCameraMotionMode( 0, ros_api);
-    }else if (_GUI2_op_ptr->cam_motion_mode == "static"){
-        switchCameraMotionMode( 1, ros_api);
-    }else if (_GUI2_op_ptr->cam_motion_mode == "toggle"){
-        KeyBoardEvent('c', ros_api);
-    }
+
     // image3D
     if (_GUI2_op_ptr->image3D == "on"){
         // enable
@@ -443,13 +485,11 @@ void SCENE_W_main::ROSTopicEvent(ROS_API &ros_api){
         if (is_enable_image3D){
             perSceneKeyBoardEvent('i');
         }
+    }else if (_GUI2_op_ptr->image3D == "toggle"){
+        // toggle
+        perSceneKeyBoardEvent('i');
     }
-    // image_surr
-    if (_GUI2_op_ptr->image_surr == "on"){
-        switch_layout( 0 ); // mode 0: on
-    }else if (_GUI2_op_ptr->image_surr == "off"){
-        switch_layout( 1 ); // mode 1: off
-    }
+
     //----------------------------------------//
     // Event
     //----------------------------------------//
@@ -464,6 +504,7 @@ void SCENE_W_main::ROSTopicEvent(ROS_API &ros_api){
     //----------------------------------------//
 
     //Response
+    // Note: only the main window will send back response
     //----------------------------------------//
     opengl_test::GUI2_op res_data;
     res_data.header = _GUI2_op_ptr->header;

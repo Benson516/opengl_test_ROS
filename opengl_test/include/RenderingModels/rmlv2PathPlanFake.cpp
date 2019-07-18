@@ -20,7 +20,7 @@ void rmlv2PathPlanFake::Init(){
     //
     _sim_time = 15.0f; // sec.
     _granularity = glm::vec2(0.2f, 0.087f); // 20 cm, 5 deg.
-    _max_sim_point = 90;
+    _max_sim_point = int(_sim_time); // 90;
 
     //
     section_vertexes.resize(4);
@@ -31,11 +31,12 @@ void rmlv2PathPlanFake::Init(){
     // section_vertexes[3] = glm::vec3(0.0f, 1.0f, -1.0f);
     // glm::mat4 _delta_T = glm::scale(glm::mat4(1.0), glm::vec3(1.0f, 0.1f, 1.0f) );
     //
+    // footprint
     section_vertexes[0] = glm::vec3(-1.0f, -1.0f, 0.0f);
     section_vertexes[1] = glm::vec3(-1.0f, 1.0f, 0.0f);
     section_vertexes[2] = glm::vec3(1.0f, 1.0f, 0.01f);
     section_vertexes[3] = glm::vec3(1.0f, -1.0f, 0.01f);
-    glm::mat4 _delta_T = glm::translate(glm::mat4(1.0), glm::vec3(3.0f, 0.0f, -2.0f) );
+    glm::mat4 _delta_T = glm::translate(glm::mat4(1.0), glm::vec3(3.0f, 0.0f, -2.6f) );
     _delta_T = glm::scale(_delta_T, glm::vec3(4.0f, 1.4f, 1.0f) );
     //
     for (size_t i=0; i < section_vertexes.size(); ++i){
@@ -43,8 +44,12 @@ void rmlv2PathPlanFake::Init(){
     }
     rm_path.insert_section_vertexes(section_vertexes);
 
-    rm_path.set_colr_head( glm::vec3(1.0f, 0.5f, 0.0f) );
-    rm_path.set_colr_tail( glm::vec3(0.0f, 0.5f, 1.0f) );
+    rm_path.set_line_width(2.0f);
+    // rm_path.set_colr_head( glm::vec3(1.0f, 0.5f, 0.0f) );
+    // rm_path.set_colr_tail( glm::vec3(0.0f, 0.5f, 1.0f) );
+    rm_path.set_colr_head( glm::vec3(0.0f, 0.5f, 1.0f) );
+    rm_path.set_colr_tail( glm::vec3(1.0f, 0.5f, 0.0f) );
+
 
 
     // For adjusting the model pose by public methods
@@ -123,11 +128,11 @@ void rmlv2PathPlanFake::update_GL_data(){
     // Calculate path
     _path.clear();
     _path.push_back(pose2D_0);
-    glm::vec3 pose2D_path;
+    glm::vec3 pose2D_on_path;
     for (size_t i=1; i <= num_steps; ++i ){
         float sim_T = i*dT;
-        get_pose2D_sim(pose2D_0, twist2D, sim_T, pose2D_path);
-        _path.push_back(pose2D_path);
+        get_pose2D_sim(pose2D_0, twist2D, sim_T, pose2D_on_path);
+        _path.push_back( glm::vec3(pose2D_on_path.xy(), 0.0f) );
     }
     // std::cout << "_path.size() = " << _path.size() << "\n";
 

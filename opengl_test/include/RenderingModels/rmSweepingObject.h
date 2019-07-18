@@ -23,6 +23,7 @@ public:
     void insert_curve_Points(const std::vector<glm::vec3> &curve_Points_in);
 
     //
+    inline void set_line_width(float line_width_in){ _line_width = line_width_in; }
     void set_colr_head(const glm::vec3 & color_in){ _color_head = color_in; }
     void set_colr_tail(const glm::vec3 & color_in){ _color_tail = color_in; }
 
@@ -35,6 +36,8 @@ protected:
     // ros::Time msg_time;
     std::string _frame_id;
 
+    float _line_width;
+    
     // parameters
     int draw_mode;
 

@@ -60,6 +60,7 @@ public:
 	virtual void MenuEvent(int item);
 
     //
+    virtual void perSceneROSTopicEvent(ROS_API &ros_api){  /*empty*/ }
     virtual void perSceneKeyBoardEvent(unsigned char key){  /*empty*/ }
     //
 
@@ -75,6 +76,7 @@ public:
 
 protected:
     bool is_enabled;
+    bool is_initialized;
     std::string _pkg_path;
     std::string _Assets_path;
 	std::shared_ptr<ViewManager> _camera_ptr;

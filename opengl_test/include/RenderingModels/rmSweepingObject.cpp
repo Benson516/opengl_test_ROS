@@ -59,7 +59,8 @@ void rmSweepingObject::Init(){
     // Init model matrices
 	m_shape.model = glm::mat4(1.0);
     attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
-
+    _line_width = 1.0f;
+    
     //
     _color_head = glm::vec3(1.0f, 0.5f, 0.0f);
     _color_tail = glm::vec3(0.0f, 0.5f, 1.0f);
@@ -173,10 +174,12 @@ void rmSweepingObject::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 		glUniform3fv( uniforms.section_vertexes[i], 1, value_ptr(section_vertexes[i]) );
 	}
     glUniform1i(uniforms._num_vertex_of_shape, int(section_vertexes.size()) );
-    //
+    // Setting
+    glLineWidth(_line_width);
     // Draw the elements
     glDrawArrays(GL_LINE_STRIP, 0, m_shape.indexCount); // draw part of points
     //--------------------------------//
+    glLineWidth(1.0); // default line width
     _program_ptr->CloseProgram();
 }
 
