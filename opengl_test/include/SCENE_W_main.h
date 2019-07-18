@@ -315,38 +315,38 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     //
     */
 
-    // // Dynamic image, front-top camera
-    // _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_top), true, true, false) );
-    // _image_board_ptr->Translate(glm::vec3(0.0f, 0.0f, -1.0f));
-    // _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), 75.0*M_PI/180.0); // view angle
-    // _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
-    // _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
-    // _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
-    // _image_board_ptr->shape.setBoardSize(11.08, true);
-    // // _image_board_ptr->Scale( glm::vec3(3.5f));
-    // // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    // _image_board_ptr->alpha = 0.7;
-    // _rm_BaseModel.push_back( _image_board_ptr );
-    // // Control list
-    // enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
-    // //
+    // Dynamic image, front-top camera
+    _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_top), true, true, false) );
+    _image_board_ptr->Translate(glm::vec3(0.0f, 0.0f, -1.0f));
+    _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), 75.0*M_PI/180.0); // view angle
+    _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
+    _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
+    _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
+    _image_board_ptr->shape.setBoardSize(11.08, true);
+    // _image_board_ptr->Scale( glm::vec3(3.5f));
+    // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    _image_board_ptr->alpha = 0.7;
+    _rm_BaseModel.push_back( _image_board_ptr );
+    // Control list
+    enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
     //
-    // // Bounding box for front-top camera
-    // _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_top), true, true ) );
-    // _box2D_ptr->setup_params(608, 384, 608*0, 0);
-    // _box2D_ptr->Translate(glm::vec3(0.0f, 0.0f, -1.0f));
-    // _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), 75.0*M_PI/180.0); // view angle
-    // _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
-    // _box2D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
-    // _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
-    // _box2D_ptr->shape.setBoardSize(11.08, true);
-    // // _box2D_ptr->Scale( glm::vec3(3.5f));
-    // // _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    // // _box2D_ptr->alpha = 0.7;
-    // _rm_BaseModel.push_back( _box2D_ptr );
-    // // Control list
-    // enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
-    // //
+
+    // Bounding box for front-top camera
+    _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_top), true, true ) );
+    _box2D_ptr->setup_params(608, 384, 608*0, 0);
+    _box2D_ptr->Translate(glm::vec3(0.0f, 0.0f, -1.0f));
+    _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), 75.0*M_PI/180.0); // view angle
+    _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
+    _box2D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
+    _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), M_PI/2.0);
+    _box2D_ptr->shape.setBoardSize(11.08, true);
+    // _box2D_ptr->Scale( glm::vec3(3.5f));
+    // _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
+    // _box2D_ptr->alpha = 0.7;
+    _rm_BaseModel.push_back( _box2D_ptr );
+    // Control list
+    enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
+    //
 
 
 
