@@ -8,8 +8,8 @@
 class rmSweepingObject : public rmBaseModel
 {
 public:
-    rmSweepingObject(std::string _path_Assets_in, std::string frame_id_in);
-    rmSweepingObject(std::string _path_Assets_in, int _ROS_topic_id_in);
+    rmSweepingObject(std::string _path_Assets_in, std::string frame_id_in, int draw_mode_in=0);
+    rmSweepingObject(std::string _path_Assets_in, int _ROS_topic_id_in, int draw_mode_in=0);
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
@@ -23,6 +23,7 @@ public:
     void insert_curve_Points(const std::vector<glm::vec3> &curve_Points_in);
 
     //
+    inline void set_line_width(float line_width_in){ _line_width = line_width_in; }
     void set_colr_head(const glm::vec3 & color_in){ _color_head = color_in; }
     void set_colr_tail(const glm::vec3 & color_in){ _color_tail = color_in; }
 
@@ -34,6 +35,11 @@ protected:
     // std::shared_ptr< msgs::LidRoi > msg_out_ptr;
     // ros::Time msg_time;
     std::string _frame_id;
+
+    float _line_width;
+    
+    // parameters
+    int draw_mode;
 
     void update_GL_data();
 

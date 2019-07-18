@@ -3,7 +3,8 @@ import json
 
 # IP = '192.168.50.127'
 # IP = '192.168.43.77'
-IP = '140.96.109.216'
+# IP = '140.96.109.216'
+IP = '0.0.0.0'
 port = '6060'
 
 # payload = {'data1':1, 'data2':'2', 'data3':[1,2,3], 'data4':None}
@@ -12,8 +13,8 @@ payload["gui_name"] = "passenger"
 # payload["cam_motion_mode"] = "follow"
 # payload["cam_motion_mode"] = "static"
 # payload["cam_motion_mode"] = "toggle"
-payload["image3D"] = "on"
-payload["image_surr"] = "on"
+payload["image3D"] = "toggle"
+payload["image_surr"] = "toggle"
 payload["cam_op"] = "reset"
 payload["record_op"] = "backup"
 print("payload(json): " + json.dumps(payload))

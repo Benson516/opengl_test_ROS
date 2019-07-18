@@ -2,8 +2,9 @@
 #include <math.h>       /* cos */
 
 
-rmSweepingObject::rmSweepingObject(std::string _path_Assets_in, std::string frame_id_in):
-    _frame_id(frame_id_in)
+rmSweepingObject::rmSweepingObject(std::string _path_Assets_in, std::string frame_id_in, int draw_mode_in):
+    _frame_id(frame_id_in),
+    draw_mode(draw_mode_in)
 {
     _path_Shaders_sub_dir += "SweepObject/";
     init_paths(_path_Assets_in);
@@ -13,8 +14,9 @@ rmSweepingObject::rmSweepingObject(std::string _path_Assets_in, std::string fram
     //
 	Init();
 }
-rmSweepingObject::rmSweepingObject(std::string _path_Assets_in, int _ROS_topic_id_in):
-    _ROS_topic_id(_ROS_topic_id_in)
+rmSweepingObject::rmSweepingObject(std::string _path_Assets_in, int _ROS_topic_id_in, int draw_mode_in):
+    _ROS_topic_id(_ROS_topic_id_in),
+    draw_mode(draw_mode_in)
 {
     _path_Shaders_sub_dir += "SweepObject/";
     init_paths(_path_Assets_in);
@@ -29,7 +31,10 @@ void rmSweepingObject::Init(){
 	_program_ptr.reset( new ShaderProgram() );
     // Load shaders
     _program_ptr->AttachShader(get_full_Shader_path("SweepObject.vs.glsl"), GL_VERTEX_SHADER);
-    _program_ptr->AttachShader(get_full_Shader_path("SweepObject.gs.glsl"), GL_GEOMETRY_SHADER);
+    if (draw_mode == 1) // Section draw
+        _program_ptr->AttachShader(get_full_Shader_path("SweepObject.gs.section.glsl"), GL_GEOMETRY_SHADER);
+    else
+        _program_ptr->AttachShader(get_full_Shader_path("SweepObject.gs.glsl"), GL_GEOMETRY_SHADER);
     _program_ptr->AttachShader(get_full_Shader_path("SweepObject.fs.glsl"), GL_FRAGMENT_SHADER);
     // Link _program_ptr
 	_program_ptr->LinkProgram();
@@ -54,7 +59,8 @@ void rmSweepingObject::Init(){
     // Init model matrices
 	m_shape.model = glm::mat4(1.0);
     attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
-
+    _line_width = 1.0f;
+    
     //
     _color_head = glm::vec3(1.0f, 0.5f, 0.0f);
     _color_tail = glm::vec3(0.0f, 0.5f, 1.0f);
@@ -168,10 +174,12 @@ void rmSweepingObject::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 		glUniform3fv( uniforms.section_vertexes[i], 1, value_ptr(section_vertexes[i]) );
 	}
     glUniform1i(uniforms._num_vertex_of_shape, int(section_vertexes.size()) );
-    //
+    // Setting
+    glLineWidth(_line_width);
     // Draw the elements
     glDrawArrays(GL_LINE_STRIP, 0, m_shape.indexCount); // draw part of points
     //--------------------------------//
+    glLineWidth(1.0); // default line width
     _program_ptr->CloseProgram();
 }
 

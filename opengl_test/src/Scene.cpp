@@ -3,6 +3,7 @@
 // Default constructor, derived class will call this
 Scene::Scene():
     is_enabled(true),
+    is_initialized(false),
     _layout_mode(0),
     camera_motion_mode(0),camera_ref_frame("base"),
     camera_view_mode(0)
@@ -10,6 +11,7 @@ Scene::Scene():
 }
 Scene::Scene(std::string pkg_path_in):
     is_enabled(true),
+    is_initialized(false),
     _layout_mode(0),
     camera_motion_mode(0), camera_ref_frame("base"),
     camera_view_mode(0)
@@ -200,6 +202,9 @@ void Scene::Update(float dt){
 void Scene::Update(ROS_INTERFACE &ros_interface){
     //
     if (!is_enabled){   return; }
+    if (!is_initialized){
+        is_initialized = true;
+    }
     //
 
     // Update the "_latest_tf_common_update_time"
@@ -236,6 +241,12 @@ void Scene::Update(ROS_INTERFACE &ros_interface){
 void Scene::Update(ROS_API &ros_api){
     //
     if (!is_enabled){   return; }
+    if (!is_initialized){
+        switch_layout( 0 );
+        switchCameraMotionMode( 0 , ros_api);
+        switchCameraViewMode( 0, ros_api);
+        is_initialized = true;
+    }
     //
 
     // Update the "_latest_tf_common_update_time"
@@ -288,7 +299,54 @@ void Scene::Reshape(int full_window_width, int full_window_height){
 // Interaction events
 //------------------------------------------------------//
 void Scene::ROSTopicEvent(ROS_API &ros_api){
-    // Default: None
+    std::shared_ptr< opengl_test::GUI2_op > _GUI2_op_ptr;
+    bool result = ros_api.get_message( int(MSG_ID::GUI_operatio), _GUI2_op_ptr);
+    if (!result){
+        return;
+    }
+
+    // Filter by "gui_name"
+    if (_GUI2_op_ptr->gui_name != ros_api.gui_name){
+        return;
+    }
+
+    // State
+    //----------------------------------------//
+    // cam_view_mode
+    if (_GUI2_op_ptr->cam_view_mode == "close"){
+        switchCameraViewMode( 0, ros_api);
+    }else if (_GUI2_op_ptr->cam_view_mode == "over"){
+        switchCameraViewMode( 1, ros_api);
+    }else if (_GUI2_op_ptr->cam_view_mode == "bird"){
+        switchCameraViewMode( 2, ros_api);
+    }else if (_GUI2_op_ptr->cam_view_mode == "toggle"){
+        KeyBoardEvent('v', ros_api);
+    }
+    // cam_motion_mode
+    if (_GUI2_op_ptr->cam_motion_mode == "follow"){
+        switchCameraMotionMode( 0, ros_api);
+    }else if (_GUI2_op_ptr->cam_motion_mode == "static"){
+        switchCameraMotionMode( 1, ros_api);
+    }else if (_GUI2_op_ptr->cam_motion_mode == "toggle"){
+        KeyBoardEvent('c', ros_api);
+    }
+    // image_surr
+    if (_GUI2_op_ptr->image_surr == "on"){
+        switch_layout( 0 ); // mode 0: on
+    }else if (_GUI2_op_ptr->image_surr == "off"){
+        switch_layout( 1 ); // mode 1: off
+    }else if (_GUI2_op_ptr->image_surr == "toggle"){
+        KeyBoardEvent( 'L', ros_api );
+    }
+    //----------------------------------------//
+    // Event
+    //----------------------------------------//
+    //----------------------------------------//
+
+    // Perscene event
+    // Note: only the main window will send back response
+    perSceneROSTopicEvent( ros_api );
+
 }
 void Scene::MouseEvent(int button, int state, int x, int y){
 	_camera_ptr->mouseEvents(button, state, x, y);
@@ -417,8 +475,10 @@ void Scene::switchCameraViewMode(int mode_in, ROS_API &ros_api){
                 _camera_ptr->SetDefaultViewMatrix( lookAt(eyePosition, eyeLookPosition, up) );
                 // 2. Set the default camera model matrix (the inverse)
             	glm::mat4 translationMatrix(1.0);
+                translationMatrix = glm::translate(translationMatrix, glm::vec3(0.0f, -2.3f, 0.0f) );
             	glm::mat4 rotationMatrix(1.0);
                 rotationMatrix = glm::rotate(rotationMatrix, deg2rad(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)); // z-axis
+                // rotationMatrix = glm::rotate(rotationMatrix, deg2rad(75.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // y-axis
                 rotationMatrix = glm::rotate(rotationMatrix, deg2rad(75.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // y-axis
                 _camera_ptr->SetDefaultTansformMatrix( translationMatrix*rotationMatrix );
                 // 3. Set the camera reference pose

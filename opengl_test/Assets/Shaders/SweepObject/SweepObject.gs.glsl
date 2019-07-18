@@ -42,27 +42,5 @@ void main()
         _j %= _num_vertex_of_shape;
     }
 
-    /*
-	vec4 up = vec4(0, 1, 0, 0);
-	vec4 right = vec4(1, 0, 0, 0);
-	vec4 nowRight  = lookat_matrix[gl_PrimitiveIDIn[0]    ] *  right;
-	vec4 nextRight = lookat_matrix[gl_PrimitiveIDIn[0] + 1] *  right;
-
-	float count = 30;
-	float angleOffset = (360.0 / count) * (PI / 180.0);
-	for (int i = 0; i <= count; i++) {
-		float nowAngle = i * angleOffset;
-
-		float x = cos(nowAngle);
-		float y = sin(nowAngle);
-
-		gl_Position = mvp_matrix * (gl_in[0].gl_Position + nowRight * x + up * y);
-		gsOutColor = gs_in[0].color;
-		EmitVertex();
-		gl_Position = mvp_matrix * (gl_in[1].gl_Position + nextRight * x + up * y);
-		gsOutColor = gs_in[1].color;
-		EmitVertex();
-	}
-    */
 	EndPrimitive();
 }
