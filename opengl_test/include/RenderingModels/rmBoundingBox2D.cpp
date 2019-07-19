@@ -1,30 +1,33 @@
 #include "rmBoundingBox2D.h"
+#include "object_class_def.hpp"
 
-namespace rmBoundingBox2D_ns{
-    // Predefined colors
-    //-------------------------------------------//
-    #define NUM_OBJ_CLASS 8
-    #define color_normalize_factor  (1.0f/255.0f)
-    glm::vec3 default_class_color(50, 50, 50);
-    glm::vec3 obj_class_colors[] = {
-        glm::vec3(50, 50, 255), // person
-        glm::vec3(255, 153, 102), // bicycle
-        glm::vec3(153, 255, 255), // car
-        glm::vec3(255, 153, 127), // motorbike
-        glm::vec3(255, 255, 0), // not showing aeroplane
-        glm::vec3(102, 204, 255), // bus
-        glm::vec3(255, 255, 100), // not showing train
-        glm::vec3(255, 153, 102), // truck
-        glm::vec3(50, 50, 50) // default
-    };
-    glm::vec3 get_obj_class_color(int obj_class_in){
-        if (obj_class_in < NUM_OBJ_CLASS){
-            return ( obj_class_colors[obj_class_in] * color_normalize_factor );
-        }
-        return ( default_class_color * color_normalize_factor );
-    }
-    //-------------------------------------------//
-}
+// namespace rmBoundingBox2D_ns{
+//     // Predefined colors
+//     //-------------------------------------------//
+//     #define NUM_OBJ_CLASS 8
+//     #define color_normalize_factor  (1.0f/255.0f)
+//     glm::vec3 default_class_color(50, 50, 50);
+//     glm::vec3 obj_class_colors[] = {
+//         glm::vec3(50, 50, 255), // person
+//         glm::vec3(255, 153, 102), // bicycle
+//         glm::vec3(153, 255, 255), // car
+//         glm::vec3(255, 153, 127), // motorbike
+//         glm::vec3(255, 255, 0), // not showing aeroplane
+//         glm::vec3(102, 204, 255), // bus
+//         glm::vec3(255, 255, 100), // not showing train
+//         glm::vec3(255, 153, 102), // truck
+//         glm::vec3(50, 50, 50) // default
+//     };
+//     glm::vec3 get_obj_class_color(int obj_class_in){
+//         if (obj_class_in < NUM_OBJ_CLASS){
+//             return ( obj_class_colors[obj_class_in] * color_normalize_factor );
+//         }
+//         return ( default_class_color * color_normalize_factor );
+//     }
+//     //-------------------------------------------//
+// }
+
+OBJECT_CLASS obj_class;
 
 // Box vertex index
 namespace rmLidarBoundingBox_ns{
@@ -274,58 +277,6 @@ void rmBoundingBox2D::Reshape(const glm::ivec2 & viewport_size_in){
     updateBoardGeo();
 }
 
-/*
-void rmBoundingBox2D::update_GL_data(){
-
-    if (msg_out_ptr->camObj.size() == 0){
-        m_shape.indexCount = 0;
-        return;
-    }
-
-    long long num_box = msg_out_ptr->camObj.size();
-    if (num_box > _max_num_box){
-        num_box = _max_num_box;
-    }
-
-    // vao vbo
-    glBindVertexArray(m_shape.vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
-
-
-    // vertex_p_c_2D * vertex_ptr = (vertex_p_c_2D *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c_2D), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    vertex_p_c_2D * vertex_ptr = (vertex_p_c_2D *)glMapBufferRange(GL_ARRAY_BUFFER, 0, num_box * _num_vertex_per_box * sizeof(vertex_p_c_2D), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    size_t _j = 0;
-    size_t _box_count = 0;
-	for (size_t i = 0; i < num_box; i++)
-	{
-        //
-        auto & _box = msg_out_ptr->camObj[i];
-        box_param_cv _a_box_param_cv(_box.x, _box.y, _box.width, _box.height, _box.cls);
-        box_param_gl _a_box_param_gl;
-        convert_cv_to_normalized_gl(_a_box_param_cv, _a_box_param_gl);
-        if (!is_gl_box_valid(_a_box_param_gl)){
-            continue; // Don't add to buffer
-        }
-        _box_count++;
-        //
-        glm::vec3 _box_color = rmBoundingBox2D_ns::get_obj_class_color(_a_box_param_gl.obj_class);
-        for (size_t _k=0; _k <_num_vertex_per_box; ++_k ){
-            vertex_ptr[_j].position[0] = _a_box_param_gl.xy_list[_k][0];
-    		vertex_ptr[_j].position[1] = _a_box_param_gl.xy_list[_k][1];
-            vertex_ptr[_j].color[0] = _box_color[0]; //
-    		vertex_ptr[_j].color[1] = _box_color[1]; //
-    		vertex_ptr[_j].color[2] = _box_color[2]; //
-            _j++;
-        }
-        //
-	}
-	glUnmapBuffer(GL_ARRAY_BUFFER);
-    //
-    num_box = _box_count;
-    m_shape.indexCount = num_box*_num_vertex_idx_per_box;
-    //--------------------------------------------//
-}
-*/
 
 void rmBoundingBox2D::update_GL_data(){
 
@@ -360,7 +311,8 @@ void rmBoundingBox2D::update_GL_data(){
         }
         _box_count++;
         //
-        glm::vec3 _box_color = rmBoundingBox2D_ns::get_obj_class_color(_a_box_param_gl.obj_class);
+        // glm::vec3 _box_color = rmBoundingBox2D_ns::get_obj_class_color(_a_box_param_gl.obj_class);
+        glm::vec3 _box_color = obj_class.get_color(_a_box_param_gl.obj_class);
         for (size_t _k=0; _k <_num_vertex_per_box; ++_k ){
             vertex_ptr[_j].position[0] = _a_box_param_gl.xy_list[_k][0];
     		vertex_ptr[_j].position[1] = _a_box_param_gl.xy_list[_k][1];
