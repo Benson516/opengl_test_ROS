@@ -514,6 +514,14 @@ void ViewManager::_update_mv_matrix(){
 }
 //
 
+void ViewManager::IterateOnce(){
+
+}
+
+
+void ViewManager::IterateOnce(){
+    //
+}
 /**
 * 重設相機的設定。
 */

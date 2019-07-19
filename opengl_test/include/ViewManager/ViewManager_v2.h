@@ -66,6 +66,7 @@ public:
 
     bool ToggleOrtho() { return ortho = !ortho; }
     void Zoom(float distance);
+    void IterateOnce();
     void Reset();
     void ResetDefaultValue();
     // The folowing functions can be used when camera mode changed
