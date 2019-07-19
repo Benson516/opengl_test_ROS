@@ -8,8 +8,9 @@ TRANSFORM_FILTER::TRANSFORM_FILTER():
 }
 
 
-void TRANSFORM_FILTER::reset(glm::mat4 tf_in=glm::mat4(1.0f) ){
-
+void TRANSFORM_FILTER::reset(glm::mat4 tf_in){
+    tf_input = tf_in;
+    tf_filtered = tf_input;
 }
 
 void TRANSFORM_FILTER::setInput(const glm::mat4 & tf_in){
