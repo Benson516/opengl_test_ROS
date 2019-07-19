@@ -17,6 +17,7 @@ public:
 
     OBJECT_CLASS(){
         //
+    #if __DETECTION_OBJ_VER_ == 1
         glm::vec3 obj_class_colors[] = {
             glm::vec3(50, 50, 255), // person
             glm::vec3(255, 153, 102), // bicycle
@@ -39,6 +40,28 @@ public:
             std::string("truck"),
             std::string("unknown")
         };
+    #elif __DETECTION_OBJ_VER_ == 2
+        glm::vec3 obj_class_colors[] = {
+            glm::vec3(50, 50, 50), // Unknown
+            glm::vec3(50, 50, 255), // person
+            glm::vec3(255, 153, 102), // bicycle
+            glm::vec3(255, 153, 127), // motorbike
+            glm::vec3(153, 255, 255), // car
+            glm::vec3(102, 204, 255), // bus
+            glm::vec3(255, 153, 102), // truck
+            glm::vec3(50, 50, 50) // default: Unknown
+        };
+        std::string obj_class_strings[] = {
+            std::string("Unknown"),
+            std::string("Person"),
+            std::string("Bicycle"),
+            std::string("Motorbike"),
+            std::string("Car"),
+            std::string("Bus"),
+            std::string("Truck"),
+            std::string("unknown")
+        };
+    #endif
         //
         color_list.assign( obj_class_colors, obj_class_colors +  ( sizeof(obj_class_colors)/sizeof(*obj_class_colors) ) );
         type_str_list.assign( obj_class_strings, obj_class_strings +  ( sizeof(obj_class_strings)/sizeof(*obj_class_strings) ) );
