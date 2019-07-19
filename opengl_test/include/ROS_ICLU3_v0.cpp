@@ -123,7 +123,7 @@ geometry_msgs::TransformStamped ROS_API::get_tf(const int topic_id, bool & is_su
 bool ROS_API::_set_up_topics(){
     {
         using MSG::M_TYPE;
-#ifdef __ROS_INTERFACE_V1__
+#if __ROS_INTERFACE_VER__ == 1
         // tfGeoPoseStamped
         ros_interface.add_a_topic( int(MSG_ID::ego_pose), "current_pose", int(M_TYPE::tfGeoPoseStamped), true, 10, 1, "map", true, "base");
         // Image
@@ -148,8 +148,8 @@ bool ROS_API::_set_up_topics(){
         // GUI operatios
         ros_interface.add_a_topic( int(MSG_ID::GUI_operatio), "GUI2/operation", int(M_TYPE::GUI2_op), true, 100, 100);
         ros_interface.add_a_topic( int(MSG_ID::GUI_state), "GUI2/state", int(M_TYPE::GUI2_op), false, 100, 1);
-#endif  // __ROS_INTERFACE_V1__
-#ifdef __ROS_INTERFACE_V2__
+        //
+#elif __ROS_INTERFACE_VER__ == 2
         // tfGeoPoseStamped
         ros_interface.add_a_topic( int(MSG_ID::ego_pose), "current_pose", int(M_TYPE::tfGeoPoseStamped), true, 10, 1, "map", true, "base");
         // Image
@@ -174,7 +174,7 @@ bool ROS_API::_set_up_topics(){
         // GUI operatios
         ros_interface.add_a_topic( int(MSG_ID::GUI_operatio), "GUI2/operation", int(M_TYPE::GUI2_op), true, 100, 100);
         ros_interface.add_a_topic( int(MSG_ID::GUI_state), "GUI2/state", int(M_TYPE::GUI2_op), false, 100, 1);
-#endif  // __ROS_INTERFACE_V2__
+#endif  // __ROS_INTERFACE_VER__
     }
     //------------------------------------------------//
 }
