@@ -85,7 +85,13 @@ mat4 ViewManager::GetProjectionMatrix()
 	return GetProjectionMatrix(aspect);
 }
 glm::mat4 ViewManager::GetModelViewMatrix(){ // <-- This method is the most efficient method, since we always update the mv_matrix when any of tthree components changed
-    return mv_matrix;
+    // return mv_matrix;
+    //
+    #ifdef TRANSFORM_FILTER_H
+        return tf_filter.getOutput();
+    #else
+        return mv_matrix;
+    #endif
 }
 /**
 * 取得 V * P 的矩陣。
@@ -517,6 +523,10 @@ void ViewManager::_update_mv_matrix(){
 
 void ViewManager::IterateOnce(){
     //
+#ifdef __IS_USING_VIEW_MOTION_FILTER__
+    tf_filter.setInput(mv_matrix);
+    tf_filter.iterateOnce();
+#endif
 }
 /**
 * 重設相機的設定。

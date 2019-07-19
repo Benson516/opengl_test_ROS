@@ -193,7 +193,7 @@ target_link_libraries(Common ${ALL_GL_LIBS} tiny_obj_loader )
 # add_library (ViewManager STATIC include/ViewManager/ViewManager.cpp)
 # target_link_libraries(ViewManager ${ALL_GL_LIBS} Common )
 
-add_library (ViewManager_v2 STATIC include/ViewManager/ViewManager_v2.cpp)
+add_library (ViewManager_v2 STATIC include/ViewManager/ViewManager_v2.cpp include/ViewManager/transformFilter.cpp)
 target_link_libraries(ViewManager_v2 ${ALL_GL_LIBS} Common )
 
 add_library (Shader STATIC include/Shader/Shader.cpp)
