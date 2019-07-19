@@ -514,10 +514,6 @@ void ViewManager::_update_mv_matrix(){
 }
 //
 
-void ViewManager::IterateOnce(){
-
-}
-
 
 void ViewManager::IterateOnce(){
     //
