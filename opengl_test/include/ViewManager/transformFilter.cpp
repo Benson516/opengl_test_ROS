@@ -30,11 +30,13 @@ void TRANSFORM_FILTER::setInput(const glm::mat4 & tf_in){
 glm::mat4 TRANSFORM_FILTER::iterateOnce(){
     // tf_filtered = tf_input;
     //
-    R_filtered = RotateTowards(R_filtered, R_input, 0.017);
-    p_filtered += 0.3f*(p_input - p_filtered);
+    float mixFactor = 0.2f;
+    R_filtered = glm::mix(R_filtered, R_input, mixFactor);
+    // R_filtered = RotateTowards(R_filtered, R_input, 0.017);
+    p_filtered += mixFactor*(p_input - p_filtered);
     //
-    tf_filtered = quaternion::toMat4(R_filtered);
-    tf_filtered[3] = glm::mat4(p_filtered, 1.0f);
+    tf_filtered = glm::toMat4(R_filtered);
+    tf_filtered[3] = glm::vec4(p_filtered, 1.0f);
     return tf_filtered;
 }
 glm::mat4 TRANSFORM_FILTER::getOutput(){
@@ -101,7 +103,7 @@ glm::quat TRANSFORM_FILTER::RotateTowards(glm::quat q1, glm::quat q2, float maxA
 	float fT = maxAngle / angle;
 	angle = maxAngle;
 
-	glm::quat res = (sin((1.0f - fT) * angle) * q1 + glm::sin(fT * angle) * q2) / glm::sin(angle);
+	glm::quat res = (glm::sin((1.0f - fT) * angle) * q1 + glm::sin(fT * angle) * q2) / glm::sin(angle);
 	res = glm::normalize(res);
 	return res;
 

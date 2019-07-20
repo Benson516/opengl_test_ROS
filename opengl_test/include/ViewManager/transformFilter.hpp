@@ -15,7 +15,7 @@ public:
 
     //
     glm::mat3 getRotationMatrix(const glm::mat4 & tf_in);
-    void putRotationMatrix(glm::mt3 R_in, glm::mat4 &tf_in_out);
+    void putRotationMatrix(glm::mat3 R_in, glm::mat4 &tf_in_out);
     glm::mat3 getScewSymmetricMatreix(const glm::vec3 & w_in);
     glm::vec3 getVectorFromScewSymetry(const glm::mat3 & W_in);
     //
