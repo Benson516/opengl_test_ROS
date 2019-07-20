@@ -327,6 +327,9 @@ void ViewManager::mouseMoveEvent(int x_cv_g, int y_cv_g)
         _set_tansformMatrix( _delta_rot*tansformMatrix );
         //
 		lmbDownCoord = coord;
+#ifdef __IS_USING_VIEW_MOTION_FILTER__
+        tf_filter.reset(mv_matrix); // Directly switch to new transform
+#endif
 	}
 	else if (midDown)
 	{
@@ -354,6 +357,9 @@ void ViewManager::mouseMoveEvent(int x_cv_g, int y_cv_g)
         _set_tansformMatrix( _delta_trans_M*tansformMatrix );
         //
 		midDownCoord = coord;
+#ifdef __IS_USING_VIEW_MOTION_FILTER__
+        tf_filter.reset(mv_matrix); // Directly switch to new transform
+#endif
 	}else if (rmbDown){
         vec2 coord = vec2(x_cv_l, y_cv_l);
         // std::cout << "coord = " << coord.x << ", " << coord.y << "\n";
@@ -374,6 +380,10 @@ void ViewManager::mouseMoveEvent(int x_cv_g, int y_cv_g)
         _set_tansformMatrix( _delta_rot*tansformMatrix );
         //
 		rmbDownCoord = coord;
+
+#ifdef __IS_USING_VIEW_MOTION_FILTER__
+        tf_filter.reset(mv_matrix); // Directly switch to new transform
+#endif
     }
 }
 
@@ -531,7 +541,7 @@ void ViewManager::IterateOnce(){
 /**
 * 重設相機的設定。
 */
-void ViewManager::Reset()
+void ViewManager::Reset(bool is_smooth)
 {
 	wheel_val = 0.0f;
 	zoom = 3.0f;
@@ -542,6 +552,13 @@ void ViewManager::Reset()
 
     // The pose of camera reference frame
     _set_camera_model_inv(default_camera_model_inv);
+
+#ifdef __IS_USING_VIEW_MOTION_FILTER__
+    if (!is_smooth){
+        tf_filter.reset(mv_matrix);
+    }
+#endif
+
 }
 void ViewManager::ResetDefaultValue(){
     // Set the default view matrix

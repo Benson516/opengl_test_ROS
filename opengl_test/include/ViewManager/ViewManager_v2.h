@@ -69,7 +69,7 @@ public:
     bool ToggleOrtho() { return ortho = !ortho; }
     void Zoom(float distance);
     void IterateOnce();
-    void Reset();
+    void Reset(bool is_smooth=true);
     void ResetDefaultValue();
     // The folowing functions can be used when camera mode changed
     void SetDefaultCameraModelInv(glm::mat4 camera_model_inv_in);

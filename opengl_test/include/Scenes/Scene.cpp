@@ -463,7 +463,7 @@ void Scene::switchCameraMotionMode(int mode_in, ROS_API &ros_api){
     }
     resetDefaultCaemraModel(ros_api);
     // Reset camera
-    _camera_ptr->Reset();
+    _camera_ptr->Reset(false); // not "smooth", directly switch to new transform
 }
 void Scene::switchCameraViewMode(int mode_in, ROS_API &ros_api){
     camera_view_mode = mode_in;
