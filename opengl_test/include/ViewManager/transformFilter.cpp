@@ -2,7 +2,11 @@
 
 TRANSFORM_FILTER::TRANSFORM_FILTER():
     tf_input(1.0f),
-    tf_filtered(1.0f)
+    R_input(0.0f, 0.0f, 0.0f, 1.0f),
+    p_input(0.0f),
+    tf_filtered(1.0f),
+    R_filtered(0.0f, 0.0f, 0.0f, 1.0f),
+    p_filtered(0.0f)
 {
 
 }
@@ -10,14 +14,27 @@ TRANSFORM_FILTER::TRANSFORM_FILTER():
 
 void TRANSFORM_FILTER::reset(glm::mat4 tf_in){
     tf_input = tf_in;
+    R_input = glm::quat_cast(tf_input);
+    p_input = tf_input[3].xyz();
+    //
     tf_filtered = tf_input;
+    R_filtered = glm::quat_cast(tf_filtered);
+    p_filtered = tf_filtered[3].xyz();
 }
 
 void TRANSFORM_FILTER::setInput(const glm::mat4 & tf_in){
     tf_input = tf_in;
+    R_input = glm::quat_cast(tf_input);
+    p_input = tf_input[3].xyz();
 }
 glm::mat4 TRANSFORM_FILTER::iterateOnce(){
-    tf_filtered = tf_input;
+    // tf_filtered = tf_input;
+    //
+    R_filtered = RotateTowards(R_filtered, R_input, 0.017);
+    p_filtered += 0.3f*(p_input - p_filtered);
+    //
+    tf_filtered = quaternion::toMat4(R_filtered);
+    tf_filtered[3] = glm::mat4(p_filtered, 1.0f);
     return tf_filtered;
 }
 glm::mat4 TRANSFORM_FILTER::getOutput(){
@@ -47,4 +64,45 @@ glm::mat3 TRANSFORM_FILTER::getScewSymmetricMatreix(const glm::vec3 & w_in){
 }
 glm::vec3 TRANSFORM_FILTER::getVectorFromScewSymetry(const glm::mat3 & W_in){
     return glm::vec3( W_in[1][2], W_in[2][0], W_in[0][1]);
+}
+
+
+
+//
+glm::quat TRANSFORM_FILTER::RotateTowards(glm::quat q1, glm::quat q2, float maxAngle){
+
+	if( maxAngle < 0.001f ){
+		// No rotation allowed. Prevent dividing by 0 later.
+		return q1;
+	}
+
+	float cosTheta = glm::dot(q1, q2);
+
+	// q1 and q2 are already equal.
+	// Force q2 just to be sure
+	if(cosTheta > 0.9999f){
+		return q2;
+	}
+
+	// Avoid taking the long path around the sphere
+	if (cosTheta < 0){
+	    q1 = q1*-1.0f;
+	    cosTheta *= -1.0f;
+	}
+
+	float angle = glm::acos(cosTheta);
+
+	// If there is only a 2&deg; difference, and we are allowed 5&deg;,
+	// then we arrived.
+	if (angle < maxAngle){
+		return q2;
+	}
+
+	float fT = maxAngle / angle;
+	angle = maxAngle;
+
+	glm::quat res = (sin((1.0f - fT) * angle) * q1 + glm::sin(fT * angle) * q2) / glm::sin(angle);
+	res = glm::normalize(res);
+	return res;
+
 }
