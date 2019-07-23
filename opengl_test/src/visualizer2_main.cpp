@@ -264,7 +264,7 @@ TIME_STAMP::Period period_frame_post("post frame");
 TIME_STAMP::FPS    fps_display("fps_display");
 void My_Display()
 {
-    std::cout << "Entering My_Display()\n";
+    // std::cout << "Entering My_Display()\n";
     // FPS of the display
     fps_display.stamp();
     // m_fps_d = fps_display.fps;
