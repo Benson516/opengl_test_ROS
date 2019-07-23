@@ -2,7 +2,9 @@
 #define _VIEWMANAGER_H_
 
 #include "Common.h"
+#include "transformFilter.hpp"
 
+#define __IS_USING_VIEW_MOTION_FILTER__
 /**
  * @brief The ViewManager class
  * The ViewManager class provides viewing manipulation related functionalities.
@@ -66,7 +68,8 @@ public:
 
     bool ToggleOrtho() { return ortho = !ortho; }
     void Zoom(float distance);
-    void Reset();
+    void IterateOnce();
+    void Reset(bool is_smooth=true);
     void ResetDefaultValue();
     // The folowing functions can be used when camera mode changed
     void SetDefaultCameraModelInv(glm::mat4 camera_model_inv_in);
@@ -96,6 +99,7 @@ public:
     //------------------------------------------------------------------//
 
 private:
+    TRANSFORM_FILTER                tf_filter;
 	float aspect;					///< 儲存目前視窗的長寬比。
     bool ortho;						///< 是否使用正交視角。
     float zoom;

@@ -85,7 +85,13 @@ mat4 ViewManager::GetProjectionMatrix()
 	return GetProjectionMatrix(aspect);
 }
 glm::mat4 ViewManager::GetModelViewMatrix(){ // <-- This method is the most efficient method, since we always update the mv_matrix when any of tthree components changed
-    return mv_matrix;
+    // return mv_matrix;
+    //
+    #ifdef TRANSFORM_FILTER_H
+        return tf_filter.getOutput();
+    #else
+        return mv_matrix;
+    #endif
 }
 /**
 * 取得 V * P 的矩陣。
@@ -321,6 +327,9 @@ void ViewManager::mouseMoveEvent(int x_cv_g, int y_cv_g)
         _set_tansformMatrix( _delta_rot*tansformMatrix );
         //
 		lmbDownCoord = coord;
+#ifdef __IS_USING_VIEW_MOTION_FILTER__
+        tf_filter.reset(mv_matrix); // Directly switch to new transform
+#endif
 	}
 	else if (midDown)
 	{
@@ -348,6 +357,9 @@ void ViewManager::mouseMoveEvent(int x_cv_g, int y_cv_g)
         _set_tansformMatrix( _delta_trans_M*tansformMatrix );
         //
 		midDownCoord = coord;
+#ifdef __IS_USING_VIEW_MOTION_FILTER__
+        tf_filter.reset(mv_matrix); // Directly switch to new transform
+#endif
 	}else if (rmbDown){
         vec2 coord = vec2(x_cv_l, y_cv_l);
         // std::cout << "coord = " << coord.x << ", " << coord.y << "\n";
@@ -368,6 +380,10 @@ void ViewManager::mouseMoveEvent(int x_cv_g, int y_cv_g)
         _set_tansformMatrix( _delta_rot*tansformMatrix );
         //
 		rmbDownCoord = coord;
+
+#ifdef __IS_USING_VIEW_MOTION_FILTER__
+        tf_filter.reset(mv_matrix); // Directly switch to new transform
+#endif
     }
 }
 
@@ -514,10 +530,18 @@ void ViewManager::_update_mv_matrix(){
 }
 //
 
+
+void ViewManager::IterateOnce(){
+    //
+#ifdef __IS_USING_VIEW_MOTION_FILTER__
+    tf_filter.setInput(mv_matrix);
+    tf_filter.iterateOnce();
+#endif
+}
 /**
 * 重設相機的設定。
 */
-void ViewManager::Reset()
+void ViewManager::Reset(bool is_smooth)
 {
 	wheel_val = 0.0f;
 	zoom = 3.0f;
@@ -528,6 +552,13 @@ void ViewManager::Reset()
 
     // The pose of camera reference frame
     _set_camera_model_inv(default_camera_model_inv);
+
+#ifdef __IS_USING_VIEW_MOTION_FILTER__
+    if (!is_smooth){
+        tf_filter.reset(mv_matrix);
+    }
+#endif
+
 }
 void ViewManager::ResetDefaultValue(){
     // Set the default view matrix

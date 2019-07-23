@@ -1,6 +1,11 @@
 #ifndef ROS_API_H
 #define ROS_API_H
 
+// Version control
+//----------------------------------------//
+#include "GUI_version_control.h"
+//----------------------------------------//
+
 // #include <ROS_interface.hpp>
 // #include <ROS_interface_v2.hpp>
 // #include <ROS_interface_v3.hpp>
@@ -10,8 +15,7 @@
 // #define __SUB_IMAGES__
 // #define __SUB_POINT_CLOUD__
 
-#define __ROS_INTERFACE_V1__
-// #define __ROS_INTERFACE_V2__
+
 
 // nickname for topic_id
 enum class MSG_ID{
