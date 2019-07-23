@@ -3,7 +3,11 @@
 
 #include "Scene.h"
 
-//
+// Version control
+//----------------------------------------//
+#include "GUI_version_control.h"
+//----------------------------------------//
+
 
 class SCENE_W_main : public Scene
 {
