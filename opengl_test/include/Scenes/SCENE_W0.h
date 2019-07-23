@@ -42,7 +42,8 @@ SCENE_W0::SCENE_W0(std::string pkg_path_in)
     _Assets_path = (pkg_path_in + "Assets/");
 
 
-
+    // Bounding box 2D
+    std::shared_ptr<rmBoundingBox2D> _box2D_ptr;
 
 
     // Back ground image rmImageDynamicBackground

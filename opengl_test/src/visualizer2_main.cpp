@@ -264,6 +264,7 @@ TIME_STAMP::Period period_frame_post("post frame");
 TIME_STAMP::FPS    fps_display("fps_display");
 void My_Display()
 {
+    std::cout << "Entering My_Display()\n";
     // FPS of the display
     fps_display.stamp();
     // m_fps_d = fps_display.fps;
@@ -622,8 +623,10 @@ int main(int argc, char *argv[])
 	//Call custom initialize function
 	My_Init();
 
+    std::cout << "Finish My_Init()\n";
     // AntTweakBar
     setupGUI();
+    std::cout << "Finish setupGUI()\n";
 
     /*
 	//定義選單
