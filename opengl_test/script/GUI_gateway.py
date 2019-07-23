@@ -5,14 +5,23 @@ import json
 import cherrypy
 import threading
 #
-import rospy
-from std_msgs.msg import Empty
-from opengl_test.msg import * # test
-
 
 # MQTT
 #---------------------------#
 import paho.mqtt.client as mqtt
+#---------------------------#
+
+# ROS
+#---------------------------#
+import rospy
+from std_msgs.msg import (
+    Header,
+    Float32,
+    String,
+    Empty,
+    Bool,
+)
+from opengl_test.msg import * # test
 #---------------------------#
 
 
@@ -51,7 +60,7 @@ mqtt_subscription_list.append( (mqtt_REC_req_backup_subT, 2) )
 
 # Published topics (MQTT --> dock)
 #------------------------#
-mqtt_sync_pubT = mqtt_msg_topic_namespace + '/sync' #
+mqtt_REC_report_pubT = mqtt_msg_topic_namespace + '/trigger_report' #
 #------------------------#
 
 #------------------------------------------------------------#
@@ -91,6 +100,7 @@ def mqtt_REC_req_backup_CB(client, userdata, mqtt_msg):
     This is the callback function at receiving req_backup signal.
     ** On receiving this message, bypass to ROS.
     """
+    print( 'payload = "%s"' % mqtt_msg.payload )
     msg_recorder_trigger_pub.publish( Empty() )
 #------------------------------------------------------#
 # end MQTT --> ROS
@@ -102,6 +112,17 @@ def GUI2_state_CB(msg):
     GUI_state = msg
     GUI_state_seq += 1
     print("[GUI-gateway] GUI state recieved.")
+
+def REC_report_CB(msg):
+    """
+    This is the callback function for reporting trigger event.
+    ** On receiving this message, bypass to MQTT interface.
+    """
+    if mqtt_client is None:
+        return
+    # Publish
+    payload_ = msg.data # '1'
+    mqtt_client.publish(mqtt_REC_report_pubT, payload=payload_, qos=2, retain=False)
 #------------------------------------------------------------#
 # end ROS callbacks
 
@@ -194,6 +215,7 @@ def main():
     # ROS
     rospy.init_node('GUI_gateway', anonymous=True)
     rospy.Subscriber("GUI2/state", GUI2_op, GUI2_state_CB)
+    rospy.Subscriber("REC/trigger_report", String, REC_report_CB)
 
     _t = threading.Thread(target=wait_for_close)
     # _t.daemon = True
