@@ -209,6 +209,15 @@ def main():
 
     # Subscriber callbacks
     mqtt_client.message_callback_add(mqtt_REC_req_backup_subT, mqtt_REC_req_backup_CB)
+
+
+    # Connect
+    mqtt_client.connect(mqtt_broker, 1883, 60)
+    # Start working
+    mqtt_client.loop_start() # This start the actual work on another thread.
+
+    # Publish the sync signal
+    # mqtt_client.publish(mqtt_sync_pubT, payload='1', qos=2, retain=False)
     #-------------------------------------------------------------------#
 
 
