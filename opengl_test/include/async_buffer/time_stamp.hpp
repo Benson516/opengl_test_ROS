@@ -19,6 +19,7 @@ Result:
     #include <iostream> //
 #endif
 #include <chrono>
+#include <thread> // for this_thread::sleep_for
 #include <cmath>  // For floor()
 #include <utility> // For std::swap with c++11
 
@@ -105,6 +106,13 @@ namespace TIME_STAMP{
         void show_sec(){ std::cout << "Time = " << toSec() << " sec.\n"; }
         void show_msec(){ std::cout << "Time = " << toMiliSec() << " msec.\n"; }
         void show_usec(){ std::cout << "Time = " << toMicroSec() << " usec.\n"; }
+        //
+        void sleep(){
+            // std::cout << "Sleep started.\n";
+            std::this_thread::sleep_for( std::chrono::seconds( sec ) + std::chrono::nanoseconds( nsec ) );
+            // std::cout << "Sleep ended.\n";
+        }
+        //
 
         // Comparison
         bool is_zero() const {

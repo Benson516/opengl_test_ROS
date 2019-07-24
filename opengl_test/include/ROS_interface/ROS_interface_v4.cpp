@@ -137,8 +137,10 @@ bool ROS_INTERFACE::start(){
     // Start the ROS thread, really starting the ROS
     _thread_list.push_back( std::thread(&ROS_INTERFACE::_ROS_worker, this) );
     // _is_started = true;
+    TIME_STAMP::Time _sleep_duration(0.2);
     while(!_is_started){
-        std::this_thread::sleep_for( std::chrono::milliseconds(200) );
+        // std::this_thread::sleep_for( std::chrono::milliseconds(200) );
+        _sleep_duration.sleep();
     }
     return true;
 }
@@ -642,10 +644,18 @@ geometry_msgs::TransformStamped ROS_INTERFACE::get_tf(const int topic_id, bool &
 // New interface: boost::any and (void *)
 //---------------------------------------------------------//
 bool ROS_INTERFACE::get_any_message(const int topic_id, boost::any & content_out_ptr){
+    if (!is_topic_id_valid(topic_id)){
+        std::cout << "Invalid topic_id at get_any_message()\n";
+        return false;
+    }
     // front and pop
     return ( async_buffer_list[topic_id]->front_any(content_out_ptr, true, _current_slice_time) );
 }
 bool ROS_INTERFACE::get_any_message(const int topic_id, boost::any & content_out_ptr, ros::Time &msg_stamp){
+    if (!is_topic_id_valid(topic_id)){
+        std::cout << "Invalid topic_id at get_any_message()\n";
+        return false;
+    }
     // front and pop
     bool result = ( async_buffer_list[topic_id]->front_any(content_out_ptr, true, _current_slice_time) );
     msg_stamp = toROStime( async_buffer_list[topic_id]->get_stamp() );

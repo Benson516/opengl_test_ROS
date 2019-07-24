@@ -144,7 +144,7 @@ void Scene::enable(bool enable_in){
         Reshape();
         _camera_ptr->Reset();
     }else{
-        _camera_ptr->assign_cal_viewport( &cal_viewport_dis );
+        // _camera_ptr->assign_cal_viewport( &cal_viewport_dis );
         Reshape();
         _camera_ptr->Reset();
     }
@@ -170,23 +170,27 @@ bool Scene::switch_layout(int layout_id){
 
 void Scene::Render(){
     //
-    // if (!is_enabled){   return; }
+    if (!is_enabled){   return; }
     //
 
     // test, set viewport and reset screen
     _camera_ptr->SwitchGLViewPortAndCleanDraw();
     //
 
-
+    // std::cout << "Before Rendering\n";
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
-        if ( _rm_BaseModel[i]->get_enable())
-		      _rm_BaseModel[i]->Render(_camera_ptr);
+        // std::cout << "Before render model #" << i << "\n";
+        if ( _rm_BaseModel[i]->get_enable()){
+            _rm_BaseModel[i]->Render(_camera_ptr);
+        }
+        // std::cout << "After render model #" << i << "\n";
 	}
     glDisable(GL_BLEND);
     // glDisable(GL_DEPTH_TEST);
+    // std::cout << "After Rendering\n";
 }
 void Scene::Update(float dt){
     //
@@ -201,10 +205,10 @@ void Scene::Update(float dt){
 }
 void Scene::Update(ROS_INTERFACE &ros_interface){
     //
-    if (!is_enabled){   return; }
     if (!is_initialized){
         is_initialized = true;
     }
+    if (!is_enabled){   return; }
     //
 
     // Update the "_latest_tf_common_update_time"
@@ -240,17 +244,15 @@ void Scene::Update(ROS_INTERFACE &ros_interface){
 }
 void Scene::Update(ROS_API &ros_api){
     //
-    if (!is_enabled){   return; }
     if (!is_initialized){
         switch_layout( 0 );
         switchCameraMotionMode( 0 , ros_api);
         switchCameraViewMode( 0, ros_api);
         is_initialized = true;
+        std::cout << "Scene initialized\n";
     }
+    if (!is_enabled){   return; }
     //
-
-
-    _camera_ptr->IterateOnce();
 
     // Update the "_latest_tf_common_update_time"
     // ros_interface.update_latest_tf_common_update_time("map", "base");
@@ -259,6 +261,7 @@ void Scene::Update(ROS_API &ros_api){
 
     ros_api.ros_interface.set_ref_frame( camera_ref_frame );
 
+    _camera_ptr->IterateOnce();
 
 
     /*
@@ -281,7 +284,6 @@ void Scene::Update(ROS_API &ros_api){
         // evaluation
         // period_Update.stamp(); period_Update.show_usec();
 	}
-
 }
 
 void Scene::Reshape(){
