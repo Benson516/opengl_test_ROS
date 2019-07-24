@@ -45,10 +45,10 @@ void rmlv2PathPlanFake::Init(){
     rm_path.insert_section_vertexes(section_vertexes);
 
     rm_path.set_line_width(2.0f);
-    // rm_path.set_colr_head( glm::vec3(1.0f, 0.5f, 0.0f) );
-    // rm_path.set_colr_tail( glm::vec3(0.0f, 0.5f, 1.0f) );
-    rm_path.set_colr_head( glm::vec3(0.0f, 0.5f, 1.0f) );
-    rm_path.set_colr_tail( glm::vec3(1.0f, 0.5f, 0.0f) );
+    // rm_path.set_color_head( glm::vec3(1.0f, 0.5f, 0.0f) );
+    // rm_path.set_color_tail( glm::vec3(0.0f, 0.5f, 1.0f) );
+    rm_path.set_color_head( glm::vec3(0.0f, 0.5f, 1.0f) );
+    rm_path.set_color_tail( glm::vec3(1.0f, 0.5f, 0.0f) );
 
 
 

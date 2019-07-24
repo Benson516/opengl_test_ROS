@@ -24,8 +24,8 @@ public:
 
     //
     inline void set_line_width(float line_width_in){ _line_width = line_width_in; }
-    void set_colr_head(const glm::vec3 & color_in){ _color_head = color_in; }
-    void set_colr_tail(const glm::vec3 & color_in){ _color_tail = color_in; }
+    void set_color_head(const glm::vec3 & color_in){ _color_head = color_in; }
+    void set_color_tail(const glm::vec3 & color_in){ _color_tail = color_in; }
     void set_close_loop(bool is_close_loop_in){  is_close_loop = is_close_loop_in; }
 
 protected:
