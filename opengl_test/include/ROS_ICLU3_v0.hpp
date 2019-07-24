@@ -21,6 +21,7 @@
 enum class MSG_ID{
     // tfGeoPoseStamped
     ego_pose,
+    vehicle_info,
     // Image
     camera_front_right, // front-right
     camera_front_center, // front-center
@@ -31,15 +32,25 @@ enum class MSG_ID{
     camera_left_fore, // left-front
     camera_left_rear, // left-rear
     camera_rear_center, // back
-    // ITRIPointCloud
+    // 2D bounding box
+    bounding_box_image_front_all,
+    bounding_box_image_front_right,
+    bounding_box_image_front_center,
+    bounding_box_image_front_left,
+    bounding_box_image_front_top,
+    bounding_box_image_right_fore,
+    bounding_box_image_right_rear,
+    bounding_box_image_left_fore,
+    bounding_box_image_left_rear,
+    bounding_box_image_rear_center,
+    // PointCloud
     point_cloud_raw,
     point_cloud_map,
-    //
+    // Detection, tracking and pp.
     lidar_bounding_box_raw,
     lidar_bounding_box_tracking,
-    bounding_box_image_front_all,
-    bounding_box_image_front_top,
-    vehicle_info,
+    lidar_bounding_box_pp,
+    //
     GUI_operatio,
     GUI_state,
     // NUM_TOPICS

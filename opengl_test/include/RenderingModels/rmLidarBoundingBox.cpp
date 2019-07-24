@@ -209,6 +209,7 @@ void rmLidarBoundingBox::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
     glUniform1f(uniforms.alpha, _alpha);
     // Draw the element according to ebo
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_shape.ebo);
     if (_is_wired){
         glLineWidth(_line_width);
         glDrawElements(GL_LINES, m_shape.indexCount, GL_UNSIGNED_INT, 0);

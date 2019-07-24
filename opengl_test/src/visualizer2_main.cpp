@@ -264,6 +264,7 @@ TIME_STAMP::Period period_frame_post("post frame");
 TIME_STAMP::FPS    fps_display("fps_display");
 void My_Display()
 {
+    // std::cout << "Entering My_Display()\n";
     // FPS of the display
     fps_display.stamp();
     // m_fps_d = fps_display.fps;
@@ -422,12 +423,15 @@ void My_Display()
     // glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // std::cout << "Before Rendering\n";
     // Render all_scenes
     //--------------------//
     for (size_t i=0; i < all_scenes.size(); ++i){
+        // std::cout << "Render scene #" << i << "\n";
         all_scenes[i]->Render();
     }
     //--------------------//
+    // std::cout << "After Rendering\n";
 
     // Render AntTweeekBar
     TwDraw();
@@ -435,6 +439,8 @@ void My_Display()
     //--------------------//
     glutSwapBuffers();
     //---------------------------------//
+
+
 
 
     //=============================================================//
@@ -621,9 +627,11 @@ int main(int argc, char *argv[])
 
 	//Call custom initialize function
 	My_Init();
+    std::cout << "Finish My_Init()\n";
 
     // AntTweakBar
     setupGUI();
+    std::cout << "Finish setupGUI()\n";
 
     /*
 	//定義選單
@@ -662,6 +670,8 @@ int main(int argc, char *argv[])
 
     // test, cv windows
     cv_windows_setup();
+
+    std::cout << "Ready to enter main loop\n";
 
 	//進入主迴圈
 	// glutMainLoop();

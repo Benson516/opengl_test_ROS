@@ -3,7 +3,11 @@
 
 #include "Scene.h"
 
-//
+// Version control
+//----------------------------------------//
+#include "GUI_version_control.h"
+//----------------------------------------//
+
 
 class SCENE_W_main : public Scene
 {
@@ -195,8 +199,13 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     //
 
     // Bounding box for front-center camera
+#if __ROS_INTERFACE_VER__ == 1
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_all), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*1, 0);
+#elif __ROS_INTERFACE_VER__ == 2
+    _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_center), true, true ) );
+    _box2D_ptr->setup_params(608, 384, 608*0, 0);
+#endif  // __ROS_INTERFACE_VER__
     _box2D_ptr->Translate(glm::vec3(2.77f, 0.0f, 3.0f));
     // _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), 0.0); // view angle
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
@@ -229,8 +238,13 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     //
 
     // Bounding box for front-right camera
+#if __ROS_INTERFACE_VER__ == 1
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_all), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*2, 0);
+#elif __ROS_INTERFACE_VER__ == 2
+    _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_right), true, true ) );
+    _box2D_ptr->setup_params(608, 384, 608*0, 0);
+#endif  // __ROS_INTERFACE_VER__
     _box2D_ptr->Translate(glm::vec3(0.0f, -10.33f, 3.0f));
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), -M_PI/6.0); // view angle
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
@@ -263,8 +277,13 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     //
 
     // Bounding box for front-left camera
+#if __ROS_INTERFACE_VER__ == 1
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_all), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*0, 0);
+#elif __ROS_INTERFACE_VER__ == 2
+    _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_left), true, true ) );
+    _box2D_ptr->setup_params(608, 384, 608*0, 0);
+#endif  // __ROS_INTERFACE_VER__
     _box2D_ptr->Translate(glm::vec3(0.0f, 10.33f, 3.0f));
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI/6.0); // view angle
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip

@@ -902,6 +902,7 @@ void rmText3D_v2::RenderText(
 
     // Draw
 	// glDrawArrays(GL_TRIANGLES, 0, _idx_count);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_shape.ebo);
     glDrawElements(GL_TRIANGLES, _valid_word_count*_num_vertex_idx_per_box, GL_UNSIGNED_INT, 0); // Using ebo
 
     glBindTexture(GL_TEXTURE_2D, 0);

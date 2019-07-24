@@ -145,6 +145,7 @@ void rmBoundingBox2D::LoadModel(){
 	GLuint * _idx_ptr = (GLuint *)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, _max_num_vertex_idx * sizeof(GLuint), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 	size_t _idx_idx = 0;
     long long _offset_box = 0;
+    // GLuint _offset_box = 0;
 	for (size_t i = 0; i < _max_num_vertex_idx; i++)
 	{
         _idx_ptr[i] = rmLidarBoundingBox_ns::box_idx_data[_idx_idx] + _offset_box;
@@ -157,6 +158,7 @@ void rmBoundingBox2D::LoadModel(){
 	}
 	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
     m_shape.indexCount = _max_num_vertex_idx; //  1 * _num_vertex_idx_per_box; // ;
+    // m_shape.indexCount = 0;
     //--------------------------------------------//
 
 
@@ -241,6 +243,7 @@ void rmBoundingBox2D::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
     glBindVertexArray(m_shape.vao);
 
+
 	_program_ptr->UseProgram();
 
     if (is_perspected){
@@ -265,7 +268,12 @@ void rmBoundingBox2D::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     glLineWidth(1.0);
     // Draw the element according to ebo
     // glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
+    // std::cout << "Before glDrawElements()\n";
+    // std::cout << "m_shape.indexCount = " << m_shape.indexCount << "\n";
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_shape.ebo);
     glDrawElements(GL_LINES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
+    // glDrawElements(GL_LINES, m_shape.indexCount, GL_UNSIGNED_INT, (void*)0);
+    // std::cout << "After glDrawElements()\n";
     // glDrawArrays(GL_TRIANGLES, 0, 3*5); // draw part of points
     //--------------------------------//
     glLineWidth(1.0);

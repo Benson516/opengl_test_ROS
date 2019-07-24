@@ -3,7 +3,10 @@
 
 #include "Scene.h"
 
-//
+// Version control
+//----------------------------------------//
+#include "GUI_version_control.h"
+//----------------------------------------//
 
 class SCENE_W6 : public Scene
 {
@@ -39,7 +42,8 @@ SCENE_W6::SCENE_W6(std::string pkg_path_in)
     _Assets_path = (pkg_path_in + "Assets/");
 
 
-
+    // Bounding box 2D
+    std::shared_ptr<rmBoundingBox2D> _box2D_ptr;
 
 
     // Back ground image rmImageDynamicBackground
@@ -49,7 +53,13 @@ SCENE_W6::SCENE_W6(std::string pkg_path_in)
     _image_background_2_ptr->color_transform = glm::vec4(1.0f);
     _rm_BaseModel.push_back( _image_background_2_ptr );
 
-
+#if __ROS_INTERFACE_VER__ == 2
+    // Bounding box for front-right camera
+    _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_right_rear), false, false ) );
+    _box2D_ptr->setup_params(608, 384, 608*0, 0);
+    // _box2D_ptr->alpha = 0.7;
+    _rm_BaseModel.push_back( _box2D_ptr );
+#endif  // __ROS_INTERFACE_VER__
 
 }
 

@@ -8,6 +8,7 @@ set (CMAKE_CXX_STANDARD 14)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+find_package(msgs REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
@@ -23,8 +24,6 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   cv_bridge
 )
-
-find_package(msgs REQUIRED)
 find_package(OpenCV REQUIRED)
 #
 find_package(OpenGL REQUIRED)
@@ -52,7 +51,7 @@ add_message_files(
 generate_messages(
   DEPENDENCIES
   std_msgs
-  msgs
+  # msgs
 )
 
 

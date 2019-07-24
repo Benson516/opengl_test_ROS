@@ -98,7 +98,7 @@ namespace MSG{
         //
         T_PARAMS():
             name(""),
-            type(0),
+            type(-1),
             is_input(false),
             ROS_queue(10),
             buffer_length(1),
@@ -198,6 +198,7 @@ public:
     // Check if the ROS is started
     bool is_running();
     // Get topic imformations
+    inline bool is_topic_id_valid(const int topic_id){return (_topic_param_list[topic_id].type >= 0); }
     inline bool is_topic_a_input(const int topic_id){return _topic_param_list[topic_id].is_input; }
     inline bool is_topic_got_frame(const int topic_id){return (_topic_param_list[topic_id].frame_id.size() > 0);}
     inline MSG::T_PARAMS get_topic_param(const int topic_id){ return _topic_param_list[topic_id]; }

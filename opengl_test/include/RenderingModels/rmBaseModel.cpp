@@ -155,6 +155,7 @@ void rmBaseModel::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 	glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr(get_mv_matrix(_camera_ptr, m_shape.model)));
 	glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
 
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_shape.ebo);
 	glDrawElements(GL_TRIANGLES, m_shape.indexCount, GL_UNSIGNED_INT, 0);
 
 	///////////////////////////
