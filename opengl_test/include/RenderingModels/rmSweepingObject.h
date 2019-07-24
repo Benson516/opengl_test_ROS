@@ -26,6 +26,7 @@ public:
     inline void set_line_width(float line_width_in){ _line_width = line_width_in; }
     void set_colr_head(const glm::vec3 & color_in){ _color_head = color_in; }
     void set_colr_tail(const glm::vec3 & color_in){ _color_tail = color_in; }
+    void set_close_loop(bool is_close_loop_in){  is_close_loop = is_close_loop_in; }
 
 protected:
     void Init();
@@ -37,9 +38,10 @@ protected:
     std::string _frame_id;
 
     float _line_width;
-    
+
     // parameters
     int draw_mode;
+    bool is_close_loop;
 
     void update_GL_data();
 
@@ -91,6 +93,7 @@ private:
         std::vector<GLint> lookat_matrix;
         std::vector<GLint> section_vertexes;
         GLint _num_vertex_of_shape;
+        GLint shape_mode;
 	} uniforms;
 
     // std::vector<vertex_p_c> box_template;

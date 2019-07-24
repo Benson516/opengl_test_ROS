@@ -4,7 +4,8 @@
 
 rmSweepingObject::rmSweepingObject(std::string _path_Assets_in, std::string frame_id_in, int draw_mode_in):
     _frame_id(frame_id_in),
-    draw_mode(draw_mode_in)
+    draw_mode(draw_mode_in),
+    is_close_loop(true)
 {
     _path_Shaders_sub_dir += "SweepObject/";
     init_paths(_path_Assets_in);
@@ -16,7 +17,8 @@ rmSweepingObject::rmSweepingObject(std::string _path_Assets_in, std::string fram
 }
 rmSweepingObject::rmSweepingObject(std::string _path_Assets_in, int _ROS_topic_id_in, int draw_mode_in):
     _ROS_topic_id(_ROS_topic_id_in),
-    draw_mode(draw_mode_in)
+    draw_mode(draw_mode_in),
+    is_close_loop(true)
 {
     _path_Shaders_sub_dir += "SweepObject/";
     init_paths(_path_Assets_in);
@@ -54,13 +56,14 @@ void rmSweepingObject::Init(){
 		uniforms.section_vertexes[i] = glGetUniformLocation(_program_ptr->GetID(), std::string("section_vertexes[" + std::to_string(i) + "]").c_str());
 	}
     uniforms._num_vertex_of_shape = glGetUniformLocation(_program_ptr->GetID(), "_num_vertex_of_shape");
+    uniforms.shape_mode = glGetUniformLocation(_program_ptr->GetID(), "shape_mode");
     //
 
     // Init model matrices
 	m_shape.model = glm::mat4(1.0);
     attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
     _line_width = 1.0f;
-    
+
     //
     _color_head = glm::vec3(1.0f, 0.5f, 0.0f);
     _color_tail = glm::vec3(0.0f, 0.5f, 1.0f);
@@ -174,6 +177,7 @@ void rmSweepingObject::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 		glUniform3fv( uniforms.section_vertexes[i], 1, value_ptr(section_vertexes[i]) );
 	}
     glUniform1i(uniforms._num_vertex_of_shape, int(section_vertexes.size()) );
+    glUniform1i(uniforms.shape_mode, int(is_close_loop) );
     // Setting
     glLineWidth(_line_width);
     // Draw the elements

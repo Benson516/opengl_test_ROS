@@ -14,6 +14,7 @@ uniform mat4 lookat_matrix[100]; // The size corespond with _max_num_vertex_of_c
 // The list of vertex on a cross section
 uniform vec3 section_vertexes[50];
 uniform int _num_vertex_of_shape;
+uniform int shape_mode; // 0 - open-loop, 1 - close-loop
 //
 const float PI = 3.1415926;
 
@@ -27,7 +28,11 @@ void main()
 	mat4 mvp_matrix =  proj_matrix * mv_matrix;
 
     int _j = 0;
-    for (int i=0; i <= _num_vertex_of_shape; ++i){
+    int _num_vertex_draw = _num_vertex_of_shape;
+    if (shape_mode == 1){
+        _num_vertex_draw += 1;
+    }
+    for (int i=0; i < _num_vertex_draw; ++i){
         vec4 _v_pre  = lookat_matrix[gl_PrimitiveIDIn[0] ]    * vec4(section_vertexes[_j], 0.0);
         vec4 _v_post = lookat_matrix[gl_PrimitiveIDIn[0] + 1] *  vec4(section_vertexes[_j], 0.0);
         //
