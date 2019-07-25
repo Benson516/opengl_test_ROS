@@ -113,8 +113,8 @@ void rmlv2PathPlan_v1::update_GL_data( ROS_API &ros_api ){
     bool tf_successed = false;
     glm::mat4 _tf_m = ROStf2GLMmatrix(
         ros_api.get_tf(
-            data_representation_frame,
             ros_api.ros_interface.get_topic_param(_ROS_topic_id).frame_id,
+            data_representation_frame,
             tf_successed
         )
     );
@@ -122,6 +122,7 @@ void rmlv2PathPlan_v1::update_GL_data( ROS_API &ros_api ){
 
     // 2 paths
     std::vector<glm::vec2> param_1, param_2;
+std::vector<glm::vec2> param_1_t, param_2_t;
 
     // 1st section
     param_1.push_back( glm::vec2( msg_out_ptr->XP1_0, msg_out_ptr->YP1_0) );
@@ -137,16 +138,22 @@ void rmlv2PathPlan_v1::update_GL_data( ROS_API &ros_api ){
     param_2.push_back( glm::vec2( msg_out_ptr->XP2_3, msg_out_ptr->YP2_3) );
     param_2.push_back( glm::vec2( msg_out_ptr->XP2_4, msg_out_ptr->YP2_4) );
     param_2.push_back( glm::vec2( msg_out_ptr->XP2_5, msg_out_ptr->YP2_5) );
+    
+std::cout << "param_1[0] = " << param_1[0].x << ", " << param_1[0].y << "\n";
     //
 
     // Coordinate transformation
+param_1_t.resize(param_1.size() );
+param_2_t.resize(param_2.size() );
     for (size_t i=0; i < param_1.size(); ++i){
-        param_1[i] = ( _tf_m * glm::vec4( param_1[1], 0.0f, 1.0f) ).xy;
+        param_1_t[i] = ( _tf_m * glm::vec4( param_1[i], 0.0f, 1.0f) ).xy();
     }
     for (size_t i=0; i < param_1.size(); ++i){
-        param_2[i] = ( _tf_m * glm::vec4( param_2[1], 0.0f, 1.0f) ).xy;
+        param_2_t[i] = ( _tf_m * glm::vec4( param_2[i], 0.0f, 1.0f) ).xy();
     }
     //
+
+std::cout << "new param_1[0] = " << param_1_t[0].x << ", " << param_1_t[0].y << "\n";
 
     // Generate points
     int num_segment_per_path = _max_sim_point/2-1;
@@ -158,13 +165,13 @@ void rmlv2PathPlan_v1::update_GL_data( ROS_API &ros_api ){
     // path #1
     for (size_t i=0; i <= num_segment_per_path; ++i ){
         float sim_T = i*dT;
-        get_point3D_poly(param_1, sim_T, point3D_on_path);
+        get_point3D_poly(param_1_t, sim_T, point3D_on_path);
         _path.push_back( point3D_on_path );
     }
     // path #2
     for (size_t i=0; i <= num_segment_per_path; ++i ){
         float sim_T = i*dT;
-        get_point3D_poly(param_2, sim_T, point3D_on_path);
+        get_point3D_poly(param_2_t, sim_T, point3D_on_path);
         _path.push_back( point3D_on_path );
     }
     // std::cout << "_path.size() = " << _path.size() << "\n";
