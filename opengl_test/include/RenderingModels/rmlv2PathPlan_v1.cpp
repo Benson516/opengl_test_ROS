@@ -109,20 +109,11 @@ void rmlv2PathPlan_v1::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
 void rmlv2PathPlan_v1::update_GL_data( ROS_API &ros_api ){
 
-    // Get tf
-    bool tf_successed = false;
-    glm::mat4 _tf_m = ROStf2GLMmatrix(
-        ros_api.get_tf(
-            ros_api.ros_interface.get_topic_param(_ROS_topic_id).frame_id,
-            data_representation_frame,
-            tf_successed
-        )
-    );
-    // end Get tf
+
 
     // 2 paths
     std::vector<glm::vec2> param_1, param_2;
-std::vector<glm::vec2> param_1_t, param_2_t;
+    std::vector<glm::vec2> param_1_t, param_2_t;
 
     // 1st section
     param_1.push_back( glm::vec2( msg_out_ptr->XP1_0, msg_out_ptr->YP1_0) );
@@ -138,32 +129,43 @@ std::vector<glm::vec2> param_1_t, param_2_t;
     param_2.push_back( glm::vec2( msg_out_ptr->XP2_3, msg_out_ptr->YP2_3) );
     param_2.push_back( glm::vec2( msg_out_ptr->XP2_4, msg_out_ptr->YP2_4) );
     param_2.push_back( glm::vec2( msg_out_ptr->XP2_5, msg_out_ptr->YP2_5) );
-    
-std::cout << "param_1[0] = " << param_1[0].x << ", " << param_1[0].y << "\n";
+    // std::cout << "param_1[0] = " << param_1[0].x << ", " << param_1[0].y << "\n";
     //
 
     // Coordinate transformation
-param_1_t.resize(param_1.size() );
-param_2_t.resize(param_2.size() );
-    for (size_t i=0; i < param_1.size(); ++i){
-        if (i == 0)
-           param_1_t[i] = ( _tf_m * glm::vec4( param_1[i], 0.0f, 1.0f) ).xy();
-        else
-           param_1_t[i] = ( _tf_m * glm::vec4( param_1[i], 0.0f, 0.0f) ).xy();
+    // Get tf
+    //----------------------------------//
+    bool tf_successed = false;
+    glm::mat4 _tf_m = ROStf2GLMmatrix(
+        ros_api.get_tf(
+            ros_api.ros_interface.get_topic_param(_ROS_topic_id).frame_id,
+            data_representation_frame,
+            tf_successed
+        )
+    );
+    //
+    if (!tf_successed){
+        std::cout << "[rmlv2PathPlan_v1] No tf got, cannot transform the path.\n";
+        return;
     }
-    for (size_t i=0; i < param_1.size(); ++i){
-        if (i == 0)
-           param_2_t[i] = ( _tf_m * glm::vec4( param_2[i], 0.0f, 1.0f) ).xy();
-        else
-           param_2_t[i] = ( _tf_m * glm::vec4( param_2[i], 0.0f, 0.0f) ).xy();
+    //----------------------------------//
+    // end Get tf
+
+    // Path #1
+    param_1_t.resize(param_1.size() );
+    param_1_t[0] = ( _tf_m * glm::vec4( param_1[0], 0.0f, 1.0f) ).xy();
+    for (size_t i=1; i < param_1.size(); ++i){
+        // Note: Don't do the translation for the rest of the parameters
+        param_1_t[i] = ( _tf_m * glm::vec4( param_1[i], 0.0f, 0.0f) ).xy();
     }
-
-// test
-// param_1_t = param_1;
-// param_2_t = param_2;
-//
-
-std::cout << "new param_1[0] = " << param_1_t[0].x << ", " << param_1_t[0].y << "\n";
+    // Path #2
+    param_2_t.resize(param_2.size() );
+    param_2_t[0] = ( _tf_m * glm::vec4( param_2[0], 0.0f, 1.0f) ).xy();
+    for (size_t i=1; i < param_1.size(); ++i){
+        // Note: Don't do the translation for the rest of the parameters
+        param_2_t[i] = ( _tf_m * glm::vec4( param_2[i], 0.0f, 0.0f) ).xy();
+    }
+    // std::cout << "new param_1[0] = " << param_1_t[0].x << ", " << param_1_t[0].y << "\n";
 
     // Generate points
     int num_segment_per_path = 5; // _max_sim_point/2-1;
@@ -181,8 +183,7 @@ std::cout << "new param_1[0] = " << param_1_t[0].x << ", " << param_1_t[0].y << 
         _path.push_back( point3D_on_path );
        _j++;
     }
-
-std::cout << "--- middle _path point = " << _path[ _path.size()-1 ].x << ", " << _path[ _path.size()-1].y << "\n";
+    // std::cout << "--- middle _path point = " << _path[ _path.size()-1 ].x << ", " << _path[ _path.size()-1].y << "\n";
 
     // path #2, note: remove the first point
     for (size_t i=1; i <= num_segment_per_path; ++i ){
@@ -192,10 +193,8 @@ std::cout << "--- middle _path point = " << _path[ _path.size()-1 ].x << ", " <<
         _path.push_back( point3D_on_path );
         _j++;
     }
+    // std::cout << "--- last _path point = " << _path[ _path.size()-1 ].x << ", " << _path[ _path.size()-1].y << "\n";
     // std::cout << "_path.size() = " << _path.size() << "\n";
-
-std::cout << "--- last _path point = " << _path[ _path.size()-1 ].x << ", " << _path[ _path.size()-1].y << "\n";
-
     rm_path.insert_curve_Points(_path);
 
     // // Reset
