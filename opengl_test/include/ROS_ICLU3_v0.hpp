@@ -22,6 +22,7 @@ enum class MSG_ID{
     // tfGeoPoseStamped
     ego_pose,
     vehicle_info,
+    dynamic_path,
     // Image
     camera_front_right, // front-right
     camera_front_center, // front-center
