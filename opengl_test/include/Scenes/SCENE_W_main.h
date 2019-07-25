@@ -72,6 +72,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     std::shared_ptr<rmlv2TagBoundingBox2D> _box2D_ptr;
     // rmlv2PathPlanFake
     std::shared_ptr<rmlv2PathPlanFake> _fake_path_ptr;
+    // rmlv2PathPlan_v1
+    std::shared_ptr<rmlv2PathPlan_v1> _planning_path_ptr;
     // rmColorBoard
     std::shared_ptr<rmColorBoard> _color_board_ptr;
 
@@ -156,10 +158,14 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // _rm_BaseModel.push_back( std::shared_ptr<rmSweepingObject>(new rmSweepingObject(_Assets_path, "base" ) ) );
 
     // rmlv2PathPlanFake
-    _fake_path_ptr.reset(   new rmlv2PathPlanFake(_Assets_path, int(MSG_ID::vehicle_info) )   );
-    _fake_path_ptr->Translate(glm::vec3(-5.5f, 0.0f, 0.0f));
-    _rm_BaseModel.push_back( _fake_path_ptr );
+    // _fake_path_ptr.reset(   new rmlv2PathPlanFake(_Assets_path, int(MSG_ID::vehicle_info) )   );
+    // _fake_path_ptr->Translate(glm::vec3(-5.5f, 0.0f, 0.0f));
+    // _rm_BaseModel.push_back( _fake_path_ptr );
 
+    // (True) Planning path
+    _planning_path_ptr.reset(   new rmlv2PathPlan_v1(_Assets_path, int(MSG_ID::dynamic_path) )   );
+    _planning_path_ptr->Translate(glm::vec3(-5.5f, 0.0f, 0.0f));
+    _rm_BaseModel.push_back( _planning_path_ptr );
 
     // Circle
     // _rm_BaseModel.push_back( std::shared_ptr<rmCircle>(new rmCircle(_Assets_path, "base" ) ) );
