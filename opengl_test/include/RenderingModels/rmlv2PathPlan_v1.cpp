@@ -105,48 +105,43 @@ void rmlv2PathPlan_v1::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
 void rmlv2PathPlan_v1::update_GL_data(){
 
-    glm::vec3 pose2D_0(0.0f, 0.0f, 0.0f);
-    // glm::vec3 pose2D_0(-5.5f, 0.0f, 0.0f);
-    glm::vec2 twist2D( msg_out_ptr->ego_speed, msg_out_ptr->yaw_rate*0.017453292519943295 );
+    // 2 paths
+    std::vector<glm::vec2> param_1, param_2;
 
-
-
+    // 1st section
+    param_1.push_back( glm::vec2( msg_out_ptr->XP1_0, msg_out_ptr->YP1_0) );
+    param_1.push_back( glm::vec2( msg_out_ptr->XP1_1, msg_out_ptr->YP1_1) );
+    param_1.push_back( glm::vec2( msg_out_ptr->XP1_2, msg_out_ptr->YP1_2) );
+    param_1.push_back( glm::vec2( msg_out_ptr->XP1_3, msg_out_ptr->YP1_3) );
+    param_1.push_back( glm::vec2( msg_out_ptr->XP1_4, msg_out_ptr->YP1_4) );
+    param_1.push_back( glm::vec2( msg_out_ptr->XP1_5, msg_out_ptr->YP1_5) );
+    // 2nd section
+    param_2.push_back( glm::vec2( msg_out_ptr->XP2_0, msg_out_ptr->YP2_0) );
+    param_2.push_back( glm::vec2( msg_out_ptr->XP2_1, msg_out_ptr->YP2_1) );
+    param_2.push_back( glm::vec2( msg_out_ptr->XP2_2, msg_out_ptr->YP2_2) );
+    param_2.push_back( glm::vec2( msg_out_ptr->XP2_3, msg_out_ptr->YP2_3) );
+    param_2.push_back( glm::vec2( msg_out_ptr->XP2_4, msg_out_ptr->YP2_4) );
+    param_2.push_back( glm::vec2( msg_out_ptr->XP2_5, msg_out_ptr->YP2_5) );
     //
-    int num_steps = 0;
-    float dT = _sim_time;
-    //
-    int idx_primary_axis = 0;
-    glm::vec2 cross_freq = glm::abs(twist2D/_granularity);
-    // Find the primary axis (between translation and rotation)
-    if (cross_freq.x >= cross_freq.y){
-        idx_primary_axis = 0;
-    }else{
-        idx_primary_axis = 1;
-    }
-    if (cross_freq[idx_primary_axis] <= 0.0){
-        // Not moving
-        dT = _sim_time;
-        num_steps = 1;
-    } else{
-        // else
-        dT = 1.0/cross_freq[idx_primary_axis]; // Positive value
-        num_steps = int( ceil(_sim_time/dT) );
-    }
 
-    // Saturation
-    if (num_steps > _max_sim_point){
-        num_steps = _max_sim_point;
-        dT = _sim_time/float(num_steps);
-    }
+    // Generate points
+    int num_segment_per_path = _max_sim_point/2-1;
+    float dT = 1.0f/float(num_segment_per_path);
 
-    // Calculate path
+    // Calculate paths
     _path.clear();
-    _path.push_back(pose2D_0);
-    glm::vec3 pose2D_on_path;
-    for (size_t i=1; i <= num_steps; ++i ){
+    glm::vec3 point3D_on_path;
+    // path #1
+    for (size_t i=0; i <= num_segment_per_path; ++i ){
         float sim_T = i*dT;
-        get_pose2D_sim(pose2D_0, twist2D, sim_T, pose2D_on_path);
-        _path.push_back( glm::vec3(pose2D_on_path.xy(), 0.0f) );
+        get_point3D_poly(param_1, sim_T, point3D_on_path);
+        _path.push_back( point3D_on_path );
+    }
+    // path #2
+    for (size_t i=0; i <= num_segment_per_path; ++i ){
+        float sim_T = i*dT;
+        get_point3D_poly(param_2, sim_T, point3D_on_path);
+        _path.push_back( point3D_on_path );
     }
     // std::cout << "_path.size() = " << _path.size() << "\n";
 
@@ -162,26 +157,17 @@ void rmlv2PathPlan_v1::update_GL_data(){
 
 
 
+
 //
-void rmlv2PathPlan_v1::get_pose2D_sim(const glm::vec3 &pose2D_0, const glm::vec2 &twist2D, double dT, glm::vec3 &pose2D_out){
-    double dtheta = twist2D[1]*dT;
+void rmlv2PathPlan_v1::get_point3D_poly(const std::vector<glm::vec2> &param, double dT, glm::vec3 &point3D_out){
+
     //
-    // double x_0 = pose2D_0.x;
-    // double y_0 = pose2D_0.y;
-    // double theta_0 = pose2D_0.z;
-    // double vel_1 = twist2D.x;
-    // double omega_1 = twist2D.y;
-    //
-    // double x_1, y_1, theta_1, r_1;
-    //
-    if (std::abs(dtheta) < 0.017453292519943295){ // 1 deg., small angle
-        pose2D_out[2] = pose2D_0[2] + dtheta;
-        pose2D_out.x = pose2D_0.x + twist2D[0]*dT*std::cos( 0.5*(pose2D_out[2] + pose2D_0[2]) );
-        pose2D_out.y = pose2D_0.y + twist2D[0]*dT*std::sin( 0.5*(pose2D_out[2] + pose2D_0[2]) );
-    }else{ //
-        pose2D_out[2] = pose2D_0[2] + dtheta;
-        double r_1 = twist2D[0]/twist2D[1];
-        pose2D_out.x = pose2D_0.x + r_1*( std::sin(pose2D_out[2]) - std::sin(pose2D_0[2]) );
-        pose2D_out.y = pose2D_0.y - r_1*( std::cos(pose2D_out[2]) - std::cos(pose2D_0[2]) );
+    double _t = 1.0;
+    point3D_out = glm::vec3(0.0f);
+    for (size_t i=0; i < param.size(); ++i){
+        point3D_out += glm::vec3( float( param[i][0]*_t ), float( param[i][0]*_t ), 0.0f);
+        // Next level
+        _t *= dT;
     }
+
 }

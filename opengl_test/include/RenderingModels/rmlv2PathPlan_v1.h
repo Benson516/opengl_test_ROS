@@ -26,8 +26,8 @@ protected:
     void Init();
     //
     int _ROS_topic_id;
-    // std::shared_ptr< msgs::LidRoi > msg_out_ptr;
-    std::shared_ptr< msgs::VehInfo  > msg_out_ptr;
+    // std::shared_ptr< msgs::VehInfo  > msg_out_ptr;
+    std::shared_ptr< msgs::DynamicPath  > msg_out_ptr;
     // ros::Time msg_time;
 
     //
@@ -36,7 +36,8 @@ protected:
 
     void update_GL_data();
 
-    void get_pose2D_sim(const glm::vec3 &pose2D_0, const glm::vec2 &twist2D, double dT, glm::vec3 &pose2D_out);
+    //
+    void get_point3D_poly(const std::vector<glm::vec2> &param, double dT, glm::vec3 &point3D_out);
 
     // Param
     float _sim_time; // sec.
