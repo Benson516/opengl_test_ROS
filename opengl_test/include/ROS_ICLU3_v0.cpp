@@ -128,6 +128,7 @@ bool ROS_API::_set_up_topics(){
         ros_interface.add_a_topic( int(MSG_ID::ego_pose), "current_pose", int(M_TYPE::tfGeoPoseStamped), true, 10, 1, "map", true, "base");
         // Vehicle info
         ros_interface.add_a_topic( int(MSG_ID::vehicle_info), "taichung_veh_info", int(M_TYPE::ITRICarInfoCarA), true, 100, 100, "base");
+        ros_interface.add_a_topic( int(MSG_ID::dynamic_path), "dynamic_path_para", int(M_TYPE::ITRIDynamicPath), true, 100, 100, "map");
         // Image
         ros_interface.add_a_topic( int(MSG_ID::camera_front_right), "camera/1/0/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
         ros_interface.add_a_topic( int(MSG_ID::camera_front_center), "camera/1/1/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
@@ -156,6 +157,7 @@ bool ROS_API::_set_up_topics(){
         ros_interface.add_a_topic( int(MSG_ID::ego_pose), "current_pose", int(M_TYPE::tfGeoPoseStamped), true, 10, 1, "map", true, "base");
         // Vehicle info
         ros_interface.add_a_topic( int(MSG_ID::vehicle_info), "veh_info", int(M_TYPE::ITRICarInfo), true, 100, 100, "base");
+        ros_interface.add_a_topic( int(MSG_ID::dynamic_path), "dynamic_path_para", int(M_TYPE::ITRIDynamicPath), true, 100, 100, "map");
         // Image
         ros_interface.add_a_topic( int(MSG_ID::camera_front_right), "gmsl_camera/port_a/cam_0/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
         ros_interface.add_a_topic( int(MSG_ID::camera_front_center), "gmsl_camera/port_a/cam_1/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");

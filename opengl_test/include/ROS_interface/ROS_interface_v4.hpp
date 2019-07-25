@@ -79,6 +79,7 @@ namespace MSG{
         ITRIDetectedObjectArray,
         ITRICarInfoCarA,
         ITRICarInfo,
+        ITRIDynamicPath,
         NUM_MSG_TYPE
     };
 
@@ -418,6 +419,8 @@ private:
     void _ITRICarInfoCarA_CB(const msgs::TaichungVehInfo::ConstPtr& msg, const MSG::T_PARAMS & params);
     // ITRICarInfo
     void _ITRICarInfo_CB(const msgs::VehInfo::ConstPtr& msg, const MSG::T_PARAMS & params);
+    // ITRIDynamicPath
+    void _ITRIDynamicPath_CB(const msgs::DynamicPath::ConstPtr& msg, const MSG::T_PARAMS & params);
     //---------------------------------------------------------//
 
 }; // end of the class ROS_INTERFACE
