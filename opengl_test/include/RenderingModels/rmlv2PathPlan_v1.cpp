@@ -146,35 +146,55 @@ std::cout << "param_1[0] = " << param_1[0].x << ", " << param_1[0].y << "\n";
 param_1_t.resize(param_1.size() );
 param_2_t.resize(param_2.size() );
     for (size_t i=0; i < param_1.size(); ++i){
-        param_1_t[i] = ( _tf_m * glm::vec4( param_1[i], 0.0f, 1.0f) ).xy();
+        if (i == 0)
+           param_1_t[i] = ( _tf_m * glm::vec4( param_1[i], 0.0f, 1.0f) ).xy();
+        else
+           param_1_t[i] = ( _tf_m * glm::vec4( param_1[i], 0.0f, 0.0f) ).xy();
     }
     for (size_t i=0; i < param_1.size(); ++i){
-        param_2_t[i] = ( _tf_m * glm::vec4( param_2[i], 0.0f, 1.0f) ).xy();
+        if (i == 0)
+           param_2_t[i] = ( _tf_m * glm::vec4( param_2[i], 0.0f, 1.0f) ).xy();
+        else
+           param_2_t[i] = ( _tf_m * glm::vec4( param_2[i], 0.0f, 0.0f) ).xy();
     }
-    //
+
+// test
+// param_1_t = param_1;
+// param_2_t = param_2;
+//
 
 std::cout << "new param_1[0] = " << param_1_t[0].x << ", " << param_1_t[0].y << "\n";
 
     // Generate points
-    int num_segment_per_path = _max_sim_point/2-1;
+    int num_segment_per_path = 5; // _max_sim_point/2-1;
     float dT = 1.0f/float(num_segment_per_path);
 
     // Calculate paths
     _path.clear();
     glm::vec3 point3D_on_path;
+    int _j = 0;
     // path #1
     for (size_t i=0; i <= num_segment_per_path; ++i ){
         float sim_T = i*dT;
         get_point3D_poly(param_1_t, sim_T, point3D_on_path);
+        point3D_on_path += float(_j) * glm::vec3(0.0f, 0.0f, 0.01f);
         _path.push_back( point3D_on_path );
+       _j++;
     }
-    // path #2
-    for (size_t i=0; i <= num_segment_per_path; ++i ){
+
+std::cout << "--- middle _path point = " << _path[ _path.size()-1 ].x << ", " << _path[ _path.size()-1].y << "\n";
+
+    // path #2, note: remove the first point
+    for (size_t i=1; i <= num_segment_per_path; ++i ){
         float sim_T = i*dT;
         get_point3D_poly(param_2_t, sim_T, point3D_on_path);
+        point3D_on_path += float(_j) * glm::vec3(0.0f, 0.0f, 0.01f);
         _path.push_back( point3D_on_path );
+        _j++;
     }
     // std::cout << "_path.size() = " << _path.size() << "\n";
+
+std::cout << "--- last _path point = " << _path[ _path.size()-1 ].x << ", " << _path[ _path.size()-1].y << "\n";
 
     rm_path.insert_curve_Points(_path);
 

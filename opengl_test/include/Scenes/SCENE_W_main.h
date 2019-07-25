@@ -164,7 +164,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
 
     // (True) Planning path
     _planning_path_ptr.reset(   new rmlv2PathPlan_v1(_Assets_path, int(MSG_ID::dynamic_path), "map" )   );
-    _planning_path_ptr->Translate(glm::vec3(-5.5f, 0.0f, 0.0f));
+    // _planning_path_ptr->Translate(glm::vec3(-5.5f, 0.0f, 0.0f));
     _rm_BaseModel.push_back( _planning_path_ptr );
 
     // Circle

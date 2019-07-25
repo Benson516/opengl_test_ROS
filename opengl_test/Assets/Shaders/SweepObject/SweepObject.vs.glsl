@@ -12,5 +12,5 @@ void main()
 {
 	gl_Position = position;
     vs_out.color = color;
-    vs_out.color.a = 0.6;
+    // vs_out.color.a = 0.6;
 }
