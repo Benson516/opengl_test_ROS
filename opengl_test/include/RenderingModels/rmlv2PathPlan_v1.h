@@ -13,7 +13,8 @@ class rmlv2PathPlan_v1 : public rmBaseModel
 public:
     rmlv2PathPlan_v1(
         std::string _path_Assets_in,
-        int _ROS_topic_id_in
+        int _ROS_topic_id_in,
+        std::string data_representation_frame_in="map"
     );
     //
 	void Update(float dt);
@@ -30,11 +31,14 @@ protected:
     std::shared_ptr< msgs::DynamicPath  > msg_out_ptr;
     // ros::Time msg_time;
 
+    // The reference frame of the data in message
+    std::string data_representation_frame;
+
     //
     rmSweepingObject rm_path;
     rmText3D_v2 rm_text;
 
-    void update_GL_data();
+    void update_GL_data( ROS_API &ros_api );
 
     //
     void get_point3D_poly(const std::vector<glm::vec2> &param, double dT, glm::vec3 &point3D_out);

@@ -6,9 +6,11 @@
 
 rmlv2PathPlan_v1::rmlv2PathPlan_v1(
     std::string _path_Assets_in,
-    int _ROS_topic_id_in
+    int _ROS_topic_id_in,
+    std::string data_representation_frame_in
 ):
     _ROS_topic_id(_ROS_topic_id_in),
+    data_representation_frame(data_representation_frame_in),
     //
     rm_path(_path_Assets_in, _ROS_topic_id_in, 0),
     // rm_path(_path_Assets_in, _ROS_topic_id_in, 1),
@@ -87,9 +89,11 @@ void rmlv2PathPlan_v1::Update(ROS_API &ros_api){
     _result = ros_api.get_message(_ROS_topic_id, msg_out_ptr, msg_time);
 
     if (_result){
-        update_GL_data();
+        update_GL_data( ros_api );
         // rm_text.insert_text();
     }
+
+
 
     //
     rm_path.Update(ros_api);
@@ -103,7 +107,18 @@ void rmlv2PathPlan_v1::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     rm_text.Render(_camera_ptr);
 }
 
-void rmlv2PathPlan_v1::update_GL_data(){
+void rmlv2PathPlan_v1::update_GL_data( ROS_API &ros_api ){
+
+    // Get tf
+    bool tf_successed = false;
+    glm::mat4 _tf_m = ROStf2GLMmatrix(
+        ros_api.get_tf(
+            data_representation_frame,
+            ros_api.ros_interface.get_topic_param(_ROS_topic_id).frame_id,
+            tf_successed
+        )
+    );
+    // end Get tf
 
     // 2 paths
     std::vector<glm::vec2> param_1, param_2;
@@ -122,6 +137,15 @@ void rmlv2PathPlan_v1::update_GL_data(){
     param_2.push_back( glm::vec2( msg_out_ptr->XP2_3, msg_out_ptr->YP2_3) );
     param_2.push_back( glm::vec2( msg_out_ptr->XP2_4, msg_out_ptr->YP2_4) );
     param_2.push_back( glm::vec2( msg_out_ptr->XP2_5, msg_out_ptr->YP2_5) );
+    //
+
+    // Coordinate transformation
+    for (size_t i=0; i < param_1.size(); ++i){
+        param_1[i] = ( _tf_m * glm::vec4( param_1[1], 0.0f, 1.0f) ).xy;
+    }
+    for (size_t i=0; i < param_1.size(); ++i){
+        param_2[i] = ( _tf_m * glm::vec4( param_2[1], 0.0f, 1.0f) ).xy;
+    }
     //
 
     // Generate points
@@ -165,7 +189,7 @@ void rmlv2PathPlan_v1::get_point3D_poly(const std::vector<glm::vec2> &param, dou
     double _t = 1.0;
     point3D_out = glm::vec3(0.0f);
     for (size_t i=0; i < param.size(); ++i){
-        point3D_out += glm::vec3( float( param[i][0]*_t ), float( param[i][0]*_t ), 0.0f);
+        point3D_out += glm::vec3( float( param[i][0]*_t ), float( param[i][1]*_t ), 0.0f);
         // Next level
         _t *= dT;
     }
