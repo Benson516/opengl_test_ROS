@@ -27,7 +27,7 @@ void rmlv2PathPlan_v1::Init(){
     // _max_sim_point = int(_sim_time); // 90;
 
     //
-    section_vertexes.resize(4);
+    // section_vertexes.resize(4);
     // // board
     // section_vertexes[0] = glm::vec3(0.0f, -1.0f, -1.0f);
     // section_vertexes[1] = glm::vec3(0.0f, -1.0f, 1.0f);
@@ -46,8 +46,8 @@ void rmlv2PathPlan_v1::Init(){
     // rm_path.set_close_loop(true);
 
     // flat board
-    section_vertexes[0] = glm::vec3(0.0f, -1.0f, 0.0f);
-    section_vertexes[1] = glm::vec3(0.0f, 1.0f, 0.0f);
+    section_vertexes.push_back( glm::vec3(0.0f, -1.0f, 0.0f) );
+    section_vertexes.push_back( glm::vec3(0.0f, 1.0f, 0.0f) );
     glm::mat4 _delta_T(1.0f);
     _delta_T = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, -2.6f) );
     _delta_T = glm::scale(_delta_T, glm::vec3(4.0f, 1.4f, 1.0f) );
@@ -132,7 +132,7 @@ void rmlv2PathPlan_v1::update_GL_data( ROS_API &ros_api ){
     // std::cout << "param_1[0] = " << param_1[0].x << ", " << param_1[0].y << "\n";
     //
 
-    // Coordinate transformation
+
     // Get tf
     //----------------------------------//
     bool tf_successed = false;
@@ -151,15 +151,16 @@ void rmlv2PathPlan_v1::update_GL_data( ROS_API &ros_api ){
     //----------------------------------//
     // end Get tf
 
+    // Coordinate transformation
     // Path #1
-    param_1_t.resize(param_1.size() );
+    param_1_t.resize( param_1.size() );
     param_1_t[0] = ( _tf_m * glm::vec4( param_1[0], 0.0f, 1.0f) ).xy();
     for (size_t i=1; i < param_1.size(); ++i){
         // Note: Don't do the translation for the rest of the parameters
         param_1_t[i] = ( _tf_m * glm::vec4( param_1[i], 0.0f, 0.0f) ).xy();
     }
     // Path #2
-    param_2_t.resize(param_2.size() );
+    param_2_t.resize( param_2.size() );
     param_2_t[0] = ( _tf_m * glm::vec4( param_2[0], 0.0f, 1.0f) ).xy();
     for (size_t i=1; i < param_1.size(); ++i){
         // Note: Don't do the translation for the rest of the parameters
@@ -167,8 +168,11 @@ void rmlv2PathPlan_v1::update_GL_data( ROS_API &ros_api ){
     }
     // std::cout << "new param_1[0] = " << param_1_t[0].x << ", " << param_1_t[0].y << "\n";
 
+
+
+
     // Generate points
-    int num_segment_per_path = 5; // _max_sim_point/2-1;
+    int num_segment_per_path = _max_sim_point/2-1;
     float dT = 1.0f/float(num_segment_per_path);
 
     // Calculate paths
@@ -195,6 +199,13 @@ void rmlv2PathPlan_v1::update_GL_data( ROS_API &ros_api ){
     }
     // std::cout << "--- last _path point = " << _path[ _path.size()-1 ].x << ", " << _path[ _path.size()-1].y << "\n";
     // std::cout << "_path.size() = " << _path.size() << "\n";
+
+    // std::cout << "---\n_path = \n";
+    // for (size_t i=0; i < _path.size(); ++i){
+    //     std::cout << "(" << _path[i].x << ", " << _path[i].y << ")\n";
+    // }
+    // std::cout << "\n";
+
     rm_path.insert_curve_Points(_path);
 
     // // Reset

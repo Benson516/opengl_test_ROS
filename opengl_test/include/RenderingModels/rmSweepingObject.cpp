@@ -234,10 +234,15 @@ void rmSweepingObject::_update_lookat_matrix_list(){
             // direction
             glm::vec3 _d_next = glm::normalize( _curve_Points[i+1] - _curve_Points[i] );
             // angle
-            GLfloat _angle = glm::acos( glm::dot(_d_pre, _d_next) ); // Note: ||_d_pre|| = ||_d_next|| = 1
+            GLfloat _cos_v = glm::dot(_d_pre, _d_next);
+            if ( _cos_v > 1.0f){
+                _cos_v = 1.0f;
+            }
+            GLfloat _angle = glm::acos( _cos_v ); // Note: ||_d_pre|| = ||_d_next|| = 1
             //
-            if ( _angle < 0.000017 ){ // 0.001 deg
-                lookat_matrix_list[i] = lookat_matrix_list[i-1];
+            if ( _angle < 0.0017 ){ // 0.1 deg
+                // std::cout << "The angle between two lookat_matrix is too small.\n";
+                lookat_matrix_list[i] = _accumulated_T; // lookat_matrix_list[i-1];
             }else{
                 // axis - cross
                 glm::vec3 _axis = glm::cross(_d_pre, _d_next);
