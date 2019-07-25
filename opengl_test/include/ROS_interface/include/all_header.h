@@ -49,6 +49,8 @@
 #include <msgs/TaichungVehInfo.h>
 // MSG: ITRICarInfo
 #include <msgs/VehInfo.h>
+// MSG: ITRIDynamicPath
+#include <msgs/DynamicPath.h>
 
 
 // MSG: GUI2_op
