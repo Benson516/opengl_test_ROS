@@ -187,6 +187,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _rm_BaseModel.push_back( _image_board_ptr );
     */
 
+    // Image
+    //--------------------------------------------//
 
     // Dynamic image, front-center camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_center), true, true, false) );
@@ -220,7 +222,6 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _box2D_ptr->shape.setBoardSize(11.08, true);
     // _box2D_ptr->Scale( glm::vec3(3.5f));
     // _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
@@ -259,7 +260,6 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _box2D_ptr->shape.setBoardSize(11.08, true);
     // _box2D_ptr->Scale( glm::vec3(3.5f));
     // _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
@@ -298,14 +298,13 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _box2D_ptr->shape.setBoardSize(11.08, true);
     // _box2D_ptr->Scale( glm::vec3(3.5f));
     // _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
     //
 
 
-    /*
+
     // Dynamic image, front-top camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_top), true, true, false) );
     _image_board_ptr->Translate(glm::vec3(0.0f, 0.0f, 8.0f));
@@ -333,13 +332,12 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _box2D_ptr->shape.setBoardSize(11.08, true);
     // _box2D_ptr->Scale( glm::vec3(3.5f));
     // _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
     //
-    */
 
+    /*
     // Dynamic image, front-top camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_top), true, true, false) );
     _image_board_ptr->Translate(glm::vec3(0.0f, 0.0f, -1.0f));
@@ -367,14 +365,14 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _box2D_ptr->shape.setBoardSize(11.08, true);
     // _box2D_ptr->Scale( glm::vec3(3.5f));
     // _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
     //
+    */
 
 
-
+    /*
     // Dynamic image, rear camera (mirrored)
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_rear_center), true, true, false) );
     _image_board_ptr->Translate(glm::vec3(0.0f, 0.0f, 8.0f));
@@ -390,6 +388,10 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
     //
+    */
+
+    //--------------------------------------------//
+    // end Image
 
 
 
