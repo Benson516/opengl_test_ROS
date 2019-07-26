@@ -189,10 +189,12 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
 
     // Image
     //--------------------------------------------//
+    float image_pose_z = 5.0f;
+    float image_alpha = 0.7f;
 
     // Dynamic image, front-center camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_center), true, true, false) );
-    _image_board_ptr->Translate(glm::vec3(2.77f, 0.0f, 3.0f));
+    _image_board_ptr->Translate(glm::vec3(2.77f, 0.0f, image_pose_z));
     // _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), 0.0); // view angle
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -200,7 +202,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _image_board_ptr->shape.setBoardSize(11.08, true);
     // _image_board_ptr->Scale( glm::vec3(3.5f));
     // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    _image_board_ptr->alpha = 0.7;
+    _image_board_ptr->alpha = image_alpha;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
@@ -214,7 +216,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_center), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*0, 0);
 #endif  // __ROS_INTERFACE_VER__
-    _box2D_ptr->Translate(glm::vec3(2.77f, 0.0f, 3.0f));
+    _box2D_ptr->Translate(glm::vec3(2.77f, 0.0f, image_pose_z));
     // _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), 0.0); // view angle
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _box2D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -230,7 +232,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
 
     // Dynamic image, front-right camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_right), true, true, false) );
-    _image_board_ptr->Translate(glm::vec3(0.0f, -10.33f, 3.0f));
+    _image_board_ptr->Translate(glm::vec3(0.0f, -10.33f, image_pose_z));
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), -M_PI/6.0); // view angle
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -238,7 +240,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _image_board_ptr->shape.setBoardSize(11.08, true);
     // _image_board_ptr->Scale( glm::vec3(3.5f));
     // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    _image_board_ptr->alpha = 0.7;
+    _image_board_ptr->alpha = image_alpha;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
@@ -252,7 +254,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_right), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*0, 0);
 #endif  // __ROS_INTERFACE_VER__
-    _box2D_ptr->Translate(glm::vec3(0.0f, -10.33f, 3.0f));
+    _box2D_ptr->Translate(glm::vec3(0.0f, -10.33f, image_pose_z));
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), -M_PI/6.0); // view angle
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _box2D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -268,7 +270,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
 
     // Dynamic image, front-left camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_left), true, true, false) );
-    _image_board_ptr->Translate(glm::vec3(0.0f, 10.33f, 3.0f));
+    _image_board_ptr->Translate(glm::vec3(0.0f, 10.33f, image_pose_z));
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI/6.0); // view angle
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -276,7 +278,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _image_board_ptr->shape.setBoardSize(11.08, true);
     // _image_board_ptr->Scale( glm::vec3(3.5f));
     // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    _image_board_ptr->alpha = 0.7;
+    _image_board_ptr->alpha = image_alpha;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
@@ -290,7 +292,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_left), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*0, 0);
 #endif  // __ROS_INTERFACE_VER__
-    _box2D_ptr->Translate(glm::vec3(0.0f, 10.33f, 3.0f));
+    _box2D_ptr->Translate(glm::vec3(0.0f, 10.33f, image_pose_z));
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI/6.0); // view angle
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _box2D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -307,7 +309,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
 
     // Dynamic image, front-top camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_top), true, true, false) );
-    _image_board_ptr->Translate(glm::vec3(0.0f, 0.0f, 8.0f));
+    _image_board_ptr->Translate(glm::vec3(0.0f, 0.0f, image_pose_z + 5.0f ));
     _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), -60.0*M_PI/180.0); // view angle
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -315,7 +317,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _image_board_ptr->shape.setBoardSize(11.08, true);
     // _image_board_ptr->Scale( glm::vec3(3.5f));
     // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    _image_board_ptr->alpha = 0.7;
+    _image_board_ptr->alpha = image_alpha;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
@@ -324,7 +326,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // Bounding box for front-top camera
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_top), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*0, 0);
-    _box2D_ptr->Translate(glm::vec3(0.0f, 0.0f, 8.0f));
+    _box2D_ptr->Translate(glm::vec3(0.0f, 0.0f, image_pose_z + 5.0f));
     _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), -60.0*M_PI/180.0); // view angle
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _box2D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -348,7 +350,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _image_board_ptr->shape.setBoardSize(11.08, true);
     // _image_board_ptr->Scale( glm::vec3(3.5f));
     // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    _image_board_ptr->alpha = 0.7;
+    _image_board_ptr->alpha = image_alpha;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
@@ -383,7 +385,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _image_board_ptr->shape.setBoardSize(11.08, true);
     // _image_board_ptr->Scale( glm::vec3(3.5f));
     // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    _image_board_ptr->alpha = 0.7;
+    _image_board_ptr->alpha = image_alpha;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
