@@ -1,27 +1,21 @@
 <?xml version="1.0"?>
-<robot name="ICLU_B1" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name="ADV" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+
+    <!-- base frame (lidar) -->
+    <link name="base">
+    </link>
+
 
     <!-- base frame (lidar frame) to the footprint (ground level) -->
     <joint name="base_joint" type="fixed">
         <origin xyz="0 0 -3.0" rpy="0 0 0" />
         <parent link="base"/>
-        <child link="base_footprint" />
+        <child link="GUI_base_footprint" />
     </joint>
 
-   
-    <link name="base_footprint">
+
+    <link name="GUI_base_footprint">
     </link>
-
-
-    <!-- NLOS frame -->
-    <joint name="NLOS_joint" type="fixed">
-        <origin xyz="0 0 0.0" rpy="0 0 0" />
-        <parent link="map"/>
-        <child link="NLOS" />
-    </joint>
-
-    <link name="NLOS">
-    </link>
-
 
 </robot>

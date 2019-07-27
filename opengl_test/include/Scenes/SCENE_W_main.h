@@ -106,19 +106,26 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
 
 
 
-
+    /*
     // Grid ground
     _rmGrid_ptr.reset(new rmGrid(_Assets_path, "map", "base" ) );
     // _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, 0.0f, false);
     // _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -6.0f, false);
     _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -3.0f, true);
     _rm_BaseModel.push_back( _rmGrid_ptr );
+    */
+
     /*
     // Grid local
     _rmGrid_ptr.reset(new rmGrid(_Assets_path, "base", "base" ) );
     _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -3.0f, false, glm::vec3(0.2f, 0.2f, 0.5f));
     _rm_BaseModel.push_back( _rmGrid_ptr );
     */
+
+    // Grid ground
+    _rmGrid_ptr.reset(new rmGrid(_Assets_path, "map", "GUI_base_footprint" ) );
+    _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, 0.0f, true);
+    _rm_BaseModel.push_back( _rmGrid_ptr );
 
     /*
     // rmModelLoaderObj
