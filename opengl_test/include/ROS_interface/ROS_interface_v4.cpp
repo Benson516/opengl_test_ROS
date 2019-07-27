@@ -1296,7 +1296,7 @@ void ROS_INTERFACE::_ITRIDynamicPath_CB(const msgs::DynamicPath::ConstPtr& msg, 
 // ITRIFlagInfo
 //---------------------------------------------------------------//
 // input
-void _ITRIFlagInfo_CB(const msgs::Flag_Info::ConstPtr& msg, const MSG::T_PARAMS & params){
+void ROS_INTERFACE::_ITRIFlagInfo_CB(const msgs::Flag_Info::ConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
     // put
@@ -1309,7 +1309,7 @@ void _ITRIFlagInfo_CB(const msgs::Flag_Info::ConstPtr& msg, const MSG::T_PARAMS 
 // ITRITransObj
 //---------------------------------------------------------------//
 // input
-void _ITRITransObj_CB(const msgs::TransfObj::ConstPtr& msg, const MSG::T_PARAMS & params){
+void ROS_INTERFACE::_ITRITransObj_CB(const msgs::TransfObj::ConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
     // put
