@@ -124,13 +124,14 @@ void GL2DShape::setBoardPositionCVPixel(
     ALIGN_Y     align_y_in
 ){
     is_using_cv_pose = true;
-    /*
-    ref_point_mode:
-    0: upper-left corner
-    1: upper-right corner
-    2: lower-left corner
-    3: lower-right corner
-    */
+
+    // ref_point_mode:
+    // (the position of the origin of the viewport coordinate to describe the position of the shape)
+    // 0: upper-left corner
+    // 1: upper-right corner
+    // 2: lower-left corner
+    // 3: lower-right corner
+
     cv_pose = glm::ivec2(cv_x, cv_y);
     ref_point_mode = ref_point_mode_in;
     board_align_x = align_x_in;
