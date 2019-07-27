@@ -144,10 +144,10 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // rmlv2ObjectTracking
     // _rm_BaseModel.push_back( std::shared_ptr<rmlv2ObjectTracking>(new rmlv2ObjectTracking(_Assets_path, int(MSG_ID::lidar_bounding_box_tracking), "map") ) );
 
-#if __ROS_INTERFACE_VER__ == 1
+#if __IS_USING_TRACKING__ == 1
     // Taged Lidar bounding box (tracking, rendering in wire)
     _rm_BaseModel.push_back( std::shared_ptr<rmlv2TagBoundingBox3D>(new rmlv2TagBoundingBox3D(_Assets_path, int(MSG_ID::lidar_bounding_box_tracking)) ) );
-#elif __ROS_INTERFACE_VER__ == 2
+#elif __IS_USING_TRACKING__ == 0
     // Lidar bounding box (rendering in face)
     _rm_BaseModel.push_back( std::shared_ptr<rmLidarBoundingBox>(new rmLidarBoundingBox(_Assets_path, int(MSG_ID::lidar_bounding_box_raw)) ) );
 #endif

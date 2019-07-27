@@ -153,7 +153,8 @@ bool ROS_API::_set_up_topics(){
         ros_interface.add_a_topic( int(MSG_ID::lidar_bounding_box_raw), "LidRoi", int(M_TYPE::ITRI3DBoundingBox), true, 10, 20, "base");
         ros_interface.add_a_topic( int(MSG_ID::lidar_bounding_box_tracking), "LiDAR_Track", int(M_TYPE::ITRICamObj), true, 10, 20, "base"); // <-- The tracking resuly is on map frame
         // NLOS boxs
-        ros_interface.add_a_topic( int(MSG_ID::nlos_box), "NLOS_GF", int(M_TYPE::ITRITransObj), true, 10, 20, "map");
+        ros_interface.add_a_topic( int(MSG_ID::nlos_box), "V2X_msg", int(M_TYPE::ITRICamObj), true, 10, 20, "map");
+        ros_interface.add_a_topic( int(MSG_ID::nlos_gf), "NLOS_GF", int(M_TYPE::ITRITransObj), true, 10, 20, "map");
         // GUI operatios
         ros_interface.add_a_topic( int(MSG_ID::GUI_operatio), "GUI2/operation", int(M_TYPE::GUI2_op), true, 100, 100);
         ros_interface.add_a_topic( int(MSG_ID::GUI_state), "GUI2/state", int(M_TYPE::GUI2_op), false, 100, 1);
@@ -195,7 +196,8 @@ bool ROS_API::_set_up_topics(){
         ros_interface.add_a_topic( int(MSG_ID::lidar_bounding_box_raw), "LidarDetection", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "base");
         ros_interface.add_a_topic( int(MSG_ID::lidar_bounding_box_tracking), "LiDAR_Track", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "base"); // <-- The tracking resuly is on map frame
         // NLOS boxs
-        ros_interface.add_a_topic( int(MSG_ID::nlos_box), "NLOS_GF", int(M_TYPE::ITRITransObj), true, 10, 20, "map");
+        ros_interface.add_a_topic( int(MSG_ID::nlos_box), "V2X_msg", int(M_TYPE::ITRICamObj), true, 10, 20, "map");
+        ros_interface.add_a_topic( int(MSG_ID::nlos_gf), "NLOS_GF", int(M_TYPE::ITRITransObj), true, 10, 20, "map");
         // GUI operatios
         ros_interface.add_a_topic( int(MSG_ID::GUI_operatio), "GUI2/operation", int(M_TYPE::GUI2_op), true, 100, 100);
         ros_interface.add_a_topic( int(MSG_ID::GUI_state), "GUI2/state", int(M_TYPE::GUI2_op), false, 100, 1);

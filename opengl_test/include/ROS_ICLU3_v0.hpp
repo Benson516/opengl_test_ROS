@@ -57,6 +57,7 @@ enum class MSG_ID{
     lidar_bounding_box_pp,
     //
     nlos_box,
+    nlos_gf,
     //
     GUI_operatio,
     GUI_state,

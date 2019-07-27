@@ -401,12 +401,18 @@ void My_Display()
     }
     //
 
-    // test, get NLOS box
-    std::shared_ptr< msgs::TransfObj > _nlos_box_ptr;
+    // test, get NLOS boxes
+    std::shared_ptr< msgs::DetectedObjectArray > _nlos_box_ptr;
     if (ros_api.get_message( int(MSG_ID::nlos_box), _nlos_box_ptr)){
         std::cout << "---\n";
-        std::cout << "num of NLOS obj: " << _nlos_box_ptr->transfObj.size() << "\n";
+        std::cout << "num of NLOS box: " << _nlos_box_ptr->objects.size() << "\n";
     }
+    // test, get NLOS GF
+    // std::shared_ptr< msgs::TransfObj > _nlos_gf_ptr;
+    // if (ros_api.get_message( int(MSG_ID::nlos_gf), _nlos_gf_ptr)){
+    //     std::cout << "---\n";
+    //     std::cout << "num of NLOS obj: " << _nlos_gf_ptr->transfObj.size() << "\n";
+    // }
     //
 
     //---------------------------------//

@@ -16,5 +16,12 @@
 // 2 - HINO
 //----------------------------------//
 
+// Determin if showing the tracking result or the raw bounding boxes
+//----------------------------------//
+#define __IS_USING_TRACKING__  1 // 0, 1
+// 0 - Without tracking, showing the raw lidar bounding boxes
+// 1 - With tracking, showing the tracking boxes
+//----------------------------------//
+
 
 #endif // GUI_VERSION_CTRL_H
