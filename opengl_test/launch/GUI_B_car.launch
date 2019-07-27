@@ -1,12 +1,20 @@
 <launch>
+  <arg name="robot_type" default="ICLU_B1" />
+  <arg name="is_loading_passenger_GUI" default="true" />
+  <arg name="is_loading_driver_GUI" default="false" />
 
-  <node name="GUI_passenger" pkg="opengl_test" type="visualizer2">
+
+  <node name="GUI_passenger" pkg="opengl_test" type="visualizer2" if="$(arg is_loading_passenger_GUI)">
       <param name="gui_name" value="passenger"/>
   </node>
   
-  <node name="GUI_driver" pkg="opengl_test" type="visualizer2">
+  <node name="GUI_driver" pkg="opengl_test" type="visualizer2" if="$(arg is_loading_driver_GUI)">
       <param name="gui_name" value="driver"/>
   </node>
+
+  <include file="$(find opengl_test)/launch/includes/load_urdf.launch" >
+      <arg name="robot_type" value="$(arg robot_type)" />
+  </include>
 
  
 </launch>
