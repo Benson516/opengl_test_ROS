@@ -23,6 +23,10 @@ enum class MSG_ID{
     ego_pose,
     vehicle_info,
     dynamic_path,
+    //
+    flag_info_1,
+    flag_info_2,
+    flag_info_3,
     // Image
     camera_front_right, // front-right
     camera_front_center, // front-center
@@ -51,6 +55,8 @@ enum class MSG_ID{
     lidar_bounding_box_raw,
     lidar_bounding_box_tracking,
     lidar_bounding_box_pp,
+    //
+    nlos_box,
     //
     GUI_operatio,
     GUI_state,

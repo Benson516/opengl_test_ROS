@@ -471,6 +471,44 @@ void ROS_INTERFACE::_ROS_worker(){
             _publisher_list.push_back( _nh.advertise< msgs::DynamicPath >( _tmp_params.name, _tmp_params.ROS_queue) );
         }
     }
+
+    // ITRIFlagInfo
+    _msg_type = int(MSG::M_TYPE::ITRIFlagInfo);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::Flag_Info > (_tmp_params.buffer_length) );
+        //
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe< msgs::Flag_Info >( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_ITRIFlagInfo_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise< msgs::Flag_Info >( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
+
+    // ITRITransObj
+    _msg_type = int(MSG::M_TYPE::ITRITransObj);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< msgs::TransfObj > (_tmp_params.buffer_length) );
+        //
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe< msgs::TransfObj >( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_ITRITransObj_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise< msgs::TransfObj >( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
     //----------------------------------//
 
 
@@ -1246,6 +1284,32 @@ void ROS_INTERFACE::_ITRICarInfo_CB(const msgs::VehInfo::ConstPtr& msg, const MS
 //---------------------------------------------------------------//
 // input
 void ROS_INTERFACE::_ITRIDynamicPath_CB(const msgs::DynamicPath::ConstPtr& msg, const MSG::T_PARAMS & params){
+    // Time
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+    // put
+    // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
+    bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    if (!result){ std::cout << params.name << ": buffer full.\n"; }
+}
+//---------------------------------------------------------------//
+
+// ITRIFlagInfo
+//---------------------------------------------------------------//
+// input
+void _ITRIFlagInfo_CB(const msgs::Flag_Info::ConstPtr& msg, const MSG::T_PARAMS & params){
+    // Time
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+    // put
+    // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
+    bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+    if (!result){ std::cout << params.name << ": buffer full.\n"; }
+}
+//---------------------------------------------------------------//
+
+// ITRITransObj
+//---------------------------------------------------------------//
+// input
+void _ITRITransObj_CB(const msgs::TransfObj::ConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
     // put

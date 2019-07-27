@@ -392,6 +392,23 @@ void My_Display()
     //
     */
 
+    // test, showing traffic light
+    std::shared_ptr< msgs::Flag_Info > _falg_info_ptr;
+    if (ros_api.get_message( int(MSG_ID::flag_info_2), _falg_info_ptr)){
+        std::cout << "---\n";
+        std::cout << "Dspace_Flag02: " << _falg_info_ptr->Dspace_Flag02 << "\n";
+        std::cout << "Dspace_Flag03: " << _falg_info_ptr->Dspace_Flag03 << "\n";
+    }
+    //
+
+    // test, get NLOS box
+    std::shared_ptr< msgs::Flag_Info > _nlos_box_ptr;
+    if (ros_api.get_message( int(MSG_ID::nlos_box), _nlos_box_ptr)){
+        std::cout << "---\n";
+        std::cout << "num of NLOS obj: " << _nlos_box_ptr->transfObj.size() << "\n";
+    }
+    //
+
     //---------------------------------//
     // end ROS_interface
 

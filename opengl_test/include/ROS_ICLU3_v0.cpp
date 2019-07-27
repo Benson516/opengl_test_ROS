@@ -129,6 +129,10 @@ bool ROS_API::_set_up_topics(){
         // Vehicle info
         ros_interface.add_a_topic( int(MSG_ID::vehicle_info), "taichung_veh_info", int(M_TYPE::ITRICarInfoCarA), true, 100, 100, "base");
         ros_interface.add_a_topic( int(MSG_ID::dynamic_path), "dynamic_path_para", int(M_TYPE::ITRIDynamicPath), true, 100, 100, "base");
+        // Flag_info
+        ros_interface.add_a_topic( int(MSG_ID::flag_info_1), "Flag_Info01", int(M_TYPE::ITRIFlagInfo), true, 100, 100, "base");
+        ros_interface.add_a_topic( int(MSG_ID::flag_info_2), "Flag_Info02", int(M_TYPE::ITRIFlagInfo), true, 100, 100, "base");
+        ros_interface.add_a_topic( int(MSG_ID::flag_info_3), "Flag_Info03", int(M_TYPE::ITRIFlagInfo), true, 100, 100, "base");
         // Image
         ros_interface.add_a_topic( int(MSG_ID::camera_front_right), "camera/1/0/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
         ros_interface.add_a_topic( int(MSG_ID::camera_front_center), "camera/1/1/image_sync", int(M_TYPE::Image), true, 2, 20, "base");
@@ -148,6 +152,8 @@ bool ROS_API::_set_up_topics(){
         // Detection, tracking and pp.
         ros_interface.add_a_topic( int(MSG_ID::lidar_bounding_box_raw), "LidRoi", int(M_TYPE::ITRI3DBoundingBox), true, 10, 20, "base");
         ros_interface.add_a_topic( int(MSG_ID::lidar_bounding_box_tracking), "LiDAR_Track", int(M_TYPE::ITRICamObj), true, 10, 20, "base"); // <-- The tracking resuly is on map frame
+        // NLOS boxs
+        ros_interface.add_a_topic( int(MSG_ID::nlos_box), "NLOS_GF", int(M_TYPE::ITRITransObj), true, 10, 20, "map");
         // GUI operatios
         ros_interface.add_a_topic( int(MSG_ID::GUI_operatio), "GUI2/operation", int(M_TYPE::GUI2_op), true, 100, 100);
         ros_interface.add_a_topic( int(MSG_ID::GUI_state), "GUI2/state", int(M_TYPE::GUI2_op), false, 100, 1);
@@ -158,6 +164,10 @@ bool ROS_API::_set_up_topics(){
         // Vehicle info
         ros_interface.add_a_topic( int(MSG_ID::vehicle_info), "veh_info", int(M_TYPE::ITRICarInfo), true, 100, 100, "base");
         ros_interface.add_a_topic( int(MSG_ID::dynamic_path), "dynamic_path_para", int(M_TYPE::ITRIDynamicPath), true, 100, 100, "base");
+        // Flag_info
+        ros_interface.add_a_topic( int(MSG_ID::flag_info_1), "Flag_Info01", int(M_TYPE::ITRIFlagInfo), true, 100, 100, "base");
+        ros_interface.add_a_topic( int(MSG_ID::flag_info_2), "Flag_Info02", int(M_TYPE::ITRIFlagInfo), true, 100, 100, "base");
+        ros_interface.add_a_topic( int(MSG_ID::flag_info_3), "Flag_Info03", int(M_TYPE::ITRIFlagInfo), true, 100, 100, "base");
         // Image
         ros_interface.add_a_topic( int(MSG_ID::camera_front_right), "gmsl_camera/port_a/cam_0/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
         ros_interface.add_a_topic( int(MSG_ID::camera_front_center), "gmsl_camera/port_a/cam_1/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
@@ -184,6 +194,8 @@ bool ROS_API::_set_up_topics(){
         // Detection, tracking and pp.
         ros_interface.add_a_topic( int(MSG_ID::lidar_bounding_box_raw), "LidarDetection", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "base");
         ros_interface.add_a_topic( int(MSG_ID::lidar_bounding_box_tracking), "LiDAR_Track", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "base"); // <-- The tracking resuly is on map frame
+        // NLOS boxs
+        ros_interface.add_a_topic( int(MSG_ID::nlos_box), "NLOS_GF", int(M_TYPE::ITRITransObj), true, 10, 20, "map");
         // GUI operatios
         ros_interface.add_a_topic( int(MSG_ID::GUI_operatio), "GUI2/operation", int(M_TYPE::GUI2_op), true, 100, 100);
         ros_interface.add_a_topic( int(MSG_ID::GUI_state), "GUI2/state", int(M_TYPE::GUI2_op), false, 100, 1);
