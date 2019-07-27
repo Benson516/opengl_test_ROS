@@ -484,7 +484,7 @@ void Scene::switchCameraViewMode(int mode_in, ROS_API &ros_api){
                 // 2. Set the default camera model matrix (the inverse)
             	glm::mat4 translationMatrix(1.0);
                 // translationMatrix = glm::translate(translationMatrix, glm::vec3(0.0f, -2.3f, 0.0f) );
-                translationMatrix = glm::translate(translationMatrix, glm::vec3(0.0f, -2.0f, 0.0f) );
+                translationMatrix = glm::translate(translationMatrix, glm::vec3(0.0f, -0.5f, -2.6f) );
             	glm::mat4 rotationMatrix(1.0);
                 rotationMatrix = glm::rotate(rotationMatrix, deg2rad(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)); // z-axis
                 // rotationMatrix = glm::rotate(rotationMatrix, deg2rad(75.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // y-axis

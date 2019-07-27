@@ -114,8 +114,8 @@ ViewManager		m_camera;
 TwBar			*bar_1_ptr;
 vec2			m_screenSize;
 // vector<Shape>   m_shapes;
-int				m_currentCamera;
-int             m_currentCamera_old;
+int				m_currentView;
+int             m_currentView_old;
 float			m_zoom = 3.0f;
 // float			m_fps_d = 0;
 std::string     m_fps_d_str = "0.0";
@@ -128,7 +128,7 @@ bool			m_autoRotate;
 bool			m_isOthogonol;
 vec3			m_backgroundColor = vec3(0.486, 0.721, 0.918);
 //
-typedef enum { CAM_FOLLOW = 0, CAM_STATIC, NUM_CAMERA_MODE } ModelCamera;
+typedef enum { VIEW_CLOSE = 0, VIEW_FAR, VIEW_BIRD, NUM_VIEW_MODE } ModelCamera;
 
 // void TW_CALL SetAutoRotateCB(const void *value, void *clientData)
 // {
@@ -186,7 +186,7 @@ void setupGUI()
 
     bar_1_ptr = TwNewBar("Properties");
     TwDefine(" Properties position='0 0' ");
-	TwDefine(" Properties size='270 450' "); // 220, 300
+	TwDefine(" Properties size='270 500' "); // 270 450 // 220, 300
 	TwDefine(" Properties fontsize='3' color='0 0 0' alpha=180 ");  // http://anttweakbar.sourceforge.net/doc/tools:anttweakbar:twbarparamsyntax
 
     // gui_name
@@ -211,9 +211,9 @@ void setupGUI()
     TwAddSeparator(bar_1_ptr, "Sep2", "");
     // menu
 	{
-		TwEnumVal cameraEV[NUM_CAMERA_MODE] = { { CAM_FOLLOW, "follow" },{ CAM_STATIC, "static" } };
-		TwType cameraType = TwDefineEnum("camType", cameraEV, NUM_CAMERA_MODE);
-		TwAddVarRW(bar_1_ptr, "CamMode", cameraType, &m_currentCamera, " keyIncr='<' keyDecr='>' help='Change view mode.' ");
+		TwEnumVal viewEV[NUM_VIEW_MODE] = { { VIEW_CLOSE, "close" },{ VIEW_FAR, "far" }, { VIEW_BIRD, "bird" } };
+		TwType viewType = TwDefineEnum("viewType", viewEV, NUM_VIEW_MODE);
+		TwAddVarRW(bar_1_ptr, "ViewMode", viewType, &m_currentView, " keyIncr='<' keyDecr='>' help='Change view mode.' ");
 	}
 
 	// TwAddVarRW(bar_1_ptr, "Zoom", TW_TYPE_FLOAT, &m_zoom, " min=0.01 max=3.0 step=0.01 help='Camera zoom in/out' ");
@@ -288,15 +288,15 @@ void My_Display()
 	// m_frames++;
 
     // Camera mode
-    if (m_currentCamera != m_currentCamera_old){
+    if (m_currentView != m_currentView_old){
         for (size_t i=0; i < all_scenes.size(); ++i){
             // all_scenes[i]->KeyBoardEvent('c', ros_api);
-            all_scenes[i]->switchCameraMotionMode( m_currentCamera, ros_api);
+            all_scenes[i]->switchCameraViewMode( m_currentView, ros_api);
         }
-        m_currentCamera = all_scenes[0]->get_camera_motion_mode();
-        m_currentCamera_old = m_currentCamera;
+        m_currentView = all_scenes[0]->get_camera_view_mode();
+        m_currentView_old = m_currentView;
     }else{
-        m_currentCamera = all_scenes[0]->get_camera_motion_mode();
+        m_currentView = all_scenes[0]->get_camera_view_mode();
     }
     TwRefreshBar(bar_1_ptr);
 
@@ -392,14 +392,14 @@ void My_Display()
     //
     */
 
-    // test, showing traffic light
-    std::shared_ptr< msgs::Flag_Info > _falg_info_ptr;
-    if (ros_api.get_message( int(MSG_ID::flag_info_2), _falg_info_ptr)){
-        std::cout << "---\n";
-        std::cout << "Dspace_Flag02: " << _falg_info_ptr->Dspace_Flag02 << "\n";
-        std::cout << "Dspace_Flag03: " << _falg_info_ptr->Dspace_Flag03 << "\n";
-    }
-    //
+    // // test, showing traffic light
+    // std::shared_ptr< msgs::Flag_Info > _falg_info_ptr;
+    // if (ros_api.get_message( int(MSG_ID::flag_info_2), _falg_info_ptr)){
+    //     std::cout << "---\n";
+    //     std::cout << "Dspace_Flag02: " << _falg_info_ptr->Dspace_Flag02 << "\n";
+    //     std::cout << "Dspace_Flag03: " << _falg_info_ptr->Dspace_Flag03 << "\n";
+    // }
+    // //
 
     // test, get NLOS boxes
     std::shared_ptr< msgs::DetectedObjectArray > _nlos_box_ptr;

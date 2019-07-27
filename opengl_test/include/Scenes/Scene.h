@@ -69,6 +69,7 @@ public:
 
     // Camera mode
     int get_camera_motion_mode(){ return camera_motion_mode; }
+    int get_camera_view_mode(){ return camera_view_mode; }
     // Follow, static, ...etc.
     virtual void resetDefaultCaemraModel(ROS_API &ros_api);
     virtual void switchCameraMotionMode(int mode_in, ROS_API &ros_api);
