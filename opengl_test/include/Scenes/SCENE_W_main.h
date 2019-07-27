@@ -68,6 +68,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // Text
     std::shared_ptr<rmText2D> _text2D_ptr;
     std::shared_ptr<rmText3D_v2> _text3D_ptr;
+    // Bounding box 3D
+    std::shared_ptr<rmLidarBoundingBox> _box3D_ptr;
     // Bounding box 2D
     std::shared_ptr<rmlv2TagBoundingBox2D> _box2D_ptr;
     // rmlv2PathPlanFake
@@ -151,6 +153,11 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // Lidar bounding box (rendering in face)
     _rm_BaseModel.push_back( std::shared_ptr<rmLidarBoundingBox>(new rmLidarBoundingBox(_Assets_path, int(MSG_ID::lidar_bounding_box_raw)) ) );
 #endif
+
+    // NLOS bounding boxes
+    _box3D_ptr.reset( new rmLidarBoundingBox(_Assets_path, int(MSG_ID::nlos_box)) );
+    _box3D_ptr->set_color( glm::vec3(0.805f, 0.238f, 0.0f) );
+    _rm_BaseModel.push_back( _box3D_ptr );
 
     // Bounding box 2D
     // _rm_BaseModel.push_back( std::shared_ptr<rmlv2TagBoundingBox2D>(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_all)) ) );
