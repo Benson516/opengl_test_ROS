@@ -34,6 +34,7 @@
 #include "rmlv2SpeedMeter.h"
 // The following are not finished yet
 #include "rmlv2TrafficLight.h"
+#include "rmlv2TrafficLightSimple.h"
 
 //
 

@@ -65,7 +65,7 @@ protected:
     void Init();
     //
     int _ROS_topic_id;
-    std::shared_ptr< msgs::VehInfo  > msg_out_ptr;
+    std::shared_ptr< msgs::Flag_Info  > msg_out_ptr;
     // ros::Time msg_time;
 
     // params

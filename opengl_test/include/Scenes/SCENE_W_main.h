@@ -462,8 +462,12 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _rm_BaseModel.push_back( std::shared_ptr<rmlv2SpeedMeter>( new rmlv2SpeedMeter(_Assets_path, int(MSG_ID::vehicle_info) ) ) );
     //
 
+    // Traffic light (simple)
+    _rm_BaseModel.push_back( std::shared_ptr<rmlv2TrafficLightSimple>( new rmlv2TrafficLightSimple(_Assets_path, int(MSG_ID::flag_info_2) ) ) );
+
+
     // // Traffic light
-    // std::shared_ptr<rmlv2TrafficLight> _traffic_light_ptr( new rmlv2TrafficLight(_Assets_path, int(MSG_ID::vehicle_info) ) );
+    // std::shared_ptr<rmlv2TrafficLight> _traffic_light_ptr( new rmlv2TrafficLight(_Assets_path, int(MSG_ID::flag_info_2) ) );
     // _traffic_light_ptr->setTrafficLightHeightPixel(50);
     // _traffic_light_ptr->setTrafficLightPositionCVPixel(-200, 0, 1);
     // _rm_BaseModel.push_back( _traffic_light_ptr );
