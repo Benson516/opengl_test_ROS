@@ -153,7 +153,9 @@ set(ALL_RENDER_MODELS
     ${RENDER_MODEL_PATH}rmlv2PathPlanFake.cpp
     ${RENDER_MODEL_PATH}rmlv2PathPlan_v1.cpp
     ${RENDER_MODEL_PATH}rmlv2SpeedMeter.cpp
-
+    #
+    ${RENDER_MODEL_PATH}rmlv2TrafficLight.cpp
+    ${RENDER_MODEL_PATH}rmlv2TrafficLightSimple.cpp
 )
 
 

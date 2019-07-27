@@ -51,7 +51,10 @@
 #include <msgs/VehInfo.h>
 // MSG: ITRIDynamicPath
 #include <msgs/DynamicPath.h>
-
+// MSG: ITRIFlagInfo
+#include <msgs/Flag_Info.h>
+// MSG: ITRITransObj
+#include <msgs/TransfObj.h>
 
 // MSG: GUI2_op
 #include <opengl_test/GUI2_op.h>

@@ -29,6 +29,7 @@ enum class ALIGN_Y{
 // 7 - (2D) fixed pixel height
 
 // ref_point_mode:
+// (the position of the origin of the viewport coordinate to describe the position of the shape)
 // 0: upper-left corner
 // 1: upper-right corner
 // 2: lower-left corner
@@ -55,6 +56,7 @@ public:
         ALIGN_Y     align_y_in=ALIGN_Y::CENTER
     );
     // ref_point_mode:
+    // (the position of the origin of the viewport coordinate to describe the position of the shape)
     // 0: upper-left corner
     // 1: upper-right corner
     // 2: lower-left corner
@@ -102,6 +104,7 @@ public:
     ALIGN_X board_align_x;
     ALIGN_Y board_align_y;
     // ref_point_mode:
+    // (the position of the origin of the viewport coordinate to describe the position of the shape)
     // 0: upper-left corner
     // 1: upper-right corner
     // 2: lower-left corner

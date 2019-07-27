@@ -30,9 +30,11 @@
 #include "rmCircle.h"
 #include "rmlv2ObjectTracking.h"
 #include "rmlv2PathPlanFake.h"
+#include "rmlv2PathPlan_v1.h"
 #include "rmlv2SpeedMeter.h"
 // The following are not finished yet
-#include "rmlv2PathPlan_v1.h"
+#include "rmlv2TrafficLight.h"
+#include "rmlv2TrafficLightSimple.h"
 
 //
 
@@ -67,6 +69,7 @@ public:
 
     // Camera mode
     int get_camera_motion_mode(){ return camera_motion_mode; }
+    int get_camera_view_mode(){ return camera_view_mode; }
     // Follow, static, ...etc.
     virtual void resetDefaultCaemraModel(ROS_API &ros_api);
     virtual void switchCameraMotionMode(int mode_in, ROS_API &ros_api);

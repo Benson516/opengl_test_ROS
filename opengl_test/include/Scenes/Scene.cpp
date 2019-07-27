@@ -278,12 +278,15 @@ void Scene::Update(ROS_API &ros_api){
     // evaluation
     // TIME_STAMP::Period period_Update("Update");
     // rmBaseModel
+    // std::cout << "Before update\n";
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
+        // std::cout << "Before update mode #" << i << "\n";
         if ( _rm_BaseModel[i]->get_enable())
 		      _rm_BaseModel[i]->Update(ros_api);
         // evaluation
         // period_Update.stamp(); period_Update.show_usec();
 	}
+    // std::cout << "After update\n";
 }
 
 void Scene::Reshape(){
@@ -480,11 +483,12 @@ void Scene::switchCameraViewMode(int mode_in, ROS_API &ros_api){
                 _camera_ptr->SetDefaultViewMatrix( lookAt(eyePosition, eyeLookPosition, up) );
                 // 2. Set the default camera model matrix (the inverse)
             	glm::mat4 translationMatrix(1.0);
-                translationMatrix = glm::translate(translationMatrix, glm::vec3(0.0f, -2.3f, 0.0f) );
+                // translationMatrix = glm::translate(translationMatrix, glm::vec3(0.0f, -2.3f, 0.0f) );
+                translationMatrix = glm::translate(translationMatrix, glm::vec3(0.0f, -0.5f, -2.6f) );
             	glm::mat4 rotationMatrix(1.0);
                 rotationMatrix = glm::rotate(rotationMatrix, deg2rad(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)); // z-axis
                 // rotationMatrix = glm::rotate(rotationMatrix, deg2rad(75.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // y-axis
-                rotationMatrix = glm::rotate(rotationMatrix, deg2rad(75.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // y-axis
+                rotationMatrix = glm::rotate(rotationMatrix, deg2rad(89.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // y-axis
                 _camera_ptr->SetDefaultTansformMatrix( translationMatrix*rotationMatrix );
                 // 3. Set the camera reference pose
                 // _camera_ptr->SetDefaultCameraModelInv( glm::mat4(1.0) );

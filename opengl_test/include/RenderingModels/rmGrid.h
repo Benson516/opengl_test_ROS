@@ -8,7 +8,11 @@
 class rmGrid : public rmBaseModel
 {
 public:
-    rmGrid(std::string _path_Assets_in, std::string ref_frame_in, std::string follow_frame_in);
+    rmGrid(
+        std::string _path_Assets_in,
+         std::string ref_frame_in,
+         std::string follow_frame_in
+     );
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);

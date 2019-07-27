@@ -68,6 +68,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // Text
     std::shared_ptr<rmText2D> _text2D_ptr;
     std::shared_ptr<rmText3D_v2> _text3D_ptr;
+    // Bounding box 3D
+    std::shared_ptr<rmLidarBoundingBox> _box3D_ptr;
     // Bounding box 2D
     std::shared_ptr<rmlv2TagBoundingBox2D> _box2D_ptr;
     // rmlv2PathPlanFake
@@ -104,18 +106,26 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
 
 
 
-
+    /*
     // Grid ground
     _rmGrid_ptr.reset(new rmGrid(_Assets_path, "map", "base" ) );
+    // _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, 0.0f, false);
     // _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -6.0f, false);
     _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -3.0f, true);
     _rm_BaseModel.push_back( _rmGrid_ptr );
+    */
+
     /*
     // Grid local
     _rmGrid_ptr.reset(new rmGrid(_Assets_path, "base", "base" ) );
     _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -3.0f, false, glm::vec3(0.2f, 0.2f, 0.5f));
     _rm_BaseModel.push_back( _rmGrid_ptr );
     */
+
+    // Grid ground
+    _rmGrid_ptr.reset(new rmGrid(_Assets_path, "map", "GUI_base_footprint" ) );
+    _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, 0.0f, true);
+    _rm_BaseModel.push_back( _rmGrid_ptr );
 
     /*
     // rmModelLoaderObj
@@ -144,12 +154,18 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // rmlv2ObjectTracking
     // _rm_BaseModel.push_back( std::shared_ptr<rmlv2ObjectTracking>(new rmlv2ObjectTracking(_Assets_path, int(MSG_ID::lidar_bounding_box_tracking), "map") ) );
 
+#if __IS_USING_TRACKING__ == 1
     // Taged Lidar bounding box (tracking, rendering in wire)
     _rm_BaseModel.push_back( std::shared_ptr<rmlv2TagBoundingBox3D>(new rmlv2TagBoundingBox3D(_Assets_path, int(MSG_ID::lidar_bounding_box_tracking)) ) );
-
+#elif __IS_USING_TRACKING__ == 0
     // Lidar bounding box (rendering in face)
-    // _rm_BaseModel.push_back( std::shared_ptr<rmLidarBoundingBox>(new rmLidarBoundingBox(_Assets_path, int(MSG_ID::lidar_bounding_box_raw)) ) );
+    _rm_BaseModel.push_back( std::shared_ptr<rmLidarBoundingBox>(new rmLidarBoundingBox(_Assets_path, int(MSG_ID::lidar_bounding_box_raw)) ) );
+#endif
 
+    // NLOS bounding boxes
+    _box3D_ptr.reset( new rmLidarBoundingBox(_Assets_path, int(MSG_ID::nlos_box)) );
+    _box3D_ptr->set_color( glm::vec3(0.805f, 0.238f, 0.0f) );
+    _rm_BaseModel.push_back( _box3D_ptr );
 
     // Bounding box 2D
     // _rm_BaseModel.push_back( std::shared_ptr<rmlv2TagBoundingBox2D>(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_all)) ) );
@@ -187,10 +203,14 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _rm_BaseModel.push_back( _image_board_ptr );
     */
 
+    // Image
+    //--------------------------------------------//
+    float image_pose_z = 5.0f;
+    float image_alpha = 0.7f;
 
     // Dynamic image, front-center camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_center), true, true, false) );
-    _image_board_ptr->Translate(glm::vec3(2.77f, 0.0f, 3.0f));
+    _image_board_ptr->Translate(glm::vec3(2.77f, 0.0f, image_pose_z));
     // _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), 0.0); // view angle
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -198,7 +218,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _image_board_ptr->shape.setBoardSize(11.08, true);
     // _image_board_ptr->Scale( glm::vec3(3.5f));
     // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    _image_board_ptr->alpha = 0.7;
+    _image_board_ptr->alpha = image_alpha;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
@@ -212,7 +232,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_center), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*0, 0);
 #endif  // __ROS_INTERFACE_VER__
-    _box2D_ptr->Translate(glm::vec3(2.77f, 0.0f, 3.0f));
+    _box2D_ptr->Translate(glm::vec3(2.77f, 0.0f, image_pose_z));
     // _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), 0.0); // view angle
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _box2D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -220,7 +240,6 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _box2D_ptr->shape.setBoardSize(11.08, true);
     // _box2D_ptr->Scale( glm::vec3(3.5f));
     // _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
@@ -229,7 +248,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
 
     // Dynamic image, front-right camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_right), true, true, false) );
-    _image_board_ptr->Translate(glm::vec3(0.0f, -10.33f, 3.0f));
+    _image_board_ptr->Translate(glm::vec3(0.0f, -10.33f, image_pose_z));
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), -M_PI/6.0); // view angle
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -237,7 +256,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _image_board_ptr->shape.setBoardSize(11.08, true);
     // _image_board_ptr->Scale( glm::vec3(3.5f));
     // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    _image_board_ptr->alpha = 0.7;
+    _image_board_ptr->alpha = image_alpha;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
@@ -251,7 +270,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_right), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*0, 0);
 #endif  // __ROS_INTERFACE_VER__
-    _box2D_ptr->Translate(glm::vec3(0.0f, -10.33f, 3.0f));
+    _box2D_ptr->Translate(glm::vec3(0.0f, -10.33f, image_pose_z));
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), -M_PI/6.0); // view angle
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _box2D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -259,7 +278,6 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _box2D_ptr->shape.setBoardSize(11.08, true);
     // _box2D_ptr->Scale( glm::vec3(3.5f));
     // _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
@@ -268,7 +286,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
 
     // Dynamic image, front-left camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_left), true, true, false) );
-    _image_board_ptr->Translate(glm::vec3(0.0f, 10.33f, 3.0f));
+    _image_board_ptr->Translate(glm::vec3(0.0f, 10.33f, image_pose_z));
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI/6.0); // view angle
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -276,7 +294,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _image_board_ptr->shape.setBoardSize(11.08, true);
     // _image_board_ptr->Scale( glm::vec3(3.5f));
     // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    _image_board_ptr->alpha = 0.7;
+    _image_board_ptr->alpha = image_alpha;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
@@ -290,7 +308,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_left), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*0, 0);
 #endif  // __ROS_INTERFACE_VER__
-    _box2D_ptr->Translate(glm::vec3(0.0f, 10.33f, 3.0f));
+    _box2D_ptr->Translate(glm::vec3(0.0f, 10.33f, image_pose_z));
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI/6.0); // view angle
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _box2D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -298,17 +316,16 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _box2D_ptr->shape.setBoardSize(11.08, true);
     // _box2D_ptr->Scale( glm::vec3(3.5f));
     // _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
     //
 
 
-    /*
+
     // Dynamic image, front-top camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_top), true, true, false) );
-    _image_board_ptr->Translate(glm::vec3(0.0f, 0.0f, 8.0f));
+    _image_board_ptr->Translate(glm::vec3(0.0f, 0.0f, image_pose_z + 5.0f ));
     _image_board_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), -60.0*M_PI/180.0); // view angle
     _image_board_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _image_board_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -316,7 +333,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _image_board_ptr->shape.setBoardSize(11.08, true);
     // _image_board_ptr->Scale( glm::vec3(3.5f));
     // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    _image_board_ptr->alpha = 0.7;
+    _image_board_ptr->alpha = image_alpha;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
@@ -325,7 +342,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // Bounding box for front-top camera
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_top), true, true ) );
     _box2D_ptr->setup_params(608, 384, 608*0, 0);
-    _box2D_ptr->Translate(glm::vec3(0.0f, 0.0f, 8.0f));
+    _box2D_ptr->Translate(glm::vec3(0.0f, 0.0f, image_pose_z + 5.0f));
     _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), -60.0*M_PI/180.0); // view angle
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
     _box2D_ptr->Rotate(glm::vec3(1.0f,0.0f,0.0f), M_PI/2.0);
@@ -333,13 +350,12 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _box2D_ptr->shape.setBoardSize(11.08, true);
     // _box2D_ptr->Scale( glm::vec3(3.5f));
     // _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
     //
-    */
 
+    /*
     // Dynamic image, front-top camera
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_top), true, true, false) );
     _image_board_ptr->Translate(glm::vec3(0.0f, 0.0f, -1.0f));
@@ -350,7 +366,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _image_board_ptr->shape.setBoardSize(11.08, true);
     // _image_board_ptr->Scale( glm::vec3(3.5f));
     // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    _image_board_ptr->alpha = 0.7;
+    _image_board_ptr->alpha = image_alpha;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
@@ -367,14 +383,14 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _box2D_ptr->shape.setBoardSize(11.08, true);
     // _box2D_ptr->Scale( glm::vec3(3.5f));
     // _box2D_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
     //
+    */
 
 
-
+    /*
     // Dynamic image, rear camera (mirrored)
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_rear_center), true, true, false) );
     _image_board_ptr->Translate(glm::vec3(0.0f, 0.0f, 8.0f));
@@ -385,11 +401,15 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _image_board_ptr->shape.setBoardSize(11.08, true);
     // _image_board_ptr->Scale( glm::vec3(3.5f));
     // _image_board_ptr->Scale( glm::vec3(4.0f/3.0f, 1.0f, 1.0f));
-    _image_board_ptr->alpha = 0.7;
+    _image_board_ptr->alpha = image_alpha;
     _rm_BaseModel.push_back( _image_board_ptr );
     // Control list
     enable_ctr_id_list_image.push_back( _rm_BaseModel.size()-1);
     //
+    */
+
+    //--------------------------------------------//
+    // end Image
 
 
 
@@ -448,8 +468,17 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
 
     // rmlv2SpeedMeter
     _rm_BaseModel.push_back( std::shared_ptr<rmlv2SpeedMeter>( new rmlv2SpeedMeter(_Assets_path, int(MSG_ID::vehicle_info) ) ) );
+    //
+
+    // Traffic light (simple)
+    _rm_BaseModel.push_back( std::shared_ptr<rmlv2TrafficLightSimple>( new rmlv2TrafficLightSimple(_Assets_path, int(MSG_ID::flag_info_2) ) ) );
 
 
+    // // Traffic light
+    // std::shared_ptr<rmlv2TrafficLight> _traffic_light_ptr( new rmlv2TrafficLight(_Assets_path, int(MSG_ID::flag_info_2) ) );
+    // _traffic_light_ptr->setTrafficLightHeightPixel(50);
+    // _traffic_light_ptr->setTrafficLightPositionCVPixel(-200, 0, 1);
+    // _rm_BaseModel.push_back( _traffic_light_ptr );
 
 }
 
