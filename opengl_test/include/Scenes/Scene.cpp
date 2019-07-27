@@ -278,12 +278,15 @@ void Scene::Update(ROS_API &ros_api){
     // evaluation
     // TIME_STAMP::Period period_Update("Update");
     // rmBaseModel
+    // std::cout << "Before update\n";
 	for (int i = 0; i < _rm_BaseModel.size(); i++){
+        // std::cout << "Before update mode #" << i << "\n";
         if ( _rm_BaseModel[i]->get_enable())
 		      _rm_BaseModel[i]->Update(ros_api);
         // evaluation
         // period_Update.stamp(); period_Update.show_usec();
 	}
+    // std::cout << "After update\n";
 }
 
 void Scene::Reshape(){

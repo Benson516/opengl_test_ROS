@@ -17,12 +17,12 @@ class rmlv2TrafficLight : public rmBaseModel
         YELLOW_OFF,
         GREEN_ON,
         GREEN_OFF,
-        // LEFT_ON,
-        // LEFT_OFF,
-        // FORWARD_ON,
-        // FORWARD_OFF,
-        // RIGHT_ON,
-        // RIGHT_OFF,
+        LEFT_ON,
+        LEFT_OFF,
+        FORWARD_ON,
+        FORWARD_OFF,
+        RIGHT_ON,
+        RIGHT_OFF,
         COUNTER_BACKGROUNG
     };
 
@@ -43,9 +43,17 @@ public:
     void setTrafficLightHeightPixel( int height_in);
     void setTrafficLightPositionCVPixel( int cv_x, int cv_y, int ref_point_mode_in=0);
     // For now, Left-up corner only
+    // ref_point_mode:
+    // (the position of the origin of the viewport coordinate to describe the position of the shape)
+    // 0: upper-left corner
+    // 1: upper-right corner
+    // 2: lower-left corner
+    // 3: lower-right corner
 
 
     void updateBoardGeo(){
+        setupTrafficLightSize();
+        setupTrafficLightPosition();
         for (size_t i=0; i < image_list.size(); ++i){
             image_list[i].updateBoardGeo();
         }
@@ -57,7 +65,7 @@ protected:
     void Init();
     //
     int _ROS_topic_id;
-    std::shared_ptr< msgs::DynamicPath  > msg_out_ptr;
+    std::shared_ptr< msgs::VehInfo  > msg_out_ptr;
     // ros::Time msg_time;
 
     // params
