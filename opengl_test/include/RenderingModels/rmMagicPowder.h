@@ -23,8 +23,8 @@ public:
     float velocity_ratio;
     float intensity_decay_rate;
     //
-    MagicPowderManagement(glm::vec3 &box_position_in, glm::vec3 &box_size=glm::vec3(1.0f), glm::vec3 &box_velocity_in=glm::vec3(0.0f) );
-    void addParticle();
+    MagicPowderManagement();
+    void addParticle(const glm::vec3 &box_position_in, const glm::vec3 &box_size=glm::vec3(1.0f), const glm::vec3 &box_velocity_in=glm::vec3(0.0f) );
     void update();
 
 private:

@@ -16,7 +16,7 @@ MagicPowderManagement::MagicPowderManagement():
     velocity_ratio = 0.1f;
     intensity_decay_rate = 0.1f;
 }
-void MagicPowderManagement::addParticle(glm::vec3 &box_position_in, glm::vec3 &box_size, glm::vec3 &box_velocity_in){
+void MagicPowderManagement::addParticle(const glm::vec3 &box_position_in, const glm::vec3 &box_size,const  glm::vec3 &box_velocity_in){
     size_t _idx = FindFirstUnusedParticle();
     Particle &p = particle_list[_idx];
 
@@ -75,6 +75,7 @@ rmMagicPowder::rmMagicPowder(std::string _path_Assets_in, int _ROS_topic_id_in):
     _ROS_topic_id(_ROS_topic_id_in)
     // fps_of_update( std::string("PC ") + std::to_string(_ROS_topic_id_in) )
 {
+    _path_Shaders_sub_dir += "MagicPowder/";
     init_paths(_path_Assets_in);
     _max_num_vertex = 5000000; // 5*10^6 // 100000;
 	Init();
@@ -83,8 +84,8 @@ void rmMagicPowder::Init(){
     //
 	_program_ptr.reset( new ShaderProgram() );
     // Load shaders
-    _program_ptr->AttachShader(get_full_Shader_path("PointCloud.vs.glsl"), GL_VERTEX_SHADER);
-    _program_ptr->AttachShader(get_full_Shader_path("PointCloud.fs.glsl"), GL_FRAGMENT_SHADER);
+    _program_ptr->AttachShader(get_full_Shader_path("MagicPowder.vs.glsl"), GL_VERTEX_SHADER);
+    _program_ptr->AttachShader(get_full_Shader_path("MagicPowder.fs.glsl"), GL_FRAGMENT_SHADER);
     // Link _program_ptr
 	_program_ptr->LinkProgram();
     //
