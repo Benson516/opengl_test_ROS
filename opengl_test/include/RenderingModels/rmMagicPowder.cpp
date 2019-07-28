@@ -166,13 +166,10 @@ void rmMagicPowder::Update(ROS_API &ros_api){
     bool _result = false;
 
     _result = ros_api.get_message(_ROS_topic_id, msg_out_ptr, msg_time);
-    // Magic powder generation and management
-    //----------------------------------------//
-    // Add/replace particles
-    // Update particles
-    //----------------------------------------//
+
     //
     if (_result){
+        update_powder(); // Add/replace particles and update particles
         update_GL_data(); // Assign particles to buffer
     }
 
@@ -214,8 +211,41 @@ void rmMagicPowder::set_color(glm::vec3 color_in){
     m_shape.color = color_in;
 }
 
+
+void rmMagicPowder::update_powder(){
+    // Magic powder generation and management
+    long long num_box = msg_out_ptr->objects.size();
+    if (num_box == 0){
+        // Update particles
+        magicPowder_m.update();
+        return;
+    }
+    // else
+    if (num_box > magicPowder_m.particle_list.size() ){
+        num_box = magicPowder_m.particle_list.size();
+    }
+
+    auto * _box_ptr = &(msg_out_ptr->objects[0].bPoint);
+    // Add/replace particles
+    for (size_t i=0; i < num_box; ++i){
+        _box_ptr = &(msg_out_ptr->objects[i].bPoint);
+        float _W = glm::l2Norm(_box_ptr.p3 - _box_ptr.p0);
+        float _L = glm::l2Norm(_box_ptr.p4 - _box_ptr.p0);
+        float _H = glm::l2Norm(_box_ptr.p1 - _box_ptr.p0);
+        magicPowder_m.addParticle(
+            0.5*(_box_ptr.p0 + _box_ptr.p6),
+            glm::vec3(_W, _L, _H),
+            glm::vec3(0.0f)
+        );
+    }
+
+    // Update particles
+    magicPowder_m.update();
+}
 void rmMagicPowder::update_GL_data(){
-    m_shape.indexCount = msg_out_ptr->width;
+
+
+    m_shape.indexCount = magicPowder_m.particle_list.size();
     if (m_shape.indexCount > _max_num_vertex){
         m_shape.indexCount = _max_num_vertex;
     }
@@ -223,19 +253,26 @@ void rmMagicPowder::update_GL_data(){
     // vao vbo
     glBindVertexArray(m_shape.vao);
     glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
-
     // std::cout << "msg_out_ptr->header.seq = " << msg_out_ptr->header.seq << "\n";
     // vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, _max_num_vertex * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, m_shape.indexCount * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    for (size_t i = 0; i < m_shape.indexCount; i++)
-    {
-        vertex_ptr[i].position[0] = msg_out_ptr->points[i].x;
-        vertex_ptr[i].position[1] = msg_out_ptr->points[i].y;
-        vertex_ptr[i].position[2] = msg_out_ptr->points[i].z;
-        // If we don't keep udating the color, the color will be lost when resizing the window.
-        vertex_ptr[i].color[0] = m_shape.color[0]; //
-        vertex_ptr[i].color[1] = m_shape.color[1]; //
-        vertex_ptr[i].color[2] = m_shape.color[2]; //
+    size_t _j = 0;
+    for (size_t i = 0; i < magicPowder_m.particle_list.size(); i++){
+        audo & _p = magicPowder_m.particle_list[i];
+        if (_p.Life > 0.0){ // Only draw the points that remain time
+            vertex_ptr[_j].position = _p.Position;
+            // If we don't keep udating the color, the color will be lost when resizing the window.
+            vertex_ptr[_j].color[0] = m_shape.color[0] * _p.Intensity; //
+            vertex_ptr[_j].color[1] = m_shape.color[1] * _p.Intensity; //
+            vertex_ptr[_j].color[2] = m_shape.color[2] * _p.Intensity; //
+            //
+            _j++;
+            if (_j >= _max_num_vertex){ // too many points
+                break;
+            }
+        }
     }
     glUnmapBuffer(GL_ARRAY_BUFFER);
+    m_shape.indexCount = _j;
+
 }

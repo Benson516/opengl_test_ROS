@@ -3,10 +3,9 @@
 
 #include "rmBaseModel.h"
 
-#include <random>
+#include <random> // For generating Gaussian random number
 
 class MagicPowderManagement{
-
 public:
     struct Particle {
         glm::vec3  Position, Velocity;
@@ -27,11 +26,14 @@ public:
     void addParticle(const glm::vec3 &box_position_in, const glm::vec3 &box_size=glm::vec3(1.0f), const glm::vec3 &box_velocity_in=glm::vec3(0.0f) );
     void update();
 
+    // The main container
+    std::vector<Particle> particle_list;
+
 private:
     std::default_random_engine rm_g;
 
     GLuint num_particles;
-    std::vector<Particle> particle_list;
+
     TIME_STAMP::Time last_stamp;
 
     size_t _last_assigned_particle_id;
@@ -71,10 +73,16 @@ protected:
     virtual void LoadModel();
     //
     int _ROS_topic_id;
-    std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > msg_out_ptr;
+    std::shared_ptr< msgs::DetectedObjectArray > msg_out_ptr;
     // ros::Time msg_time;
 
+
+    void update_powder();
     void update_GL_data();
+
+
+    //
+    MagicPowderManagement magicPowder_m;
 
 private:
     // model info
