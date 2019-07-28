@@ -24,6 +24,7 @@ public:
     bool is_enable_image3D;
 private:
     inline static bool cal_viewport_w(int w, int h, int &cx, int &cy, int &vw, int &vh){
+        // Surrounding cameras queue at the button of the screen
         double asp = 1.5833333333;
         int im_w = w/7;
         int im_h = int(im_w/asp);
@@ -34,9 +35,21 @@ private:
         return true;
     }
     inline static bool cal_viewport_w_1(int w, int h, int &cx, int &cy, int &vw, int &vh){
+        // Surrounding cameras disabled
         cx = 0;
         cy = 0;
         vw = w;
+        vh = h;
+        return true;
+    }
+    inline static bool cal_viewport_w2(int w, int h, int &cx, int &cy, int &vw, int &vh){
+        // Surrounding cameras queued as "side bars"
+        double asp = 1.5833333333;
+        int im_w = h/2;
+        int im_h = int(im_w/asp);
+        cx = im_h;
+        cy = 0;
+        vw = w-2*im_h;
         vh = h;
         return true;
     }
@@ -53,6 +66,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     //----------------------------------------//
     attach_cal_viewport_func_ptr(0, &cal_viewport_w);
     attach_cal_viewport_func_ptr(1, &cal_viewport_w_1);
+    attach_cal_viewport_func_ptr(2, &cal_viewport_w_2);
     switch_layout(0);
     //----------------------------------------//
 

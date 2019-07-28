@@ -74,8 +74,8 @@ void GL2DShape::updateBoardSize(){
     // board_aspect_ratio = float(im_pixel_width)/float(im_pixel_height);
     switch(board_shape_mode){
         case 0: // fixed size
-            // Nothing to do
             board_aspect_ratio = board_width/board_height;
+            _shape = glm::scale(glm::mat4(1.0f), glm::vec3( board_width/(original_board_size.x), board_height/(original_board_size.y), 1.0f) );
             break;
         case 1: // fixed width
             board_height = board_width / board_aspect_ratio;

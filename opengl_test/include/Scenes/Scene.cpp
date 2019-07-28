@@ -390,7 +390,8 @@ void Scene::KeyBoardEvent(unsigned char key, ROS_API &ros_api){
     */
     case 'l':
     case 'L':
-        switch_layout( (_layout_mode+1)%2 );
+        // switch_layout( (_layout_mode+1)%2 );
+        switch_layout( (_layout_mode+1)%3 ); // 3 layouts
         break;
     case 'z':
 	case 'Z':
