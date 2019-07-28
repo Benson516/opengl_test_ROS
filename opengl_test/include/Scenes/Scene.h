@@ -35,6 +35,7 @@
 // The following are not finished yet
 #include "rmlv2TrafficLight.h"
 #include "rmlv2TrafficLightSimple.h"
+#include "rmMAgicPowder.h"
 
 //
 
