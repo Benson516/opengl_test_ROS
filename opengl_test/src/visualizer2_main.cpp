@@ -437,6 +437,8 @@ void My_Display()
         std::cout << "---\n";
         std::cout << "num of NLOS box: " << _nlos_box_ptr->objects.size() << "\n";
     }
+
+
     // test, get NLOS GF
     // std::shared_ptr< msgs::TransfObj > _nlos_gf_ptr;
     // if (ros_api.get_message( int(MSG_ID::nlos_gf), _nlos_gf_ptr)){
