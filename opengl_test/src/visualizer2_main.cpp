@@ -119,6 +119,7 @@ ViewManager		m_camera;
 TwBar			*bar_1_ptr;
 vec2			m_screenSize;
 // vector<Shape>   m_shapes;
+int             m_layoutMode_old=-1;
 int				m_currentView;
 int             m_currentView_old;
 float			m_zoom = 3.0f;
@@ -189,10 +190,10 @@ void setupGUI()
 	TwGLUTModifiersFunc(glutGetModifiers); // <-- This is just for key modifiers
 
 
-    bar_1_ptr = TwNewBar("Properties");
-    TwDefine(" Properties position='0 0' ");
-	TwDefine(" Properties size='270 500' "); // 270 450 // 220, 300
-	TwDefine(" Properties fontsize='3' color='0 0 0' alpha=180 ");  // http://anttweakbar.sourceforge.net/doc/tools:anttweakbar:twbarparamsyntax
+    bar_1_ptr = TwNewBar("Status");
+    TwDefine(" Status position='0 0' ");
+	TwDefine(" Status size='270 500' "); // 270 450 // 220, 300
+	TwDefine(" Status fontsize='3' color='0 0 0' alpha=180 ");  // http://anttweakbar.sourceforge.net/doc/tools:anttweakbar:twbarparamsyntax
 
     // gui_name
     TwAddVarRO(bar_1_ptr, "gui_name", TW_TYPE_STDSTRING, &(ros_api.gui_name), " label='GUI name' help='The name of this GUI' ");
@@ -274,6 +275,25 @@ TIME_STAMP::Period period_frame_post("post frame");
 TIME_STAMP::FPS    fps_display("fps_display");
 void My_Display()
 {
+    // // test, move the bar from AntTweakBar
+    // static int _count_1 = 0;
+    // TwDefine( (" Status position='" + std::to_string(_count_1) + " 0' ").c_str());
+    // _count_1++;
+
+    // // Move the bar for different layout
+    // //-------------------------------------------------//
+    // if ( all_scenes[0]->get_layout_mode() != m_layoutMode_old){
+    //     if ( all_scenes[0]->get_layout_mode() == 2 ){
+    //         TwDefine(" Status position='100 0' ");
+    //     }else{
+    //         TwDefine(" Status position='0 0' ");
+    //     }
+    //     m_layoutMode_old = all_scenes[0]->get_layout_mode();
+    // }
+    // //-------------------------------------------------//
+
+
+
     // std::cout << "Entering My_Display()\n";
     // FPS of the display
     fps_display.stamp();
