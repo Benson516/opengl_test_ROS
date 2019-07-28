@@ -42,7 +42,7 @@ private:
         vh = h;
         return true;
     }
-    inline static bool cal_viewport_w2(int w, int h, int &cx, int &cy, int &vw, int &vh){
+    inline static bool cal_viewport_w_2(int w, int h, int &cx, int &cy, int &vw, int &vh){
         // Surrounding cameras queued as "side bars"
         double asp = 1.5833333333;
         int im_w = h/2;
