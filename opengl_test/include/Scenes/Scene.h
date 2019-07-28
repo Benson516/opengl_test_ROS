@@ -47,7 +47,9 @@ public:
     //
     void enable(bool enable_in);
     void attach_cal_viewport_func_ptr(int layout_id, bool (*)( int , int ,int &, int &, int &, int &) );
+    // Layout mode
     bool switch_layout(int layout_id);
+    inline int get_layout_mode(){ return _layout_mode; };
     //
 	void Render();
 	void Update(float dt);
