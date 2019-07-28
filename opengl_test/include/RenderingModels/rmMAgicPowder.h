@@ -3,10 +3,59 @@
 
 #include "rmBaseModel.h"
 
-class rmMAgicPowder : public rmBaseModel
+#include <random>
+
+class MagicPowderManagement{
+
+public:
+    struct Particle {
+        glm::vec3  Position, Velocity;
+        float      Intensity;
+        float      Life;
+        Particle():
+            Position(0.0f),
+            Velocity(0.0f),
+            Intensity(0.0f),
+            Life(-1.0f)
+        {}
+    };
+    //
+    float velocity_ratio;
+    float intensity_decay_rate;
+    //
+    MagicPowderManagement(glm::vec3 &box_position_in, glm::vec3 &box_size=glm::vec3(1.0f), glm::vec3 &box_velocity_in=glm::vec3(0.0f) );
+    void addParticle();
+    void update();
+
+private:
+    std::default_random_engine rm_g;
+
+    GLuint num_particles;
+    std::vector<Particle> particle_list;
+    TIME_STAMP::Time last_stamp;
+
+    size_t _last_assigned_particle_id;
+
+    size_t FindFirstUnusedParticle();
+
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+class rmMagicPowder : public rmBaseModel
 {
 public:
-    rmMAgicPowder(std::string _path_Assets_in, int _ROS_topic_id_in);
+    rmMagicPowder(std::string _path_Assets_in, int _ROS_topic_id_in);
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);

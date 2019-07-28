@@ -1,7 +1,77 @@
-#include "rmMAgicPowder.h"
+#include "rmMagicPowder.h"
 
 
-rmMAgicPowder::rmMAgicPowder(std::string _path_Assets_in, int _ROS_topic_id_in):
+
+
+
+
+
+MagicPowderManagement::MagicPowderManagement():
+    last_stamp(TIME_PARAM::NOW)
+{
+    num_particles = 5000;
+    particle_list.resize(num_particles);
+    _last_assigned_particle_id = 0;
+    //
+    velocity_ratio = 0.1f;
+    intensity_decay_rate = 0.1f;
+}
+void MagicPowderManagement::addParticle(glm::vec3 &box_position_in, glm::vec3 &box_size, glm::vec3 &box_velocity_in){
+    size_t _idx = FindFirstUnusedParticle();
+    Particle &p = particle_list[_idx];
+
+    std::normal_distribution<float> dist_x(box_position_in.x, box_size.x*0.5f );
+    std::normal_distribution<float> dist_y(box_position_in.y, box_size.y*0.5f );
+    std::normal_distribution<float> dist_z(box_position_in.z, box_size.z*0.5f );
+
+    p.Position = glm::vec3( dist_x(rm_g), dist_y(rm_g), dist_z(rm_g));
+    p.Intensity = 1.0f;
+    p.Life = 10.0f;
+    p.Velocity = box_velocity_in * velocity_ratio;
+}
+void MagicPowderManagement::update(){
+    // Calculate dt
+    TIME_STAMP::Time current_stamp(TIME_PARAM::NOW);
+    float dt = (current_stamp - last_stamp).toSec();
+    last_stamp.swap(current_stamp); // swap
+
+    // Uupdate all particles
+    for (size_t i = 0; i < particle_list.size(); ++i){
+        Particle &p = particle_list[i];
+        p.Life -= dt; // reduce life
+        if (p.Life > 0.0f){
+            // particle is alive, thus update
+            p.Position += p.Velocity * dt;
+            p.Intensity -= intensity_decay_rate * dt;
+            if (p.Intensity < 0.0){
+                p.Intensity = 0.0;
+                p.Life = 0.0; // Distroid this particle since the Intensity is 0.0
+            }
+        }
+    }
+    // end for
+}
+size_t MagicPowderManagement::FindFirstUnusedParticle(){
+    size_t _j = _last_assigned_particle_id;
+    // Search from last used particle
+    for (size_t i=0; i < particle_list.size(); ++i){
+        if (particle_list[_j].Life <= 0.0f){
+            _last_assigned_particle_id = _j;
+            return _last_assigned_particle_id;
+        }
+        _j++;
+        _j %= particle_list.size();
+    }
+    // Override next particle if all others are alive
+    _last_assigned_particle_id++;
+    return _last_assigned_particle_id;
+}
+
+
+
+//------------------------------------------------------//
+
+rmMagicPowder::rmMagicPowder(std::string _path_Assets_in, int _ROS_topic_id_in):
     _ROS_topic_id(_ROS_topic_id_in)
     // fps_of_update( std::string("PC ") + std::to_string(_ROS_topic_id_in) )
 {
@@ -9,7 +79,7 @@ rmMAgicPowder::rmMAgicPowder(std::string _path_Assets_in, int _ROS_topic_id_in):
     _max_num_vertex = 5000000; // 5*10^6 // 100000;
 	Init();
 }
-void rmMAgicPowder::Init(){
+void rmMagicPowder::Init(){
     //
 	_program_ptr.reset( new ShaderProgram() );
     // Load shaders
@@ -32,7 +102,7 @@ void rmMAgicPowder::Init(){
 	LoadModel();
 
 }
-void rmMAgicPowder::LoadModel(){
+void rmMagicPowder::LoadModel(){
     glGenVertexArrays(1, &m_shape.vao);
 	glBindVertexArray(m_shape.vao);
 
@@ -70,7 +140,7 @@ void rmMAgicPowder::LoadModel(){
     glGenTextures(1, &m_shape.m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_shape.m_texture);
     //Load texture data from file
-    std::string _texture_1("star.png");
+    std::string _texture_1("magic_powder.png");
     std::cout << "start loading <" << _texture_1 << ">\n";
 	TextureData tdata = Common::Load_png(get_full_Assets_path(_texture_1).c_str());
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tdata.width, tdata.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata.data);
@@ -81,61 +151,28 @@ void rmMAgicPowder::LoadModel(){
     std::cout << "Load texture success!\n";
 
 }
-void rmMAgicPowder::Update(float dt){
+void rmMagicPowder::Update(float dt){
     // Update the data (buffer variables) here
 }
-void rmMAgicPowder::Update(ROS_INTERFACE &ros_interface){
+void rmMagicPowder::Update(ROS_INTERFACE &ros_interface){
     // Update the data (buffer variables) here
-
-    // test, use transform
-    ros::Time msg_time;
-    bool _result = ros_interface.get_any_pointcloud( _ROS_topic_id, msg_out_ptr, msg_time);
-
-    if (_result){
-        //
-        update_GL_data();
-        //
-        // fps_of_update.stamp();  fps_of_update.show();
-    }
-
-    // Note: We get the transform update even if there is no new content in for maximum smoothness
-    //      (the tf will update even there is no data)
-    bool tf_successed = false;
-    glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, false));
-    // glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, true, msg_time));
-    // m_shape.model = _model_tf;
-    set_pose_modle_ref_by_world(_model_tf);
-    // Common::print_out_mat4(_model_tf);
-
-
 }
-void rmMAgicPowder::Update(ROS_API &ros_api){
+void rmMagicPowder::Update(ROS_API &ros_api){
     // Update the data (buffer variables) here
 
     // test, use transform
     ros::Time msg_time;
     bool _result = false;
 
-    /*
-    // Scops for any_ptr
-    {
-        boost::any any_ptr;
-        _result = ros_api.get_any_message( _ROS_topic_id, any_ptr, msg_time );
-        if (_result){
-            std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > *_ptr_ptr = boost::any_cast< std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > >( &any_ptr );
-            msg_out_ptr = *_ptr_ptr;
-        }
-    }// end Scops for any_ptr
-    */
-
     _result = ros_api.get_message(_ROS_topic_id, msg_out_ptr, msg_time);
-    // _result = ROS_API_TOOL::get_message(ros_api, _ROS_topic_id, msg_out_ptr, msg_time);
-    // std::cout << "msg_out_ptr.use_count() = " << msg_out_ptr.use_count() << "\n";
-
+    // Magic powder generation and management
+    //----------------------------------------//
+    // Add/replace particles
+    // Update particles
+    //----------------------------------------//
+    //
     if (_result){
-        update_GL_data();
-        //
-        // fps_of_update.stamp();  fps_of_update.show();
+        update_GL_data(); // Assign particles to buffer
     }
 
     // Get tf
@@ -144,24 +181,10 @@ void rmMAgicPowder::Update(ROS_API &ros_api){
     set_pose_modle_ref_by_world(_model_tf);
     // end Get tf
 
-
-    /*
-    ROS_INTERFACE &ros_interface = ros_api.ros_interface;
-    // Note: We get the transform update even if there is no new content in for maximum smoothness
-    //      (the tf will update even there is no data)
-    bool tf_successed = false;
-    glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, false));
-    // glm::mat4 _model_tf = ROStf2GLMmatrix(ros_interface.get_tf(_ROS_topic_id, tf_successed, true, msg_time));
-    // m_shape.model = _model_tf;
-    set_pose_modle_ref_by_world(_model_tf);
-    // Common::print_out_mat4(_model_tf);
-    */
-
-
 }
 
 
-void rmMAgicPowder::Render(std::shared_ptr<ViewManager> &_camera_ptr){
+void rmMagicPowder::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
     glBindVertexArray(m_shape.vao);
 	_program_ptr->UseProgram();
@@ -186,11 +209,11 @@ void rmMAgicPowder::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
 
 
-void rmMAgicPowder::set_color(glm::vec3 color_in){
+void rmMagicPowder::set_color(glm::vec3 color_in){
     m_shape.color = color_in;
 }
 
-void rmMAgicPowder::update_GL_data(){
+void rmMagicPowder::update_GL_data(){
     m_shape.indexCount = msg_out_ptr->width;
     if (m_shape.indexCount > _max_num_vertex){
         m_shape.indexCount = _max_num_vertex;
