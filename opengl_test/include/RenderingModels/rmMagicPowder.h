@@ -57,7 +57,11 @@ private:
 class rmMagicPowder : public rmBaseModel
 {
 public:
-    rmMagicPowder(std::string _path_Assets_in, int _ROS_topic_id_in);
+    rmMagicPowder(
+        std::string _path_Assets_in,
+        int _ROS_topic_id_in,
+        std::string ref_frame_in
+    );
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
@@ -75,9 +79,10 @@ protected:
     int _ROS_topic_id;
     std::shared_ptr< msgs::DetectedObjectArray > msg_out_ptr;
     // ros::Time msg_time;
+    std::string _ref_frame; // The reference frame for tracking
 
 
-    void update_powder();
+    void add_powder(ROS_API &ros_api);
     void update_GL_data();
 
 

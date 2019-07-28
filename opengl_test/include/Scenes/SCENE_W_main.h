@@ -168,6 +168,12 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // rmlv2ObjectTracking
     // _rm_BaseModel.push_back( std::shared_ptr<rmlv2ObjectTracking>(new rmlv2ObjectTracking(_Assets_path, int(MSG_ID::lidar_bounding_box_tracking), "map") ) );
 
+    // MagicPowder
+    std::shared_ptr<rmMagicPowder> mp_ptr(new rmMagicPowder(_Assets_path, int(MSG_ID::lidar_bounding_box_raw), "map") );
+    mp_ptr->set_color(glm::vec3(0.0f, 1.0f, 1.0f));
+    _rm_BaseModel.push_back( mp_ptr );
+
+
 #if __IS_USING_TRACKING__ == 1
     // Taged Lidar bounding box (tracking, rendering in wire)
     _rm_BaseModel.push_back( std::shared_ptr<rmlv2TagBoundingBox3D>(new rmlv2TagBoundingBox3D(_Assets_path, int(MSG_ID::lidar_bounding_box_tracking)) ) );
@@ -175,6 +181,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // Lidar bounding box (rendering in face)
     _rm_BaseModel.push_back( std::shared_ptr<rmLidarBoundingBox>(new rmLidarBoundingBox(_Assets_path, int(MSG_ID::lidar_bounding_box_raw)) ) );
 #endif
+
+
 
     // NLOS bounding boxes
     _box3D_ptr.reset( new rmLidarBoundingBox(_Assets_path, int(MSG_ID::nlos_box)) );

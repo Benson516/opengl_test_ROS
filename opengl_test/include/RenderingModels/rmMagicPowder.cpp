@@ -9,20 +9,20 @@
 MagicPowderManagement::MagicPowderManagement():
     last_stamp(TIME_PARAM::NOW)
 {
-    num_particles = 5000;
+    num_particles = 50000;
     particle_list.resize(num_particles);
     _last_assigned_particle_id = 0;
     //
     velocity_ratio = 0.1f;
-    intensity_decay_rate = 0.1f;
+    intensity_decay_rate = 0.05f;
 }
 void MagicPowderManagement::addParticle(const glm::vec3 &box_position_in, const glm::vec3 &box_size,const  glm::vec3 &box_velocity_in){
     size_t _idx = FindFirstUnusedParticle();
     Particle &p = particle_list[_idx];
 
-    std::normal_distribution<float> dist_x(box_position_in.x, box_size.x*0.5f );
-    std::normal_distribution<float> dist_y(box_position_in.y, box_size.y*0.5f );
-    std::normal_distribution<float> dist_z(box_position_in.z, box_size.z*0.5f );
+    std::normal_distribution<float> dist_x(box_position_in.x, box_size.x*0.25f );
+    std::normal_distribution<float> dist_y(box_position_in.y, box_size.y*0.25f );
+    std::normal_distribution<float> dist_z(box_position_in.z, box_size.z*0.25f );
 
     p.Position = glm::vec3( dist_x(rm_g), dist_y(rm_g), dist_z(rm_g));
     p.Intensity = 1.0f;
@@ -43,6 +43,7 @@ void MagicPowderManagement::update(){
             // particle is alive, thus update
             p.Position += p.Velocity * dt;
             p.Intensity -= intensity_decay_rate * dt;
+            // p.Intensity *= (1.0f - intensity_decay_rate);
             if (p.Intensity < 0.0){
                 p.Intensity = 0.0;
                 p.Life = 0.0; // Distroid this particle since the Intensity is 0.0
@@ -71,8 +72,13 @@ size_t MagicPowderManagement::FindFirstUnusedParticle(){
 
 //------------------------------------------------------//
 
-rmMagicPowder::rmMagicPowder(std::string _path_Assets_in, int _ROS_topic_id_in):
-    _ROS_topic_id(_ROS_topic_id_in)
+rmMagicPowder::rmMagicPowder(
+    std::string _path_Assets_in,
+    int _ROS_topic_id_in,
+    std::string ref_frame_in
+):
+    _ROS_topic_id(_ROS_topic_id_in),
+    _ref_frame(ref_frame_in)
     // fps_of_update( std::string("PC ") + std::to_string(_ROS_topic_id_in) )
 {
     _path_Shaders_sub_dir += "MagicPowder/";
@@ -169,16 +175,20 @@ void rmMagicPowder::Update(ROS_API &ros_api){
 
     //
     if (_result){
-        update_powder(); // Add/replace particles and update particles
-        update_GL_data(); // Assign particles to buffer
+        add_powder(ros_api); // Add/replace particles and update particles
     }
+    // Update particles
+    magicPowder_m.update();
+    // Assign particles to buffer
+    update_GL_data();
 
-    // Get tf
-    bool tf_successed = false;
-    glm::mat4 _model_tf = ROStf2GLMmatrix(ros_api.get_tf(_ROS_topic_id, tf_successed));
-    set_pose_modle_ref_by_world(_model_tf);
-    // end Get tf
-
+    if (_ref_frame.size() > 0){
+        // Get tf
+        bool tf_successed = false;
+        glm::mat4 _model_tf = ROStf2GLMmatrix(ros_api.get_tf(_ref_frame, tf_successed));
+        set_pose_modle_ref_by_world(_model_tf);
+        // end Get tf
+    }
 }
 
 
@@ -212,7 +222,7 @@ void rmMagicPowder::set_color(glm::vec3 color_in){
 }
 
 
-void rmMagicPowder::update_powder(){
+void rmMagicPowder::add_powder(ROS_API &ros_api){
     // Magic powder generation and management
     long long num_box = msg_out_ptr->objects.size();
     if (num_box == 0){
@@ -224,6 +234,18 @@ void rmMagicPowder::update_powder(){
     if (num_box > magicPowder_m.particle_list.size() ){
         num_box = magicPowder_m.particle_list.size();
     }
+
+
+    // Update transform
+    //--------------------------------//
+    glm::mat4 tf_box_to_ref(1.0f);
+    if (_ref_frame.size() > 0){
+        // Get tf
+        bool tf_successed = false;
+        tf_box_to_ref = ROStf2GLMmatrix(ros_api.get_tf(_ref_frame, ros_api.ros_interface.get_topic_param(_ROS_topic_id).frame_id, tf_successed));
+        // end Get tf
+    }
+    //--------------------------------//
 
     auto * _box_ptr = &(msg_out_ptr->objects[0].bPoint);
     // Add/replace particles
@@ -237,15 +259,18 @@ void rmMagicPowder::update_powder(){
         float _W = glm::l2Norm( p3 -  p0);
         float _L = glm::l2Norm( p4 -  p0);
         float _H = glm::l2Norm( p1 -  p0);
-        magicPowder_m.addParticle(
-            0.5f*( p0 +  p6),
-            glm::vec3(_W, _L, _H),
-            glm::vec3(0.0f)
-        );
+        glm::vec3 center_point = (tf_box_to_ref*glm::vec4( (0.5f*( p0 +  p6)), 1.0f )).xyz();
+        for (size_t k=0; k < 3; ++k){
+            magicPowder_m.addParticle(
+                center_point,
+                glm::vec3(_W, _L, _H),
+                glm::vec3(0.0f)
+            );
+        }
+
     }
 
-    // Update particles
-    magicPowder_m.update();
+
 }
 void rmMagicPowder::update_GL_data(){
 
