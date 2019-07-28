@@ -229,11 +229,16 @@ void rmMagicPowder::update_powder(){
     // Add/replace particles
     for (size_t i=0; i < num_box; ++i){
         _box_ptr = &(msg_out_ptr->objects[i].bPoint);
-        float _W = glm::l2Norm(_box_ptr.p3 - _box_ptr.p0);
-        float _L = glm::l2Norm(_box_ptr.p4 - _box_ptr.p0);
-        float _H = glm::l2Norm(_box_ptr.p1 - _box_ptr.p0);
+        glm::vec3 p0(_box_ptr->p0.x, _box_ptr->p0.y, _box_ptr->p0.z);
+        glm::vec3 p1(_box_ptr->p1.x, _box_ptr->p1.y, _box_ptr->p1.z);
+        glm::vec3 p3(_box_ptr->p3.x, _box_ptr->p3.y, _box_ptr->p3.z);
+        glm::vec3 p4(_box_ptr->p4.x, _box_ptr->p4.y, _box_ptr->p4.z);
+        glm::vec3 p6(_box_ptr->p6.x, _box_ptr->p6.y, _box_ptr->p6.z);
+        float _W = glm::l2Norm( p3 -  p0);
+        float _L = glm::l2Norm( p4 -  p0);
+        float _H = glm::l2Norm( p1 -  p0);
         magicPowder_m.addParticle(
-            0.5*(_box_ptr.p0 + _box_ptr.p6),
+            0.5f*( p0 +  p6),
             glm::vec3(_W, _L, _H),
             glm::vec3(0.0f)
         );
@@ -258,7 +263,7 @@ void rmMagicPowder::update_GL_data(){
     vertex_p_c * vertex_ptr = (vertex_p_c *)glMapBufferRange(GL_ARRAY_BUFFER, 0, m_shape.indexCount * sizeof(vertex_p_c), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     size_t _j = 0;
     for (size_t i = 0; i < magicPowder_m.particle_list.size(); i++){
-        audo & _p = magicPowder_m.particle_list[i];
+        auto & _p = magicPowder_m.particle_list[i];
         if (_p.Life > 0.0){ // Only draw the points that remain time
             vertex_ptr[_j].position = _p.Position;
             // If we don't keep udating the color, the color will be lost when resizing the window.
