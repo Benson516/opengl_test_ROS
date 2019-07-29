@@ -13,7 +13,7 @@ MagicPowderManagement::MagicPowderManagement():
     particle_list.resize(num_particles);
     _last_assigned_particle_id = 0;
     //
-    velocity_ratio = 0.1f;
+    velocity_ratio = 0.3f;
     intensity_decay_rate = 0.05f;
 }
 void MagicPowderManagement::addParticle(const glm::vec3 &box_position_in, const glm::vec3 &box_size,const  glm::vec3 &box_velocity_in){
@@ -23,11 +23,16 @@ void MagicPowderManagement::addParticle(const glm::vec3 &box_position_in, const 
     std::normal_distribution<float> dist_x(box_position_in.x, box_size.x*0.25f );
     std::normal_distribution<float> dist_y(box_position_in.y, box_size.y*0.25f );
     std::normal_distribution<float> dist_z(box_position_in.z, box_size.z*0.25f );
+    //
+    std::normal_distribution<float> dist_v_x(0.0f, box_size.x*0.25f );
+    std::normal_distribution<float> dist_v_y(0.0f, box_size.y*0.25f );
+    std::normal_distribution<float> dist_v_z(0.0f, box_size.z*0.25f );
 
     p.Position = glm::vec3( dist_x(rm_g), dist_y(rm_g), dist_z(rm_g));
     p.Intensity = 1.0f;
     p.Life = 10.0f;
-    p.Velocity = box_velocity_in * velocity_ratio;
+    // p.Velocity = box_velocity_in * velocity_ratio;
+    p.Velocity = (box_velocity_in + glm::vec3( dist_v_x(rm_g), dist_v_y(rm_g), dist_v_z(rm_g)) ) * velocity_ratio;
 }
 void MagicPowderManagement::update(){
     // Calculate dt
