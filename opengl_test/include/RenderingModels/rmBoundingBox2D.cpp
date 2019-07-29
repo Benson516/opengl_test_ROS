@@ -1,31 +1,6 @@
 #include "rmBoundingBox2D.h"
 #include "object_class_def.hpp"
 
-// namespace rmBoundingBox2D_ns{
-//     // Predefined colors
-//     //-------------------------------------------//
-//     #define NUM_OBJ_CLASS 8
-//     #define color_normalize_factor  (1.0f/255.0f)
-//     glm::vec3 default_class_color(50, 50, 50);
-//     glm::vec3 obj_class_colors[] = {
-//         glm::vec3(50, 50, 255), // person
-//         glm::vec3(255, 153, 102), // bicycle
-//         glm::vec3(153, 255, 255), // car
-//         glm::vec3(255, 153, 127), // motorbike
-//         glm::vec3(255, 255, 0), // not showing aeroplane
-//         glm::vec3(102, 204, 255), // bus
-//         glm::vec3(255, 255, 100), // not showing train
-//         glm::vec3(255, 153, 102), // truck
-//         glm::vec3(50, 50, 50) // default
-//     };
-//     glm::vec3 get_obj_class_color(int obj_class_in){
-//         if (obj_class_in < NUM_OBJ_CLASS){
-//             return ( obj_class_colors[obj_class_in] * color_normalize_factor );
-//         }
-//         return ( default_class_color * color_normalize_factor );
-//     }
-//     //-------------------------------------------//
-// }
 
 OBJECT_CLASS obj_class;
 
@@ -157,8 +132,8 @@ void rmBoundingBox2D::LoadModel(){
         }
 	}
 	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
-    m_shape.indexCount = _max_num_vertex_idx; //  1 * _num_vertex_idx_per_box; // ;
-    // m_shape.indexCount = 0;
+    // m_shape.indexCount = _max_num_vertex_idx; //  1 * _num_vertex_idx_per_box; // ;
+    m_shape.indexCount = 0;
     //--------------------------------------------//
 
 

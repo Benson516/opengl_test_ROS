@@ -122,7 +122,8 @@ void rmLidarBoundingBox::LoadModel(){
         }
 	}
 	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
-    m_shape.indexCount = _max_num_vertex_idx; //  1 * _num_vertex_idx_per_box; // ;
+    // m_shape.indexCount = _max_num_vertex_idx; //  1 * _num_vertex_idx_per_box; // ;
+    m_shape.indexCount = 0; //  1 * _num_vertex_idx_per_box; // ;
     //--------------------------------------------//
 
 
