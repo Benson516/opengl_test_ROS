@@ -6,7 +6,7 @@
   <node name="GUI_gateway_1" pkg="opengl_test" type="GUI_gateway.py" output="screen">
   </node>
 
-  <node name="msg_recorder_1" pkg="msg_recorder" type="msg_recorder.py" args="-A" output="screen" if="$(arg is_loading_msg_recorder)">
+  <node name="msg_recorder_1" pkg="msg_recorder" type="msg_recorder.py" args="-A" output="log" if="$(arg is_loading_msg_recorder)">
   </node>
 
 
