@@ -192,7 +192,7 @@ void setupGUI()
 
     bar_1_ptr = TwNewBar("Status");
     TwDefine(" Status position='0 0' ");
-	TwDefine(" Status size='270 500' "); // 270 450 // 220, 300
+	TwDefine(" Status size='270 530' "); // 270 450 // 220, 300
 	TwDefine(" Status fontsize='3' color='0 0 0' alpha=180 ");  // http://anttweakbar.sourceforge.net/doc/tools:anttweakbar:twbarparamsyntax
 
     // gui_name
