@@ -27,6 +27,9 @@ public:
     void Reshape(const glm::ivec2 & viewport_size_in);
 
 
+    bool is_light_online;
+
+
 protected:
     void Init();
     //
@@ -34,6 +37,8 @@ protected:
     std::shared_ptr< msgs::Flag_Info > msg_out_ptr;
     // ros::Time msg_time;
     // std::string _frame_id;
+
+    void _put_text(int light_status, int light_CD, bool is_enabled);
 
     //
     rmColorBoard rm_board;
