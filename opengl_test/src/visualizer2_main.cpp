@@ -209,7 +209,7 @@ void setupGUI()
     //     TwAddVarRO(bar_1_ptr, ("fps_" + std::to_string(topic_idx)).c_str(), TW_TYPE_FLOAT, &(m_fps_topic[topic_idx]), (" label='FPS-" + ros_api.ros_interface.get_topic_name(topic_idx) + "' help='Frame Per Second(FPS)' ").c_str() );
     // }
     m_fps_topic_str.resize( ros_api.ros_interface.get_count_of_all_topics(), "0.0");
-    for (int topic_idx = int(MSG_ID::camera_front_right); topic_idx < ros_api.ros_interface.get_count_of_all_topics(); ++topic_idx ){
+    for (int topic_idx = int(MSG_ID::vehicle_info); topic_idx < ros_api.ros_interface.get_count_of_all_topics(); ++topic_idx ){
         if ( ros_api.ros_interface.get_topic_param(topic_idx).topic_id >= 0)
             TwAddVarRO(bar_1_ptr, ("fps_" + std::to_string(topic_idx)).c_str(), TW_TYPE_STDSTRING, &(m_fps_topic_str[topic_idx]), (" label='FPS-" + ros_api.ros_interface.get_topic_name(topic_idx) + "' help='Frame Per Second(FPS)' ").c_str() );
     }
