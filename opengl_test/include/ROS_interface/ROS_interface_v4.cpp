@@ -963,23 +963,21 @@ void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstP
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
 
-	
-TIME_STAMP::Period period_image("image");
     cv::Mat image;
     cv::Mat image_resize;
     try{
-
+        // test
+        TIME_STAMP::Period period_image("image");
+        //
         image = cv::imdecode(cv::Mat(msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
-
-       
-cv::resize(image, image_resize, cv::Size(), 0.33, 0.33, cv::INTER_LINEAR );
-period_image.stamp(); period_image.show_usec(); 
+        cv::resize(image, image_resize, cv::Size(), 0.33, 0.33, cv::INTER_LINEAR );
+        //
+        period_image.stamp(); period_image.show_usec();
     }
     catch (cv_bridge::Exception& e){
         ROS_ERROR("Could not convert to image!");
     }
 
-    
 
     // put
     // bool result = async_buffer_list[params.topic_id]->put_void( &(image), true, _time_in, false);
