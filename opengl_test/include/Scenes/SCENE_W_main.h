@@ -474,7 +474,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     */
 
 
-    /*
+    
     // Top-level top-centered back image (dynamic) <-- "Rear-sight mirror"
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_rear_center), false, true, true) );
     _image_board_ptr->alpha = 0.9;
@@ -485,7 +485,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _image_board_ptr->shape.setBoardSizePixel(150, false);
     _image_board_ptr->shape.setBoardPositionCVPixel(-300, 0, 1, ALIGN_X::RIGHT, ALIGN_Y::TOP );
     _rm_BaseModel.push_back( _image_board_ptr );
-    */
+    
 
 
     // rmlv2SpeedMeter

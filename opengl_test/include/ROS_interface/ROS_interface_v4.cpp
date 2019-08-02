@@ -3,7 +3,7 @@
 // using std::vector;
 // using std::string;
 
-#define MAX_NUM_THREAD_FOR_ROS_CB     20 // 6 // Use 6 threads
+#define MAX_NUM_THREAD_FOR_ROS_CB     8 // 6 // Use 6 threads
 
 // Constructors
 ROS_INTERFACE::ROS_INTERFACE():
@@ -958,19 +958,28 @@ bool ROS_INTERFACE::send_Image(const int topic_id, const cv::Mat &content_in){
 // CompressedImage
 //---------------------------------------------------------------//
 // input
+
 void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
 
+	
+TIME_STAMP::Period period_image("image");
     cv::Mat image;
     cv::Mat image_resize;
     try{
+
         image = cv::imdecode(cv::Mat(msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
-        cv::resize(image, image_resize, cv::Size(), 0.5, 0.5, cv::INTER_LINEAR );
+
+       
+cv::resize(image, image_resize, cv::Size(), 0.15, 0.15, cv::INTER_LINEAR );
+period_image.stamp(); period_image.show_usec(); 
     }
     catch (cv_bridge::Exception& e){
         ROS_ERROR("Could not convert to image!");
     }
+
+    
 
     // put
     // bool result = async_buffer_list[params.topic_id]->put_void( &(image), true, _time_in, false);
