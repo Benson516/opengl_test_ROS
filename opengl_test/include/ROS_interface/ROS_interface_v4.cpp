@@ -966,7 +966,7 @@ void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstP
     cv::Mat image_resize;
     try{
         image = cv::imdecode(cv::Mat(msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
-        image_resize = cv::resize(image, image_resize, cv::Size(), 0.5, 0.5, cv::INTER_LINEAR );
+        cv::resize(image, image_resize, cv::Size(), 0.5, 0.5, cv::INTER_LINEAR );
     }
     catch (cv_bridge::Exception& e){
         ROS_ERROR("Could not convert to image!");
