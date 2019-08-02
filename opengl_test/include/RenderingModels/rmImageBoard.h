@@ -87,6 +87,9 @@ protected:
     bool is_color_transformed;
     bool is_dynamically_updated;
 
+    //
+    cv::Mat flipped_image;
+
 
 
     void update_GL_data();
