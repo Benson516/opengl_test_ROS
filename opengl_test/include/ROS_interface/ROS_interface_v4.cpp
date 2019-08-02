@@ -963,14 +963,31 @@ void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstP
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
 
-    cv::Mat image;
-    cv::Mat image_resize;
+
+    // Take the reference to _tmp_in_ptr
+    if ( _cv_Mat_tmp_ptr_list.size() <= _topic_tid_list[params.topic_id] ){
+        _cv_Mat_tmp_ptr_list.resize( _topic_tid_list[params.topic_id]+1 );
+    }
+    std::shared_ptr< cv::Mat > & _tmp_Mat_ptr = _cv_Mat_tmp_ptr_list[ _topic_tid_list[params.topic_id] ]; // tmp Mat
+    if (!_tmp_Mat_ptr){
+        _tmp_Mat_ptr.reset( new cv::Mat );
+    }
+
+
+    // cv::Mat image;
+    // cv::Mat image_resize;
     try{
         // test
         TIME_STAMP::Period period_image("image");
         //
-        image = cv::imdecode(cv::Mat(msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
-        cv::resize(image, image_resize, cv::Size(), 0.33, 0.33, cv::INTER_LINEAR );
+        // image = cv::imdecode(cv::Mat(msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
+        cv::resize(
+            cv::imdecode(cv::Mat(msg->data), cv::IMREAD_UNCHANGED),
+            *_tmp_Mat_ptr,
+            cv::Size(),
+            0.33, 0.33,
+            cv::INTER_LINEAR
+        );
         //
         period_image.stamp(); period_image.show_usec();
     }
@@ -981,7 +998,7 @@ void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstP
 
     // put
     // bool result = async_buffer_list[params.topic_id]->put_void( &(image), true, _time_in, false);
-    bool result = async_buffer_list[params.topic_id]->put_void( &(image_resize), true, _time_in, false);
+    bool result = async_buffer_list[params.topic_id]->put_void( &(_tmp_Mat_ptr), true, _time_in, true);
     //
     if (!result){
         std::cout << params.name << ": buffer full.\n";
