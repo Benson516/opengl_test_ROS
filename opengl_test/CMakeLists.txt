@@ -178,6 +178,7 @@ add_library (async_buffer_v2_1 STATIC include/async_buffer/async_buffer_v2.cpp)
 # target_link_libraries(ROS_interface_v3_1 async_buffer_v2_1)
 
 add_library (ROS_interface_v4_1 STATIC include/ROS_interface/ROS_interface_v4.cpp)
+add_dependencies(ROS_interface_v4_1 msgs_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 target_link_libraries(ROS_interface_v4_1 async_buffer_v2_1)
 #---------------------------------------------------#
 
