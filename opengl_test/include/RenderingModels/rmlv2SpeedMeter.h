@@ -36,6 +36,8 @@ protected:
     // ros::Time msg_time;
     // std::string _frame_id;
 
+    void _put_text(float speed, bool is_enabled);
+
     //
     rmColorBoard rm_board;
     rmText3D_v2 rm_text;

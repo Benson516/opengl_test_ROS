@@ -24,6 +24,7 @@ public:
     bool is_enable_image3D;
 private:
     inline static bool cal_viewport_w(int w, int h, int &cx, int &cy, int &vw, int &vh){
+        // Surrounding cameras queue at the button of the screen
         double asp = 1.5833333333;
         int im_w = w/7;
         int im_h = int(im_w/asp);
@@ -34,9 +35,21 @@ private:
         return true;
     }
     inline static bool cal_viewport_w_1(int w, int h, int &cx, int &cy, int &vw, int &vh){
+        // Surrounding cameras disabled
         cx = 0;
         cy = 0;
         vw = w;
+        vh = h;
+        return true;
+    }
+    inline static bool cal_viewport_w_2(int w, int h, int &cx, int &cy, int &vw, int &vh){
+        // Surrounding cameras queued as "side bars"
+        double asp = 1.5833333333;
+        int im_w = h/2;
+        int im_h = int(im_w/asp);
+        cx = im_h;
+        cy = 0;
+        vw = w-2*im_h;
         vh = h;
         return true;
     }
@@ -53,6 +66,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     //----------------------------------------//
     attach_cal_viewport_func_ptr(0, &cal_viewport_w);
     attach_cal_viewport_func_ptr(1, &cal_viewport_w_1);
+    attach_cal_viewport_func_ptr(2, &cal_viewport_w_2);
     switch_layout(0);
     //----------------------------------------//
 
@@ -154,6 +168,12 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // rmlv2ObjectTracking
     // _rm_BaseModel.push_back( std::shared_ptr<rmlv2ObjectTracking>(new rmlv2ObjectTracking(_Assets_path, int(MSG_ID::lidar_bounding_box_tracking), "map") ) );
 
+    // MagicPowder
+    std::shared_ptr<rmMagicPowder> mp_ptr(new rmMagicPowder(_Assets_path, int(MSG_ID::lidar_bounding_box_raw), "map") );
+    mp_ptr->set_color(glm::vec3(0.0f, 1.0f, 1.0f));
+    _rm_BaseModel.push_back( mp_ptr );
+
+
 #if __IS_USING_TRACKING__ == 1
     // Taged Lidar bounding box (tracking, rendering in wire)
     _rm_BaseModel.push_back( std::shared_ptr<rmlv2TagBoundingBox3D>(new rmlv2TagBoundingBox3D(_Assets_path, int(MSG_ID::lidar_bounding_box_tracking)) ) );
@@ -161,6 +181,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // Lidar bounding box (rendering in face)
     _rm_BaseModel.push_back( std::shared_ptr<rmLidarBoundingBox>(new rmLidarBoundingBox(_Assets_path, int(MSG_ID::lidar_bounding_box_raw)) ) );
 #endif
+
+
 
     // NLOS bounding boxes
     _box3D_ptr.reset( new rmLidarBoundingBox(_Assets_path, int(MSG_ID::nlos_box)) );

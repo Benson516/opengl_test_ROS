@@ -14,6 +14,11 @@
 #include "SCENE_W4.h"
 #include "SCENE_W5.h"
 #include "SCENE_W6.h"
+// Side bars
+#include "SCENE_SW0.h"
+#include "SCENE_SW1.h"
+#include "SCENE_SW5.h"
+#include "SCENE_SW6.h"
 
 // Debug
 #include <iostream>
@@ -114,6 +119,7 @@ ViewManager		m_camera;
 TwBar			*bar_1_ptr;
 vec2			m_screenSize;
 // vector<Shape>   m_shapes;
+int             m_layoutMode_old=-1;
 int				m_currentView;
 int             m_currentView_old;
 float			m_zoom = 3.0f;
@@ -184,10 +190,10 @@ void setupGUI()
 	TwGLUTModifiersFunc(glutGetModifiers); // <-- This is just for key modifiers
 
 
-    bar_1_ptr = TwNewBar("Properties");
-    TwDefine(" Properties position='0 0' ");
-	TwDefine(" Properties size='270 500' "); // 270 450 // 220, 300
-	TwDefine(" Properties fontsize='3' color='0 0 0' alpha=180 ");  // http://anttweakbar.sourceforge.net/doc/tools:anttweakbar:twbarparamsyntax
+    bar_1_ptr = TwNewBar("Status");
+    TwDefine(" Status position='0 0' ");
+	TwDefine(" Status size='270 530' "); // 270 450 // 220, 300
+	TwDefine(" Status fontsize='3' color='0 0 0' alpha=180 ");  // http://anttweakbar.sourceforge.net/doc/tools:anttweakbar:twbarparamsyntax
 
     // gui_name
     TwAddVarRO(bar_1_ptr, "gui_name", TW_TYPE_STDSTRING, &(ros_api.gui_name), " label='GUI name' help='The name of this GUI' ");
@@ -203,8 +209,8 @@ void setupGUI()
     //     TwAddVarRO(bar_1_ptr, ("fps_" + std::to_string(topic_idx)).c_str(), TW_TYPE_FLOAT, &(m_fps_topic[topic_idx]), (" label='FPS-" + ros_api.ros_interface.get_topic_name(topic_idx) + "' help='Frame Per Second(FPS)' ").c_str() );
     // }
     m_fps_topic_str.resize( ros_api.ros_interface.get_count_of_all_topics(), "0.0");
-    for (int topic_idx = int(MSG_ID::camera_front_right); topic_idx < ros_api.ros_interface.get_count_of_all_topics(); ++topic_idx ){
-        if ( ros_api.ros_interface.get_topic_param(topic_idx).topic_id >= 0)
+    for (int topic_idx = int(MSG_ID::vehicle_info); topic_idx < ros_api.ros_interface.get_count_of_all_topics(); ++topic_idx ){
+        if ( ros_api.ros_interface.is_topic_id_valid(topic_idx) )
             TwAddVarRO(bar_1_ptr, ("fps_" + std::to_string(topic_idx)).c_str(), TW_TYPE_STDSTRING, &(m_fps_topic_str[topic_idx]), (" label='FPS-" + ros_api.ros_interface.get_topic_name(topic_idx) + "' help='Frame Per Second(FPS)' ").c_str() );
     }
     //
@@ -249,6 +255,11 @@ void My_Init()
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W4(ros_api.get_pkg_path()) ) );
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W5(ros_api.get_pkg_path()) ) );
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W6(ros_api.get_pkg_path()) ) );
+    // Side bars
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_SW0(ros_api.get_pkg_path()) ) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_SW1(ros_api.get_pkg_path()) ) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_SW5(ros_api.get_pkg_path()) ) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_SW6(ros_api.get_pkg_path()) ) );
 
     // Clear background color
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -264,6 +275,25 @@ TIME_STAMP::Period period_frame_post("post frame");
 TIME_STAMP::FPS    fps_display("fps_display");
 void My_Display()
 {
+    // // test, move the bar from AntTweakBar
+    // static int _count_1 = 0;
+    // TwDefine( (" Status position='" + std::to_string(_count_1) + " 0' ").c_str());
+    // _count_1++;
+
+    // // Move the bar for different layout
+    // //-------------------------------------------------//
+    // if ( all_scenes[0]->get_layout_mode() != m_layoutMode_old){
+    //     if ( all_scenes[0]->get_layout_mode() == 2 ){
+    //         TwDefine(" Status position='100 0' ");
+    //     }else{
+    //         TwDefine(" Status position='0 0' ");
+    //     }
+    //     m_layoutMode_old = all_scenes[0]->get_layout_mode();
+    // }
+    // //-------------------------------------------------//
+
+
+
     // std::cout << "Entering My_Display()\n";
     // FPS of the display
     fps_display.stamp();
@@ -407,6 +437,8 @@ void My_Display()
         std::cout << "---\n";
         std::cout << "num of NLOS box: " << _nlos_box_ptr->objects.size() << "\n";
     }
+
+
     // test, get NLOS GF
     // std::shared_ptr< msgs::TransfObj > _nlos_gf_ptr;
     // if (ros_api.get_message( int(MSG_ID::nlos_gf), _nlos_gf_ptr)){

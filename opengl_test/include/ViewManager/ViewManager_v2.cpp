@@ -527,6 +527,9 @@ void ViewManager::_set_viewMatrix(const glm::mat4 &m_in){
 }
 void ViewManager::_update_mv_matrix(){
     mv_matrix = viewMatrix * tansformMatrix * camera_model_inv;
+    // test
+    // std::cout << "tansformMatrix =\n";
+    // Common::print_out_mat4(tansformMatrix);
 }
 //
 

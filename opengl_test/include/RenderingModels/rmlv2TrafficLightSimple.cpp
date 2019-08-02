@@ -12,6 +12,7 @@ rmlv2TrafficLightSimple::rmlv2TrafficLightSimple(
     bool is_moveable_in
 ):
     _ROS_topic_id(_ROS_topic_id_in),
+    is_light_online(false),
     //
     rm_board(_path_Assets_in, frame_id_in, color_vec4_in, is_perspected_in, is_moveable_in),
     rm_text(_path_Assets_in, _ROS_topic_id_in)
@@ -29,6 +30,9 @@ void rmlv2TrafficLightSimple::Init(){
     rm_board.shape.setBoardSizePixel(280, 80);
     rm_board.shape.setBoardPositionCVPixel(-5,95,1,ALIGN_X::RIGHT, ALIGN_Y::TOP);
     rm_text.shape = rm_board.shape;
+
+    // Initialized the text to display
+    _put_text(0, 0, false);
 
 
     // Reset
@@ -64,7 +68,11 @@ void rmlv2TrafficLightSimple::Update(ROS_API &ros_api){
 void rmlv2TrafficLightSimple::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
     rm_board.Render(_camera_ptr);
+    // if (is_light_online){
+    //     rm_text.Render(_camera_ptr);
+    // }
     rm_text.Render(_camera_ptr);
+
 }
 
 void rmlv2TrafficLightSimple::Reshape(const glm::ivec2 & viewport_size_in){
@@ -79,59 +87,68 @@ void rmlv2TrafficLightSimple::update_GL_data(){
     // Reset
     text2D_flat_list.clear();
 
-
-    //
-    // std::cout << "Speed (km/h): " << (msg_out_ptr->ego_speed)*3.6 << ", ";
-    // std::cout << "yaw_rate (deg/s): " << (msg_out_ptr->yaw_rate) << "\n";
-
-
-
     int light_status = int(msg_out_ptr->Dspace_Flag02);
     int light_CD     = int(msg_out_ptr->Dspace_Flag03);  // Count-down time
 
-    std::string _str_out( "Traffic Light      \n" );
-    glm::vec3 _text_color(0.0f);
-
-    switch (light_status){
-        case 0: // red
-            _str_out += "Red:   ";
-            _text_color = glm::vec3(1.0f, 0.0f, 0.0f);
-            break;
-        case 1: // yello
-            _str_out += "Yello: ";
-            _text_color = glm::vec3(0.897f, 0.837f, 0.0f);
-            break;
-        case 2: // green
-            _str_out += "Green: ";
-            _text_color = glm::vec3(0.0f, 0.886f, 0.046f);
-            break;
-        default:
-            _str_out = "--";
-            break;
+    //
+    if (light_status == 0 && light_CD == 0){
+        is_light_online = false;
+    }else{
+        is_light_online = true;
     }
     //
-    if ( light_CD < 10){
-        _str_out += " ";
+    _put_text(light_status, light_CD, is_light_online);
+
+}
+
+
+void rmlv2TrafficLightSimple::_put_text(int light_status, int light_CD, bool is_enabled){
+    //
+    std::string _str_out( "Traffic Light\n" );
+    glm::vec3 _text_color(0.3f);
+
+    if (is_enabled){
+        //
+        switch (light_status){
+            case 0: // red
+                _str_out += "Red:    ";
+                _text_color = glm::vec3(1.0f, 0.0f, 0.0f);
+                break;
+            case 1: // yello
+                _str_out += "Yellow: ";
+                _text_color = glm::vec3(0.897f, 0.837f, 0.0f);
+                break;
+            case 2: // green
+                _str_out += "Green:  ";
+                _text_color = glm::vec3(0.0f, 0.886f, 0.046f);
+                break;
+            default:
+                _str_out = "--";
+                break;
+        }
+        //
+        if ( light_CD < 10){
+            _str_out += " ";
+        }
+        _str_out += std::to_string(light_CD) + " sec.";
     }
-    _str_out += std::to_string(light_CD) + " sec.";
+    //
 
-
+    //
     text2D_flat_list.emplace_back(
         _str_out,
-        glm::vec2(float(rm_board.shape.board_width-15), float(rm_board.shape.board_height/2.0f)),
+        glm::vec2(float(35), float(8)),
         // glm::vec2( 0.0f, 0.0f),
         36,
         _text_color,
-        ALIGN_X::RIGHT,
-        ALIGN_Y::CENTER,
+        ALIGN_X::LEFT,
+        ALIGN_Y::TOP,
         0,
         0,
         false,
         false
     );
 
-
     // Insert texts
     rm_text.insert_text( text2D_flat_list );
-
 }

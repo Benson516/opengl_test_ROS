@@ -30,6 +30,8 @@ void rmlv2SpeedMeter::Init(){
     rm_board.shape.setBoardPositionCVPixel(-5,5,1,ALIGN_X::RIGHT, ALIGN_Y::TOP);
     rm_text.shape = rm_board.shape;
 
+    // Initialize the text
+    _put_text(0.0f, false);
 
     // Reset
     text2D_flat_list.clear();
@@ -79,12 +81,25 @@ void rmlv2SpeedMeter::update_GL_data(){
     // Reset
     text2D_flat_list.clear();
 
-
     //
     // std::cout << "Speed (km/h): " << (msg_out_ptr->ego_speed)*3.6 << ", ";
     // std::cout << "yaw_rate (deg/s): " << (msg_out_ptr->yaw_rate) << "\n";
 
-    std::string _str_out( all_header::to_string_p( ((msg_out_ptr->ego_speed)*3.6), 1 ) + " km/hr" );
+    _put_text(msg_out_ptr->ego_speed, true);
+
+}
+
+
+void rmlv2SpeedMeter::_put_text(float speed, bool is_enabled){
+
+    std::string _str_out;
+    if (is_enabled){
+        _str_out = all_header::to_string_p( (speed*3.6), 1 );
+    }else{
+        _str_out = "-- ";
+    }
+
+    _str_out += " km/hr";
 
     text2D_flat_list.emplace_back(
         _str_out,
@@ -103,5 +118,4 @@ void rmlv2SpeedMeter::update_GL_data(){
 
     // Insert texts
     rm_text.insert_text( text2D_flat_list );
-
 }
