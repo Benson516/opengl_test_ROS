@@ -982,7 +982,7 @@ void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstP
         //
         // image = cv::imdecode(cv::Mat(msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
         cv::resize(
-            cv::imdecode(cv::Mat(msg->data), cv::IMREAD_UNCHANGED),
+            cv::imdecode((msg->data), cv::IMREAD_UNCHANGED),
             *_tmp_Mat_ptr,
             cv::Size(),
             0.33, 0.33,
