@@ -972,7 +972,7 @@ TIME_STAMP::Period period_image("image");
         image = cv::imdecode(cv::Mat(msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
 
        
-cv::resize(image, image_resize, cv::Size(), 0.15, 0.15, cv::INTER_LINEAR );
+cv::resize(image, image_resize, cv::Size(), 0.33, 0.33, cv::INTER_LINEAR );
 period_image.stamp(); period_image.show_usec(); 
     }
     catch (cv_bridge::Exception& e){
