@@ -989,7 +989,7 @@ void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstP
             cv::INTER_LINEAR
         );
         //
-        period_image.stamp(); period_image.show_usec();
+        period_image.stamp(); period_image.show_msec();
     }
     catch (cv_bridge::Exception& e){
         ROS_ERROR("Could not convert to image!");
