@@ -301,22 +301,25 @@ void rmImageBoard::update_GL_data(){
     // Texture
     glBindTexture(GL_TEXTURE_2D, m_shape.m_texture);
     cv::Mat image_in = *msg_out_ptr; // No copy
-    //use fast 4-byte alignment (default anyway) if possible
-    glPixelStorei(GL_UNPACK_ALIGNMENT, (image_in.step & 3) ? 1 : 4);
-    //set length of one complete row in data (doesn't need to equal image.cols)
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, image_in.step/image_in.elemSize());
+
     // 1
     // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, image_in.cols, image_in.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, image_in.data);
     // 2
     // cv::flip(image_in, flipped_image, 0);
     resize_if_needed(image_in, texture_image);
     cv::flip(texture_image, flipped_image, 0); // Flip the small size image
+
+    //use fast 4-byte alignment (default anyway) if possible
+    glPixelStorei(GL_UNPACK_ALIGNMENT, (flipped_image.step & 3) ? 1 : 4);
+    //set length of one complete row in data (doesn't need to equal image.cols)
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, flipped_image.step/flipped_image.elemSize());
+    //
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, flipped_image.cols, flipped_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, flipped_image.data);
     //
 }
 
 void rmImageBoard::resize_if_needed(cv::Mat &image_in, cv::Mat &image_out){
-
+    // std::cout << "here 1\n";
     // image_out = image_in;
     if (!is_perspected && is_moveable){
         if (image_in.cols > shape.board_width){
@@ -336,4 +339,5 @@ void rmImageBoard::resize_if_needed(cv::Mat &image_in, cv::Mat &image_out){
         }
     }
     //
+    // std::cout << "here 2\n";
 }
