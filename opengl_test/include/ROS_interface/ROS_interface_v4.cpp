@@ -974,14 +974,14 @@ void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstP
     }
 
 
-    // cv::Mat image;
+    cv::Mat image;
     // cv::Mat image_resize;
     try{
         // test
         TIME_STAMP::Period period_image("image");
         //
-        // image = cv::imdecode( (msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
-        (*_tmp_Mat_ptr) = cv::imdecode( (msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
+        image = cv::imdecode( (msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
+        // (*_tmp_Mat_ptr) = cv::imdecode( (msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
         // cv::resize(
         //     cv::imdecode((msg->data), cv::IMREAD_UNCHANGED),
         //     *_tmp_Mat_ptr,
@@ -998,8 +998,8 @@ void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstP
 
 
     // put
-    // bool result = async_buffer_list[params.topic_id]->put_void( &(image), true, _time_in, false);
-    bool result = async_buffer_list[params.topic_id]->put_void( &(_tmp_Mat_ptr), true, _time_in, true);
+    bool result = async_buffer_list[params.topic_id]->put_void( &(image), true, _time_in, false);
+    // bool result = async_buffer_list[params.topic_id]->put_void( &(_tmp_Mat_ptr), true, _time_in, true);
     //
     if (!result){
         std::cout << params.name << ": buffer full.\n";
