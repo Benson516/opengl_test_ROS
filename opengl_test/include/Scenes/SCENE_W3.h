@@ -15,7 +15,7 @@ public:
 
 private:
     inline static bool cal_viewport_w(int w, int h, int &cx, int &cy, int &vw, int &vh){
-        double asp = 1.5833333333;
+        double asp = _IMAGE_ASP_;
         int im_w = w/7;
         int im_h = int(im_w/asp);
         cx = im_w*3;
@@ -56,13 +56,13 @@ SCENE_W3::SCENE_W3(std::string pkg_path_in)
 #if __ROS_INTERFACE_VER__ == 1
     // Bounding box for front-center camera
     _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_all), false, false ) );
-    _box2D_ptr->setup_params(608, 384, 608*1, 0);
+    _box2D_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, _IMAGE_W_*1, 0);
     // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
 #elif __ROS_INTERFACE_VER__ == 2
     // Bounding box for front-center camera
     _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_center), false, false ) );
-    _box2D_ptr->setup_params(608, 384, 608*0, 0);
+    _box2D_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, _IMAGE_W_*0, 0);
     // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
 #endif  // __ROS_INTERFACE_VER__

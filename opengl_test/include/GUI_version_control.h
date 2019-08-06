@@ -24,4 +24,22 @@
 //----------------------------------//
 
 
+// Image size
+//----------------------------------//
+// ver 1: (608, 384)
+// ver 2: (1920, 1080)
+#if __ROS_INTERFACE_VER__ == 1
+    #define _IMAGE_W_       608
+    #define _IMAGE_H_       384
+    #define _IMAGE_ASP_     1.583333333333333333 // Aspect ratio
+#elif __ROS_INTERFACE_VER__ == 2
+    #define _IMAGE_W_       1920
+    #define _IMAGE_H_       1080
+    #define _IMAGE_ASP_     1.777777777777777777 // Aspect ratio
+#endif
+// 0 - Without tracking, showing the raw lidar bounding boxes
+// 1 - With tracking, showing the tracking boxes
+//----------------------------------//
+
+
 #endif // GUI_VERSION_CTRL_H
