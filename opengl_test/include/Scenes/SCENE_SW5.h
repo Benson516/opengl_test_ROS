@@ -53,7 +53,7 @@ SCENE_SW5::SCENE_SW5(std::string pkg_path_in)
     _image_background_2_ptr->color_transform = glm::vec4(1.0f);
     _image_background_2_ptr->Translate(glm::vec3(0.0f, 0.0f, -1.0f)); // Move to background
     _image_background_2_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), -M_PI/2.0); // Rotate
-    _image_background_2_ptr->shape.setBoardSize(2.0f, 2.0f); // Full size
+    _image_background_2_ptr->shape.setBoardSizeRatio(1.0f, 1.0f); // Full size
     _rm_BaseModel.push_back( _image_background_2_ptr );
 
 #if __ROS_INTERFACE_VER__ == 2
@@ -62,7 +62,7 @@ SCENE_SW5::SCENE_SW5(std::string pkg_path_in)
     _box2D_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, _IMAGE_W_*0, 0);
     // _box2D_ptr->alpha = 0.7;
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), -M_PI/2.0); // Rotate
-    _box2D_ptr->shape.setBoardSize(2.0f, 2.0f); // Full size
+    _box2D_ptr->shape.setBoardSizeRatio(1.0f, 1.0f); // Full size
     _rm_BaseModel.push_back( _box2D_ptr );
 #endif  // __ROS_INTERFACE_VER__
 
