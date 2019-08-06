@@ -322,10 +322,11 @@ void rmImageBoard::resize_if_needed(cv::Mat &image_in, cv::Mat &image_out){
     // std::cout << "here 1\n";
     // image_out = image_in;
     if (!is_perspected && is_moveable){
-        if (image_in.cols > shape.board_width){
-            cv::resize(image_in, image_out, cv::Size(shape.board_width, shape.board_width/(_IMAGE_ASP_) ), 0, 0, cv::INTER_LINEAR );
-        }else if (image_in.rows > shape.board_height){
-            cv::resize(image_in, image_out, cv::Size(shape.board_height * (_IMAGE_ASP_), shape.board_height), 0, 0, cv::INTER_LINEAR );
+        float max_size = ( shape.board_width >  shape.board_height)? shape.board_width:shape.board_height;
+        if (image_in.cols > max_size){
+            cv::resize(image_in, image_out, cv::Size(max_size, max_size/(_IMAGE_ASP_) ), 0, 0, cv::INTER_LINEAR );
+        }else if (image_in.rows > max_size){
+            cv::resize(image_in, image_out, cv::Size(max_size * (_IMAGE_ASP_), max_size), 0, 0, cv::INTER_LINEAR );
         }else{
             image_out = image_in;
         }
