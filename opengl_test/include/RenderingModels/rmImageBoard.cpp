@@ -308,10 +308,10 @@ void rmImageBoard::update_GL_data(){
     // 1
     // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, image_in.cols, image_in.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, image_in.data);
     // 2
-    cv::flip(image_in, flipped_image, 0);
-    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, flipped_image.cols, flipped_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, flipped_image.data);
-    resize_if_needed(flipped_image, texture_image);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, texture_image.cols, texture_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, texture_image.data);
+    // cv::flip(image_in, flipped_image, 0);
+    resize_if_needed(image_in, texture_image);
+    cv::flip(texture_image, flipped_image, 0); // Flip the small size image
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, flipped_image.cols, flipped_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, flipped_image.data);
     //
 }
 
