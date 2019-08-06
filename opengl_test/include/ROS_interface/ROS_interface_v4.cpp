@@ -980,14 +980,15 @@ void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstP
         // test
         TIME_STAMP::Period period_image("image");
         //
-        // image = cv::imdecode(cv::Mat(msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
-        cv::resize(
-            cv::imdecode((msg->data), cv::IMREAD_UNCHANGED),
-            *_tmp_Mat_ptr,
-            cv::Size(),
-            0.33, 0.33,
-            cv::INTER_LINEAR
-        );
+        // image = cv::imdecode( (msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
+        (*_tmp_Mat_ptr) = cv::imdecode( (msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
+        // cv::resize(
+        //     cv::imdecode((msg->data), cv::IMREAD_UNCHANGED),
+        //     *_tmp_Mat_ptr,
+        //     cv::Size(),
+        //     0.33, 0.33,
+        //     cv::INTER_LINEAR
+        // );
         //
         period_image.stamp(); period_image.show_msec();
     }

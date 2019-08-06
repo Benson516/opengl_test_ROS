@@ -305,9 +305,35 @@ void rmImageBoard::update_GL_data(){
     glPixelStorei(GL_UNPACK_ALIGNMENT, (image_in.step & 3) ? 1 : 4);
     //set length of one complete row in data (doesn't need to equal image.cols)
     glPixelStorei(GL_UNPACK_ROW_LENGTH, image_in.step/image_in.elemSize());
-    //
-    cv::flip(image_in, flipped_image, 0);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, flipped_image.cols, flipped_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, flipped_image.data);
+    // 1
     // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, image_in.cols, image_in.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, image_in.data);
+    // 2
+    cv::flip(image_in, flipped_image, 0);
+    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, flipped_image.cols, flipped_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, flipped_image.data);
+    resize_if_needed(flipped_image, texture_image);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, texture_image.cols, texture_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, texture_image.data);
+    //
+}
+
+void rmImageBoard::resize_if_needed(cv::Mat &image_in, cv::Mat &image_out){
+
+    // image_out = image_in;
+    if (!is_perspected && is_moveable){
+        if (image_in.cols > shape.board_width){
+            cv::resize(image_in, image_out, cv::Size(shape.board_width, shape.board_width/(_IMAGE_ASP_) ), 0, 0, cv::INTER_LINEAR );
+        }else if (image_in.rows > shape.board_height){
+            cv::resize(image_in, image_out, cv::Size(shape.board_height * (_IMAGE_ASP_), shape.board_height), 0, 0, cv::INTER_LINEAR );
+        }else{
+            image_out = image_in;
+        }
+    }else{ // perspective or background
+        if (image_in.cols > shape._viewport_size.x){
+            cv::resize(image_in, image_out, cv::Size(shape._viewport_size.x, shape._viewport_size.x/(_IMAGE_ASP_) ), 0, 0, cv::INTER_LINEAR );
+        }else if (image_in.rows > shape._viewport_size.y){
+            cv::resize(image_in, image_out, cv::Size(shape._viewport_size.y * (_IMAGE_ASP_), shape._viewport_size.y), 0, 0, cv::INTER_LINEAR );
+        }else{
+            image_out = image_in;
+        }
+    }
     //
 }

@@ -89,10 +89,13 @@ protected:
 
     //
     cv::Mat flipped_image;
+    cv::Mat texture_image;
 
 
 
     void update_GL_data();
+
+    void resize_if_needed(cv::Mat &image_in, cv::Mat &image_out);
 
 
 private:
