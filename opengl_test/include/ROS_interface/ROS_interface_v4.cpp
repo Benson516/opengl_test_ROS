@@ -978,8 +978,8 @@ void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstP
     // cv::Mat image_resize;
     try{
         // test
-        TIME_STAMP::Period period_image("image");
-        //
+        // TIME_STAMP::Period period_image("image");
+        
         // image = cv::imdecode( (msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
         // This caused a seg-fault --> (*_tmp_Mat_ptr) = cv::imdecode( (msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
         _tmp_Mat_ptr = std::make_shared<cv::Mat>( cv::imdecode( (msg->data), cv::IMREAD_UNCHANGED) ); //convert compressed image data to cv::Mat
@@ -990,8 +990,8 @@ void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstP
         //     0.33, 0.33,
         //     cv::INTER_LINEAR
         // );
-        //
-        period_image.stamp(); period_image.show_msec();
+
+        // period_image.stamp(); period_image.show_msec();
     }
     catch (cv_bridge::Exception& e){
         ROS_ERROR("Could not convert to image!");
