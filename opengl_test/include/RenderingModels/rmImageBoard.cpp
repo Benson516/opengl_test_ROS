@@ -130,7 +130,8 @@ void rmImageBoard::LoadModel(){
         //Load texture data from file
         std::cout << "start loading <" << textName << ">\n";
     	TextureData tdata = Common::Load_png(get_full_Assets_path(textName).c_str());
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, tdata.width, tdata.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata.data);
+        // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, tdata.width, tdata.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata.data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tdata.width, tdata.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata.data);
         im_pixel_width = tdata.width;
         im_pixel_height = tdata.height;
     }
@@ -314,7 +315,8 @@ void rmImageBoard::update_GL_data(){
     //set length of one complete row in data (doesn't need to equal image.cols)
     glPixelStorei(GL_UNPACK_ROW_LENGTH, flipped_image.step/flipped_image.elemSize());
     //
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, flipped_image.cols, flipped_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, flipped_image.data);
+    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, flipped_image.cols, flipped_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, flipped_image.data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, flipped_image.cols, flipped_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, flipped_image.data);
     //
 }
 
