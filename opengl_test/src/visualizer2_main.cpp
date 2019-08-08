@@ -506,7 +506,7 @@ void My_Display()
     // period_in.stamp();  period_in.show_msec();
     // period_all_func.stamp();    period_all_func.show_msec();
     // period_frame_post.stamp();  period_frame_post.show_msec();  period_frame_post.show_jitter_usec();
-    // std::cout << "---\n";
+    std::cout << "---\n";
 #endif
 
 }

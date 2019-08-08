@@ -9,6 +9,15 @@ static const GLfloat window_positions[] =
 	1.0f,1.0f,1.0f,1.0f    // right-up
 };
 
+static const GLfloat window_positions_v_flipped[] =
+{   // Up-side down
+    // Position i, texcord i
+	1.0f,-1.0f,1.0f,1.0f,  // right-down
+	-1.0f,-1.0f,0.0f,1.0f, // left-down
+	-1.0f,1.0f,0.0f,0.0f,  // left-up
+	1.0f,1.0f,1.0f,0.0f    // right-up
+};
+
 
 rmImageBoard::rmImageBoard(
     std::string _path_Assets_in,
@@ -112,7 +121,14 @@ void rmImageBoard::LoadModel(){
 
 	glGenBuffers(1, &m_shape.vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(window_positions), window_positions, GL_STATIC_DRAW);
+    if (is_dynamically_updated){
+        // Note: the openCV data should be vertically flipped.
+        glBufferData(GL_ARRAY_BUFFER, sizeof(window_positions_v_flipped), window_positions_v_flipped, GL_STATIC_DRAW);
+    }else{
+        glBufferData(GL_ARRAY_BUFFER, sizeof(window_positions), window_positions, GL_STATIC_DRAW);
+    }
+
+
 
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT) * 4, NULL);
@@ -130,7 +146,8 @@ void rmImageBoard::LoadModel(){
         //Load texture data from file
         std::cout << "start loading <" << textName << ">\n";
     	TextureData tdata = Common::Load_png(get_full_Assets_path(textName).c_str());
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, tdata.width, tdata.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata.data);
+        // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, tdata.width, tdata.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata.data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tdata.width, tdata.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata.data);
         im_pixel_width = tdata.width;
         im_pixel_height = tdata.height;
     }
@@ -298,17 +315,100 @@ void rmImageBoard::update_GL_data(){
     glBindVertexArray(m_shape.vao);
     // glBindBuffer(GL_ARRAY_BUFFER, m_shape.vbo); // Start to use the buffer
 
+    // start
+    //-----------------------//
+    TIME_STAMP::Period period_image("image[" + std::to_string(_ROS_topic_id) + "]");
+    //-----------------------//
+
     // Texture
     glBindTexture(GL_TEXTURE_2D, m_shape.m_texture);
-    cv::Mat image_in = *msg_out_ptr;
+
+
+
+
+    cv::Mat image_in = *msg_out_ptr; // No copy
+
+    // 1
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
+
+    // Method 1
+    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, image_in.cols, image_in.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, image_in.data);
+    // Method 2
+    // cv::flip(image_in, flipped_image, 0);
+    resize_if_needed(image_in, texture_image);
+
+    // 2
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
+    // Flip the small size image
+    // cv::flip(texture_image, flipped_image, 0);
+    // Note: We don't need to flip the image anymore, since the texture index had been reordered for vertical-flipping.
+    flipped_image = texture_image;
+
+    // 3
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
+
     //use fast 4-byte alignment (default anyway) if possible
-    glPixelStorei(GL_UNPACK_ALIGNMENT, (image_in.step & 3) ? 1 : 4);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, (flipped_image.step & 3) ? 1 : 4);
     //set length of one complete row in data (doesn't need to equal image.cols)
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, image_in.step/image_in.elemSize());
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, flipped_image.step/flipped_image.elemSize());
     //
-    cv::Mat flipped_image;
-    cv::flip(image_in, flipped_image, 0);
-    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, flipped_image.width, flipped_image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, flipped_image.data);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, flipped_image.cols, flipped_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, flipped_image.data);
+
+    // 4
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
+
+    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, flipped_image.cols, flipped_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, flipped_image.data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, flipped_image.cols, flipped_image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, flipped_image.data);
+
+
+
+    // 5
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+}
+
+void rmImageBoard::resize_if_needed(cv::Mat &image_in, cv::Mat &image_out){
+    // std::cout << "here 1\n";
+    // image_out = image_in;
+    if (is_perspected){
+        float max_size = 1080.0;
+        if (image_in.cols > max_size){
+            cv::resize(image_in, image_out, cv::Size(max_size, max_size/(_IMAGE_ASP_) ), 0, 0, cv::INTER_LINEAR );
+        }else if (image_in.rows > max_size){
+            cv::resize(image_in, image_out, cv::Size(max_size * (_IMAGE_ASP_), max_size), 0, 0, cv::INTER_LINEAR );
+        }else{
+            image_out = image_in;
+        }
+    }else if (is_moveable){
+        float max_size = ( shape.board_width >  shape.board_height)? shape.board_width:shape.board_height;
+        if (image_in.cols > max_size){
+            cv::resize(image_in, image_out, cv::Size(max_size, max_size/(_IMAGE_ASP_) ), 0, 0, cv::INTER_LINEAR );
+        }else if (image_in.rows > max_size){
+            cv::resize(image_in, image_out, cv::Size(max_size * (_IMAGE_ASP_), max_size), 0, 0, cv::INTER_LINEAR );
+        }else{
+            image_out = image_in;
+        }
+    }else{ // background
+        if (image_in.cols > shape._viewport_size.x){
+            cv::resize(image_in, image_out, cv::Size(shape._viewport_size.x, shape._viewport_size.x/(_IMAGE_ASP_) ), 0, 0, cv::INTER_LINEAR );
+        }else if (image_in.rows > shape._viewport_size.y){
+            cv::resize(image_in, image_out, cv::Size(shape._viewport_size.y * (_IMAGE_ASP_), shape._viewport_size.y), 0, 0, cv::INTER_LINEAR );
+        }else{
+            image_out = image_in;
+        }
+    }
     //
+    // std::cout << "here 2\n";
 }

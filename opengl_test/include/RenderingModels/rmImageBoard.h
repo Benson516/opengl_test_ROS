@@ -87,9 +87,15 @@ protected:
     bool is_color_transformed;
     bool is_dynamically_updated;
 
+    //
+    cv::Mat flipped_image;
+    cv::Mat texture_image;
+
 
 
     void update_GL_data();
+
+    void resize_if_needed(cv::Mat &image_in, cv::Mat &image_out);
 
 
 private:

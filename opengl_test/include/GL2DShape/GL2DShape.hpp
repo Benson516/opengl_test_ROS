@@ -44,6 +44,7 @@ public:
     // Set board size
     void setBoardSize(float width_in, float height_in); // 3D space
     void setBoardSize(float size_in, bool is_width); // 3D space / Using the aspect ratio from pixel data
+    void setBoardSizeRatio(float width_ratio_in, float height_ratio_in); // Only use when is_perspected==false is_moveable==true
     void setBoardSizeRatio(float ratio_in, bool is_width); // Only use when is_perspected==false is_moveable==true
     void setBoardSizePixel(int px_width_in, int px_heighth_in);
     void setBoardSizePixel(int pixel_in, bool is_width);
@@ -84,7 +85,8 @@ public:
     float board_width; // meter or pixel
     float board_height; // meter or pixel
     float board_aspect_ratio; // w/h
-    float board_size_ratio; // Only for mode 3 and 4
+    float board_size_ratio_w; // Only for mode 3 or 34
+    float board_size_ratio_h; // Only for mode 4 or 34
     int board_shape_mode;
     glm::ivec2 _viewport_size; // (w,h)
     // Size mode:

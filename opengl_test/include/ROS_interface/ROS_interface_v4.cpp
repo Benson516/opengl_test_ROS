@@ -3,7 +3,7 @@
 // using std::vector;
 // using std::string;
 
-#define MAX_NUM_THREAD_FOR_ROS_CB     20 // 6 // Use 6 threads
+#define MAX_NUM_THREAD_FOR_ROS_CB     8 // 6 // Use 6 threads
 
 // Constructors
 ROS_INTERFACE::ROS_INTERFACE():
@@ -958,20 +958,49 @@ bool ROS_INTERFACE::send_Image(const int topic_id, const cv::Mat &content_in){
 // CompressedImage
 //---------------------------------------------------------------//
 // input
+
 void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
 
-    cv::Mat image;
+
+    // Take the reference to _tmp_in_ptr
+    if ( _cv_Mat_tmp_ptr_list.size() <= _topic_tid_list[params.topic_id] ){
+        _cv_Mat_tmp_ptr_list.resize( _topic_tid_list[params.topic_id]+1 );
+    }
+    std::shared_ptr< cv::Mat > & _tmp_Mat_ptr = _cv_Mat_tmp_ptr_list[ _topic_tid_list[params.topic_id] ]; // tmp Mat
+    // if (!_tmp_Mat_ptr){
+    //     _tmp_Mat_ptr.reset( new cv::Mat );
+    // }
+
+
+    // cv::Mat image;
+    // cv::Mat image_resize;
     try{
-        image = cv::imdecode(cv::Mat(msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
+        // test
+        // TIME_STAMP::Period period_image("image");
+        
+        // image = cv::imdecode( (msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
+        // This caused a seg-fault --> (*_tmp_Mat_ptr) = cv::imdecode( (msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
+        _tmp_Mat_ptr = std::make_shared<cv::Mat>( cv::imdecode( (msg->data), cv::IMREAD_UNCHANGED) ); //convert compressed image data to cv::Mat
+        // cv::resize(
+        //     cv::imdecode((msg->data), cv::IMREAD_UNCHANGED),
+        //     *_tmp_Mat_ptr,
+        //     cv::Size(),
+        //     0.33, 0.33,
+        //     cv::INTER_LINEAR
+        // );
+
+        // period_image.stamp(); period_image.show_msec();
     }
     catch (cv_bridge::Exception& e){
         ROS_ERROR("Could not convert to image!");
     }
 
+
     // put
-    bool result = async_buffer_list[params.topic_id]->put_void( &(image), true, _time_in, false);
+    // bool result = async_buffer_list[params.topic_id]->put_void( &(image), true, _time_in, false);
+    bool result = async_buffer_list[params.topic_id]->put_void( &(_tmp_Mat_ptr), true, _time_in, true);
     //
     if (!result){
         std::cout << params.name << ": buffer full.\n";

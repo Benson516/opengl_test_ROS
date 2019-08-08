@@ -16,7 +16,7 @@ public:
 private:
     inline static bool cal_viewport_w_2(int w, int h, int &cx, int &cy, int &vw, int &vh){
         // Surrounding cameras queued as "side bars"
-        double asp = 1.5833333333;
+        double asp = _IMAGE_ASP_;
         int im_w = h/2;
         int im_h = int(im_w/asp);
         cx = w-im_h;
@@ -53,16 +53,16 @@ SCENE_SW6::SCENE_SW6(std::string pkg_path_in)
     _image_background_2_ptr->color_transform = glm::vec4(1.0f);
     _image_background_2_ptr->Translate(glm::vec3(0.0f, 0.0f, -1.0f)); // Move to background
     _image_background_2_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), -M_PI/2.0); // Rotate
-    _image_background_2_ptr->shape.setBoardSize(2.0f, 2.0f); // Full size
+    _image_background_2_ptr->shape.setBoardSizeRatio(1.0f, 1.0f); // Full size
     _rm_BaseModel.push_back( _image_background_2_ptr );
 
 #if __ROS_INTERFACE_VER__ == 2
     // Bounding box for front-right camera
     _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_right_rear), false, true ) );
-    _box2D_ptr->setup_params(608, 384, 608*0, 0);
+    _box2D_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, _IMAGE_W_*0, 0);
     // _box2D_ptr->alpha = 0.7;
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), -M_PI/2.0); // Rotate
-    _box2D_ptr->shape.setBoardSize(2.0f, 2.0f); // Full size
+    _box2D_ptr->shape.setBoardSizeRatio(1.0f, 1.0f); // Full size
     _rm_BaseModel.push_back( _box2D_ptr );
 #endif  // __ROS_INTERFACE_VER__
 

@@ -25,7 +25,7 @@ public:
 private:
     inline static bool cal_viewport_w(int w, int h, int &cx, int &cy, int &vw, int &vh){
         // Surrounding cameras queue at the button of the screen
-        double asp = 1.5833333333;
+        double asp = _IMAGE_ASP_;
         int im_w = w/7;
         int im_h = int(im_w/asp);
         cx = 0;
@@ -44,7 +44,7 @@ private:
     }
     inline static bool cal_viewport_w_2(int w, int h, int &cx, int &cy, int &vw, int &vh){
         // Surrounding cameras queued as "side bars"
-        double asp = 1.5833333333;
+        double asp = _IMAGE_ASP_;
         int im_w = h/2;
         int im_h = int(im_w/asp);
         cx = im_h;
@@ -109,7 +109,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _rm_BaseModel.push_back( _image_board_ptr );
     // Bounding box for front-center camera
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_all), false, false ) );
-    _box2D_ptr->setup_params(608, 384, 608*1, 0);
+    _box2D_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, _IMAGE_W_*1, 0);
     // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
     */
@@ -249,10 +249,10 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // Bounding box for front-center camera
 #if __ROS_INTERFACE_VER__ == 1
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_all), true, true ) );
-    _box2D_ptr->setup_params(608, 384, 608*1, 0);
+    _box2D_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, _IMAGE_W_*1, 0);
 #elif __ROS_INTERFACE_VER__ == 2
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_center), true, true ) );
-    _box2D_ptr->setup_params(608, 384, 608*0, 0);
+    _box2D_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, _IMAGE_W_*0, 0);
 #endif  // __ROS_INTERFACE_VER__
     _box2D_ptr->Translate(glm::vec3(2.77f, 0.0f, image_pose_z));
     // _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), 0.0); // view angle
@@ -287,10 +287,10 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // Bounding box for front-right camera
 #if __ROS_INTERFACE_VER__ == 1
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_all), true, true ) );
-    _box2D_ptr->setup_params(608, 384, 608*2, 0);
+    _box2D_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, _IMAGE_W_*2, 0);
 #elif __ROS_INTERFACE_VER__ == 2
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_right), true, true ) );
-    _box2D_ptr->setup_params(608, 384, 608*0, 0);
+    _box2D_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, _IMAGE_W_*0, 0);
 #endif  // __ROS_INTERFACE_VER__
     _box2D_ptr->Translate(glm::vec3(0.0f, -10.33f, image_pose_z));
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), -M_PI/6.0); // view angle
@@ -325,10 +325,10 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // Bounding box for front-left camera
 #if __ROS_INTERFACE_VER__ == 1
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_all), true, true ) );
-    _box2D_ptr->setup_params(608, 384, 608*0, 0);
+    _box2D_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, _IMAGE_W_*0, 0);
 #elif __ROS_INTERFACE_VER__ == 2
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_left), true, true ) );
-    _box2D_ptr->setup_params(608, 384, 608*0, 0);
+    _box2D_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, _IMAGE_W_*0, 0);
 #endif  // __ROS_INTERFACE_VER__
     _box2D_ptr->Translate(glm::vec3(0.0f, 10.33f, image_pose_z));
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI/6.0); // view angle
@@ -363,7 +363,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
 
     // Bounding box for front-top camera
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_top), true, true ) );
-    _box2D_ptr->setup_params(608, 384, 608*0, 0);
+    _box2D_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, _IMAGE_W_*0, 0);
     _box2D_ptr->Translate(glm::vec3(0.0f, 0.0f, image_pose_z + 5.0f));
     _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), -60.0*M_PI/180.0); // view angle
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
@@ -396,7 +396,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
 
     // Bounding box for front-top camera
     _box2D_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_top), true, true ) );
-    _box2D_ptr->setup_params(608, 384, 608*0, 0);
+    _box2D_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, _IMAGE_W_*0, 0);
     _box2D_ptr->Translate(glm::vec3(0.0f, 0.0f, -1.0f));
     _box2D_ptr->Rotate(glm::vec3(0.0f,1.0f,0.0f), 75.0*M_PI/180.0); // view angle
     _box2D_ptr->Rotate(glm::vec3(0.0f,0.0f,1.0f), M_PI); // Flip
@@ -474,7 +474,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     */
 
 
-    /*
+
     // Top-level top-centered back image (dynamic) <-- "Rear-sight mirror"
     _image_board_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_rear_center), false, true, true) );
     _image_board_ptr->alpha = 0.9;
@@ -485,7 +485,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _image_board_ptr->shape.setBoardSizePixel(150, false);
     _image_board_ptr->shape.setBoardPositionCVPixel(-300, 0, 1, ALIGN_X::RIGHT, ALIGN_Y::TOP );
     _rm_BaseModel.push_back( _image_board_ptr );
-    */
+
 
 
     // rmlv2SpeedMeter
