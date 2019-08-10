@@ -294,6 +294,35 @@ void ROS_INTERFACE::_ROS_worker(){
             _image_publisher_list.push_back( _ros_it.advertise( _tmp_params.name, _tmp_params.ROS_queue) );
         }
     }
+
+    // CompressedImageROSIT
+    _msg_type = int(MSG::M_TYPE::CompressedImageROSIT);
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        {
+            std::shared_ptr< async_buffer<cv::Mat> > _tmpcv_buff_ptr( new async_buffer<cv::Mat>(_tmp_params.buffer_length) );
+            _tmpcv_buff_ptr->assign_copy_func(&_cv_Mat_copy_func);
+            async_buffer_list[_tmp_params.topic_id] = _tmpcv_buff_ptr;
+        }
+        //
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _image_subscriber_list.push_back(
+                _ros_it.subscribe( _tmp_params.name, _tmp_params.ROS_queue,
+                    boost::bind(&ROS_INTERFACE::_CompressedImage_CB, this, _1, _tmp_params),
+                    ros::VoidPtr(), image_transport::TransportHints("compressed")
+                )
+            );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _image_publisher_list.push_back( _ros_it.advertise( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
+
     // CompressedImageJpegOnly
     _msg_type = int(MSG::M_TYPE::CompressedImageJpegOnly);
     // Resize the input tmp buffer
@@ -970,6 +999,35 @@ bool ROS_INTERFACE::send_Image(const int topic_id, const cv::Mat &content_in){
     //
 }
 //---------------------------------------------------------------//
+
+
+// CompressedImageROSIT
+//---------------------------------------------------------------//
+// input
+void ROS_INTERFACE::_CompressedImageROSIT_CB(const sensor_msgs::ImageConstPtr& msg, const MSG::T_PARAMS & params){
+    // Time
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
+
+    // Get the (raw) image
+    cv_bridge::CvImagePtr cv_ptr;
+    try{
+      cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::BGR8);
+      // std::cout << "image: (rows, cols) = (" << cv_ptr->image.rows << ", " << cv_ptr->image.cols << ")\n";
+    }
+    catch (cv_bridge::Exception& e){
+      ROS_ERROR("cv_bridge exception: %s", e.what());
+      return;
+    }
+
+    // put
+    bool result = async_buffer_list[params.topic_id]->put_void( &(cv_ptr->image), true, _time_in, false);
+    //
+    if (!result){
+        std::cout << params.name << ": buffer full.\n";
+    }
+}
+//---------------------------------------------------------------//
+
 
 // CompressedImageJpegOnly
 //---------------------------------------------------------------//
