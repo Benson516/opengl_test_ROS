@@ -154,11 +154,12 @@ namespace MSG{
             to_frame(to_frame_in)
         {}
         //
-        std::string clearTopicName(std::string& name_in){
+        std::string clearTopicName(std::string name_in){
             std::string unwantedChar (" \t\f\v\n\r/");
             std::size_t found = name_in.find_last_not_of(unwantedChar);
             if (found!=std::string::npos)
                 name_in.erase(found+1);
+            return name_in;
         }
     };
 }// end of the namespace MSG
@@ -414,7 +415,7 @@ private:
     void _CompressedImageROSIT_CB(const sensor_msgs::ImageConstPtr& msg, const MSG::T_PARAMS & params);
     // CompressedImageJpegOnly
     void _CompressedImageJpegOnly_CB(const sensor_msgs::CompressedImageConstPtr& msg, const MSG::T_PARAMS & params);
-    std::string _addCompressedToTopicName(std::string& name_in);
+    std::string _addCompressedToTopicName(std::string name_in);
     std::vector< std::shared_ptr<cv::Mat> > _cv_Mat_tmp_ptr_list;
     // PointCloud2
     // void _PointCloud2_CB(const sensor_msgs::PointCloud2::ConstPtr& msg, const MSG::T_PARAMS & params);

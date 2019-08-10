@@ -1074,7 +1074,7 @@ void ROS_INTERFACE::_CompressedImageJpegOnly_CB(const sensor_msgs::CompressedIma
         std::cout << params.name << ": buffer full.\n";
     }
 }
-std::string ROS_INTERFACE::_addCompressedToTopicName(std::string& name_in){
+std::string ROS_INTERFACE::_addCompressedToTopicName(std::string name_in){
     std::string key ("compressed");
     std::size_t found = name_in.rfind(key);
     // Note: we assume that the end of topic name does not contain white-space trail.
