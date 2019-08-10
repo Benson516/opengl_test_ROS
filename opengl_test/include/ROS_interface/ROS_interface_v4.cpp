@@ -312,7 +312,7 @@ void ROS_INTERFACE::_ROS_worker(){
             _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
             _image_subscriber_list.push_back(
                 _ros_it.subscribe( _tmp_params.name, _tmp_params.ROS_queue,
-                    boost::bind(&ROS_INTERFACE::_CompressedImage_CB, this, _1, _tmp_params),
+                    boost::bind(&ROS_INTERFACE::_CompressedImageROSIT_CB, this, _1, _tmp_params),
                     ros::VoidPtr(), image_transport::TransportHints("compressed")
                 )
             );
