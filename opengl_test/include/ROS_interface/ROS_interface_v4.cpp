@@ -294,8 +294,8 @@ void ROS_INTERFACE::_ROS_worker(){
             _image_publisher_list.push_back( _ros_it.advertise( _tmp_params.name, _tmp_params.ROS_queue) );
         }
     }
-    // CompressedImage
-    _msg_type = int(MSG::M_TYPE::CompressedImage);
+    // CompressedImageJpegOnly
+    _msg_type = int(MSG::M_TYPE::CompressedImageJpegOnly);
     // Resize the input tmp buffer
     _cv_Mat_tmp_ptr_list.resize(_msg_type_2_topic_params[_msg_type].size());
     //
@@ -312,7 +312,7 @@ void ROS_INTERFACE::_ROS_worker(){
         if (_tmp_params.is_input){
             // Subscribe
             _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
-            _subscriber_list.push_back( _nh.subscribe< sensor_msgs::CompressedImage >( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_CompressedImage_CB, this, _1, _tmp_params)  ) );
+            _subscriber_list.push_back( _nh.subscribe< sensor_msgs::CompressedImage >( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_CompressedImageJpegOnly_CB, this, _1, _tmp_params)  ) );
         }else{
             // Publish
             _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
@@ -971,11 +971,11 @@ bool ROS_INTERFACE::send_Image(const int topic_id, const cv::Mat &content_in){
 }
 //---------------------------------------------------------------//
 
-// CompressedImage
+// CompressedImageJpegOnly
 //---------------------------------------------------------------//
 // input
 
-void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstPtr& msg, const MSG::T_PARAMS & params){
+void ROS_INTERFACE::_CompressedImageJpegOnly_CB(const sensor_msgs::CompressedImageConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
 

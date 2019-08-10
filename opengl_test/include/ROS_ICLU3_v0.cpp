@@ -170,15 +170,15 @@ bool ROS_API::_set_up_topics(){
         ros_interface.add_a_topic( int(MSG_ID::flag_info_2), "Flag_Info02", int(M_TYPE::ITRIFlagInfo), true, 100, 100, "base");
         ros_interface.add_a_topic( int(MSG_ID::flag_info_3), "Flag_Info03", int(M_TYPE::ITRIFlagInfo), true, 100, 100, "base");
         // Image
-        ros_interface.add_a_topic( int(MSG_ID::camera_front_right), "gmsl_camera/port_a/cam_0/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
-        ros_interface.add_a_topic( int(MSG_ID::camera_front_center), "gmsl_camera/port_a/cam_1/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
-        ros_interface.add_a_topic( int(MSG_ID::camera_front_left), "gmsl_camera/port_a/cam_2/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
-        ros_interface.add_a_topic( int(MSG_ID::camera_front_top), "gmsl_camera/port_b/cam_0/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
-        ros_interface.add_a_topic( int(MSG_ID::camera_right_fore), "gmsl_camera/port_c/cam_0/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
-        ros_interface.add_a_topic( int(MSG_ID::camera_right_rear), "gmsl_camera/port_c/cam_1/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
-        ros_interface.add_a_topic( int(MSG_ID::camera_left_fore), "gmsl_camera/port_b/cam_1/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
-        ros_interface.add_a_topic( int(MSG_ID::camera_left_rear), "gmsl_camera/port_b/cam_2/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
-        ros_interface.add_a_topic( int(MSG_ID::camera_rear_center), "gmsl_camera/port_c/cam_2/image_raw/compressed", int(M_TYPE::CompressedImage), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_front_right), "gmsl_camera/port_a/cam_0/image_raw/compressed", int(M_TYPE::CompressedImageJpegOnly), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_front_center), "gmsl_camera/port_a/cam_1/image_raw/compressed", int(M_TYPE::CompressedImageJpegOnly), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_front_left), "gmsl_camera/port_a/cam_2/image_raw/compressed", int(M_TYPE::CompressedImageJpegOnly), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_front_top), "gmsl_camera/port_b/cam_0/image_raw/compressed", int(M_TYPE::CompressedImageJpegOnly), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_right_fore), "gmsl_camera/port_c/cam_0/image_raw/compressed", int(M_TYPE::CompressedImageJpegOnly), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_right_rear), "gmsl_camera/port_c/cam_1/image_raw/compressed", int(M_TYPE::CompressedImageJpegOnly), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_left_fore), "gmsl_camera/port_b/cam_1/image_raw/compressed", int(M_TYPE::CompressedImageJpegOnly), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_left_rear), "gmsl_camera/port_b/cam_2/image_raw/compressed", int(M_TYPE::CompressedImageJpegOnly), true, 2, 20, "base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_rear_center), "gmsl_camera/port_c/cam_2/image_raw/compressed", int(M_TYPE::CompressedImageJpegOnly), true, 2, 20, "base");
         // 2D bounding box
         ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_front_right), "CamObjFrontRight", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "base");
         ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_front_center), "CamObjFrontCenter", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "base");
