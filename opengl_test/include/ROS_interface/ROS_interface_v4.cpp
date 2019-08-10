@@ -1009,7 +1009,8 @@ void ROS_INTERFACE::_CompressedImageROSIT_CB(const sensor_msgs::ImageConstPtr& m
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
 
     // Get the (raw) image
-    cv_bridge::CvImagePtr cv_ptr;
+    // cv_bridge::CvImagePtr cv_ptr;
+    cv_bridge::CvImageConstPtr cv_ptr;
     try{
       cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::BGR8);
       // std::cout << "image: (rows, cols) = (" << cv_ptr->image.rows << ", " << cv_ptr->image.cols << ")\n";
