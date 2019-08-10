@@ -296,6 +296,9 @@ void ROS_INTERFACE::_ROS_worker(){
     }
     // CompressedImage
     _msg_type = int(MSG::M_TYPE::CompressedImage);
+    // Resize the input tmp buffer
+    _cv_Mat_tmp_ptr_list.resize(_msg_type_2_topic_params[_msg_type].size());
+    //
     for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
         MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
         // SPSC Buffer
@@ -319,6 +322,9 @@ void ROS_INTERFACE::_ROS_worker(){
 
     // PointCloud2
     _msg_type = int(MSG::M_TYPE::PointCloud2);
+    // Resize the input tmp buffer
+    _PointCloud2_tmp_ptr_list.resize(_msg_type_2_topic_params[_msg_type].size());
+    //
     for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
         MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
         // SPSC Buffer
@@ -338,6 +344,9 @@ void ROS_INTERFACE::_ROS_worker(){
 
     // ITRIPointCloud
     _msg_type = int(MSG::M_TYPE::ITRIPointCloud);
+    // Resize the input tmp buffer
+    _ITRIPointCloud_tmp_ptr_list.resize(_msg_type_2_topic_params[_msg_type].size());
+    //
     for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
         MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
         // SPSC Buffer
@@ -965,9 +974,6 @@ void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstP
 
 
     // Take the reference to _tmp_in_ptr
-    if ( _cv_Mat_tmp_ptr_list.size() <= _topic_tid_list[params.topic_id] ){
-        _cv_Mat_tmp_ptr_list.resize( _topic_tid_list[params.topic_id]+1 );
-    }
     std::shared_ptr< cv::Mat > & _tmp_Mat_ptr = _cv_Mat_tmp_ptr_list[ _topic_tid_list[params.topic_id] ]; // tmp Mat
     // if (!_tmp_Mat_ptr){
     //     _tmp_Mat_ptr.reset( new cv::Mat );
@@ -979,7 +985,7 @@ void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstP
     try{
         // test
         // TIME_STAMP::Period period_image("image");
-        
+
         // image = cv::imdecode( (msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
         // This caused a seg-fault --> (*_tmp_Mat_ptr) = cv::imdecode( (msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
         _tmp_Mat_ptr = std::make_shared<cv::Mat>( cv::imdecode( (msg->data), cv::IMREAD_UNCHANGED) ); //convert compressed image data to cv::Mat
@@ -1016,9 +1022,6 @@ void ROS_INTERFACE::_PointCloud2_CB(const pcl::PCLPointCloud2ConstPtr& msg, cons
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
 
     // Take the reference to _tmp_in_ptr
-    if ( _PointCloud2_tmp_ptr_list.size() <= _topic_tid_list[params.topic_id] ){
-        _PointCloud2_tmp_ptr_list.resize( _topic_tid_list[params.topic_id]+1 );
-    }
     std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & _tmp_cloud_ptr = _PointCloud2_tmp_ptr_list[ _topic_tid_list[params.topic_id] ]; // tmp cloud
     if (!_tmp_cloud_ptr){
         _tmp_cloud_ptr.reset(new pcl::PointCloud<pcl::PointXYZI>);
@@ -1066,9 +1069,6 @@ void ROS_INTERFACE::_ITRIPointCloud_CB(const msgs::PointCloud::ConstPtr& msg, co
     // Note 1: this have been moved to be a member of the class, so that it won't keep constructing and destructing.
     // Note 2: the pointer is changed to std::shared_ptr instead of the original boost pointer
     // Take the reference to _tmp_in_ptr
-    if ( _ITRIPointCloud_tmp_ptr_list.size() <= _topic_tid_list[params.topic_id] ){
-        _ITRIPointCloud_tmp_ptr_list.resize( _topic_tid_list[params.topic_id]+1 );
-    }
     std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & _tmp_cloud_ptr = _ITRIPointCloud_tmp_ptr_list[ _topic_tid_list[params.topic_id] ]; // tmp cloud
     if (!_tmp_cloud_ptr){
         _tmp_cloud_ptr.reset(new pcl::PointCloud<pcl::PointXYZI>);
