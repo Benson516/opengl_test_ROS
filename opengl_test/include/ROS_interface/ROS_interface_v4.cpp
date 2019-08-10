@@ -341,11 +341,11 @@ void ROS_INTERFACE::_ROS_worker(){
         if (_tmp_params.is_input){
             // Subscribe
             _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
-            _subscriber_list.push_back( _nh.subscribe< sensor_msgs::CompressedImage >( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_CompressedImageJpegOnly_CB, this, _1, _tmp_params)  ) );
+            _subscriber_list.push_back( _nh.subscribe< sensor_msgs::CompressedImage >( _addCompressedToTopicName(_tmp_params.name), _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_CompressedImageJpegOnly_CB, this, _1, _tmp_params)  ) );
         }else{
             // Publish
             _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
-            _publisher_list.push_back( _nh.advertise< sensor_msgs::CompressedImage >( _tmp_params.name, _tmp_params.ROS_queue) );
+            _publisher_list.push_back( _nh.advertise< sensor_msgs::CompressedImage >( _addCompressedToTopicName(_tmp_params.name), _tmp_params.ROS_queue) );
         }
     }
 
@@ -1033,18 +1033,15 @@ void ROS_INTERFACE::_CompressedImageROSIT_CB(const sensor_msgs::ImageConstPtr& m
 // CompressedImageJpegOnly
 //---------------------------------------------------------------//
 // input
-
 void ROS_INTERFACE::_CompressedImageJpegOnly_CB(const sensor_msgs::CompressedImageConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
-
 
     // Take the reference to _tmp_in_ptr
     std::shared_ptr< cv::Mat > & _tmp_Mat_ptr = _cv_Mat_tmp_ptr_list[ _topic_tid_list[params.topic_id] ]; // tmp Mat
     // if (!_tmp_Mat_ptr){
     //     _tmp_Mat_ptr.reset( new cv::Mat );
     // }
-
 
     // cv::Mat image;
     // cv::Mat image_resize;
@@ -1069,7 +1066,6 @@ void ROS_INTERFACE::_CompressedImageJpegOnly_CB(const sensor_msgs::CompressedIma
         ROS_ERROR("Could not convert to image!");
     }
 
-
     // put
     // bool result = async_buffer_list[params.topic_id]->put_void( &(image), true, _time_in, false);
     bool result = async_buffer_list[params.topic_id]->put_void( &(_tmp_Mat_ptr), true, _time_in, true);
@@ -1077,6 +1073,21 @@ void ROS_INTERFACE::_CompressedImageJpegOnly_CB(const sensor_msgs::CompressedIma
     if (!result){
         std::cout << params.name << ": buffer full.\n";
     }
+}
+std::string ROS_INTERFACE::_addCompressedToTopicName(std::string& name_in){
+    std::string key ("compressed");
+    std::size_t found = name_in.rfind(key);
+    // Note: we assume that the end of topic name does not contain white-space trail.
+    if (found == std::string::npos || found != (name_in.size() - key.size()) ){
+        // No "compressed" in topic name
+        if ( name_in.back() != '/' )
+            name_in += "/";
+        name_in += "compressed";
+        // test
+        std::cout << "Fixed topic name: [" << name_in << "]\n";
+    }
+    return name_in;
+    //
 }
 //---------------------------------------------------------------//
 
