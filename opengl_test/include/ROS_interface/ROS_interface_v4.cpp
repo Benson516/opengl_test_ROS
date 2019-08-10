@@ -957,10 +957,17 @@ bool ROS_INTERFACE::send_Image(const int topic_id, const cv::Mat &content_in){
     //------------------------------------//
     int _ps_id = _pub_subs_id_list[topic_id];
     //------------------------------------//
+    /*
     // Content of the message
     cv_bridge::CvImagePtr cv_ptr;
     _cv_Mat_copy_func(cv_ptr->image, content_in);
     _image_publisher_list[ _ps_id ].publish(cv_ptr->toImageMsg());
+    */
+
+    // Content of the message
+    sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", content_in).toImageMsg();
+    _image_publisher_list[ _ps_id ].publish(msg);
+    //
 }
 //---------------------------------------------------------------//
 
