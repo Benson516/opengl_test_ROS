@@ -1084,7 +1084,7 @@ std::string ROS_INTERFACE::_addCompressedToTopicName(std::string name_in){
             name_in += "/";
         name_in += "compressed";
         // test
-        std::cout << "Fixed topic name: [" << name_in << "]\n";
+        std::cout << "Fixed topic name (+compressed): [" << name_in << "]\n";
     }
     return name_in;
     //

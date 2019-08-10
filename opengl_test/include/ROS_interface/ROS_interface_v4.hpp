@@ -157,8 +157,12 @@ namespace MSG{
         std::string clearTopicName(std::string name_in){
             std::string unwantedChar (" \t\f\v\n\r/");
             std::size_t found = name_in.find_last_not_of(unwantedChar);
-            if (found!=std::string::npos)
-                name_in.erase(found+1);
+            if (found!=std::string::npos){
+                if (found != (name_in.size()-1)){
+                    name_in.erase(found+1);
+                    std::cout << "Fixed topic name: [" << name_in << "]\n";
+                }// else, the string doesn't need to be fixed
+            }// else, the topic is empty, do nothing
             return name_in;
         }
     };
