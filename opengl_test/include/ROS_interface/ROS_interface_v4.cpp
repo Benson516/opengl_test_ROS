@@ -294,8 +294,9 @@ void ROS_INTERFACE::_ROS_worker(){
             _image_publisher_list.push_back( _ros_it.advertise( _tmp_params.name, _tmp_params.ROS_queue) );
         }
     }
-    // CompressedImage
-    _msg_type = int(MSG::M_TYPE::CompressedImage);
+
+    // CompressedImageROSIT
+    _msg_type = int(MSG::M_TYPE::CompressedImageROSIT);
     for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
         MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
         // SPSC Buffer
@@ -309,16 +310,50 @@ void ROS_INTERFACE::_ROS_worker(){
         if (_tmp_params.is_input){
             // Subscribe
             _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
-            _subscriber_list.push_back( _nh.subscribe< sensor_msgs::CompressedImage >( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_CompressedImage_CB, this, _1, _tmp_params)  ) );
+            _image_subscriber_list.push_back(
+                _ros_it.subscribe( _tmp_params.name, _tmp_params.ROS_queue,
+                    boost::bind(&ROS_INTERFACE::_CompressedImageROSIT_CB, this, _1, _tmp_params),
+                    ros::VoidPtr(), image_transport::TransportHints("compressed")
+                )
+            );
         }else{
             // Publish
             _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
-            _publisher_list.push_back( _nh.advertise< sensor_msgs::CompressedImage >( _tmp_params.name, _tmp_params.ROS_queue) );
+            _image_publisher_list.push_back( _ros_it.advertise( _tmp_params.name, _tmp_params.ROS_queue) );
+        }
+    }
+
+    // CompressedImageJpegOnly
+    _msg_type = int(MSG::M_TYPE::CompressedImageJpegOnly);
+    // Resize the input tmp buffer
+    _cv_Mat_tmp_ptr_list.resize(_msg_type_2_topic_params[_msg_type].size());
+    //
+    for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
+        MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
+        // SPSC Buffer
+        {
+            std::shared_ptr< async_buffer<cv::Mat> > _tmpcv_buff_ptr( new async_buffer<cv::Mat>(_tmp_params.buffer_length) );
+            _tmpcv_buff_ptr->assign_copy_func(&_cv_Mat_copy_func);
+            async_buffer_list[_tmp_params.topic_id] = _tmpcv_buff_ptr;
+        }
+        //
+        // subs_id, pub_id
+        if (_tmp_params.is_input){
+            // Subscribe
+            _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
+            _subscriber_list.push_back( _nh.subscribe< sensor_msgs::CompressedImage >( _addCompressedToTopicName(_tmp_params.name), _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_CompressedImageJpegOnly_CB, this, _1, _tmp_params)  ) );
+        }else{
+            // Publish
+            _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
+            _publisher_list.push_back( _nh.advertise< sensor_msgs::CompressedImage >( _addCompressedToTopicName(_tmp_params.name), _tmp_params.ROS_queue) );
         }
     }
 
     // PointCloud2
     _msg_type = int(MSG::M_TYPE::PointCloud2);
+    // Resize the input tmp buffer
+    _PointCloud2_tmp_ptr_list.resize(_msg_type_2_topic_params[_msg_type].size());
+    //
     for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
         MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
         // SPSC Buffer
@@ -338,6 +373,9 @@ void ROS_INTERFACE::_ROS_worker(){
 
     // ITRIPointCloud
     _msg_type = int(MSG::M_TYPE::ITRIPointCloud);
+    // Resize the input tmp buffer
+    _ITRIPointCloud_tmp_ptr_list.resize(_msg_type_2_topic_params[_msg_type].size());
+    //
     for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
         MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
         // SPSC Buffer
@@ -948,38 +986,69 @@ bool ROS_INTERFACE::send_Image(const int topic_id, const cv::Mat &content_in){
     //------------------------------------//
     int _ps_id = _pub_subs_id_list[topic_id];
     //------------------------------------//
+    /*
     // Content of the message
     cv_bridge::CvImagePtr cv_ptr;
     _cv_Mat_copy_func(cv_ptr->image, content_in);
     _image_publisher_list[ _ps_id ].publish(cv_ptr->toImageMsg());
+    */
+
+    // Content of the message
+    sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", content_in).toImageMsg();
+    _image_publisher_list[ _ps_id ].publish(msg);
+    //
 }
 //---------------------------------------------------------------//
 
-// CompressedImage
+
+// CompressedImageROSIT
 //---------------------------------------------------------------//
 // input
-
-void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstPtr& msg, const MSG::T_PARAMS & params){
+void ROS_INTERFACE::_CompressedImageROSIT_CB(const sensor_msgs::ImageConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
 
+    // Get the (raw) image
+    // cv_bridge::CvImagePtr cv_ptr;
+    cv_bridge::CvImageConstPtr cv_ptr;
+    try{
+      cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::BGR8);
+      // std::cout << "image: (rows, cols) = (" << cv_ptr->image.rows << ", " << cv_ptr->image.cols << ")\n";
+    }
+    catch (cv_bridge::Exception& e){
+      ROS_ERROR("cv_bridge exception: %s", e.what());
+      return;
+    }
+
+    // put
+    bool result = async_buffer_list[params.topic_id]->put_void( &(cv_ptr->image), true, _time_in, false);
+    //
+    if (!result){
+        std::cout << params.name << ": buffer full.\n";
+    }
+}
+//---------------------------------------------------------------//
+
+
+// CompressedImageJpegOnly
+//---------------------------------------------------------------//
+// input
+void ROS_INTERFACE::_CompressedImageJpegOnly_CB(const sensor_msgs::CompressedImageConstPtr& msg, const MSG::T_PARAMS & params){
+    // Time
+    TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
 
     // Take the reference to _tmp_in_ptr
-    if ( _cv_Mat_tmp_ptr_list.size() <= _topic_tid_list[params.topic_id] ){
-        _cv_Mat_tmp_ptr_list.resize( _topic_tid_list[params.topic_id]+1 );
-    }
     std::shared_ptr< cv::Mat > & _tmp_Mat_ptr = _cv_Mat_tmp_ptr_list[ _topic_tid_list[params.topic_id] ]; // tmp Mat
     // if (!_tmp_Mat_ptr){
     //     _tmp_Mat_ptr.reset( new cv::Mat );
     // }
-
 
     // cv::Mat image;
     // cv::Mat image_resize;
     try{
         // test
         // TIME_STAMP::Period period_image("image");
-        
+
         // image = cv::imdecode( (msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
         // This caused a seg-fault --> (*_tmp_Mat_ptr) = cv::imdecode( (msg->data), cv::IMREAD_UNCHANGED); //convert compressed image data to cv::Mat
         _tmp_Mat_ptr = std::make_shared<cv::Mat>( cv::imdecode( (msg->data), cv::IMREAD_UNCHANGED) ); //convert compressed image data to cv::Mat
@@ -997,7 +1066,6 @@ void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstP
         ROS_ERROR("Could not convert to image!");
     }
 
-
     // put
     // bool result = async_buffer_list[params.topic_id]->put_void( &(image), true, _time_in, false);
     bool result = async_buffer_list[params.topic_id]->put_void( &(_tmp_Mat_ptr), true, _time_in, true);
@@ -1005,6 +1073,21 @@ void ROS_INTERFACE::_CompressedImage_CB(const sensor_msgs::CompressedImageConstP
     if (!result){
         std::cout << params.name << ": buffer full.\n";
     }
+}
+std::string ROS_INTERFACE::_addCompressedToTopicName(std::string name_in){
+    std::string key ("compressed");
+    std::size_t found = name_in.rfind(key);
+    // Note: we assume that the end of topic name does not contain white-space trail.
+    if (found == std::string::npos || found != (name_in.size() - key.size()) ){
+        // No "compressed" in topic name
+        if ( name_in.back() != '/' )
+            name_in += "/";
+        name_in += "compressed";
+        // test
+        std::cout << "Fixed topic name (+compressed): [" << name_in << "]\n";
+    }
+    return name_in;
+    //
 }
 //---------------------------------------------------------------//
 
@@ -1016,9 +1099,6 @@ void ROS_INTERFACE::_PointCloud2_CB(const pcl::PCLPointCloud2ConstPtr& msg, cons
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
 
     // Take the reference to _tmp_in_ptr
-    if ( _PointCloud2_tmp_ptr_list.size() <= _topic_tid_list[params.topic_id] ){
-        _PointCloud2_tmp_ptr_list.resize( _topic_tid_list[params.topic_id]+1 );
-    }
     std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & _tmp_cloud_ptr = _PointCloud2_tmp_ptr_list[ _topic_tid_list[params.topic_id] ]; // tmp cloud
     if (!_tmp_cloud_ptr){
         _tmp_cloud_ptr.reset(new pcl::PointCloud<pcl::PointXYZI>);
@@ -1066,9 +1146,6 @@ void ROS_INTERFACE::_ITRIPointCloud_CB(const msgs::PointCloud::ConstPtr& msg, co
     // Note 1: this have been moved to be a member of the class, so that it won't keep constructing and destructing.
     // Note 2: the pointer is changed to std::shared_ptr instead of the original boost pointer
     // Take the reference to _tmp_in_ptr
-    if ( _ITRIPointCloud_tmp_ptr_list.size() <= _topic_tid_list[params.topic_id] ){
-        _ITRIPointCloud_tmp_ptr_list.resize( _topic_tid_list[params.topic_id]+1 );
-    }
     std::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > & _tmp_cloud_ptr = _ITRIPointCloud_tmp_ptr_list[ _topic_tid_list[params.topic_id] ]; // tmp cloud
     if (!_tmp_cloud_ptr){
         _tmp_cloud_ptr.reset(new pcl::PointCloud<pcl::PointXYZI>);
