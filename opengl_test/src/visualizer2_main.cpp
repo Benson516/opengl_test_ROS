@@ -171,7 +171,7 @@ void TW_CALL ResetViewCB(void * clientData)
     for (size_t i=0; i < all_scenes.size(); ++i){
         all_scenes[i]->KeyBoardEvent('z', ros_api);
     }
-	glutPostRedisplay();
+
 }
 
 void setupGUI()
@@ -273,73 +273,12 @@ void My_Init()
 TIME_STAMP::Period period_frame_pre("pre frame");
 TIME_STAMP::Period period_frame_post("post frame");
 TIME_STAMP::FPS    fps_display("fps_display");
-void My_Display()
-{
-    // // test, move the bar from AntTweakBar
-    // static int _count_1 = 0;
-    // TwDefine( (" Status position='" + std::to_string(_count_1) + " 0' ").c_str());
-    // _count_1++;
-
-    // // Move the bar for different layout
-    // //-------------------------------------------------//
-    // if ( all_scenes[0]->get_layout_mode() != m_layoutMode_old){
-    //     if ( all_scenes[0]->get_layout_mode() == 2 ){
-    //         TwDefine(" Status position='100 0' ");
-    //     }else{
-    //         TwDefine(" Status position='0 0' ");
-    //     }
-    //     m_layoutMode_old = all_scenes[0]->get_layout_mode();
-    // }
-    // //-------------------------------------------------//
 
 
 
-    // std::cout << "Entering My_Display()\n";
-    // FPS of the display
-    fps_display.stamp();
-    // m_fps_d = fps_display.fps;
-    m_fps_d_str = all_header::to_string_p(fps_display.fps, 1);
-    // FPS for topics
-    // for (size_t i=0; i < m_fps_topic.size(); ++i){
-    //     m_fps_topic[i] = ros_api.fps_list[i].fps;
-    // }
-    for (size_t i=0; i < m_fps_topic_str.size(); ++i){
-        m_fps_topic_str[i] = all_header::to_string_p(ros_api.fps_list[i].fps, 1);
-    }
-
-    // m_currentTime = glutGet(GLUT_ELAPSED_TIME);
-	// if (m_currentTime - m_timebase > 1000)
-	// {
-	// 	m_fps_d = (m_frames * 1000) / (m_currentTime - m_timebase);
-	// 	m_frames = 0;
-	// 	m_timebase = m_currentTime;
-    //     // std::cout << "m_fps_d = " << m_fps_d << "\n";
-	// }
-	// m_frames++;
-
-    // Camera mode
-    if (m_currentView != m_currentView_old){
-        for (size_t i=0; i < all_scenes.size(); ++i){
-            // all_scenes[i]->KeyBoardEvent('c', ros_api);
-            all_scenes[i]->switchCameraViewMode( m_currentView, ros_api);
-        }
-        m_currentView = all_scenes[0]->get_camera_view_mode();
-        m_currentView_old = m_currentView;
-    }else{
-        m_currentView = all_scenes[0]->get_camera_view_mode();
-    }
-    TwRefreshBar(bar_1_ptr);
-
-
-    // evaluation
-    TIME_STAMP::Period period_in("part");
-    TIME_STAMP::Period period_all_func("full display");
-    //
-    // period_frame_pre.stamp();   period_frame_pre.show_msec();   period_frame_pre.show_jitter_usec();
-    //
-    // Evaluation
-    //=============================================================//
-
+// ROS update
+//------------------------------------------//
+void ROS_update(){
 
     // ROS_interface
     //---------------------------------//
@@ -467,6 +406,81 @@ void My_Display()
     }
 #endif
 
+}
+//------------------------------------------//
+// end ROS update
+
+
+
+void My_Display()
+{
+    // // test, move the bar from AntTweakBar
+    // static int _count_1 = 0;
+    // TwDefine( (" Status position='" + std::to_string(_count_1) + " 0' ").c_str());
+    // _count_1++;
+
+    // // Move the bar for different layout
+    // //-------------------------------------------------//
+    // if ( all_scenes[0]->get_layout_mode() != m_layoutMode_old){
+    //     if ( all_scenes[0]->get_layout_mode() == 2 ){
+    //         TwDefine(" Status position='100 0' ");
+    //     }else{
+    //         TwDefine(" Status position='0 0' ");
+    //     }
+    //     m_layoutMode_old = all_scenes[0]->get_layout_mode();
+    // }
+    // //-------------------------------------------------//
+
+
+
+    // std::cout << "Entering My_Display()\n";
+    // FPS of the display
+    fps_display.stamp();
+    // m_fps_d = fps_display.fps;
+    m_fps_d_str = all_header::to_string_p(fps_display.fps, 1);
+    // FPS for topics
+    // for (size_t i=0; i < m_fps_topic.size(); ++i){
+    //     m_fps_topic[i] = ros_api.fps_list[i].fps;
+    // }
+    for (size_t i=0; i < m_fps_topic_str.size(); ++i){
+        m_fps_topic_str[i] = all_header::to_string_p(ros_api.fps_list[i].fps, 1);
+    }
+
+    // m_currentTime = glutGet(GLUT_ELAPSED_TIME);
+	// if (m_currentTime - m_timebase > 1000)
+	// {
+	// 	m_fps_d = (m_frames * 1000) / (m_currentTime - m_timebase);
+	// 	m_frames = 0;
+	// 	m_timebase = m_currentTime;
+    //     // std::cout << "m_fps_d = " << m_fps_d << "\n";
+	// }
+	// m_frames++;
+
+    // Camera mode
+    if (m_currentView != m_currentView_old){
+        for (size_t i=0; i < all_scenes.size(); ++i){
+            // all_scenes[i]->KeyBoardEvent('c', ros_api);
+            all_scenes[i]->switchCameraViewMode( m_currentView, ros_api);
+        }
+        m_currentView = all_scenes[0]->get_camera_view_mode();
+        m_currentView_old = m_currentView;
+    }else{
+        m_currentView = all_scenes[0]->get_camera_view_mode();
+    }
+    TwRefreshBar(bar_1_ptr);
+
+
+    // evaluation
+    TIME_STAMP::Period period_in("part");
+    TIME_STAMP::Period period_all_func("full display");
+    //
+    // period_frame_pre.stamp();   period_frame_pre.show_msec();   period_frame_pre.show_jitter_usec();
+    //
+    // Evaluation
+    //=============================================================//
+
+
+
     // OpenGL, GLUT
     //---------------------------------//
 
@@ -545,6 +559,11 @@ void My_Timer(int val)
         all_scenes[i]->Update(timer_interval);
     }
     //--------------------//
+
+    // ROS update
+    //-----------------------//
+    ROS_update();
+    //-----------------------//
 
 	glutPostRedisplay();
 	// glutTimerFunc(timer_interval, My_Timer, val);
