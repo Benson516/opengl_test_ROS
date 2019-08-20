@@ -66,6 +66,8 @@ void rmlv2PathPlan_v1::Init(){
     rm_path.set_color_tail( glm::vec3(1.0f, 0.5f, 0.0f) );
 
 
+    // Clean the path
+    rm_path.insert_curve_Points(_path);
 
 
     // For adjusting the model pose by public methods
