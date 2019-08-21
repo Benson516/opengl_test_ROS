@@ -110,11 +110,11 @@ void rmlv2TrafficLightSimple::_put_text(int light_status, int light_CD, bool is_
     if (is_enabled){
         //
         switch (light_status){
-            case 0: // red
+            case 1: // red
                 _str_out += "Red:    ";
                 _text_color = glm::vec3(1.0f, 0.0f, 0.0f);
                 break;
-            case 1: // yello
+            case 3: // yello
                 _str_out += "Yellow: ";
                 _text_color = glm::vec3(0.897f, 0.837f, 0.0f);
                 break;
@@ -123,7 +123,7 @@ void rmlv2TrafficLightSimple::_put_text(int light_status, int light_CD, bool is_
                 _text_color = glm::vec3(0.0f, 0.886f, 0.046f);
                 break;
             default:
-                _str_out = "--";
+                _str_out += "--:     ";
                 break;
         }
         //

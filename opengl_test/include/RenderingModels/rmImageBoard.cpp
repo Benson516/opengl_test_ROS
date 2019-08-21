@@ -384,12 +384,13 @@ void rmImageBoard::resize_if_needed(cv::Mat &image_in, cv::Mat &image_out){
     // image_out = image_in;
     if (is_perspected){
         float max_size = 800; // 1080.0;
+        float reducing_rate = 0.25;
         if (image_in.cols > max_size){
             // cv::resize(image_in, image_out, cv::Size(max_size, max_size/(_IMAGE_ASP_) ), 0, 0, cv::INTER_LINEAR );
-            cv::resize(image_in, image_out, cv::Size(), 0.5, 0.5, cv::INTER_NEAREST );
+            cv::resize(image_in, image_out, cv::Size(), reducing_rate, reducing_rate, cv::INTER_NEAREST );
         }else if (image_in.rows > max_size){
             // cv::resize(image_in, image_out, cv::Size(max_size * (_IMAGE_ASP_), max_size), 0, 0, cv::INTER_LINEAR );
-            cv::resize(image_in, image_out, cv::Size(), 0.5, 0.5, cv::INTER_NEAREST );
+            cv::resize(image_in, image_out, cv::Size(), reducing_rate, reducing_rate, cv::INTER_NEAREST );
         }else{
             image_out = image_in;
         }
