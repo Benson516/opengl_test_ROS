@@ -168,10 +168,12 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // rmlv2ObjectTracking
     // _rm_BaseModel.push_back( std::shared_ptr<rmlv2ObjectTracking>(new rmlv2ObjectTracking(_Assets_path, int(MSG_ID::lidar_bounding_box_tracking), "map") ) );
 
+    /*
     // MagicPowder
     std::shared_ptr<rmMagicPowder> mp_ptr(new rmMagicPowder(_Assets_path, int(MSG_ID::lidar_bounding_box_raw), "map") );
     mp_ptr->set_color(glm::vec3(0.0f, 1.0f, 1.0f));
     _rm_BaseModel.push_back( mp_ptr );
+    */
 
 
 #if __IS_USING_TRACKING__ == 1
