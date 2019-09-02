@@ -192,8 +192,8 @@ void rmlv2PathPlan_v1::update_GL_data( ROS_API &ros_api ){
     // std::cout << "--- middle _path point = " << _path[ _path.size()-1 ].x << ", " << _path[ _path.size()-1].y << "\n";
 
     // path #2, note: remove the first point
-    for (size_t i=(num_segment_per_path*0.2); i <= num_segment_per_path; ++i ){
-    // for (size_t i=1; i <= num_segment_per_path; ++i ){
+    // for (size_t i=(num_segment_per_path*0.2); i <= num_segment_per_path; ++i ){
+    for (size_t i=1; i <= num_segment_per_path; ++i ){
         float sim_T = i*dT;
         get_point3D_poly(param_2_t, sim_T, point3D_on_path);
         point3D_on_path += float(_j) * glm::vec3(0.0f, 0.0f, 0.01f);
