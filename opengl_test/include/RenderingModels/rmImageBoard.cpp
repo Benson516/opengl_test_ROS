@@ -317,7 +317,7 @@ void rmImageBoard::update_GL_data(){
 
     // start
     //-----------------------//
-    TIME_STAMP::Period period_image("image[" + std::to_string(_ROS_topic_id) + "]");
+    // TIME_STAMP::Period period_image("image[" + std::to_string(_ROS_topic_id) + "]");
     //-----------------------//
 
     // Texture
@@ -342,7 +342,7 @@ void rmImageBoard::update_GL_data(){
 
     // 2
     //-----------------------//
-    period_image.stamp(); period_image.show_msec();
+    // period_image.stamp(); period_image.show_msec();
     //-----------------------//
 
     // Flip the small size image
@@ -375,7 +375,7 @@ void rmImageBoard::update_GL_data(){
 
     // 5
     //-----------------------//
-    period_image.stamp(); period_image.show_msec();
+    // period_image.stamp(); period_image.show_msec();
     //-----------------------//
 }
 
