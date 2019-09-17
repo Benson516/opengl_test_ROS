@@ -192,7 +192,15 @@ void setupGUI()
 
     bar_1_ptr = TwNewBar("Status");
     TwDefine(" Status position='0 0' ");
-	TwDefine(" Status size='270 530' "); // 270 450 // 220, 300
+    // 
+#if __ROS_INTERFACE_VER__ == 1
+    TwDefine(" Status size='270 530' "); // 270 530 // 270 450 // 220, 300
+#elif __ROS_INTERFACE_VER__ == 2
+    TwDefine(" Status size='270 650' "); // 270 530 // 270 450 // 220, 300
+#else
+    TwDefine(" Status size='270 530' "); // 270 530 // 270 450 // 220, 300
+#endif
+    //
 	TwDefine(" Status fontsize='3' color='0 0 0' alpha=180 ");  // http://anttweakbar.sourceforge.net/doc/tools:anttweakbar:twbarparamsyntax
 
     // gui_name
