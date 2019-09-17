@@ -211,7 +211,7 @@ void setupGUI()
     m_fps_topic_str.resize( ros_api.ros_interface.get_count_of_all_topics(), "0.0");
     // for (int topic_idx = int(MSG_ID::ego_pose); topic_idx < ros_api.ros_interface.get_count_of_all_topics(); ++topic_idx ){
     for (int topic_idx = 0; topic_idx < ros_api.ros_interface.get_count_of_all_topics(); ++topic_idx ){
-        if ( ros_api.ros_interface.is_topic_id_valid(topic_idx) )
+        if ( ros_api.ros_interface.is_topic_id_valid(topic_idx) && ros_api.ros_interface.is_topic_a_input(topic_idx) )
             TwAddVarRO(bar_1_ptr, ("fps_" + std::to_string(topic_idx)).c_str(), TW_TYPE_STDSTRING, &(m_fps_topic_str[topic_idx]), (" label='FPS-" + ros_api.ros_interface.get_topic_name(topic_idx) + "' help='Frame Per Second(FPS)' ").c_str() );
     }
     //

@@ -68,7 +68,8 @@ bool ROS_API::update(){
     for (int topic_id=0; topic_id < any_ptr_list.size(); ++topic_id){
         if ( ros_interface.is_topic_a_input(topic_id) ){
             got_on_any_topic[topic_id] = ros_interface.get_any_message(topic_id, any_ptr_list[topic_id], msg_time_list[topic_id] );
-            if (got_on_any_topic[topic_id]){ fps_list[topic_id].stamp(); } // <-- Update FPS
+            // if (got_on_any_topic[topic_id]){ fps_list[topic_id].stamp(); } // <-- Update FPS
+            fps_list[topic_id].update(got_on_any_topic[topic_id]); // <-- Update FPS
             _updated |= got_on_any_topic[topic_id];
         }
     }
