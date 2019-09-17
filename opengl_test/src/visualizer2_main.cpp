@@ -192,7 +192,15 @@ void setupGUI()
 
     bar_1_ptr = TwNewBar("Status");
     TwDefine(" Status position='0 0' ");
-	TwDefine(" Status size='270 530' "); // 270 450 // 220, 300
+    // 
+#if __ROS_INTERFACE_VER__ == 1
+    TwDefine(" Status size='270 530' "); // 270 530 // 270 450 // 220, 300
+#elif __ROS_INTERFACE_VER__ == 2
+    TwDefine(" Status size='270 650' "); // 270 530 // 270 450 // 220, 300
+#else
+    TwDefine(" Status size='270 530' "); // 270 530 // 270 450 // 220, 300
+#endif
+    //
 	TwDefine(" Status fontsize='3' color='0 0 0' alpha=180 ");  // http://anttweakbar.sourceforge.net/doc/tools:anttweakbar:twbarparamsyntax
 
     // gui_name
@@ -203,14 +211,15 @@ void setupGUI()
 	TwAddVarRO(bar_1_ptr, "fps_d", TW_TYPE_STDSTRING, &m_fps_d_str, " label='FPS-display' help='Frame Per Second(FPS)' ");
     //
     TwAddSeparator(bar_1_ptr, "Sep1", "");
-    // FPS of camera
+    // FPS of all topics
     // m_fps_topic.resize( ros_api.ros_interface.get_count_of_all_topics(), 0.0f);
     // for (int topic_idx = int(MSG_ID::camera_front_right); topic_idx < ros_api.ros_interface.get_count_of_all_topics(); ++topic_idx ){
     //     TwAddVarRO(bar_1_ptr, ("fps_" + std::to_string(topic_idx)).c_str(), TW_TYPE_FLOAT, &(m_fps_topic[topic_idx]), (" label='FPS-" + ros_api.ros_interface.get_topic_name(topic_idx) + "' help='Frame Per Second(FPS)' ").c_str() );
     // }
     m_fps_topic_str.resize( ros_api.ros_interface.get_count_of_all_topics(), "0.0");
-    for (int topic_idx = int(MSG_ID::vehicle_info); topic_idx < ros_api.ros_interface.get_count_of_all_topics(); ++topic_idx ){
-        if ( ros_api.ros_interface.is_topic_id_valid(topic_idx) )
+    // for (int topic_idx = int(MSG_ID::ego_pose); topic_idx < ros_api.ros_interface.get_count_of_all_topics(); ++topic_idx ){
+    for (int topic_idx = 0; topic_idx < ros_api.ros_interface.get_count_of_all_topics(); ++topic_idx ){
+        if ( ros_api.ros_interface.is_topic_id_valid(topic_idx) && ros_api.ros_interface.is_topic_a_input(topic_idx) )
             TwAddVarRO(bar_1_ptr, ("fps_" + std::to_string(topic_idx)).c_str(), TW_TYPE_STDSTRING, &(m_fps_topic_str[topic_idx]), (" label='FPS-" + ros_api.ros_interface.get_topic_name(topic_idx) + "' help='Frame Per Second(FPS)' ").c_str() );
     }
     //
@@ -520,7 +529,7 @@ void My_Display()
     // period_in.stamp();  period_in.show_msec();
     // period_all_func.stamp();    period_all_func.show_msec();
     // period_frame_post.stamp();  period_frame_post.show_msec();  period_frame_post.show_jitter_usec();
-    std::cout << "---\n";
+    // std::cout << "---\n";
 #endif
 
 }

@@ -908,6 +908,13 @@ void ROS_INTERFACE::_tfGeoPoseStamped_CB(const geometry_msgs::PoseStamped::Const
         _send_tf.transform.rotation.w = msg->pose.orientation.w;
         tfBrocaster_ptr->sendTransform(_send_tf);
         // std::cout << "Recieve the tf\n";
+
+        // Note: Even if the topic is a transform, we still put it into a buffer.
+        //       The only thing different is that we are not warning if the buffer full.
+        // put
+        // Note: the "&(*msg)" thing do the following convertion: boost::shared_ptr --> the object --> memory address
+        bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
+        // if (!result){ std::cout << params.name << ": buffer full.\n"; }
         return;
     }
     // else

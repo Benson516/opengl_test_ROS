@@ -254,8 +254,10 @@ namespace TIME_STAMP{
     class FPS{
     public:
         Period period;
+        Time   stamp_next_th;
         double T_raw; // The latest period
         double T_filtered; // filtered
+        double T_filtered_2; // 2nd filtered
         double fps; // 1.0/T_filtered
         //
         double a_Ts;
@@ -264,19 +266,29 @@ namespace TIME_STAMP{
         //
         std::string name;
 
-        FPS(): seq(0)
+        FPS(): seq(0), stamp_next_th(Time::now().toSec() + 20.0f)
         {
-            a_Ts = 0.1;
-            T_filtered = 0.0;
+            init();
         }
-        FPS(std::string name_in): seq(0), name(name_in)
+        FPS(std::string name_in): seq(0), stamp_next_th(Time::now().toSec() + 20.0f), name(name_in)
         {
-            a_Ts = 0.1;
-            T_filtered = 0.0;
+            init();
         }
+        //
+        void init(){
+            a_Ts = 0.1; // 0.1;
+            T_filtered = 1000000.0;
+            //
+            T_filtered_2 = T_filtered;
+            //
+            fps = 0.0;
+        }
+        //
         void set_name(std::string name_in){ name = name_in; }
 
         double stamp(){
+            // Note: This is a legacy method for backward compatibility
+            //       Please use update() for new applications.
             period.stamp();
             // Filter, 1st order
             T_raw = period.duration.toSec();
@@ -286,6 +298,33 @@ namespace TIME_STAMP{
             fps = 1.0/T_filtered;
             // seq
             seq++;
+            return fps;
+        }
+
+        double update(bool is_updated){
+            if (is_updated){
+                period.stamp();
+                T_raw = period.duration.toSec();
+                // seq
+                seq++;
+                // Predict next stamp
+                stamp_next_th = period.stamped_t + Time(T_raw*1.2);
+            }else{
+                Time _current(TIME_PARAM::NOW);
+                if (_current > stamp_next_th){
+                    // Just use the duration from the last update to now
+                    T_raw = (_current - period.stamped_t).toSec();
+                }else{
+                    // No update
+                    return fps;
+                }
+            }
+            // Filter, 1st order
+            T_filtered += a_Ts*(T_raw - T_filtered);
+            T_filtered_2 += a_Ts*(T_filtered - T_filtered_2);
+            // fps
+            // fps = 1.0/T_filtered;
+            fps = 1.0/T_filtered_2;
             return fps;
         }
 

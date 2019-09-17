@@ -68,7 +68,8 @@ bool ROS_API::update(){
     for (int topic_id=0; topic_id < any_ptr_list.size(); ++topic_id){
         if ( ros_interface.is_topic_a_input(topic_id) ){
             got_on_any_topic[topic_id] = ros_interface.get_any_message(topic_id, any_ptr_list[topic_id], msg_time_list[topic_id] );
-            if (got_on_any_topic[topic_id]){ fps_list[topic_id].stamp(); } // <-- Update FPS
+            // if (got_on_any_topic[topic_id]){ fps_list[topic_id].stamp(); } // <-- Update FPS
+            fps_list[topic_id].update(got_on_any_topic[topic_id]); // <-- Update FPS
             _updated |= got_on_any_topic[topic_id];
         }
     }
@@ -125,7 +126,7 @@ bool ROS_API::_set_up_topics(){
         using MSG::M_TYPE;
 #if __ROS_INTERFACE_VER__ == 1
         // tfGeoPoseStamped
-        ros_interface.add_a_topic( int(MSG_ID::ego_pose), "current_pose", int(M_TYPE::tfGeoPoseStamped), true, 10, 1, "map", true, "base");
+        ros_interface.add_a_topic( int(MSG_ID::ego_pose), "current_pose", int(M_TYPE::tfGeoPoseStamped), true, 10, 100, "map", true, "base");
         // Vehicle info
         ros_interface.add_a_topic( int(MSG_ID::vehicle_info), "taichung_veh_info", int(M_TYPE::ITRICarInfoCarA), true, 100, 100, "base");
         ros_interface.add_a_topic( int(MSG_ID::dynamic_path), "dynamic_path_para", int(M_TYPE::ITRIDynamicPath), true, 100, 100, "base");
@@ -161,7 +162,7 @@ bool ROS_API::_set_up_topics(){
         //
 #elif __ROS_INTERFACE_VER__ == 2
         // tfGeoPoseStamped
-        ros_interface.add_a_topic( int(MSG_ID::ego_pose), "current_pose", int(M_TYPE::tfGeoPoseStamped), true, 10, 1, "map", true, "base");
+        ros_interface.add_a_topic( int(MSG_ID::ego_pose), "current_pose", int(M_TYPE::tfGeoPoseStamped), true, 10, 100, "map", true, "base");
         // Vehicle info
         ros_interface.add_a_topic( int(MSG_ID::vehicle_info), "veh_info", int(M_TYPE::ITRICarInfo), true, 100, 100, "base");
         ros_interface.add_a_topic( int(MSG_ID::dynamic_path), "dynamic_path_para", int(M_TYPE::ITRIDynamicPath), true, 100, 100, "base");
