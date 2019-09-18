@@ -31,37 +31,23 @@ struct atlas {
 	} _ch[TOTAL_CHAR];		// character information
 
     atlas(int font_size_in){
-        // FreeType
-        //-----------------------------------------//
-        FT_Library ft;
-        // All functions return a value different than 0 whenever an error occurred
-        if (FT_Init_FreeType(&ft))
-            std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
-        // Load font as face
-        FT_Face face;
-        // if (FT_New_Face(ft, "fonts/arial.ttf", 0, &face))
-        if (FT_New_Face(ft, "/usr/share/fonts/truetype/freefont/FreeSans.ttf", 0, &face))
-        // if (FT_New_Face(ft, "FreeSans.ttf", 0, &face))
-            std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
-        //-----------------------------------------//
-        Init(face, font_size_in);
-        // Destroy FreeType once we're finished
-        //-----------------------------------------//
-        FT_Done_Face(face);
-        FT_Done_FreeType(ft);
-        //-----------------------------------------//
 
-    }
-    atlas(FT_Face face, int font_size_in){
-        Init(face, font_size_in);
+        Init(font_size_in);
+
     }
 
     // Init, load textures
     //--------------------------------//
-    void Init(FT_Face face, int font_size_in) {
+    void Init(int font_size_in) {
+
+        // get the face data
+        FT_Face face;
         FT_Set_Pixel_Sizes(face, 0, font_size_in);
+        //
+
+
         font_size = font_size_in;
-        FT_GlyphSlot g = face->glyph;
+        FT_GlyphSlot _glyph = face->glyph;
 
         unsigned int roww = 0;
         unsigned int rowh = 0;
@@ -76,14 +62,14 @@ struct atlas {
         		fprintf(stderr, "Loading character %c failed!\n", i);
         		continue;
         	}
-        	if (roww + g->bitmap.width + 1 >= MAXWIDTH) {
+        	if (roww + _glyph->bitmap.width + 1 >= MAXWIDTH) {
         		w = std::max(w, roww);
         		h += rowh + 1;
         		roww = 0;
         		rowh = 0;
         	}
-        	roww += g->bitmap.width + 1;
-        	rowh = std::max(rowh, g->bitmap.rows);
+        	roww += _glyph->bitmap.width + 1;
+        	rowh = std::max(rowh, _glyph->bitmap.rows);
         }
 
         w = std::max(w, roww);
@@ -105,8 +91,8 @@ struct atlas {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         /* Paste all glyph bitmaps into the texture, remembering the offset */
-        int ox = 0;
-        int oy = 0;
+        int _offset_x = 0;
+        int _offset_y = 0;
 
         rowh = 0;
 
@@ -116,27 +102,27 @@ struct atlas {
         		continue;
         	}
 
-        	if (ox + g->bitmap.width + 1 >= MAXWIDTH) {
-        		oy += rowh + 1;
+        	if (_offset_x + _glyph->bitmap.width + 1 >= MAXWIDTH) {
+        		_offset_y += rowh + 1;
         		rowh = 0;
-        		ox = 0;
+        		_offset_x = 0;
         	}
 
-        	glTexSubImage2D(GL_TEXTURE_2D, 0, ox, oy, g->bitmap.width, g->bitmap.rows, GL_ALPHA, GL_UNSIGNED_BYTE, g->bitmap.buffer);
-        	_ch[i].ax = g->advance.x >> 6;
-        	_ch[i].ay = g->advance.y >> 6;
+        	glTexSubImage2D(GL_TEXTURE_2D, 0, _offset_x, _offset_y, _glyph->bitmap.width, _glyph->bitmap.rows, GL_ALPHA, GL_UNSIGNED_BYTE, _glyph->bitmap.buffer);
+        	_ch[i].ax = _glyph->advance.x >> 6;
+        	_ch[i].ay = _glyph->advance.y >> 6;
 
-        	_ch[i].bw = g->bitmap.width;
-        	_ch[i].bh = g->bitmap.rows;
+        	_ch[i].bw = _glyph->bitmap.width;
+        	_ch[i].bh = _glyph->bitmap.rows;
 
-        	_ch[i].bl = g->bitmap_left;
-        	_ch[i].bt = g->bitmap_top;
+        	_ch[i].bl = _glyph->bitmap_left;
+        	_ch[i].bt = _glyph->bitmap_top;
 
-        	_ch[i].tx = ox / double(w);
-        	_ch[i].ty = oy / double(h);
+        	_ch[i].tx = _offset_x / double(w);
+        	_ch[i].ty = _offset_y / double(h);
 
-        	rowh = std::max(rowh, g->bitmap.rows);
-        	ox += g->bitmap.width + 1;
+        	rowh = std::max(rowh, _glyph->bitmap.rows);
+        	_offset_x += _glyph->bitmap.width + 1;
         }
         fprintf(stderr, "Generated a %d x %d (%d kb) texture atlas\n", w, h, w * h / 1024);
     }
@@ -155,11 +141,9 @@ struct atlas {
 
 
 
-
-std::shared_ptr<atlas> a48_ptr;
-std::shared_ptr<atlas> a24_ptr;
-std::shared_ptr<atlas> a12_ptr;
-
+// atlas_ptr
+// std::shared_ptr<atlas> atlas_ptr;
+//
 
 
 
@@ -229,52 +213,12 @@ void rmTrafficLightImage::Init(){
 }
 void rmTrafficLightImage::LoadModel(){
 
-    /*
-    // FreeType
-    //-----------------------------------------//
-    FT_Library ft;
-    // All functions return a value different than 0 whenever an error occurred
-    if (FT_Init_FreeType(&ft))
-        std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
-    // Load font as face
-    FT_Face face;
-    // if (FT_New_Face(ft, "fonts/arial.ttf", 0, &face))
-    if (FT_New_Face(ft, "/usr/share/fonts/truetype/freefont/FreeSans.ttf", 0, &face))
-    // if (FT_New_Face(ft, "FreeSans.ttf", 0, &face))
-        std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
-    //-----------------------------------------//
 
 
-
-    // Create texture atlasses for several font sizes
-	a48_ptr = new atlas(face, 48);
-	a24_ptr = new atlas(face, 24);
-	a12_ptr = new atlas(face, 12);
-    //
-
-
-
-    // Destroy FreeType once we're finished
-    //-----------------------------------------//
-    FT_Done_Face(face);
-    FT_Done_FreeType(ft);
-    //-----------------------------------------//
-    */
-
-    /*
-    // Create texture atlasses for several font sizes
-	a48_ptr = new atlas(48);
-	a24_ptr = new atlas(24);
-	a12_ptr = new atlas(12);
-    //
-    */
-
-
-
-    if (!a48_ptr){
-        a48_ptr.reset(new atlas(48));
+    if (!atlas_ptr){
+        atlas_ptr.reset(new atlas(48));
     }else{
-        std::cout << "The atlas<" << a48_ptr->font_size << "> is already created.\n";
+        std::cout << "The atlas<" << atlas_ptr->font_size << "> is already created.\n";
     }
     if (!a24_ptr){
         a24_ptr.reset(new atlas(24));
@@ -565,10 +509,10 @@ void rmTrafficLightImage::_draw_one_text2Dflat(std::shared_ptr<ViewManager> &_ca
     }else{
         glUniform1f(uniforms.pose2D_depth, 0.0);
     }
-    // RenderText("Hello world: " + std::to_string(++_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), a48_ptr, 0.0, 0.0, 1.0, 1.0, glm::vec3(1.0f, 1.0f, 0.0f));
+    // RenderText("Hello world: " + std::to_string(++_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), atlas_ptr, 0.0, 0.0, 1.0, 1.0, glm::vec3(1.0f, 1.0f, 0.0f));
     RenderText(
         _data_in.text,
-        a48_ptr,
+        atlas_ptr,
         nl_position_2D[0],
         nl_position_2D[1],
         nl_size[0],
@@ -603,10 +547,10 @@ void rmTrafficLightImage::_draw_one_text2Din3D(std::shared_ptr<ViewManager> &_ca
     // glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, m_shape.model * m_shape.shape * transform_m) ));
     glUniformMatrix4fv(uniforms.proj_matrix, 1, GL_FALSE, value_ptr(_camera_ptr->GetProjectionMatrix()));
     glUniform1f(uniforms.pose2D_depth, 0.0001); // Pop out (floating) a little bit to prevent the intersection with image board
-    // RenderText("Hello world: " + std::to_string(++_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), a48_ptr, 0.0, 0.0, 1.0, 1.0, glm::vec3(1.0f, 1.0f, 0.0f));
+    // RenderText("Hello world: " + std::to_string(++_count) + std::string("\nSecond line\n\tThird line\nABCDEFGabcdefg"), atlas_ptr, 0.0, 0.0, 1.0, 1.0, glm::vec3(1.0f, 1.0f, 0.0f));
     RenderText(
         _data_in.text,
-        a48_ptr,
+        atlas_ptr,
         nl_position_2D[0],
         nl_position_2D[1],
         nl_size[0],
@@ -626,7 +570,7 @@ void rmTrafficLightImage::_draw_one_text3D(std::shared_ptr<ViewManager> &_camera
     //
     RenderText(
         _data_in.text,
-        a48_ptr,
+        atlas_ptr,
         -1*(_data_in.offset_ref_point_2D[0]),
         -1*(_data_in.offset_ref_point_2D[1]),
         _data_in.size,
@@ -652,7 +596,7 @@ void rmTrafficLightImage::_draw_one_text_billboard(std::shared_ptr<ViewManager> 
     //
     RenderText(
         _data_in.text,
-        a48_ptr,
+        atlas_ptr,
         -1*(_data_in.offset_ref_point_2D[0]),
         -1*(_data_in.offset_ref_point_2D[1]),
         _data_in.size,
@@ -685,7 +629,7 @@ void rmTrafficLightImage::_draw_one_text_freeze_board(std::shared_ptr<ViewManage
     //
     RenderText(
         _data_in.text,
-        a48_ptr,
+        atlas_ptr,
         -1*(_data_in.offset_ref_point_2D[0]),
         -1*(_data_in.offset_ref_point_2D[1]),
         1.0*_scale*_data_in.size,

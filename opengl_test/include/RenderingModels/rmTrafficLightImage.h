@@ -420,16 +420,7 @@ private:
 
 
     // Pointers of atlas
-    /*
-    atlas *a48_ptr;
-    atlas *a24_ptr;
-    atlas *a12_ptr;
-    */
-    /*
-    std::shared_ptr<atlas> a48_ptr;
-    std::shared_ptr<atlas> a24_ptr;
-    std::shared_ptr<atlas> a12_ptr;
-    */
+    std::shared_ptr<atlas> atlas_ptr;
 
 
 
