@@ -157,6 +157,9 @@ set(ALL_RENDER_MODELS
     ${RENDER_MODEL_PATH}rmlv2TrafficLight.cpp
     ${RENDER_MODEL_PATH}rmlv2TrafficLightSimple.cpp
     ${RENDER_MODEL_PATH}rmMagicPowder.cpp
+    #
+    ${RENDER_MODEL_PATH}rmTrafficLightImage.cpp
+
 )
 
 
