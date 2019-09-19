@@ -12,9 +12,10 @@
 struct atlas {
 	GLuint TextureID;		// texture object
     int font_size;
+    std::vector<std:string> image_name_list;
 
-	unsigned int w;			// width of texture in pixels
-	unsigned int h;			// height of texture in pixels
+	unsigned int _tex_w;			// width of texture in pixels
+	unsigned int _tex_h;			// height of texture in pixels
 
     struct {
 		int ax;	// advance.x
@@ -30,59 +31,68 @@ struct atlas {
 		float ty;	// y offset of glyph in texture coordinates
 	} _ch[TOTAL_CHAR];		// character information
 
-    atlas(int font_size_in){
+    atlas(std::vector<std:string> &image_name_list_in){
 
-        Init(font_size_in);
+        image_name_list = image_name_list_in;
+        Init();
 
     }
 
     // Init, load textures
     //--------------------------------//
-    void Init(int font_size_in) {
+    void Init() {
 
-        // get the face data
-        FT_Face face;
-        FT_Set_Pixel_Sizes(face, 0, font_size_in);
         //
-
-
-        font_size = font_size_in;
         FT_GlyphSlot _glyph = face->glyph;
 
         unsigned int roww = 0;
         unsigned int rowh = 0;
-        w = 0;
-        h = 0;
+        _tex_w = 0;
+        _tex_h = 0;
 
         memset(_ch, 0, sizeof _ch);
 
+
+        int im_pixel_width = 1;
+        int im_pixel_height = 1;
         /* Find minimum size for a texture holding all visible ASCII characters */
-        for (int i = 0; i < TOTAL_CHAR; i++) {
-        	if (FT_Load_Char(face, i, FT_LOAD_RENDER)) {
-        		fprintf(stderr, "Loading character %c failed!\n", i);
-        		continue;
-        	}
-        	if (roww + _glyph->bitmap.width + 1 >= MAXWIDTH) {
-        		w = std::max(w, roww);
-        		h += rowh + 1;
+        for (int i = 0; i < image_name_list.size(); i++) {
+
+            // Scoped region: load the texture, 1st time
+            {
+                TextureData tdata = Common::Load_png(get_full_Assets_path(textName).c_str());
+                im_pixel_width = tdata.width;
+                im_pixel_height = tdata.height;
+            }
+            //
+
+            // Change to next row
+        	if (roww + im_pixel_width + 1 >= MAXWIDTH) {
+        		_tex_w = std::max(_tex_w, roww);
+        		_tex_h += rowh + 1;
         		roww = 0;
         		rowh = 0;
         	}
-        	roww += _glyph->bitmap.width + 1;
-        	rowh = std::max(rowh, _glyph->bitmap.rows);
+
+            // Advance
+        	roww += im_pixel_width + 1;
+        	rowh = std::max(rowh, im_pixel_height);
         }
 
-        w = std::max(w, roww);
-        h += rowh + 1;
+        _tex_w = std::max(_tex_w, roww);
+        _tex_h += rowh + 1;
+        //-------------------------------------//
 
         /* Create a texture that will be used to hold all ASCII glyphs */
         glActiveTexture(GL_TEXTURE0);
         glGenTextures(1, &TextureID);
         glBindTexture(GL_TEXTURE_2D, TextureID);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, w, h, 0, GL_ALPHA, GL_UNSIGNED_BYTE, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, _tex_w, _tex_h, 0, GL_ALPHA, GL_UNSIGNED_BYTE, 0);
+
         /* We require 1 byte alignment when uploading texture data */
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
         /* Clamping to edges is important to prevent artifacts when scaling */
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -93,38 +103,45 @@ struct atlas {
         /* Paste all glyph bitmaps into the texture, remembering the offset */
         int _offset_x = 0;
         int _offset_y = 0;
-
+        //
         rowh = 0;
+        im_pixel_width = 1;
+        im_pixel_height = 1;
+        for (int i = 0; i < image_name_list.size(); i++) {
 
-        for (int i = 0; i < TOTAL_CHAR; i++) {
-        	if (FT_Load_Char(face, i, FT_LOAD_RENDER)) {
-        		fprintf(stderr, "Loading character %c failed!\n", i);
-        		continue;
-        	}
+            // Scoped region: load the texture, 1st time
+            {
+                TextureData tdata = Common::Load_png(get_full_Assets_path(textName).c_str());
+                im_pixel_width = tdata.width;
+                im_pixel_height = tdata.height;
+                //
+                if (_offset_x + im_pixel_width + 1 >= MAXWIDTH) {
+            		_offset_y += rowh + 1;
+            		rowh = 0;
+            		_offset_x = 0;
+            	}
+                // Upload the texture data
+            	glTexSubImage2D(GL_TEXTURE_2D, 0, _offset_x, _offset_y, im_pixel_width, im_pixel_height, GL_ALPHA, GL_UNSIGNED_BYTE, tdata.data);
+            }
+            //
 
-        	if (_offset_x + _glyph->bitmap.width + 1 >= MAXWIDTH) {
-        		_offset_y += rowh + 1;
-        		rowh = 0;
-        		_offset_x = 0;
-        	}
 
-        	glTexSubImage2D(GL_TEXTURE_2D, 0, _offset_x, _offset_y, _glyph->bitmap.width, _glyph->bitmap.rows, GL_ALPHA, GL_UNSIGNED_BYTE, _glyph->bitmap.buffer);
-        	_ch[i].ax = _glyph->advance.x >> 6;
-        	_ch[i].ay = _glyph->advance.y >> 6;
+        	_ch[i].ax = im_pixel_width; // devide by 64 to translate to pixel // width
+        	_ch[i].ay = 0; // devide by 64 to translate to pixel // 0
 
-        	_ch[i].bw = _glyph->bitmap.width;
-        	_ch[i].bh = _glyph->bitmap.rows;
+        	_ch[i].bw = im_pixel_width; // width
+        	_ch[i].bh = im_pixel_height;  // height
 
-        	_ch[i].bl = _glyph->bitmap_left;
-        	_ch[i].bt = _glyph->bitmap_top;
+        	_ch[i].bl = 0; // _glyph->bitmap_left;  // 0
+        	_ch[i].bt = 0; // _glyph->bitmap_top;   // 0
 
-        	_ch[i].tx = _offset_x / double(w);
-        	_ch[i].ty = _offset_y / double(h);
+        	_ch[i].tx = _offset_x / double(_tex_w);
+        	_ch[i].ty = _offset_y / double(_tex_h);
 
-        	rowh = std::max(rowh, _glyph->bitmap.rows);
-        	_offset_x += _glyph->bitmap.width + 1;
+        	rowh = std::max(rowh, im_pixel_height);
+        	_offset_x += im_pixel_width + 1;
         }
-        fprintf(stderr, "Generated a %d x %d (%d kb) texture atlas\n", w, h, w * h / 1024);
+        fprintf(stderr, "Generated a %d x %d (%d kb) texture atlas\n", _tex_w, _tex_h, _tex_w * _tex_h / 1024);
     }
     //--------------------------------//
     // end Init, load textures
@@ -220,18 +237,6 @@ void rmTrafficLightImage::LoadModel(){
     }else{
         std::cout << "The atlas<" << atlas_ptr->font_size << "> is already created.\n";
     }
-    if (!a24_ptr){
-        a24_ptr.reset(new atlas(24));
-    }else{
-        std::cout << "The atlas<" << a24_ptr->font_size << "> is already created.\n";
-    }
-    if (!a12_ptr){
-        a12_ptr.reset(new atlas(12));
-    }else{
-        std::cout << "The atlas<" << a12_ptr->font_size << "> is already created.\n";
-    }
-
-
 
 
 
