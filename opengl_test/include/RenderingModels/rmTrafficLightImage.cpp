@@ -1,8 +1,7 @@
 #include "rmTrafficLightImage.h"
 
 // Maximum texture width
-#define MAXWIDTH 1024
-#define TOTAL_CHAR 128
+#define MAXWIDTH 4096
 
 
 
@@ -12,12 +11,12 @@
 struct atlas {
 	GLuint TextureID;		// texture object
     int font_size;
-    std::vector<std:string> image_name_list;
+    std::vector<std:string> image_path_list;
 
 	unsigned int _tex_w;			// width of texture in pixels
 	unsigned int _tex_h;			// height of texture in pixels
 
-    struct {
+    struct CHARACTER_PARAM{
 		int ax;	// advance.x
 		int ay;	// advance.y
 
@@ -29,13 +28,14 @@ struct atlas {
 
 		float tx;	// x offset of glyph in texture coordinates
 		float ty;	// y offset of glyph in texture coordinates
-	} _ch[TOTAL_CHAR];		// character information
+	};
+    // character information
+    vector<CHARACTER_PARAM> _ch;
+    //
 
-    atlas(std::vector<std:string> &image_name_list_in){
-
-        image_name_list = image_name_list_in;
+    atlas(std::vector<std:string> &image_path_list_in){
+        image_path_list = image_path_list_in;
         Init();
-
     }
 
     // Init, load textures
@@ -50,17 +50,18 @@ struct atlas {
         _tex_w = 0;
         _tex_h = 0;
 
-        memset(_ch, 0, sizeof _ch);
+        // memset(_ch, 0, sizeof _ch);
+        _ch.resize( image_path_list.size() );
 
 
         int im_pixel_width = 1;
         int im_pixel_height = 1;
         /* Find minimum size for a texture holding all visible ASCII characters */
-        for (int i = 0; i < image_name_list.size(); i++) {
+        for (int i = 0; i < image_path_list.size(); i++) {
 
             // Scoped region: load the texture, 1st time
             {
-                TextureData tdata = Common::Load_png(get_full_Assets_path(textName).c_str());
+                TextureData tdata = Common::Load_png(image_path_list[i].c_str());
                 im_pixel_width = tdata.width;
                 im_pixel_height = tdata.height;
             }
@@ -88,17 +89,21 @@ struct atlas {
         glGenTextures(1, &TextureID);
         glBindTexture(GL_TEXTURE_2D, TextureID);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, _tex_w, _tex_h, 0, GL_ALPHA, GL_UNSIGNED_BYTE, 0);
+        //
+        // glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, _tex_w, _tex_h, 0, GL_ALPHA, GL_UNSIGNED_BYTE, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _tex_w, _tex_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        //
 
         /* We require 1 byte alignment when uploading texture data */
         // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-        /* Clamping to edges is important to prevent artifacts when scaling */
+        //
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        /* Linear filtering usually looks best for text */
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        //
+
 
         /* Paste all glyph bitmaps into the texture, remembering the offset */
         int _offset_x = 0;
@@ -107,11 +112,11 @@ struct atlas {
         rowh = 0;
         im_pixel_width = 1;
         im_pixel_height = 1;
-        for (int i = 0; i < image_name_list.size(); i++) {
+        for (int i = 0; i < image_path_list.size(); i++) {
 
             // Scoped region: load the texture, 1st time
             {
-                TextureData tdata = Common::Load_png(get_full_Assets_path(textName).c_str());
+                TextureData tdata = Common::Load_png(image_path_list[i].c_str());
                 im_pixel_width = tdata.width;
                 im_pixel_height = tdata.height;
                 //
@@ -121,7 +126,7 @@ struct atlas {
             		_offset_x = 0;
             	}
                 // Upload the texture data
-            	glTexSubImage2D(GL_TEXTURE_2D, 0, _offset_x, _offset_y, im_pixel_width, im_pixel_height, GL_ALPHA, GL_UNSIGNED_BYTE, tdata.data);
+            	glTexSubImage2D(GL_TEXTURE_2D, 0, _offset_x, _offset_y, im_pixel_width, im_pixel_height, GL_RGBA, GL_UNSIGNED_BYTE, tdata.data);
             }
             //
 
@@ -177,7 +182,7 @@ namespace rmLidarBoundingBox_ns{
 rmTrafficLightImage::rmTrafficLightImage(std::string _path_Assets_in, std::string frame_id_in):
     _frame_id(frame_id_in)
 {
-    _path_Shaders_sub_dir += "Text/";
+    _path_Shaders_sub_dir += "TrafficLightImage/";
     init_paths(_path_Assets_in);
     _num_vertex_idx_per_box = (3*2);
     _num_vertex_per_box = 4; // 8;
@@ -190,7 +195,7 @@ rmTrafficLightImage::rmTrafficLightImage(std::string _path_Assets_in, std::strin
 rmTrafficLightImage::rmTrafficLightImage(std::string _path_Assets_in, int _ROS_topic_id_in):
     _ROS_topic_id(_ROS_topic_id_in)
 {
-    _path_Shaders_sub_dir += "Text/";
+    _path_Shaders_sub_dir += "TrafficLightImage/";
     init_paths(_path_Assets_in);
     _num_vertex_idx_per_box = (3*2);
     _num_vertex_per_box = 4; // 8;
@@ -204,8 +209,8 @@ void rmTrafficLightImage::Init(){
     //
 	_program_ptr.reset( new ShaderProgram() );
     // Load shaders
-    _program_ptr->AttachShader(get_full_Shader_path("Text3D_v2.vs.glsl"), GL_VERTEX_SHADER);
-    _program_ptr->AttachShader(get_full_Shader_path("Text3D_v2.fs.glsl"), GL_FRAGMENT_SHADER);
+    _program_ptr->AttachShader(get_full_Shader_path("TrafficLightImage.vs.glsl"), GL_VERTEX_SHADER);
+    _program_ptr->AttachShader(get_full_Shader_path("TrafficLightImage.fs.glsl"), GL_FRAGMENT_SHADER);
     // Link _program_ptr
 	_program_ptr->LinkProgram();
     //
@@ -230,10 +235,23 @@ void rmTrafficLightImage::Init(){
 }
 void rmTrafficLightImage::LoadModel(){
 
+    std::vector<std::string> image_name_list;
+    std::vector<std::string> image_path_list;
+
+    // Enter the image file name
+    image_name_list.push_back("TFL_red_off.png");
+    image_name_list.push_back("TFL_red_on.png");
+
+
+
+    // Generate full paths
+    for (size_t i=0; i < image_name_list.size(); ++i){
+        image_path_list.push_back( get_full_Assets_path(image_name_list[i]) );
+    }
 
 
     if (!atlas_ptr){
-        atlas_ptr.reset(new atlas(48));
+        atlas_ptr.reset(new atlas(image_path_list));
     }else{
         std::cout << "The atlas<" << atlas_ptr->font_size << "> is already created.\n";
     }
