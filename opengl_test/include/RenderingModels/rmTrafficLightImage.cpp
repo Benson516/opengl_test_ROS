@@ -56,6 +56,7 @@ struct atlas {
 
         int im_pixel_width = 1;
         int im_pixel_height = 1;
+        int rowh_max = 0;
         /* Find minimum size for a texture holding all visible ASCII characters */
         for (int i = 0; i < image_path_list.size(); i++) {
 
@@ -78,11 +79,18 @@ struct atlas {
             // Advance
         	roww += im_pixel_width + 1;
         	rowh = std::max(rowh, im_pixel_height);
+
+            // Find the maximum height of texture images
+            rowh_max = std::max(rowh_max, rowh);
         }
 
         _tex_w = std::max(_tex_w, roww);
         _tex_h += rowh + 1;
         //-------------------------------------//
+
+        //
+        font_size = rowh_max;
+        //
 
         /* Create a texture that will be used to hold all ASCII glyphs */
         glActiveTexture(GL_TEXTURE0);

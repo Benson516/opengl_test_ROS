@@ -466,6 +466,28 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     }
     */
 
+    {
+        std::shared_ptr<rmTrafficLightImage> image_array_ptr( new rmTrafficLightImage(_Assets_path, "base") );
+        std::vector<rmTrafficLightImage::text2Dflat_data> data_list;
+        std::string _a;
+        _a.push_back(0);
+        _a.push_back(1);
+        _a.push_back(0);
+        data_list.emplace_back(
+            _a,
+            glm::vec2(100.0f,100.0f),
+            100,
+            glm::vec3(1.0f),
+            ALIGN_X::LEFT,
+            ALIGN_Y::TOP,
+            0,
+            0,
+            true,
+            false
+        );
+        image_array_ptr->insert_text(data_list);
+        _rm_BaseModel.push_back( image_array_ptr );
+    }
 
     /*
     // rmColorBoard
