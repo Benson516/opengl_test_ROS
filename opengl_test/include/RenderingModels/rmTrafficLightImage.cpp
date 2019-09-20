@@ -11,10 +11,10 @@
 struct atlas {
 	GLuint TextureID;		// texture object
     int font_size;
-    std::vector<std:string> image_path_list;
+    std::vector<std::string> image_path_list;
 
-	unsigned int _tex_w;			// width of texture in pixels
-	unsigned int _tex_h;			// height of texture in pixels
+	int _tex_w;			// width of texture in pixels
+	int _tex_h;			// height of texture in pixels
 
     struct CHARACTER_PARAM{
 		int ax;	// advance.x
@@ -33,7 +33,7 @@ struct atlas {
     vector<CHARACTER_PARAM> _ch;
     //
 
-    atlas(std::vector<std:string> &image_path_list_in){
+    atlas(std::vector<std::string> &image_path_list_in){
         image_path_list = image_path_list_in;
         Init();
     }
@@ -43,10 +43,10 @@ struct atlas {
     void Init() {
 
         //
-        FT_GlyphSlot _glyph = face->glyph;
+        // FT_GlyphSlot _glyph = face->glyph;
 
-        unsigned int roww = 0;
-        unsigned int rowh = 0;
+        int roww = 0;
+        int rowh = 0;
         _tex_w = 0;
         _tex_h = 0;
 
@@ -775,9 +775,9 @@ void rmTrafficLightImage::RenderText(
         // float _y_down = -y2-h;
         //
         float s_left = _atlas_ptr->_ch[*p].tx;
-        float s_right = _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->w);
+        float s_right = _atlas_ptr->_ch[*p].tx + _atlas_ptr->_ch[*p].bw / float(_atlas_ptr->_tex_w);
         float t_up = _atlas_ptr->_ch[*p].ty;
-        float t_down = _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->h);
+        float t_down = _atlas_ptr->_ch[*p].ty + _atlas_ptr->_ch[*p].bh / float(_atlas_ptr->_tex_h);
 		vector_list[_idx_count++] = (point) {
     		x2, -y2,
             s_left, t_up};
