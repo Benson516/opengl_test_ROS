@@ -36,7 +36,7 @@
 #include "rmlv2TrafficLight.h"
 #include "rmlv2TrafficLightSimple.h"
 #include "rmMagicPowder.h"
-#include "rmTrafficLightImage.h"
+#include "rmImageArray.h"
 //
 
 class Scene

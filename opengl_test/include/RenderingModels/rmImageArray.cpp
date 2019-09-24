@@ -1,4 +1,4 @@
-#include "rmTrafficLightImage.h"
+#include "rmImageArray.h"
 
 // Maximum texture width
 #define MAXWIDTH 4096
@@ -8,7 +8,7 @@
 
 // Atlas
 //--------------------------------------//
-struct atlas {
+struct ATLAS_IMAGE {
 	GLuint TextureID;		// texture object
     int font_size;
     std::vector<std::string> image_path_list;
@@ -33,7 +33,7 @@ struct atlas {
     vector<CHARACTER_PARAM> _ch;
     //
 
-    atlas(std::vector<std::string> &image_path_list_in){
+    ATLAS_IMAGE(std::vector<std::string> &image_path_list_in){
         image_path_list = image_path_list_in;
         Init();
     }
@@ -159,7 +159,7 @@ struct atlas {
     //--------------------------------//
     // end Init, load textures
 
-	~atlas() {
+	~ATLAS_IMAGE() {
 		glDeleteTextures(1, &TextureID);
 	}
 };
@@ -172,7 +172,7 @@ struct atlas {
 
 
 // atlas_ptr
-// std::shared_ptr<atlas> atlas_ptr;
+// std::shared_ptr<ATLAS_IMAGE> atlas_ptr;
 //
 
 
@@ -187,10 +187,10 @@ namespace rmLidarBoundingBox_ns{
 
 
 
-rmTrafficLightImage::rmTrafficLightImage(std::string _path_Assets_in, std::string frame_id_in):
+rmImageArray::rmImageArray(std::string _path_Assets_in, std::string frame_id_in):
     _frame_id(frame_id_in)
 {
-    _path_Shaders_sub_dir += "TrafficLightImage/";
+    _path_Shaders_sub_dir += "ImageArray/";
     init_paths(_path_Assets_in);
     _num_vertex_idx_per_box = (3*2);
     _num_vertex_per_box = 4; // 8;
@@ -200,10 +200,10 @@ rmTrafficLightImage::rmTrafficLightImage(std::string _path_Assets_in, std::strin
     //
 	Init();
 }
-rmTrafficLightImage::rmTrafficLightImage(std::string _path_Assets_in, int _ROS_topic_id_in):
+rmImageArray::rmImageArray(std::string _path_Assets_in, int _ROS_topic_id_in):
     _ROS_topic_id(_ROS_topic_id_in)
 {
-    _path_Shaders_sub_dir += "TrafficLightImage/";
+    _path_Shaders_sub_dir += "ImageArray/";
     init_paths(_path_Assets_in);
     _num_vertex_idx_per_box = (3*2);
     _num_vertex_per_box = 4; // 8;
@@ -213,12 +213,12 @@ rmTrafficLightImage::rmTrafficLightImage(std::string _path_Assets_in, int _ROS_t
     //
 	Init();
 }
-void rmTrafficLightImage::Init(){
+void rmImageArray::Init(){
     //
 	_program_ptr.reset( new ShaderProgram() );
     // Load shaders
-    _program_ptr->AttachShader(get_full_Shader_path("TrafficLightImage.vs.glsl"), GL_VERTEX_SHADER);
-    _program_ptr->AttachShader(get_full_Shader_path("TrafficLightImage.fs.glsl"), GL_FRAGMENT_SHADER);
+    _program_ptr->AttachShader(get_full_Shader_path("ImageArray.vs.glsl"), GL_VERTEX_SHADER);
+    _program_ptr->AttachShader(get_full_Shader_path("ImageArray.fs.glsl"), GL_FRAGMENT_SHADER);
     // Link _program_ptr
 	_program_ptr->LinkProgram();
     //
@@ -241,7 +241,7 @@ void rmTrafficLightImage::Init(){
 	LoadModel();
 
 }
-void rmTrafficLightImage::LoadModel(){
+void rmImageArray::LoadModel(){
 
     std::vector<std::string> image_name_list;
     std::vector<std::string> image_path_list;
@@ -263,7 +263,7 @@ void rmTrafficLightImage::LoadModel(){
 
 
     if (!atlas_ptr){
-        atlas_ptr.reset(new atlas(image_path_list));
+        atlas_ptr.reset(new ATLAS_IMAGE(image_path_list));
     }else{
         std::cout << "The atlas<" << atlas_ptr->font_size << "> is already created.\n";
     }
@@ -338,13 +338,13 @@ void rmTrafficLightImage::LoadModel(){
 
 
 }
-void rmTrafficLightImage::Update(float dt){
+void rmImageArray::Update(float dt){
     // Update the data (buffer variables) here
 }
-void rmTrafficLightImage::Update(ROS_INTERFACE &ros_interface){
+void rmImageArray::Update(ROS_INTERFACE &ros_interface){
     // Update the data (buffer variables) here
 }
-void rmTrafficLightImage::Update(ROS_API &ros_api){
+void rmImageArray::Update(ROS_API &ros_api){
     // Update the data (buffer variables) here
 
     // Update transform
@@ -436,7 +436,7 @@ void rmTrafficLightImage::Update(ROS_API &ros_api){
     // //----------------------//
     // // end test
 }
-void rmTrafficLightImage::Render(std::shared_ptr<ViewManager> &_camera_ptr){
+void rmImageArray::Render(std::shared_ptr<ViewManager> &_camera_ptr){
     glBindVertexArray(m_shape.vao);
 	_program_ptr->UseProgram();
     // queues
@@ -484,7 +484,7 @@ void rmTrafficLightImage::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
     _program_ptr->CloseProgram();
 }
-void rmTrafficLightImage::Reshape(const glm::ivec2 & viewport_size_in){
+void rmImageArray::Reshape(const glm::ivec2 & viewport_size_in){
     _viewport_size = viewport_size_in;
     // _viewport_size = _camera_ptr->GetViewportSize();
     updateBoardGeo();
@@ -492,7 +492,7 @@ void rmTrafficLightImage::Reshape(const glm::ivec2 & viewport_size_in){
 
 // Different draw methods
 //--------------------------------------------------------//
-void rmTrafficLightImage::_draw_one_text2Dflat(std::shared_ptr<ViewManager> &_camera_ptr, text2Dflat_data &_data_in){
+void rmImageArray::_draw_one_text2Dflat(std::shared_ptr<ViewManager> &_camera_ptr, text2Dflat_data &_data_in){
     // static int _count = 0;
     /*
     pos_mode:
@@ -558,7 +558,7 @@ void rmTrafficLightImage::_draw_one_text2Dflat(std::shared_ptr<ViewManager> &_ca
     );
     //--------------------------------//
 }
-void rmTrafficLightImage::_draw_one_text2Din3D(std::shared_ptr<ViewManager> &_camera_ptr, text2Din3D_data &_data_in){
+void rmImageArray::_draw_one_text2Din3D(std::shared_ptr<ViewManager> &_camera_ptr, text2Din3D_data &_data_in){
     // static int _count = 0;
     /*
     pos_mode:
@@ -596,7 +596,7 @@ void rmTrafficLightImage::_draw_one_text2Din3D(std::shared_ptr<ViewManager> &_ca
     );
     //--------------------------------//
 }
-void rmTrafficLightImage::_draw_one_text3D(std::shared_ptr<ViewManager> &_camera_ptr, text3D_data &_data_in){
+void rmImageArray::_draw_one_text3D(std::shared_ptr<ViewManager> &_camera_ptr, text3D_data &_data_in){
 
     // The transformation matrices and projection matrices
     glUniformMatrix4fv(uniforms.mv_matrix, 1, GL_FALSE, value_ptr( get_mv_matrix(_camera_ptr, _data_in.pose_ref_point) ));
@@ -616,7 +616,7 @@ void rmTrafficLightImage::_draw_one_text3D(std::shared_ptr<ViewManager> &_camera
     );
     //--------------------------------//
 }
-void rmTrafficLightImage::_draw_one_text_billboard(std::shared_ptr<ViewManager> &_camera_ptr, text_billboard_data &_data_in){
+void rmImageArray::_draw_one_text_billboard(std::shared_ptr<ViewManager> &_camera_ptr, text_billboard_data &_data_in){
     // Calculate model matrix
     glm::mat4 view_m = get_mv_matrix(_camera_ptr, glm::mat4(1.0)); // _camera_ptr->GetModelViewMatrix();
     view_m[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -642,7 +642,7 @@ void rmTrafficLightImage::_draw_one_text_billboard(std::shared_ptr<ViewManager> 
     );
     //--------------------------------//
 }
-void rmTrafficLightImage::_draw_one_text_freeze_board(std::shared_ptr<ViewManager> &_camera_ptr, text_freeze_board_data &_data_in){
+void rmImageArray::_draw_one_text_freeze_board(std::shared_ptr<ViewManager> &_camera_ptr, text_freeze_board_data &_data_in){
     // Calculate model matrix
     glm::mat4 view_m = get_mv_matrix(_camera_ptr, glm::mat4(1.0)); // _camera_ptr->GetModelViewMatrix();
     //
@@ -681,10 +681,10 @@ void rmTrafficLightImage::_draw_one_text_freeze_board(std::shared_ptr<ViewManage
 
 
 //-----------------------------------------------//
-// void rmTrafficLightImage::RenderText(const std::string &text, atlas *_atlas_ptr, float x, float y, float scale_x_in, float scale_y_in, glm::vec3 color) {
-void rmTrafficLightImage::RenderText(
+// void rmImageArray::RenderText(const std::string &text, ATLAS_IMAGE *_atlas_ptr, float x, float y, float scale_x_in, float scale_y_in, glm::vec3 color) {
+void rmImageArray::RenderText(
     const std::string &text,
-    std::shared_ptr<atlas> &_atlas_ptr,
+    std::shared_ptr<ATLAS_IMAGE> &_atlas_ptr,
     float x_in,
     float y_in,
     float scale_x_in,

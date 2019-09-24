@@ -1,5 +1,5 @@
-#ifndef RM_TRAFFIC_LIGHT_IMAGE_H
-#define RM_TRAFFIC_LIGHT_IMAGE_H
+#ifndef RM_IMAGE_ARRAY_H
+#define RM_IMAGE_ARRAY_H
 
 #include "rmBaseModel.h"
 #include "GL2DShape.hpp" // GL2DShape
@@ -27,11 +27,11 @@ Note 2:
 
 
 // atlas
-struct atlas;
+struct ATLAS_IMAGE;
 //
 
 
-class rmTrafficLightImage : public rmBaseModel
+class rmImageArray : public rmBaseModel
 {
 public:
     // // Different alignment
@@ -250,8 +250,8 @@ public:
 
 
 
-    rmTrafficLightImage(std::string _path_Assets_in, std::string frame_id_in="");
-    rmTrafficLightImage(std::string _path_Assets_in, int _ROS_topic_id_in);
+    rmImageArray(std::string _path_Assets_in, std::string frame_id_in="");
+    rmImageArray(std::string _path_Assets_in, int _ROS_topic_id_in);
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
@@ -331,10 +331,10 @@ protected:
     // ros::Time msg_time;
     std::string _frame_id;
 
-    // void RenderText(const std::string &text, atlas *_atlas_ptr, float x, float y, float scale_x_in, float scale_y_in, glm::vec3 color);
+    // void RenderText(const std::string &text, ATLAS_IMAGE *_atlas_ptr, float x, float y, float scale_x_in, float scale_y_in, glm::vec3 color);
     void RenderText(
         const std::string &text,
-        std::shared_ptr<atlas> &_atlas_ptr,
+        std::shared_ptr<ATLAS_IMAGE> &_atlas_ptr,
         float x_in,
         float y_in,
         float scale_x_in,
@@ -428,10 +428,10 @@ private:
 
 
     // Pointers of atlas
-    std::shared_ptr<atlas> atlas_ptr;
+    std::shared_ptr<ATLAS_IMAGE> atlas_ptr;
 
 
 
 };
 
-#endif // RM_TRAFFIC_LIGHT_IMAGE_H
+#endif // RM_IMAGE_ARRAY_H
