@@ -474,7 +474,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
         _a.push_back(1);
         _a.push_back(0);
         data_list.emplace_back(
-            _a,
+            vec2str(vector<int> {0,1,0}), //_a,
             glm::vec2(100.0f,100.0f),
             100,
             glm::vec3(1.0f),
