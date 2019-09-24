@@ -249,6 +249,10 @@ void rmTrafficLightImage::LoadModel(){
     // Enter the image file name
     image_name_list.push_back("TFL_red_off.png");
     image_name_list.push_back("TFL_red_on.png");
+    image_name_list.push_back("TFL_yello_off.png");
+    image_name_list.push_back("TFL_yello_on.png");
+    image_name_list.push_back("TFL_green_off.png");
+    image_name_list.push_back("TFL_green_on.png");
 
 
 

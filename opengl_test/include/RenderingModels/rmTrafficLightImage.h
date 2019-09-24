@@ -48,7 +48,7 @@ public:
     // };
     // //--------------------------------------//
 
-    static template<class _TI> std::string vec2str(std::vector<_TI> &vector_in){
+    template<class _TI> static std::string vec2str(const std::vector<_TI> &vector_in){
         std::string str_out;
         for (size_t i=0; i < vector_in.size(); ++i){
             str_out.push_back( vector_in[i] );
