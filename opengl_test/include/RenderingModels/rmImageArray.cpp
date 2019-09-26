@@ -693,6 +693,12 @@ void rmImageArray::RenderText(
     ALIGN_X align_x,
     ALIGN_Y align_y
 ){
+    // Check
+    if (!atlas_ptr){
+        std::cout << "Atlas is not created.\n";
+        return;
+    }
+    //
 
     GLfloat scale_x = scale_x_in/GLfloat(_atlas_ptr->font_size);
     GLfloat scale_y = scale_y_in/GLfloat(_atlas_ptr->font_size);
