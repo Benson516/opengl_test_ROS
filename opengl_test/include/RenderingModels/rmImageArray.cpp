@@ -28,6 +28,10 @@ struct ATLAS_IMAGE {
 
 		float tx;	// x offset of glyph in texture coordinates
 		float ty;	// y offset of glyph in texture coordinates
+        //
+        CHARACTER_PARAM():
+            ax(0),ay(0),bw(0),bh(0),bl(0),bt(0),tx(0),ty(0)
+        {}
 	};
     // character information
     vector<CHARACTER_PARAM> _ch;
@@ -51,7 +55,7 @@ struct ATLAS_IMAGE {
         _tex_h = 0;
 
         // memset(_ch, 0, sizeof _ch);
-        _ch.resize( image_path_list.size() );
+        _ch.resize( image_path_list.size() + IMAGE_CH_START_CHAR );
 
 
         int im_pixel_width = 1;
@@ -138,22 +142,26 @@ struct ATLAS_IMAGE {
             }
             //
 
+            int ch_idx = i + IMAGE_CH_START_CHAR;
+        	_ch[ch_idx].ax = im_pixel_width; // devide by 64 to translate to pixel // width
+        	_ch[ch_idx].ay = 0; // devide by 64 to translate to pixel // 0
 
-        	_ch[i].ax = im_pixel_width; // devide by 64 to translate to pixel // width
-        	_ch[i].ay = 0; // devide by 64 to translate to pixel // 0
+        	_ch[ch_idx].bw = im_pixel_width; // width
+        	_ch[ch_idx].bh = im_pixel_height;  // height
 
-        	_ch[i].bw = im_pixel_width; // width
-        	_ch[i].bh = im_pixel_height;  // height
+        	_ch[ch_idx].bl = 0; // _glyph->bitmap_left;  // 0
+        	_ch[ch_idx].bt = 0; // _glyph->bitmap_top;   // 0
 
-        	_ch[i].bl = 0; // _glyph->bitmap_left;  // 0
-        	_ch[i].bt = 0; // _glyph->bitmap_top;   // 0
-
-        	_ch[i].tx = _offset_x / double(_tex_w);
-        	_ch[i].ty = _offset_y / double(_tex_h);
+        	_ch[ch_idx].tx = _offset_x / double(_tex_w);
+        	_ch[ch_idx].ty = _offset_y / double(_tex_h);
 
         	rowh = std::max(rowh, im_pixel_height);
         	_offset_x += im_pixel_width + 1;
         }
+        // Add " " (space) character
+        //----------------------------------//
+        // (None)
+        //----------------------------------//
         fprintf(stderr, "Generated a %d x %d (%d kb) texture atlas\n", _tex_w, _tex_h, _tex_w * _tex_h / 1024);
     }
     //--------------------------------//
@@ -762,7 +770,13 @@ void rmImageArray::RenderText(
             x += (_atlas_ptr->_ch[' '].ax * scale_x)*8;
             continue;
         }
-	// for (uint8_t * p = (const uint8_t *)text; *p; p++) {
+        //
+        if (size_t(*p) >= _atlas_ptr->_ch.size()){
+            std::cout << "[imageArray] Warnning!! The character is out of range.\n";
+            continue;
+        }
+        //
+        // for (uint8_t * p = (const uint8_t *)text; *p; p++) {
 		/* Calculate the vertex and texture coordinates */
 		float x2 = x + _atlas_ptr->_ch[*p].bl * scale_x;
 		float y2 = -y - _atlas_ptr->_ch[*p].bt * scale_y;

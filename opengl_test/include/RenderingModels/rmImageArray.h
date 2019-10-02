@@ -23,7 +23,7 @@ Note 2:
 //------------------------------//
 */
 
-
+#define IMAGE_CH_START_CHAR 33
 
 
 // atlas
@@ -51,7 +51,7 @@ public:
     template<class _TI> static std::string vec2str(const std::vector<_TI> &vector_in){
         std::string str_out;
         for (size_t i=0; i < vector_in.size(); ++i){
-            str_out.push_back( vector_in[i] );
+            str_out.push_back( vector_in[i] + IMAGE_CH_START_CHAR);
         }
         return str_out;
     }
