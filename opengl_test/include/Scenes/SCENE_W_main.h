@@ -468,6 +468,16 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
 
     {
         std::shared_ptr<rmImageArray> image_array_ptr( new rmImageArray(_Assets_path, "base") );
+        // Enter the image file name
+        std::vector<std::string> image_name_list;
+        image_name_list.push_back("TFL_red_off.png");
+        image_name_list.push_back("TFL_red_on.png");
+        image_name_list.push_back("TFL_yello_off.png");
+        image_name_list.push_back("TFL_yello_on.png");
+        image_name_list.push_back("TFL_green_off.png");
+        image_name_list.push_back("TFL_green_on.png");
+        image_array_ptr->setup_image_dictionary(image_name_list);
+        //
         std::vector<rmImageArray::text2Dflat_data> data_list;
         // std::string _a;
         // _a.push_back(0);

@@ -243,9 +243,10 @@ void rmImageArray::Init(){
 }
 void rmImageArray::LoadModel(){
 
-    std::vector<std::string> image_name_list;
+    /*
+    //-------------------------------//
+    // std::vector<std::string> image_name_list;
     std::vector<std::string> image_path_list;
-
     // Enter the image file name
     image_name_list.push_back("TFL_red_off.png");
     image_name_list.push_back("TFL_red_on.png");
@@ -253,13 +254,11 @@ void rmImageArray::LoadModel(){
     image_name_list.push_back("TFL_yello_on.png");
     image_name_list.push_back("TFL_green_off.png");
     image_name_list.push_back("TFL_green_on.png");
-
-
-
     // Generate full paths
     for (size_t i=0; i < image_name_list.size(); ++i){
         image_path_list.push_back( get_full_Assets_path(image_name_list[i]) );
     }
+    //-------------------------------//
 
 
     if (!atlas_ptr){
@@ -267,6 +266,7 @@ void rmImageArray::LoadModel(){
     }else{
         std::cout << "The atlas<" << atlas_ptr->font_size << "> is already created.\n";
     }
+    */
 
 
 

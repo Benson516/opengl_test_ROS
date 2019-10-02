@@ -268,6 +268,21 @@ public:
         updateBoardGeo();
     }
 
+    //
+    void setup_image_dictionary(stdLLvector<std::string> &image_name_list_in){
+        image_name_list = image_name_list_in;
+        std::vector<std::string> image_path_list;
+        // Generate full paths
+        for (size_t i=0; i < image_name_list.size(); ++i){
+            image_path_list.push_back( get_full_Assets_path(image_name_list[i]) );
+        }
+        //
+        atlas_ptr.reset(new ATLAS_IMAGE(image_path_list));
+        std::cout << "The atlas<" << atlas_ptr->font_size << "> is created.\n";
+        //
+    }
+    //
+
     // Insert method for texts
     // queues - draw once
     //-------------------------------------//
@@ -428,6 +443,7 @@ private:
 
 
     // Pointers of atlas
+    std::vector<std::string> image_name_list;
     std::shared_ptr<ATLAS_IMAGE> atlas_ptr;
 
 
