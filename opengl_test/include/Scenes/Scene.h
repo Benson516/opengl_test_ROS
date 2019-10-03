@@ -32,11 +32,12 @@
 #include "rmlv2PathPlanFake.h"
 #include "rmlv2PathPlan_v1.h"
 #include "rmlv2SpeedMeter.h"
-// The following are not finished yet
-#include "rmlv2TrafficLight.h"
+// #include "rmlv2TrafficLight.h"
 #include "rmlv2TrafficLightSimple.h"
 #include "rmMagicPowder.h"
 #include "rmImageArray.h"
+// The following are not finished yet
+#include "rmlv2TrafficLightImage.h"
 //
 
 class Scene
