@@ -15,7 +15,8 @@ rmlv2TrafficLightImage::rmlv2TrafficLightImage(
     is_light_online(false),
     //
     rm_board(_path_Assets_in, frame_id_in, color_vec4_in, is_perspected_in, is_moveable_in),
-    rm_text(_path_Assets_in, _ROS_topic_id_in)
+    rm_text(_path_Assets_in, _ROS_topic_id_in),
+    rm_image_word(_path_Assets_in, _ROS_topic_id_in)
 {
     //
 	Init();
@@ -25,18 +26,31 @@ void rmlv2TrafficLightImage::Init(){
     // For adjusting the model pose by public methods
     attach_pose_model_by_model_ref_ptr( *rm_board.get_model_m_ptr() );
     attach_pose_model_by_model_ref_ptr( *rm_text.get_model_m_ptr() );
+    attach_pose_model_by_model_ref_ptr( *rm_image_word.get_model_m_ptr() );
 
 
     rm_board.shape.setBoardSizePixel(280, 80);
     rm_board.shape.setBoardPositionCVPixel(-5,95,1,ALIGN_X::RIGHT, ALIGN_Y::TOP);
     rm_text.shape = rm_board.shape;
+    rm_image_word.shape = rm_board.shape;
+
+    // Enter the image file name
+    std::vector<std::string> image_name_list;
+    image_name_list.push_back("TFL_red_off.png");
+    image_name_list.push_back("TFL_red_on.png");
+    image_name_list.push_back("TFL_yello_off.png");
+    image_name_list.push_back("TFL_yello_on.png");
+    image_name_list.push_back("TFL_green_off.png");
+    image_name_list.push_back("TFL_green_on.png");
+    rm_image_word.setup_image_dictionary(image_name_list);
+
+
 
     // Initialized the text to display
     _put_text(0, 0, false);
-
-
     // Reset
     text2D_flat_list.clear();
+    image_flat_list.clear();
 
 }
 
@@ -56,22 +70,21 @@ void rmlv2TrafficLightImage::Update(ROS_API &ros_api){
 
     if (_result){
         update_GL_data();
-        // rm_text.insert_text();
+        // rm_image_word.insert_text();
     }
 
     //
     rm_board.Update(ros_api);
     rm_text.Update(ros_api);
+    rm_image_word.Update(ros_api);
 }
 
 
 void rmlv2TrafficLightImage::Render(std::shared_ptr<ViewManager> &_camera_ptr){
 
     rm_board.Render(_camera_ptr);
-    // if (is_light_online){
-    //     rm_text.Render(_camera_ptr);
-    // }
     rm_text.Render(_camera_ptr);
+    rm_image_word.Render(_camera_ptr);
 
 }
 
@@ -81,11 +94,14 @@ void rmlv2TrafficLightImage::Reshape(const glm::ivec2 & viewport_size_in){
     rm_board.Reshape(viewport_size_in);
     rm_text.shape = rm_board.shape;
     rm_text.Reshape(viewport_size_in);
+    rm_image_word.shape = rm_board.shape;
+    rm_image_word.Reshape(viewport_size_in);
 }
 
 void rmlv2TrafficLightImage::update_GL_data(){
     // Reset
     text2D_flat_list.clear();
+    image_flat_list.clear();
 
     int light_status = int(msg_out_ptr->Dspace_Flag02);
     int light_CD     = int(msg_out_ptr->Dspace_Flag03);  // Count-down time
@@ -104,36 +120,48 @@ void rmlv2TrafficLightImage::update_GL_data(){
 
 void rmlv2TrafficLightImage::_put_text(int light_status, int light_CD, bool is_enabled){
     //
-    std::string _str_out( "Traffic Light\n" );
+    std::vector<int> _image_id_out {0,2,4};
+    std::string _str_out;
     glm::vec3 _text_color(0.3f);
 
     if (is_enabled){
         //
         switch (light_status){
             case 1: // red
-                _str_out += "Red:    ";
+                _image_id_out[0] = 1;
                 _text_color = glm::vec3(1.0f, 0.0f, 0.0f);
                 break;
             case 3: // yello
-                _str_out += "Yellow: ";
+                _image_id_out[1] = 3;
                 _text_color = glm::vec3(0.897f, 0.837f, 0.0f);
                 break;
             case 2: // green
-                _str_out += "Green:  ";
+                _image_id_out[2] = 5;
                 _text_color = glm::vec3(0.0f, 0.886f, 0.046f);
                 break;
             default:
                 _str_out += "--:     ";
                 break;
         }
-        //
-        if ( light_CD < 10){
-            _str_out += " ";
-        }
-        _str_out += std::to_string(light_CD) + " sec.";
+        // Light CD
+        _str_out = std::to_string(light_CD) + " sec.";
     }
     //
 
+    //
+    image_flat_list.emplace_back(
+        rmImageArray::vec2str(_image_id_out),
+        glm::vec2(float(35), float(8)),
+        // glm::vec2( 0.0f, 0.0f),
+        36,
+        glm::vec3(1.0f),
+        ALIGN_X::LEFT,
+        ALIGN_Y::TOP,
+        0,
+        0,
+        false,
+        false
+    );
     //
     text2D_flat_list.emplace_back(
         _str_out,
@@ -151,4 +179,5 @@ void rmlv2TrafficLightImage::_put_text(int light_status, int light_CD, bool is_e
 
     // Insert texts
     rm_text.insert_text( text2D_flat_list );
+    rm_image_word.insert_text( image_flat_list );
 }

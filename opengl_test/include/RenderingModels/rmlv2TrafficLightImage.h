@@ -43,12 +43,14 @@ protected:
     //
     rmColorBoard rm_board;
     rmText3D_v2 rm_text;
+    rmImageArray rm_image_word;
 
     void update_GL_data();
 
 private:
 
     std::vector<rmText3D_v2::text2Dflat_data> text2D_flat_list;
+    std::vector<rmImageArray::text2Dflat_data> image_flat_list;
 
 };
 
