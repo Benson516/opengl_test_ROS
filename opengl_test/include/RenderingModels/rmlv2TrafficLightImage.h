@@ -6,6 +6,7 @@
 //
 #include "rmColorBoard.h"
 #include "rmText3D_v2.h"
+#include "rmImageArray.h"
 
 
 class rmlv2TrafficLightImage : public rmBaseModel

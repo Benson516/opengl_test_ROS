@@ -144,19 +144,19 @@ void rmlv2TrafficLightImage::_put_text(int light_status, int light_CD, bool is_e
                 break;
         }
         // Light CD
-        _str_out = std::to_string(light_CD) + " sec.";
+        _str_out = std::to_string(light_CD) + " s";
     }
     //
 
     //
     image_flat_list.emplace_back(
         rmImageArray::vec2str(_image_id_out),
-        glm::vec2(float(35), float(8)),
+        glm::vec2(float(8), float(rm_image_word.shape.board_height*0.5)),
         // glm::vec2( 0.0f, 0.0f),
-        36,
+        60,
         glm::vec3(1.0f),
         ALIGN_X::LEFT,
-        ALIGN_Y::TOP,
+        ALIGN_Y::CENTER,
         0,
         0,
         false,
@@ -165,12 +165,12 @@ void rmlv2TrafficLightImage::_put_text(int light_status, int light_CD, bool is_e
     //
     text2D_flat_list.emplace_back(
         _str_out,
-        glm::vec2(float(35), float(8)),
+        glm::vec2(float(200), float(rm_text.shape.board_height*0.5)),
         // glm::vec2( 0.0f, 0.0f),
         36,
         _text_color,
         ALIGN_X::LEFT,
-        ALIGN_Y::TOP,
+        ALIGN_Y::CENTER,
         0,
         0,
         false,
