@@ -220,6 +220,9 @@ set(ALL_GL_UTIL_LIBS
 # test_1
 # add_executable(test_1 src/7.5.Point_Sprite/test_1.cpp include/ROS_ICLU3_v0.cpp include/Scenes/Scene.cpp ${ALL_RENDER_MODELS})
 # target_link_libraries(test_1 ROS_interface_v4_1 ${ALL_GL_LIBS} ${ALL_GL_UTIL_LIBS} ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )
+# test_republish_image
+add_executable(test_republish_image src/7.5.Point_Sprite/test_republish_image.cpp   )
+target_link_libraries(test_republish_image  ${OpenCV_LIBS} ${catkin_LIBRARIES} )
 # point_sprite
 # add_executable(point_sprite src/7.5.Point_Sprite/Point_Sprite.cpp )
 # target_link_libraries(point_sprite ROS_interface_v4_1  ${ALL_GL_LIBS} ${ALL_GL_UTIL_LIBS} ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )
