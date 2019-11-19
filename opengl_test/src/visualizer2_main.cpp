@@ -176,10 +176,9 @@ void TW_CALL ResetViewCB(void * clientData)
 
 // Take screenshot
 //------------------------------------//
-void takeScreenshotPNG()
-{
-	const unsigned int Width = m_screenSize.x;
-	const unsigned int Height = m_screenSize.y;
+void takeScreenshotPNG(){
+    const unsigned int Width = windows_width;
+	const unsigned int Height = windows_height;
 	int size = Width * Height * 4;
 	unsigned char *pixels = new unsigned char[size];
 	unsigned char *rotatedPixels = new unsigned char[size];
@@ -197,18 +196,48 @@ void takeScreenshotPNG()
 		}
 	}
 
-	int fileIndex = 0;
-	while (1)
-	{
-		string fileName = string("./" + to_string(fileIndex) + ".png").c_str();
-		std::ifstream infile(fileName);
-		if (!infile.good())
-			break;
-		fileIndex++;
-	}
-	// stbi_write_png(string("./" + to_string(fileIndex) + ".png").c_str(), Width, Height, 4, rotatedPixels, 0);
-	delete pixels, rotatedPixels;
-	printf("Take screenshot\n");
+    int fileIndex = 0;
+    while (1)
+    {
+    	string fileName = string("./" + to_string(fileIndex) + ".png").c_str();
+    	std::ifstream infile(fileName);
+    	if (!infile.good())
+    		break;
+    	fileIndex++;
+    }
+    // stbi_write_png(string("./" + to_string(fileIndex) + ".png").c_str(), Width, Height, 4, rotatedPixels, 0);
+    delete pixels, rotatedPixels;
+    printf("Take screenshot\n");
+}
+void takeScreenshotPNG_openCV(){
+	const unsigned int Width = windows_width;
+	const unsigned int Height = windows_height;
+    //
+    cv::Mat img(Height, Width, CV_8UC3);
+    cv::Mat flipped;
+    //use fast 4-byte alignment (default anyway) if possible
+    glPixelStorei(GL_PACK_ALIGNMENT, (img.step & 3) ? 1 : 4);
+    //set length of one complete row in destination data (doesn't need to equal img.cols)
+    glPixelStorei(GL_PACK_ROW_LENGTH, img.step/img.elemSize());
+
+    //
+    glReadPixels(0, 0, img.cols, img.rows, GL_BGR, GL_UNSIGNED_BYTE, img.data);
+    // Flip
+    cv::flip(img, flipped, 0);
+
+    // search existing file
+    int fileIndex = 0;
+    while (1)
+    {
+    	string fileName = string("/home/itri/screenshot_test/image_" + to_string(fileIndex) + ".png").c_str();
+    	std::ifstream infile(fileName);
+    	if (!infile.good())
+    		break;
+    	fileIndex++;
+    }
+    imwrite( "/home/itri/screenshot_test/image_" + to_string(fileIndex) + ".png", flipped );
+
+    printf("Take screenshot (openCV)\n");
 }
 //------------------------------------//
 // end Take screenshot
@@ -659,7 +688,8 @@ void My_Keyboard(unsigned char key, int x, int y)
         return;
     }
     else if (key == 't' || key == 'T'){
-        takeScreenshotPNG();
+        // takeScreenshotPNG();
+        takeScreenshotPNG_openCV();
     }
 
     // Update all_scenes
