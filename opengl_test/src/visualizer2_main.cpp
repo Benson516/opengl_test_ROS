@@ -226,7 +226,7 @@ void takeScreenshotPNG_openCV(){
     cv::flip(img, flipped, 0);
 
     // search existing file
-    int fileIndex = 0;
+    static int fileIndex = 0;
     while (1)
     {
     	string fileName = string("/home/itri/screenshot_test/image_" + to_string(fileIndex) + ".png").c_str();
@@ -238,6 +238,25 @@ void takeScreenshotPNG_openCV(){
     imwrite( "/home/itri/screenshot_test/image_" + to_string(fileIndex) + ".png", flipped );
 
     printf("Take screenshot (openCV)\n");
+}
+void takeScreenshot_ROSimage(){
+	const unsigned int Width = windows_width;
+	const unsigned int Height = windows_height;
+    //
+    cv::Mat img(Height, Width, CV_8UC3);
+    cv::Mat flipped;
+    //use fast 4-byte alignment (default anyway) if possible
+    glPixelStorei(GL_PACK_ALIGNMENT, (img.step & 3) ? 1 : 4);
+    //set length of one complete row in destination data (doesn't need to equal img.cols)
+    glPixelStorei(GL_PACK_ROW_LENGTH, img.step/img.elemSize());
+
+    //
+    glReadPixels(0, 0, img.cols, img.rows, GL_BGR, GL_UNSIGNED_BYTE, img.data);
+    // Flip
+    cv::flip(img, flipped, 0);
+
+    ros_api.ros_interface.send_Image(int(MSG_ID::GUI_screen_out), flipped);
+    // printf("Take screenshot (openCV)\n");
 }
 //------------------------------------//
 // end Take screenshot
@@ -643,6 +662,9 @@ void My_Timer(int val)
     //-----------------------//
     ROS_update();
     //-----------------------//
+
+    // takeScreenshotPNG_openCV();
+    takeScreenshot_ROSimage();
 
 	glutPostRedisplay();
 	// glutTimerFunc(timer_interval, My_Timer, val);
