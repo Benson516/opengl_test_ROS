@@ -251,6 +251,7 @@ void takeScreenshot_ROSimage(){
     glPixelStorei(GL_PACK_ROW_LENGTH, img.step/img.elemSize());
 
     //
+    glReadBuffer(GL_FRONT);
     glReadPixels(0, 0, img.cols, img.rows, GL_BGR, GL_UNSIGNED_BYTE, img.data);
     // Flip
     cv::flip(img, flipped, 0);
@@ -669,6 +670,12 @@ void My_Timer(int val)
 	glutPostRedisplay();
 	// glutTimerFunc(timer_interval, My_Timer, val);
 }
+void My_Timer_screen_record(int val)
+{
+    glutTimerFunc(66.0f, My_Timer_screen_record, val);
+    // takeScreenshotPNG_openCV();
+    takeScreenshot_ROSimage();
+}
 
 //Mouse event
 void My_Mouse(int button, int state, int x, int y)
@@ -843,6 +850,7 @@ int main(int argc, char *argv[])
 	glutKeyboardFunc(My_Keyboard);
 	glutSpecialFunc(My_SpecialKeys);
 	glutTimerFunc(timer_interval, My_Timer, 0);
+    glutTimerFunc(66.0f, My_Timer_screen_record, 1);
 	glutPassiveMotionFunc(My_Mouse_Moving);
 	glutMotionFunc(My_Mouse_Moving);
 	////////////////////
