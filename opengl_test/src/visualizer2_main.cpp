@@ -174,6 +174,47 @@ void TW_CALL ResetViewCB(void * clientData)
 
 }
 
+// Take screenshot
+//------------------------------------//
+void takeScreenshotPNG()
+{
+	const unsigned int Width = m_screenSize.x;
+	const unsigned int Height = m_screenSize.y;
+	int size = Width * Height * 4;
+	unsigned char *pixels = new unsigned char[size];
+	unsigned char *rotatedPixels = new unsigned char[size];
+	glReadBuffer(GL_FRONT);
+	glReadPixels(0, 0, Width, Height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	// invert Y axis
+	for (int h = 0; h < Height; ++h)
+	{
+		for (int w = 0; w < Width; ++w)
+		{
+			rotatedPixels[((Height - h - 1) * Width + w) * 4] = pixels[(h * Width + w) * 4];
+			rotatedPixels[((Height - h - 1) * Width + w) * 4 + 1] = pixels[(h * Width + w) * 4 + 1];
+			rotatedPixels[((Height - h - 1) * Width + w) * 4 + 2] = pixels[(h * Width + w) * 4 + 2];
+			rotatedPixels[((Height - h - 1) * Width + w) * 4 + 3] = pixels[(h * Width + w) * 4 + 3];
+		}
+	}
+
+	int fileIndex = 0;
+	while (1)
+	{
+		string fileName = string("./" + to_string(fileIndex) + ".png").c_str();
+		std::ifstream infile(fileName);
+		if (!infile.good())
+			break;
+		fileIndex++;
+	}
+	// stbi_write_png(string("./" + to_string(fileIndex) + ".png").c_str(), Width, Height, 4, rotatedPixels, 0);
+	delete pixels, rotatedPixels;
+	printf("Take screenshot\n");
+}
+//------------------------------------//
+// end Take screenshot
+
+
+
 void setupGUI()
 {
 	// Initialize AntTweakBar
@@ -192,7 +233,7 @@ void setupGUI()
 
     bar_1_ptr = TwNewBar("Status");
     TwDefine(" Status position='0 0' ");
-    // 
+    //
 #if __ROS_INTERFACE_VER__ == 1
     TwDefine(" Status size='270 530' "); // 270 530 // 270 450 // 220, 300
 #elif __ROS_INTERFACE_VER__ == 2
@@ -617,6 +658,9 @@ void My_Keyboard(unsigned char key, int x, int y)
     if (TwEventKeyboardGLUT(key, x, y)){
         return;
     }
+    else if (key == 't' || key == 'T'){
+        takeScreenshotPNG();
+    }
 
     // Update all_scenes
     //--------------------//
@@ -668,6 +712,9 @@ void My_Mouse_Moving(int x, int y) {
     }
     //--------------------//
 }
+
+
+
 
 
 int main(int argc, char *argv[])
