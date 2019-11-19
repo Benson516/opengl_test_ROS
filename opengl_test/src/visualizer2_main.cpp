@@ -242,6 +242,14 @@ void takeScreenshotPNG_openCV(){
 void takeScreenshot_ROSimage(){
 	const unsigned int Width = windows_width;
 	const unsigned int Height = windows_height;
+    // const unsigned int Width = 680;
+	// const unsigned int Height = 480;
+
+    // start
+    //-----------------------//
+    TIME_STAMP::Period period_image("image");
+    //-----------------------//
+
     //
     cv::Mat img(Height, Width, CV_8UC3);
     cv::Mat flipped;
@@ -250,14 +258,40 @@ void takeScreenshot_ROSimage(){
     //set length of one complete row in destination data (doesn't need to equal img.cols)
     glPixelStorei(GL_PACK_ROW_LENGTH, img.step/img.elemSize());
 
+    // 1
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
     //
     glReadBuffer(GL_FRONT);
+
+    // 2
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
     glReadPixels(0, 0, img.cols, img.rows, GL_BGR, GL_UNSIGNED_BYTE, img.data);
+
+    // 3
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
     // Flip
     cv::flip(img, flipped, 0);
 
+    // 4
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
     ros_api.ros_interface.send_Image(int(MSG_ID::GUI_screen_out), flipped);
     // printf("Take screenshot (openCV)\n");
+
+    // 5
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
 }
 //------------------------------------//
 // end Take screenshot
@@ -664,18 +698,28 @@ void My_Timer(int val)
     ROS_update();
     //-----------------------//
 
-    // takeScreenshotPNG_openCV();
-    takeScreenshot_ROSimage();
+    // Take screenshot
+    // Note: This method is slow!!
+    //---------------------------//
+    static int screenshot_count = 0;
+    screenshot_count++;
+    if (screenshot_count >= 4){
+        // takeScreenshotPNG_openCV();
+        takeScreenshot_ROSimage();
+        screenshot_count = 0;
+    }
+    //---------------------------//
 
 	glutPostRedisplay();
 	// glutTimerFunc(timer_interval, My_Timer, val);
 }
-void My_Timer_screen_record(int val)
-{
-    glutTimerFunc(66.0f, My_Timer_screen_record, val);
-    // takeScreenshotPNG_openCV();
-    takeScreenshot_ROSimage();
-}
+
+// void My_Timer_screen_record(int val)
+// {
+//     glutTimerFunc(66.0f, My_Timer_screen_record, val);
+//     // takeScreenshotPNG_openCV();
+//     takeScreenshot_ROSimage();
+// }
 
 //Mouse event
 void My_Mouse(int button, int state, int x, int y)
@@ -850,12 +894,10 @@ int main(int argc, char *argv[])
 	glutKeyboardFunc(My_Keyboard);
 	glutSpecialFunc(My_SpecialKeys);
 	glutTimerFunc(timer_interval, My_Timer, 0);
-    glutTimerFunc(66.0f, My_Timer_screen_record, 1);
+    // glutTimerFunc(66.0f, My_Timer_screen_record, 1);
 	glutPassiveMotionFunc(My_Mouse_Moving);
 	glutMotionFunc(My_Mouse_Moving);
 	////////////////////
-
-
 
 
     // test, cv windows
