@@ -39,10 +39,6 @@
     #define _IMAGE_W_       1920
     #define _IMAGE_H_       1208
     #define _IMAGE_ASP_     1.5894039735099337 // Aspect ratio
-#elif __ROS_INTERFACE_VER__ == 3
-    #define _IMAGE_W_       1920
-    #define _IMAGE_H_       1208
-    #define _IMAGE_ASP_     1.5894039735099337 // Aspect ratio
 #endif
 //----------------------------------//
 
