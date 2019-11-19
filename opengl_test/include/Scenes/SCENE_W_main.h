@@ -138,7 +138,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
 
     // Grid ground
     _rmGrid_ptr.reset(new rmGrid(_Assets_path, "map", "GUI_base_footprint" ) );
-    _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, 0.0f, true);
+    _rmGrid_ptr->set_grid_param(5.0, 5.0, 10, 10, 0.0f, true, glm::vec3(0.5f,0.5f,0.5f));
     _rm_BaseModel.push_back( _rmGrid_ptr );
 
     /*
@@ -466,6 +466,41 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     }
     */
 
+    // Test image array (image word)
+    //---------------------------------//
+    // {
+    //     std::shared_ptr<rmImageArray> image_array_ptr( new rmImageArray(_Assets_path, "base") );
+    //     // Enter the image file name
+    //     std::vector<std::string> image_name_list;
+    //     image_name_list.push_back("TFL_red_off.png");
+    //     image_name_list.push_back("TFL_red_on.png");
+    //     image_name_list.push_back("TFL_yello_off.png");
+    //     image_name_list.push_back("TFL_yello_on.png");
+    //     image_name_list.push_back("TFL_green_off.png");
+    //     image_name_list.push_back("TFL_green_on.png");
+    //     image_array_ptr->setup_image_dictionary(image_name_list);
+    //     //
+    //     std::vector<rmImageArray::text2Dflat_data> data_list;
+    //     // std::string _a;
+    //     // _a.push_back(0);
+    //     // _a.push_back(1);
+    //     // _a.push_back(0);
+    //     data_list.emplace_back(
+    //         rmImageArray::vec2str(vector<int> {0,1,2,3,4,5}) + "\n" + rmImageArray::vec2str(vector<int> {1,0,3,2,5,4}), // a,
+    //         glm::vec2(100.0f,100.0f),
+    //         100,
+    //         glm::vec3(1.0f),
+    //         ALIGN_X::LEFT,
+    //         ALIGN_Y::TOP,
+    //         0,
+    //         0,
+    //         true,
+    //         false
+    //     );
+    //     image_array_ptr->insert_text(data_list);
+    //     _rm_BaseModel.push_back( image_array_ptr );
+    // }
+    //---------------------------------//
 
     /*
     // rmColorBoard
@@ -495,7 +530,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     //
 
     // Traffic light (simple)
-    _rm_BaseModel.push_back( std::shared_ptr<rmlv2TrafficLightSimple>( new rmlv2TrafficLightSimple(_Assets_path, int(MSG_ID::flag_info_2) ) ) );
+    // _rm_BaseModel.push_back( std::shared_ptr<rmlv2TrafficLightSimple>( new rmlv2TrafficLightSimple(_Assets_path, int(MSG_ID::flag_info_2) ) ) );
+    _rm_BaseModel.push_back( std::shared_ptr<rmlv2TrafficLightImage>( new rmlv2TrafficLightImage(_Assets_path, int(MSG_ID::flag_info_2) ) ) );
 
 
     // // Traffic light

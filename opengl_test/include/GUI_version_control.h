@@ -7,6 +7,9 @@
 #define __ROS_INTERFACE_VER__   2   // 1, 2
 // 1 - FlOWER_EXPOSE
 // 2 - HINO
+#define __HINO_VER__            2   // 1, 2
+// 1 - Original HINO
+// 2 - post HINO
 //----------------------------------//
 
 // The version of the class of detection object
@@ -37,8 +40,6 @@
     #define _IMAGE_H_       1208
     #define _IMAGE_ASP_     1.5894039735099337 // Aspect ratio
 #endif
-// 0 - Without tracking, showing the raw lidar bounding boxes
-// 1 - With tracking, showing the tracking boxes
 //----------------------------------//
 
 
