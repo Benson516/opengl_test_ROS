@@ -75,6 +75,9 @@ float	windows_width = 1200; // 800;
 float   windows_height = 800; // 600;
 float	timer_interval = 16.0f;
 
+// test, PBO
+#define PBO_COUNT 2
+GLuint pboIds[PBO_COUNT]; // IDs of PBOs
 
 /*
 #define MENU_Sale 1
@@ -196,7 +199,7 @@ void takeScreenshotPNG(){
 		}
 	}
 
-    int fileIndex = 0;
+    static int fileIndex = 0;
     while (1)
     {
     	string fileName = string("./" + to_string(fileIndex) + ".png").c_str();
@@ -221,6 +224,8 @@ void takeScreenshotPNG_openCV(){
     glPixelStorei(GL_PACK_ROW_LENGTH, img.step/img.elemSize());
 
     //
+    // set the framebuffer to read
+    glReadBuffer(GL_FRONT);
     glReadPixels(0, 0, img.cols, img.rows, GL_BGR, GL_UNSIGNED_BYTE, img.data);
     // Flip
     cv::flip(img, flipped, 0);
@@ -296,6 +301,164 @@ void takeScreenshot_ROSimage(){
 //------------------------------------//
 // end Take screenshot
 
+
+
+// Pack image using double PBOs
+//--------------------------------//
+void screen_streaming_init(){
+    // create PBO_COUNT"" pixel buffer objects, you need to delete them when program exits.
+    // glBufferData() with NULL pointer reserves only memory space.
+    int SCREEN_WIDTH = windows_width;
+    int SCREEN_HEIGHT = windows_height;
+    int CHANNEL_COUNT = 4; // 3
+    int DATA_SIZE = SCREEN_WIDTH * SCREEN_HEIGHT * CHANNEL_COUNT;
+    glGenBuffers(PBO_COUNT, pboIds);
+    for (size_t i=0; i < PBO_COUNT; ++i){
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[i]);
+        glBufferData(GL_PIXEL_PACK_BUFFER, DATA_SIZE, 0, GL_STREAM_READ);
+    }
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+
+}
+// void screen_streaming_step(){
+//     int SCREEN_WIDTH = windows_width;
+//     int SCREEN_HEIGHT = windows_height;
+//     // int CHANNEL_COUNT = 3;
+//     static int index = -1;
+//     int nextIndex = 0;                  // pbo index used for next frame
+//     //
+//     static std::vector<glm::vec2> size_list(PBO_COUNT, glm::vec2(windows_width, windows_height) );
+//     static std::vector<cv::Mat> img_list;
+//     // Initialization
+//     if (index < 0){
+//         img_list.resize(0);
+//         for (size_t i=0; i < PBO_COUNT; ++i){
+//             img_list.push_back( cv::Mat(size_list[i][1], size_list[i][0], CV_8UC3) );
+//         }
+//         index = 0;
+//     }
+//     // end Initialization
+//
+//     // glBindVertexArray(0);
+//
+//     // increment current index first then get the next index
+//     // "index" is used to read pixels from a framebuffer to a PBO
+//     // "nextIndex" is used to process pixels in the other PBO
+//     index = (index + 1) % PBO_COUNT;
+//     nextIndex = (index + 1) % PBO_COUNT;
+//
+//
+//     // Update size and image
+//     size_list[index] = glm::vec2(windows_width, windows_height);
+//     img_list[index] = cv::Mat(size_list[index][1], size_list[index][0], CV_8UC3);
+//
+//     // set the framebuffer to read
+//     glReadBuffer(GL_FRONT);
+//     // copy pixels from framebuffer to PBO
+//     // Use offset instead of pointer.
+//     // OpenGL should perform asynch DMA transfer, so glReadPixels() will return immediately.
+//     glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[index]);
+//
+//
+//     //use fast 4-byte alignment (default anyway) if possible
+//     glPixelStorei(GL_PACK_ALIGNMENT, (img_list[index].step & 3) ? 1 : 4);
+//     //set length of one complete row in destination data (doesn't need to equal img.cols)
+//     glPixelStorei(GL_PACK_ROW_LENGTH, img_list[index].step/img_list[index].elemSize());
+//     // Reset buffer size
+//     glBufferData(GL_PIXEL_PACK_BUFFER, img_list[index].elemSize() * 3, 0, GL_STREAM_READ);
+//     glReadPixels(0, 0, size_list[index][0], size_list[index][1], GL_BGR, GL_UNSIGNED_BYTE, 0);
+//
+//     // Now proccess the old one
+//     //---------------------------------//
+//     // map the PBO that contain framebuffer pixels before processing it
+//     glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[nextIndex]);
+//     glGetBufferSubData(GL_PIXEL_PACK_BUFFER, 0, img_list[nextIndex].elemSize() * 3, img_list[nextIndex].data );
+//     // GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+//     // if(src)
+//     // {
+//     //     // Copy data
+//     //     for (size_t _i=0; _i < (img_list[nextIndex].elemSize()*3); ++_i){
+//     //         img_list[nextIndex].data[_i] = src[_i];
+//     //     }
+//     //     glUnmapBuffer(GL_PIXEL_PACK_BUFFER);        // release pointer to the mapped buffer
+//     // }
+//
+//     // Flip
+//     cv::Mat flipped;
+//     cv::flip(img_list[nextIndex], flipped, 0);
+//     // Send
+//     ros_api.ros_interface.send_Image(int(MSG_ID::GUI_screen_out), flipped);
+//     //
+//
+//     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+//
+// }
+
+void screen_streaming_step_2(){
+    int SCREEN_WIDTH = windows_width;
+    int SCREEN_HEIGHT = windows_height;
+    int CHANNEL_COUNT = 4;
+    int DATA_SIZE = 0;
+    static int index = 0;
+    int nextIndex = 0;                  // pbo index used for next frame
+    //
+    static std::vector<glm::ivec2> size_list(PBO_COUNT, glm::vec2(windows_width, windows_height) );
+
+    // glBindVertexArray(0);
+
+    // increment current index first then get the next index
+    // "index" is used to read pixels from a framebuffer to a PBO
+    // "nextIndex" is used to process pixels in the other PBO
+    index = (index + 1) % PBO_COUNT;
+    nextIndex = (index + 1) % PBO_COUNT;
+
+
+    // Update size and image
+    size_list[index] = glm::ivec2(windows_width, windows_height);
+
+    // set the framebuffer to read
+    glReadBuffer(GL_FRONT);
+    // copy pixels from framebuffer to PBO
+    // Use offset instead of pointer.
+    // OpenGL should perform asynch DMA transfer, so glReadPixels() will return immediately.
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[index]);
+
+    DATA_SIZE = size_list[index].x * size_list[index].y * CHANNEL_COUNT;
+    // Reset buffer size
+    glBufferData(GL_PIXEL_PACK_BUFFER, DATA_SIZE, 0, GL_STREAM_READ);
+    glReadPixels(0, 0, size_list[index].x, size_list[index].y, GL_BGRA, GL_UNSIGNED_BYTE, 0);
+
+    // Now proccess the old one
+    //---------------------------------//
+    DATA_SIZE = size_list[nextIndex].x * size_list[nextIndex].y * CHANNEL_COUNT;
+    cv::Mat img(size_list[nextIndex].y, size_list[nextIndex].x, CV_8UC4);
+    // map the PBO that contain framebuffer pixels before processing it
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[nextIndex]);
+    GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+    if(src)
+    {
+        // Copy data
+        // for (size_t _i=0; _i < DATA_SIZE; ++_i){
+        //     img.data[_i] = src[_i];
+        // }
+        img = cv::Mat(size_list[nextIndex].y, size_list[nextIndex].x, CV_8UC4, src);
+        glUnmapBuffer(GL_PIXEL_PACK_BUFFER);        // release pointer to the mapped buffer
+    }
+
+    cv::Mat image_decoded;
+    cvtColor(img, image_decoded, CV_BGRA2BGR);
+    // Flip
+    cv::Mat flipped;
+    cv::flip(image_decoded, flipped, 0);
+    // Send
+    ros_api.ros_interface.send_Image(int(MSG_ID::GUI_screen_out), flipped);
+    //
+
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+
+}
+//--------------------------------//
+// end Pack image using double PBOs
 
 
 void setupGUI()
@@ -703,11 +866,15 @@ void My_Timer(int val)
     //---------------------------//
     static int screenshot_count = 0;
     screenshot_count++;
-    if (screenshot_count >= 4){
+    if (screenshot_count >= 2){
         // takeScreenshotPNG_openCV();
-        takeScreenshot_ROSimage();
+        // takeScreenshot_ROSimage();
+        // screen_streaming_step();
+        screen_streaming_step_2();
         screenshot_count = 0;
     }
+    // screen_streaming_step();
+    // screen_streaming_step_2();
     //---------------------------//
 
 	glutPostRedisplay();
@@ -899,6 +1066,9 @@ int main(int argc, char *argv[])
 	glutMotionFunc(My_Mouse_Moving);
 	////////////////////
 
+    // test, PBO screen streaming
+    screen_streaming_init();
+    //
 
     // test, cv windows
     cv_windows_setup();
