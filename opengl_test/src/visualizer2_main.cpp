@@ -441,16 +441,12 @@ void screen_streaming_step_2(){
     // Now proccess the old one
     //---------------------------------//
     DATA_SIZE = size_list[nextIndex].x * size_list[nextIndex].y * CHANNEL_COUNT;
-    cv::Mat img(size_list[nextIndex].y, size_list[nextIndex].x, CV_8UC4);
+    cv::Mat img; // (size_list[nextIndex].y, size_list[nextIndex].x, CV_8UC4);
     // map the PBO that contain framebuffer pixels before processing it
     glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[nextIndex]);
     GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
-    if(src)
-    {
-        // Copy data
-        // for (size_t _i=0; _i < DATA_SIZE; ++_i){
-        //     img.data[_i] = src[_i];
-        // }
+    if(src){
+        //
         img = cv::Mat(size_list[nextIndex].y, size_list[nextIndex].x, CV_8UC4, src);
         glUnmapBuffer(GL_PIXEL_PACK_BUFFER);        // release pointer to the mapped buffer
     }
