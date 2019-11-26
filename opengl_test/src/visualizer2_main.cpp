@@ -404,6 +404,11 @@ void screen_streaming_step_2(){
     //
     static std::vector<glm::ivec2> size_list(PBO_COUNT, glm::vec2(windows_width, windows_height) );
 
+    // start
+    //-----------------------//
+    TIME_STAMP::Period period_image("image");
+    //-----------------------//
+
     // glBindVertexArray(0);
 
     // increment current index first then get the next index
@@ -428,6 +433,11 @@ void screen_streaming_step_2(){
     glBufferData(GL_PIXEL_PACK_BUFFER, DATA_SIZE, 0, GL_STREAM_READ);
     glReadPixels(0, 0, size_list[index].x, size_list[index].y, GL_BGRA, GL_UNSIGNED_BYTE, 0);
 
+    // 1
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
     // Now proccess the old one
     //---------------------------------//
     DATA_SIZE = size_list[nextIndex].x * size_list[nextIndex].y * CHANNEL_COUNT;
@@ -445,14 +455,36 @@ void screen_streaming_step_2(){
         glUnmapBuffer(GL_PIXEL_PACK_BUFFER);        // release pointer to the mapped buffer
     }
 
+    // 2
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
     cv::Mat image_decoded;
     cvtColor(img, image_decoded, CV_BGRA2BGR);
+
+    // 3
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
     // Flip
     cv::Mat flipped;
     cv::flip(image_decoded, flipped, 0);
+
+    // 4
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
     // Send
     ros_api.ros_interface.send_Image(int(MSG_ID::GUI_screen_out), flipped);
     //
+
+    // 5
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
 
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
