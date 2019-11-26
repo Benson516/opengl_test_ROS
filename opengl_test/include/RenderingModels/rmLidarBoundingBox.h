@@ -8,7 +8,7 @@
 class rmLidarBoundingBox : public rmBaseModel
 {
 public:
-    rmLidarBoundingBox(std::string _path_Assets_in, int _ROS_topic_id_in);
+    rmLidarBoundingBox(std::string _path_Assets_in, int _ROS_topic_id_in, glm::vec3 _color_in=glm::vec3(0.29803922, 0.71372549, 0.88235294) );
     //
 	void Update(float dt);
     void Update(ROS_INTERFACE &ros_interface);
