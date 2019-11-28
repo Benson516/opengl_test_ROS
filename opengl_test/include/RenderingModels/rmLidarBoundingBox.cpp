@@ -28,8 +28,9 @@ namespace rmLidarBoundingBox_ns{
 
 
 
-rmLidarBoundingBox::rmLidarBoundingBox(std::string _path_Assets_in, int _ROS_topic_id_in):
-    _ROS_topic_id(_ROS_topic_id_in)
+rmLidarBoundingBox::rmLidarBoundingBox(std::string _path_Assets_in, int _ROS_topic_id_in, glm::vec3 _color_in):
+    _ROS_topic_id(_ROS_topic_id_in),
+    _color(_color_in)
 {
     _path_Shaders_sub_dir += "BoundingBox3D/";
     init_paths(_path_Assets_in);
@@ -65,7 +66,7 @@ void rmLidarBoundingBox::Init(){
     attach_pose_model_by_model_ref_ptr(m_shape.model); // For adjusting the model pose by public methods
 
     // Params
-    _color = glm::vec3(0.29803922, 0.71372549, 0.88235294);
+    // _color = glm::vec3(0.29803922, 0.71372549, 0.88235294);
     _alpha = 0.5;
 
 

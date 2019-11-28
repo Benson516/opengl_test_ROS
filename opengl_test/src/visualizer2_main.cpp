@@ -75,6 +75,9 @@ float	windows_width = 1200; // 800;
 float   windows_height = 800; // 600;
 float	timer_interval = 16.0f;
 
+// test, PBO
+#define PBO_COUNT 2
+GLuint pboIds[PBO_COUNT]; // IDs of PBOs
 
 /*
 #define MENU_Sale 1
@@ -174,6 +177,318 @@ void TW_CALL ResetViewCB(void * clientData)
 
 }
 
+// Take screenshot
+//------------------------------------//
+void takeScreenshotPNG(){
+    const unsigned int Width = windows_width;
+	const unsigned int Height = windows_height;
+	int size = Width * Height * 4;
+	unsigned char *pixels = new unsigned char[size];
+	unsigned char *rotatedPixels = new unsigned char[size];
+	glReadBuffer(GL_FRONT);
+	glReadPixels(0, 0, Width, Height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	// invert Y axis
+	for (int h = 0; h < Height; ++h)
+	{
+		for (int w = 0; w < Width; ++w)
+		{
+			rotatedPixels[((Height - h - 1) * Width + w) * 4] = pixels[(h * Width + w) * 4];
+			rotatedPixels[((Height - h - 1) * Width + w) * 4 + 1] = pixels[(h * Width + w) * 4 + 1];
+			rotatedPixels[((Height - h - 1) * Width + w) * 4 + 2] = pixels[(h * Width + w) * 4 + 2];
+			rotatedPixels[((Height - h - 1) * Width + w) * 4 + 3] = pixels[(h * Width + w) * 4 + 3];
+		}
+	}
+
+    static int fileIndex = 0;
+    while (1)
+    {
+    	string fileName = string("./" + to_string(fileIndex) + ".png").c_str();
+    	std::ifstream infile(fileName);
+    	if (!infile.good())
+    		break;
+    	fileIndex++;
+    }
+    // stbi_write_png(string("./" + to_string(fileIndex) + ".png").c_str(), Width, Height, 4, rotatedPixels, 0);
+    delete pixels, rotatedPixels;
+    printf("Take screenshot\n");
+}
+void takeScreenshotPNG_openCV(){
+	const unsigned int Width = windows_width;
+	const unsigned int Height = windows_height;
+    //
+    cv::Mat img(Height, Width, CV_8UC3);
+    cv::Mat flipped;
+    //use fast 4-byte alignment (default anyway) if possible
+    glPixelStorei(GL_PACK_ALIGNMENT, (img.step & 3) ? 1 : 4);
+    //set length of one complete row in destination data (doesn't need to equal img.cols)
+    glPixelStorei(GL_PACK_ROW_LENGTH, img.step/img.elemSize());
+
+    //
+    // set the framebuffer to read
+    glReadBuffer(GL_FRONT);
+    glReadPixels(0, 0, img.cols, img.rows, GL_BGR, GL_UNSIGNED_BYTE, img.data);
+    // Flip
+    cv::flip(img, flipped, 0);
+
+    // search existing file
+    static int fileIndex = 0;
+    while (1)
+    {
+    	string fileName = string("/home/itri/screenshot_test/image_" + to_string(fileIndex) + ".png").c_str();
+    	std::ifstream infile(fileName);
+    	if (!infile.good())
+    		break;
+    	fileIndex++;
+    }
+    imwrite( "/home/itri/screenshot_test/image_" + to_string(fileIndex) + ".png", flipped );
+
+    printf("Take screenshot (openCV)\n");
+}
+void takeScreenshot_ROSimage(){
+	const unsigned int Width = windows_width;
+	const unsigned int Height = windows_height;
+    // const unsigned int Width = 680;
+	// const unsigned int Height = 480;
+
+    // start
+    //-----------------------//
+    TIME_STAMP::Period period_image("image");
+    //-----------------------//
+
+    //
+    cv::Mat img(Height, Width, CV_8UC3);
+    cv::Mat flipped;
+    //use fast 4-byte alignment (default anyway) if possible
+    glPixelStorei(GL_PACK_ALIGNMENT, (img.step & 3) ? 1 : 4);
+    //set length of one complete row in destination data (doesn't need to equal img.cols)
+    glPixelStorei(GL_PACK_ROW_LENGTH, img.step/img.elemSize());
+
+    // 1
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
+    //
+    glReadBuffer(GL_FRONT);
+
+    // 2
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+    glReadPixels(0, 0, img.cols, img.rows, GL_BGR, GL_UNSIGNED_BYTE, img.data);
+
+    // 3
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
+    // Flip
+    cv::flip(img, flipped, 0);
+
+    // 4
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
+    ros_api.ros_interface.send_Image(int(MSG_ID::GUI_screen_out), flipped);
+    // printf("Take screenshot (openCV)\n");
+
+    // 5
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+}
+//------------------------------------//
+// end Take screenshot
+
+
+
+// Pack image using double PBOs
+//--------------------------------//
+void screen_streaming_init(){
+    // create PBO_COUNT"" pixel buffer objects, you need to delete them when program exits.
+    // glBufferData() with NULL pointer reserves only memory space.
+    int SCREEN_WIDTH = windows_width;
+    int SCREEN_HEIGHT = windows_height;
+    int CHANNEL_COUNT = 4; // 3
+    int DATA_SIZE = SCREEN_WIDTH * SCREEN_HEIGHT * CHANNEL_COUNT;
+    glGenBuffers(PBO_COUNT, pboIds);
+    for (size_t i=0; i < PBO_COUNT; ++i){
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[i]);
+        glBufferData(GL_PIXEL_PACK_BUFFER, DATA_SIZE, 0, GL_STREAM_READ);
+    }
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+
+}
+// void screen_streaming_step(){
+//     int SCREEN_WIDTH = windows_width;
+//     int SCREEN_HEIGHT = windows_height;
+//     // int CHANNEL_COUNT = 3;
+//     static int index = -1;
+//     int nextIndex = 0;                  // pbo index used for next frame
+//     //
+//     static std::vector<glm::vec2> size_list(PBO_COUNT, glm::vec2(windows_width, windows_height) );
+//     static std::vector<cv::Mat> img_list;
+//     // Initialization
+//     if (index < 0){
+//         img_list.resize(0);
+//         for (size_t i=0; i < PBO_COUNT; ++i){
+//             img_list.push_back( cv::Mat(size_list[i][1], size_list[i][0], CV_8UC3) );
+//         }
+//         index = 0;
+//     }
+//     // end Initialization
+//
+//     // glBindVertexArray(0);
+//
+//     // increment current index first then get the next index
+//     // "index" is used to read pixels from a framebuffer to a PBO
+//     // "nextIndex" is used to process pixels in the other PBO
+//     index = (index + 1) % PBO_COUNT;
+//     nextIndex = (index + 1) % PBO_COUNT;
+//
+//
+//     // Update size and image
+//     size_list[index] = glm::vec2(windows_width, windows_height);
+//     img_list[index] = cv::Mat(size_list[index][1], size_list[index][0], CV_8UC3);
+//
+//     // set the framebuffer to read
+//     glReadBuffer(GL_FRONT);
+//     // copy pixels from framebuffer to PBO
+//     // Use offset instead of pointer.
+//     // OpenGL should perform asynch DMA transfer, so glReadPixels() will return immediately.
+//     glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[index]);
+//
+//
+//     //use fast 4-byte alignment (default anyway) if possible
+//     glPixelStorei(GL_PACK_ALIGNMENT, (img_list[index].step & 3) ? 1 : 4);
+//     //set length of one complete row in destination data (doesn't need to equal img.cols)
+//     glPixelStorei(GL_PACK_ROW_LENGTH, img_list[index].step/img_list[index].elemSize());
+//     // Reset buffer size
+//     glBufferData(GL_PIXEL_PACK_BUFFER, img_list[index].elemSize() * 3, 0, GL_STREAM_READ);
+//     glReadPixels(0, 0, size_list[index][0], size_list[index][1], GL_BGR, GL_UNSIGNED_BYTE, 0);
+//
+//     // Now proccess the old one
+//     //---------------------------------//
+//     // map the PBO that contain framebuffer pixels before processing it
+//     glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[nextIndex]);
+//     glGetBufferSubData(GL_PIXEL_PACK_BUFFER, 0, img_list[nextIndex].elemSize() * 3, img_list[nextIndex].data );
+//     // GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+//     // if(src)
+//     // {
+//     //     // Copy data
+//     //     for (size_t _i=0; _i < (img_list[nextIndex].elemSize()*3); ++_i){
+//     //         img_list[nextIndex].data[_i] = src[_i];
+//     //     }
+//     //     glUnmapBuffer(GL_PIXEL_PACK_BUFFER);        // release pointer to the mapped buffer
+//     // }
+//
+//     // Flip
+//     cv::Mat flipped;
+//     cv::flip(img_list[nextIndex], flipped, 0);
+//     // Send
+//     ros_api.ros_interface.send_Image(int(MSG_ID::GUI_screen_out), flipped);
+//     //
+//
+//     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+//
+// }
+
+void screen_streaming_step_2(){
+    int SCREEN_WIDTH = windows_width;
+    int SCREEN_HEIGHT = windows_height;
+    int CHANNEL_COUNT = 4;
+    int DATA_SIZE = 0;
+    static int index = 0;
+    int nextIndex = 0;                  // pbo index used for next frame
+    //
+    static std::vector<glm::ivec2> size_list(PBO_COUNT, glm::vec2(windows_width, windows_height) );
+
+    // start
+    //-----------------------//
+    TIME_STAMP::Period period_image("image");
+    //-----------------------//
+
+    // glBindVertexArray(0);
+
+    // increment current index first then get the next index
+    // "index" is used to read pixels from a framebuffer to a PBO
+    // "nextIndex" is used to process pixels in the other PBO
+    index = (index + 1) % PBO_COUNT;
+    nextIndex = (index + 1) % PBO_COUNT;
+
+
+    // Update size and image
+    size_list[index] = glm::ivec2(windows_width, windows_height);
+
+    // set the framebuffer to read
+    glReadBuffer(GL_FRONT);
+    // copy pixels from framebuffer to PBO
+    // Use offset instead of pointer.
+    // OpenGL should perform asynch DMA transfer, so glReadPixels() will return immediately.
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[index]);
+
+    DATA_SIZE = size_list[index].x * size_list[index].y * CHANNEL_COUNT;
+    // Reset buffer size
+    glBufferData(GL_PIXEL_PACK_BUFFER, DATA_SIZE, 0, GL_STREAM_READ);
+    glReadPixels(0, 0, size_list[index].x, size_list[index].y, GL_BGRA, GL_UNSIGNED_BYTE, 0);
+
+    // 1
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
+    // Now proccess the old one
+    //---------------------------------//
+    DATA_SIZE = size_list[nextIndex].x * size_list[nextIndex].y * CHANNEL_COUNT;
+    cv::Mat img; // (size_list[nextIndex].y, size_list[nextIndex].x, CV_8UC4);
+    // map the PBO that contain framebuffer pixels before processing it
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[nextIndex]);
+    GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+    if(src){
+        //
+        img = cv::Mat(size_list[nextIndex].y, size_list[nextIndex].x, CV_8UC4, src);
+        glUnmapBuffer(GL_PIXEL_PACK_BUFFER);        // release pointer to the mapped buffer
+    }
+
+    // 2
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
+    cv::Mat image_decoded;
+    cvtColor(img, image_decoded, CV_BGRA2BGR);
+
+    // 3
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
+    // Flip
+    cv::Mat flipped;
+    cv::flip(image_decoded, flipped, 0);
+
+    // 4
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
+    // Send
+    ros_api.ros_interface.send_Image(int(MSG_ID::GUI_screen_out), flipped);
+    //
+
+    // 5
+    //-----------------------//
+    period_image.stamp(); period_image.show_msec();
+    //-----------------------//
+
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+
+}
+//--------------------------------//
+// end Pack image using double PBOs
+
+
 void setupGUI()
 {
 	// Initialize AntTweakBar
@@ -192,7 +507,7 @@ void setupGUI()
 
     bar_1_ptr = TwNewBar("Status");
     TwDefine(" Status position='0 0' ");
-    // 
+    //
 #if __ROS_INTERFACE_VER__ == 1
     TwDefine(" Status size='270 530' "); // 270 530 // 270 450 // 220, 300
 #elif __ROS_INTERFACE_VER__ == 2
@@ -574,9 +889,32 @@ void My_Timer(int val)
     ROS_update();
     //-----------------------//
 
+    // Take screenshot
+    // Note: This method is slow!!
+    //---------------------------//
+    static int screenshot_count = 0;
+    screenshot_count++;
+    if (screenshot_count >= 2){
+        // takeScreenshotPNG_openCV();
+        // takeScreenshot_ROSimage();
+        // screen_streaming_step();
+        screen_streaming_step_2();
+        screenshot_count = 0;
+    }
+    // screen_streaming_step();
+    // screen_streaming_step_2();
+    //---------------------------//
+
 	glutPostRedisplay();
 	// glutTimerFunc(timer_interval, My_Timer, val);
 }
+
+// void My_Timer_screen_record(int val)
+// {
+//     glutTimerFunc(66.0f, My_Timer_screen_record, val);
+//     // takeScreenshotPNG_openCV();
+//     takeScreenshot_ROSimage();
+// }
 
 //Mouse event
 void My_Mouse(int button, int state, int x, int y)
@@ -616,6 +954,10 @@ void My_Keyboard(unsigned char key, int x, int y)
 {
     if (TwEventKeyboardGLUT(key, x, y)){
         return;
+    }
+    else if (key == 't' || key == 'T'){
+        // takeScreenshotPNG();
+        takeScreenshotPNG_openCV();
     }
 
     // Update all_scenes
@@ -668,6 +1010,9 @@ void My_Mouse_Moving(int x, int y) {
     }
     //--------------------//
 }
+
+
+
 
 
 int main(int argc, char *argv[])
@@ -744,12 +1089,14 @@ int main(int argc, char *argv[])
 	glutKeyboardFunc(My_Keyboard);
 	glutSpecialFunc(My_SpecialKeys);
 	glutTimerFunc(timer_interval, My_Timer, 0);
+    // glutTimerFunc(66.0f, My_Timer_screen_record, 1);
 	glutPassiveMotionFunc(My_Mouse_Moving);
 	glutMotionFunc(My_Mouse_Moving);
 	////////////////////
 
-
-
+    // test, PBO screen streaming
+    screen_streaming_init();
+    //
 
     // test, cv windows
     cv_windows_setup();

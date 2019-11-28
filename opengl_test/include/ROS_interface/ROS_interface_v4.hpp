@@ -10,13 +10,13 @@
 #include <all_header.h>
 
 // Buffer wrappers
-#include <buffwrBase.hpp>
-#include <buffwrString.hpp>
-#include <buffwrtfGeoPoseStamped.hpp>
-#include <buffwrImage.hpp>
-#include <buffwrPointCloud2.hpp>
-#include <buffwrITRIPointCloud.hpp>
-#include <buffwrITRI3DBoundingBox.hpp>
+// #include <buffwrBase.hpp>
+// #include <buffwrString.hpp>
+// #include <buffwrtfGeoPoseStamped.hpp>
+// #include <buffwrImage.hpp>
+// #include <buffwrPointCloud2.hpp>
+// #include <buffwrITRIPointCloud.hpp>
+// #include <buffwrITRI3DBoundingBox.hpp>
 
 
 // Example:
