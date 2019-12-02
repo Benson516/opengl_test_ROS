@@ -90,7 +90,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 
 
     // Grid ground
-    _rmGrid_ptr.reset(new rmGrid(_Assets_path, "map", "GUI_base" ) );
+    _rmGrid_ptr.reset(new rmGrid(_Assets_path, "GUI_map", "GUI_base" ) );
     _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -6.0f, false);
     _rm_BaseModel.push_back( _rmGrid_ptr );
     /*
@@ -125,7 +125,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in)
 
 
     // rmlv2ObjectTracking
-    _rm_BaseModel.push_back( std::shared_ptr<rmlv2ObjectTracking>(new rmlv2ObjectTracking(_Assets_path, int(MSG_ID::lidar_bounding_box_tracking), "map") ) );
+    _rm_BaseModel.push_back( std::shared_ptr<rmlv2ObjectTracking>(new rmlv2ObjectTracking(_Assets_path, int(MSG_ID::lidar_bounding_box_tracking), "GUI_map") ) );
     // Taged Lidar bounding box (tracking, rendering in wire)
     _rm_BaseModel.push_back( std::shared_ptr<rmlv2TagBoundingBox3D>(new rmlv2TagBoundingBox3D(_Assets_path, int(MSG_ID::lidar_bounding_box_tracking)) ) );
 

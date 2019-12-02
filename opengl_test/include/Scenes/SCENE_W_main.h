@@ -122,7 +122,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
 
     /*
     // Grid ground
-    _rmGrid_ptr.reset(new rmGrid(_Assets_path, "map", "GUI_base" ) );
+    _rmGrid_ptr.reset(new rmGrid(_Assets_path, "GUI_map", "GUI_base" ) );
     // _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, 0.0f, false);
     // _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -6.0f, false);
     _rmGrid_ptr->set_grid_param(1.0, 1.0, 10, 10, -3.0f, true);
@@ -138,7 +138,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
 
     /*
     // Grid ground
-    _rmGrid_ptr.reset(new rmGrid(_Assets_path, "map", "GUI_base_footprint" ) );
+    _rmGrid_ptr.reset(new rmGrid(_Assets_path, "GUI_map", "GUI_base_footprint" ) );
     _rmGrid_ptr->set_grid_param(5.0, 5.0, 10, 10, 0.0f, true, glm::vec3(0.5f,0.5f,0.5f));
     _rm_BaseModel.push_back( _rmGrid_ptr );
     */
@@ -173,11 +173,11 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
 
 
     // rmlv2ObjectTracking
-    // _rm_BaseModel.push_back( std::shared_ptr<rmlv2ObjectTracking>(new rmlv2ObjectTracking(_Assets_path, int(MSG_ID::lidar_bounding_box_tracking), "map") ) );
+    // _rm_BaseModel.push_back( std::shared_ptr<rmlv2ObjectTracking>(new rmlv2ObjectTracking(_Assets_path, int(MSG_ID::lidar_bounding_box_tracking), "GUI_map") ) );
 
     /*
     // MagicPowder
-    std::shared_ptr<rmMagicPowder> mp_ptr(new rmMagicPowder(_Assets_path, int(MSG_ID::lidar_bounding_box_raw), "map") );
+    std::shared_ptr<rmMagicPowder> mp_ptr(new rmMagicPowder(_Assets_path, int(MSG_ID::lidar_bounding_box_raw), "GUI_map") );
     mp_ptr->set_color(glm::vec3(0.0f, 1.0f, 1.0f));
     _rm_BaseModel.push_back( mp_ptr );
     */
@@ -221,7 +221,7 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // _rm_BaseModel.push_back( _fake_path_ptr );
 
     // (True) Planning path
-    _planning_path_ptr.reset(   new rmlv2PathPlan_v1(_Assets_path, int(MSG_ID::dynamic_path), "map" )   );
+    _planning_path_ptr.reset(   new rmlv2PathPlan_v1(_Assets_path, int(MSG_ID::dynamic_path), "GUI_map" )   );
     // _planning_path_ptr->Translate(glm::vec3(-5.5f, 0.0f, 0.0f));
     _rm_BaseModel.push_back( _planning_path_ptr );
 

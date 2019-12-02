@@ -212,7 +212,7 @@ void Scene::Update(ROS_INTERFACE &ros_interface){
     //
 
     // Update the "_latest_tf_common_update_time"
-    // ros_interface.update_latest_tf_common_update_time("map", "GUI_base");
+    // ros_interface.update_latest_tf_common_update_time("GUI_map", "GUI_base");
     // ros_interface.set_global_delay(0.3);
     // ros_interface.update_current_slice_time();
     // ros_interface.set_ref_frame("GUI_base");
@@ -223,8 +223,8 @@ void Scene::Update(ROS_INTERFACE &ros_interface){
     /*
     // Camera
     bool is_sucessed = false;
-    glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("GUI_base", "map", is_sucessed, false) );
-    // glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("GUI_base", "map", is_sucessed, true ) );
+    glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("GUI_base", "GUI_map", is_sucessed, false) );
+    // glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("GUI_base", "GUI_map", is_sucessed, true ) );
     if (is_sucessed){
         std::cout << "Got the camera tf\n";
         _camera_ptr->SetInvCameraModel(_tf_world_by_base);
@@ -255,7 +255,7 @@ void Scene::Update(ROS_API &ros_api){
     //
 
     // Update the "_latest_tf_common_update_time"
-    // ros_interface.update_latest_tf_common_update_time("map", "GUI_base");
+    // ros_interface.update_latest_tf_common_update_time("GUI_map", "GUI_base");
     // ros_interface.set_global_delay(0.3);
     // ros_interface.update_current_slice_time();
 
@@ -267,8 +267,8 @@ void Scene::Update(ROS_API &ros_api){
     /*
     // Camera
     bool is_sucessed = false;
-    glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("GUI_base", "map", is_sucessed, false) );
-    // glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("GUI_base", "map", is_sucessed, true ) );
+    glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("GUI_base", "GUI_map", is_sucessed, false) );
+    // glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("GUI_base", "GUI_map", is_sucessed, true ) );
     if (is_sucessed){
         std::cout << "Got the camera tf\n";
         _camera_ptr->SetInvCameraModel(_tf_world_by_base);
@@ -433,7 +433,7 @@ void Scene::resetDefaultCaemraModel(ROS_API &ros_api){
     //     // Camera reference pose
     //     bool is_sucessed = false;
     //     glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_api.ros_interface.get_tf("GUI_base", camera_ref_frame, is_sucessed, false) );
-    //     // glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("GUI_base", "map", is_sucessed, true ) );
+    //     // glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("GUI_base", "GUI_map", is_sucessed, true ) );
     //     if (is_sucessed){
     //         _camera_ptr->SetDefaultCameraModelInv( _tf_world_by_base );
     //     }
@@ -441,7 +441,7 @@ void Scene::resetDefaultCaemraModel(ROS_API &ros_api){
     // Camera reference pose
     bool is_sucessed = false;
     glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_api.ros_interface.get_tf("GUI_base", camera_ref_frame, is_sucessed, false) );
-    // glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("GUI_base", "map", is_sucessed, true ) );
+    // glm::mat4 _tf_world_by_base = rmBaseModel::ROStf2GLMmatrix( ros_interface.get_tf("GUI_base", "GUI_map", is_sucessed, true ) );
     if (is_sucessed){
         _camera_ptr->SetDefaultCameraModelInv( _tf_world_by_base );
     }
@@ -461,7 +461,7 @@ void Scene::switchCameraMotionMode(int mode_in, ROS_API &ros_api){
         case 1: // Static
             {
                 // Set the reference frame of camera
-                camera_ref_frame = "map";
+                camera_ref_frame = "GUI_map";
                 break;
             }
         default:
