@@ -71,6 +71,7 @@
 
 // Others usefull libraries
 #include <sstream>
+#include <iomanip> // For adjusting the precision 
 #include <ctime>
 #include <time.h>
 using namespace cv;
