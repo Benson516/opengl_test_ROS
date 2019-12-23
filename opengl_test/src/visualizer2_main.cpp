@@ -493,16 +493,15 @@ void screen_streaming_step_2(){
 bool send_fps_ROS(){
 
     std::stringstream ss;
-    ss.str ("{");
     ss << std::fixed << std::setprecision(1);
+    ss << "{";
     for (int topic_idx = 0; topic_idx < ros_api.ros_interface.get_count_of_all_topics(); ++topic_idx ){
         if ( ros_api.ros_interface.is_topic_id_valid(topic_idx) && ros_api.ros_interface.is_topic_a_input(topic_idx) ){
-            ss << "\"" << ros_api.ros_interface.get_topic_name(topic_idx) << "\": " << ros_api.fps_list[i].fps << ", ";
+            ss << "\"" << ros_api.ros_interface.get_topic_name(topic_idx) << "\": " << ros_api.fps_list[topic_idx].fps << ", ";
         }
     }
     ss << "}";
 
-    ros_api.ros_interface.get_topic_name(topic_idx)
     std::string json_out = ss.str();
     // Send
     ros_api.ros_interface.send_string(int(MSG_ID::GUI_fps_out), json_out);
