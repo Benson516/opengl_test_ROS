@@ -495,9 +495,12 @@ bool send_fps_ROS(){
     std::stringstream ss;
     ss << std::fixed << std::setprecision(1);
     ss << "{";
+    bool is_first = true;
     for (int topic_idx = 0; topic_idx < ros_api.ros_interface.get_count_of_all_topics(); ++topic_idx ){
         if ( ros_api.ros_interface.is_topic_id_valid(topic_idx) && ros_api.ros_interface.is_topic_a_input(topic_idx) ){
-            ss << "\"" << ros_api.ros_interface.get_topic_name(topic_idx) << "\": " << ros_api.fps_list[topic_idx].fps << ", ";
+            if (is_first) is_first = false;
+            else ss << ", "; // Put the comma at the head of item to prevent the final comma
+            ss << "\"" << ros_api.ros_interface.get_topic_name(topic_idx) << "\": " << ros_api.fps_list[topic_idx].fps;
         }
     }
     ss << "}";
