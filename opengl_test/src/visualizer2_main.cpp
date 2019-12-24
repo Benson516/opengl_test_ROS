@@ -500,7 +500,7 @@ bool send_fps_ROS(){
         if ( ros_api.ros_interface.is_topic_id_valid(topic_idx) && ros_api.ros_interface.is_topic_a_input(topic_idx) ){
             if (is_first) is_first = false;
             else ss << ", "; // Put the comma at the head of item to prevent the final comma
-            ss << "\"" << ros_api.ros_interface.get_topic_name(topic_idx) << "\": " << ros_api.fps_list[topic_idx].fps;
+            ss << "\"FPS_" << ros_api.ros_interface.get_topic_name_no_slash(topic_idx) << "\": " << ros_api.fps_list[topic_idx].fps;
         }
     }
     ss << "}";
@@ -795,9 +795,14 @@ void My_Display()
     }
 
     // Publish the fps as json string ROS topic
-    TIME_STAMP::Period period_fps_pub("fps_pub");
-    send_fps_ROS();
-    period_fps_pub.stamp();  period_fps_pub.show_msec();
+    static int pub_fps_count = 0;
+    pub_fps_count++;
+    if (pub_fps_count >= 6){
+        pub_fps_count = 0;
+        TIME_STAMP::Period period_fps_pub("fps_pub");
+        send_fps_ROS();
+        period_fps_pub.stamp();  period_fps_pub.show_msec();
+    }
     //
 
     // m_currentTime = glutGet(GLUT_ELAPSED_TIME);
@@ -860,7 +865,7 @@ void My_Display()
     TwDraw();
 
     //--------------------//
-    glutSwapBuffers();
+    glutSwapBuffers();    
     //---------------------------------//
 
 
@@ -925,14 +930,9 @@ void My_Timer(int val)
     static int screenshot_count = 0;
     screenshot_count++;
     if (screenshot_count >= 2){
-        // takeScreenshotPNG_openCV();
-        // takeScreenshot_ROSimage();
-        // screen_streaming_step();
         screen_streaming_step_2();
         screenshot_count = 0;
     }
-    // screen_streaming_step();
-    // screen_streaming_step_2();
     //---------------------------//
 
 	glutPostRedisplay();
