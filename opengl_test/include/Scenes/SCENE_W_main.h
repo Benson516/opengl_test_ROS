@@ -90,6 +90,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // std::shared_ptr<rmlv2PathPlanFake> _fake_path_ptr;
     // rmlv2PathPlan_v1
     std::shared_ptr<rmlv2PathPlan_v1> _planning_path_ptr;
+    // rmlv2PathPlan_navPath
+    std::shared_ptr<rmlv2PathPlan_navPath> _local_path_ptr;
     // rmColorBoard
     std::shared_ptr<rmColorBoard> _color_board_ptr;
 
@@ -224,6 +226,12 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     _planning_path_ptr.reset(   new rmlv2PathPlan_v1(_Assets_path, int(MSG_ID::dynamic_path), "GUI_map" )   );
     // _planning_path_ptr->Translate(glm::vec3(-5.5f, 0.0f, 0.0f));
     _rm_BaseModel.push_back( _planning_path_ptr );
+
+    // Local path (A*)
+    _local_path_ptr.reset( new rmlv2PathPlan_navPath(_Assets_path, int(MSG_ID::local_path) ) );
+    // _local_path_ptr->Translate(glm::vec3(-5.5f, 0.0f, 0.0f));
+    _rm_BaseModel.push_back( _local_path_ptr );
+
 
     // Circle
     // _rm_BaseModel.push_back( std::shared_ptr<rmCircle>(new rmCircle(_Assets_path, "GUI_base" ) ) );
