@@ -86,8 +86,8 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     std::shared_ptr<rmLidarBoundingBox> _box3D_ptr;
     // Bounding box 2D
     std::shared_ptr<rmlv2TagBoundingBox2D> _box2D_ptr;
-    // rmlv2PathPlanFake
-    std::shared_ptr<rmlv2PathPlanFake> _fake_path_ptr;
+    // // rmlv2PathPlanFake
+    // std::shared_ptr<rmlv2PathPlanFake> _fake_path_ptr;
     // rmlv2PathPlan_v1
     std::shared_ptr<rmlv2PathPlan_v1> _planning_path_ptr;
     // rmColorBoard
@@ -550,13 +550,6 @@ SCENE_W_main::SCENE_W_main(std::string pkg_path_in):
     // Traffic light (simple)
     _rm_BaseModel.push_back( std::shared_ptr<rmlv2TrafficLightSimple>( new rmlv2TrafficLightSimple(_Assets_path, int(MSG_ID::flag_info_2) ) ) );
     // _rm_BaseModel.push_back( std::shared_ptr<rmlv2TrafficLightImage>( new rmlv2TrafficLightImage(_Assets_path, int(MSG_ID::flag_info_2) ) ) );
-
-
-    // // Traffic light
-    // std::shared_ptr<rmlv2TrafficLight> _traffic_light_ptr( new rmlv2TrafficLight(_Assets_path, int(MSG_ID::flag_info_2) ) );
-    // _traffic_light_ptr->setTrafficLightHeightPixel(50);
-    // _traffic_light_ptr->setTrafficLightPositionCVPixel(-200, 0, 1);
-    // _rm_BaseModel.push_back( _traffic_light_ptr );
 
 }
 
