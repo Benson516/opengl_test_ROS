@@ -509,6 +509,7 @@ bool send_fps_ROS(){
     // Send
     ros_api.ros_interface.send_string(int(MSG_ID::GUI_fps_out), json_out);
     //
+    return true;
 }
 
 
@@ -799,9 +800,9 @@ void My_Display()
     pub_fps_count++;
     if (pub_fps_count >= 6){
         pub_fps_count = 0;
-        TIME_STAMP::Period period_fps_pub("fps_pub");
+        // TIME_STAMP::Period period_fps_pub("fps_pub");
         send_fps_ROS();
-        period_fps_pub.stamp();  period_fps_pub.show_msec();
+        // period_fps_pub.stamp();  period_fps_pub.show_msec();
     }
     //
 
@@ -865,7 +866,7 @@ void My_Display()
     TwDraw();
 
     //--------------------//
-    glutSwapBuffers();    
+    glutSwapBuffers();
     //---------------------------------//
 
 
