@@ -174,7 +174,7 @@ class GUI_GATEWAY(object):
         is_received_GUI_state = False
         start_time = rospy.get_rostime()
         wait_timeout = rospy.Duration.from_sec(1.0) # Wait for 1 sec.
-        seq_catch = GUI_state_seq
+        seq_catch = GUI_state_seq 
         while (rospy.get_rostime() - start_time) < wait_timeout:
             rospy.sleep(0.01) # Sleep for 0.01 sec.
             if GUI_state_seq > seq_catch:
