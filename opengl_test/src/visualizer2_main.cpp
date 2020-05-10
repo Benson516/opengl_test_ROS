@@ -71,8 +71,8 @@ void leave_main_loop () {
 
 
 // float	aspect;
-float	windows_width = 1200; // 800;
-float   windows_height = 800; // 600;
+float	windows_width = 900; // 1200; // 800;
+float   windows_height = 600; // 800; // 600;
 float	timer_interval = 16.0f;
 
 // test, PBO
@@ -115,8 +115,9 @@ void cv_windows_setup(){
 
 
 
-// AntTwekBar
+// AntTweakBar
 //----------------------------------------------------//
+bool enable_AntTweakBar = false;
 // Shape			m_shape;
 ViewManager		m_camera;
 TwBar			*bar_1_ptr;
@@ -863,7 +864,8 @@ void My_Display()
     // std::cout << "After Rendering\n";
 
     // Render AntTweeekBar
-    TwDraw();
+    if (enable_AntTweakBar)
+        TwDraw();
 
     //--------------------//
     glutSwapBuffers();
@@ -989,6 +991,9 @@ void My_Keyboard(unsigned char key, int x, int y)
     else if (key == 't' || key == 'T'){
         // takeScreenshotPNG();
         takeScreenshotPNG_openCV();
+    }else if (key == 'b' || key == 'B'){
+        // Enable AntTweakBar ('B'ar)
+        enable_AntTweakBar = !enable_AntTweakBar;
     }
 
     // Update all_scenes
