@@ -44,6 +44,8 @@ SCENE_IM00::SCENE_IM00(std::string pkg_path_in)
 
     // Bounding box 2D
     std::shared_ptr<rmBoundingBox2D> _box2D_ptr;
+    // Bounding box 2D (with tag)
+    std::shared_ptr<rmlv2TagBoundingBox2D> _box2Dtag_ptr;
 
 
     // Back ground image rmImageDynamicBackground
@@ -53,11 +55,15 @@ SCENE_IM00::SCENE_IM00(std::string pkg_path_in)
     _rm_BaseModel.push_back( _image_background_2_ptr );
 
 
-    // Bounding box for front-center camera
-    _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_left_fore), false, false ) );
-    _box2D_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, 0, 0);
-    // _box2D_ptr->alpha = 0.7;
-    _rm_BaseModel.push_back( _box2D_ptr );
+    // Bounding box
+    // _box2D_ptr.reset(new rmBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_left_fore), false, false ) );
+    // _box2D_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, 0, 0);
+    // // _box2D_ptr->alpha = 0.7;
+    // _rm_BaseModel.push_back( _box2D_ptr );
+
+    _box2Dtag_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_left_fore), false, false ) );
+    _box2Dtag_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, 0, 0);
+    _rm_BaseModel.push_back( _box2Dtag_ptr );
 
 }
 
