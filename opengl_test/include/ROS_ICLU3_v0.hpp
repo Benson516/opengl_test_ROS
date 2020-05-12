@@ -29,10 +29,11 @@ enum class MSG_ID{
     flag_info_2,
     flag_info_3,
     // Image
-    camera_front_right, // front-right
+    camera_front_right, // front-right (old layout)
     camera_front_center, // front-center
-    camera_front_left, // front-left
+    camera_front_left, // front-left (old layout)
     camera_front_top, // front top-down
+    camera_front_top_far, // 30 deg. FOV (new layout)
     camera_right_fore, // right-front
     camera_right_rear, // right-rear
     camera_left_fore, // left-front
@@ -40,10 +41,11 @@ enum class MSG_ID{
     camera_rear_center, // back
     // 2D bounding box
     bounding_box_image_front_all,
-    bounding_box_image_front_right,
+    bounding_box_image_front_right, // (old layout)
     bounding_box_image_front_center,
-    bounding_box_image_front_left,
+    bounding_box_image_front_left, // (old layout)
     bounding_box_image_front_top,
+    bounding_box_image_front_top_far, // (new layout)
     bounding_box_image_right_fore,
     bounding_box_image_right_rear,
     bounding_box_image_left_fore,
