@@ -610,7 +610,7 @@ void My_Init()
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM00(ros_api.get_pkg_path()) ) );
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM01(ros_api.get_pkg_path()) ) );
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM02(ros_api.get_pkg_path()) ) );
-    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM01(ros_api.get_pkg_path()) ) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM10(ros_api.get_pkg_path()) ) );
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM11(ros_api.get_pkg_path()) ) );
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM12(ros_api.get_pkg_path()) ) );
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM21(ros_api.get_pkg_path()) ) );
