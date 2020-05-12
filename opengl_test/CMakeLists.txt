@@ -241,3 +241,6 @@ target_link_libraries(test_republish_image  ${OpenCV_LIBS} ${catkin_LIBRARIES} )
 # visualizer2
 add_executable(visualizer2 src/visualizer2_main.cpp include/ROS_ICLU3_v0.cpp include/Scenes/Scene.cpp ${ALL_RENDER_MODELS})
 target_link_libraries(visualizer2 ROS_interface_v4_1  ${ALL_GL_LIBS} ${ALL_GL_UTIL_LIBS} ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )
+# image_viewer
+add_executable(image_viewer src/image_viewer.cpp include/ROS_ICLU3_v0.cpp include/Scenes/Scene.cpp ${ALL_RENDER_MODELS})
+target_link_libraries(image_viewer ROS_interface_v4_1  ${ALL_GL_LIBS} ${ALL_GL_UTIL_LIBS} ANTTWEAKBAR_116_OGLCORE_GLFW ${OpenCV_LIBS} ${catkin_LIBRARIES} FILTER_LIB )
