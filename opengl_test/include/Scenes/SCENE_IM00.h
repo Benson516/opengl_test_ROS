@@ -58,7 +58,6 @@ SCENE_IM00::SCENE_IM00(std::string pkg_path_in)
     _box2D_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, 0, 0);
     // _box2D_ptr->alpha = 0.7;
     _rm_BaseModel.push_back( _box2D_ptr );
-#endif  // __ROS_INTERFACE_VER__
 
 }
 
