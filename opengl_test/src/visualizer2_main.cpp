@@ -696,7 +696,7 @@ void ROS_update(){
     */
     /*
     // test, showing operations
-    std::shared_ptr< opengl_test::GUI2_op > _GUI2_op_ptr;
+    std::shared_ptr< visualizer_sdb::GUI2_op > _GUI2_op_ptr;
     if (ros_api.get_message( int(MSG_ID::GUI_operatio), _GUI2_op_ptr)){
         std::cout << "---\n";
         std::cout << "cam_type: " << _GUI2_op_ptr->cam_type << "\n";

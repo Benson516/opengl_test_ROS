@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>opengl_test</name>
+  <name>visualizer_sdb</name>
   <version>0.0.0</version>
-  <description>The opengl_test package</description>
+  <description>The visualizer_sdb package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/opengl_test</url> -->
+  <!-- <url type="website">http://wiki.ros.org/visualizer_sdb</url> -->
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->

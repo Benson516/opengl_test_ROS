@@ -260,7 +260,7 @@ public:
     // The topic_id should be the "global id"
     //---------------------------------------------------------//
     bool send_string(const int topic_id, const std::string &content_in);
-    bool send_GUI2_op(const int topic_id, const opengl_test::GUI2_op &content_in);
+    bool send_GUI2_op(const int topic_id, const visualizer_sdb::GUI2_op &content_in);
     bool send_Image(const int topic_id, const cv::Mat &content_in);
     bool send_ITRIPointCloud(const int topic_id, const pcl::PointCloud<pcl::PointXYZI> &content_in);
     bool send_ITRI3DBoundingBox(const int topic_id, const msgs::LidRoi &content_in);
@@ -423,7 +423,7 @@ private:
     void _NavPath_CB(const nav_msgs::Path::ConstPtr& msg, const MSG::T_PARAMS & params);
     // bool _String_pub();
     // GUI2_op
-    void _GUI2_op_CB(const opengl_test::GUI2_op::ConstPtr& msg, const MSG::T_PARAMS & params);
+    void _GUI2_op_CB(const visualizer_sdb::GUI2_op::ConstPtr& msg, const MSG::T_PARAMS & params);
     // tfGeoPoseStamped
     void _tfGeoPoseStamped_CB(const geometry_msgs::PoseStamped::ConstPtr& msg, const MSG::T_PARAMS & params);
     // Image

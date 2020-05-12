@@ -60,7 +60,7 @@
 #include <msgs/TransfObj.h>
 
 // MSG: GUI2_op
-#include <opengl_test/GUI2_op.h>
+#include <visualizer_sdb/GUI2_op.h>
 //--------------------------------------------//
 
 // Core libraries

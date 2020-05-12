@@ -7,23 +7,23 @@
 <arg name="is_loading_gateway" default="false" />
 
   <!-- Passenger GUI-->
-  <node name="GUI_passenger" pkg="opengl_test" type="visualizer2" output="screen" if="$(arg is_loading_passenger_GUI)" >
+  <node name="GUI_passenger" pkg="visualizer_sdb" type="visualizer2" output="screen" if="$(arg is_loading_passenger_GUI)" >
       <param name="gui_name" value="passenger"/>
   </node>
 
   <!-- Driver GUI -->
-  <node name="GUI_driver" pkg="opengl_test" type="visualizer2" output="screen" if="$(arg is_loading_driver_GUI)">
+  <node name="GUI_driver" pkg="visualizer_sdb" type="visualizer2" output="screen" if="$(arg is_loading_driver_GUI)">
       <param name="gui_name" value="driver"/>
   </node>
 
   <!-- Run tf_static -->
-  <include file="$(find opengl_test)/launch/includes/load_urdf.launch" >
+  <include file="$(find visualizer_sdb)/launch/includes/load_urdf.launch" >
       <arg name="robot_type" value="$(arg robot_type)" />
       <arg name="world_type" value="$(arg world_type)" />
   </include>
 
   <!-- Run gateway and msg_recorder -->
-  <include file="$(find opengl_test)/launch/GUI_gateway.launch" if="$(arg is_loading_gateway)">
+  <include file="$(find visualizer_sdb)/launch/GUI_gateway.launch" if="$(arg is_loading_gateway)">
       <arg name="is_loading_msg_recorder" value="$(arg is_loading_msg_recorder)" />
   </include>
 
