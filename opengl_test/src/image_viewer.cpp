@@ -6,19 +6,22 @@
 // #include "ViewManager.h"
 #include "ViewManager_v2.h"
 #include "Scene.h"
-#include "SCENE_W_main.h"
-#include "SCENE_W0.h"
-#include "SCENE_W1.h"
-#include "SCENE_W2.h"
-#include "SCENE_W3.h"
-#include "SCENE_W4.h"
-#include "SCENE_W5.h"
-#include "SCENE_W6.h"
-// Side bars
-#include "SCENE_SW0.h"
-#include "SCENE_SW1.h"
-#include "SCENE_SW5.h"
-#include "SCENE_SW6.h"
+// #include "SCENE_W_main.h"
+// #include "SCENE_W0.h"
+// #include "SCENE_W1.h"
+// #include "SCENE_W2.h"
+// #include "SCENE_W3.h"
+// #include "SCENE_W4.h"
+// #include "SCENE_W5.h"
+// #include "SCENE_W6.h"
+// // Side bars
+// #include "SCENE_SW0.h"
+// #include "SCENE_SW1.h"
+// #include "SCENE_SW5.h"
+// #include "SCENE_SW6.h"
+
+// Pure image
+#include "SCENE_IM00.h"
 
 // Debug
 #include <iostream>
@@ -597,19 +600,10 @@ void My_Init()
 	// glDepthFunc(GL_LEQUAL);
 
     // scene_ptr.reset(new Scene(ros_api.get_pkg_path()) );
-    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W_main(ros_api.get_pkg_path()) ) );
-    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W0(ros_api.get_pkg_path()) ) );
-    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W1(ros_api.get_pkg_path()) ) );
-    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W2(ros_api.get_pkg_path()) ) );
-    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W3(ros_api.get_pkg_path()) ) );
-    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W4(ros_api.get_pkg_path()) ) );
-    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W5(ros_api.get_pkg_path()) ) );
-    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_W6(ros_api.get_pkg_path()) ) );
-    // Side bars
-    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_SW0(ros_api.get_pkg_path()) ) );
-    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_SW1(ros_api.get_pkg_path()) ) );
-    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_SW5(ros_api.get_pkg_path()) ) );
-    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_SW6(ros_api.get_pkg_path()) ) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM00(ros_api.get_pkg_path()) ) );
+
+
+    
 
     // Clear background color
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
