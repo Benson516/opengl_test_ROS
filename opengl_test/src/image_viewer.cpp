@@ -22,6 +22,13 @@
 
 // Pure image
 #include "SCENE_IM00.h"
+#include "SCENE_IM01.h"
+#include "SCENE_IM02.h"
+#include "SCENE_IM10.h"
+#include "SCENE_IM11.h"
+#include "SCENE_IM12.h"
+#include "SCENE_IM21.h"
+#include "SCENE_IM22.h"
 
 // Debug
 #include <iostream>
@@ -601,6 +608,13 @@ void My_Init()
 
     // scene_ptr.reset(new Scene(ros_api.get_pkg_path()) );
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM00(ros_api.get_pkg_path()) ) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM01(ros_api.get_pkg_path()) ) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM02(ros_api.get_pkg_path()) ) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM01(ros_api.get_pkg_path()) ) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM11(ros_api.get_pkg_path()) ) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM12(ros_api.get_pkg_path()) ) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM21(ros_api.get_pkg_path()) ) );
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM22(ros_api.get_pkg_path()) ) );
 
 
 
