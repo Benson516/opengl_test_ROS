@@ -113,7 +113,18 @@ void rmlv2TagBoundingBox2D::update_GL_data(){
         // std::string _tag_str( "#" + std::to_string(_box.camInfo.id) + "\n" + rmlv2TagBoundingBox2D_ns::get_obj_class_string(_box.classId) );
         glm::vec3 _tag_color = obj_class_lv2.get_color(_a_box_param_gl.obj_class);
         // std::string _tag_str( "#" + std::to_string(_box.camInfo.id) + "\n" + obj_class_lv2.get_string(_box.classId) );
-        std::string _tag_str(obj_class_lv2.get_string(_box.classId) );
+
+        // class only
+        // std::string _tag_str(obj_class_lv2.get_string(_box.classId) );
+
+        // Show the prob. and distance
+        std::string _tag_str(   obj_class_lv2.get_string(_box.classId)
+                                + " p=" + all_header::to_string_p(_box.camInfo.prob,2)
+                            );
+        if (_box.distance >= 0){
+            _tag_str += "\nd=" + all_header::to_string_p(_box.distance,0);
+        }
+
         if (is_perspected){
             text2Din3D_list.emplace_back(
                 _tag_str,

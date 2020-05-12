@@ -603,7 +603,7 @@ void My_Init()
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM00(ros_api.get_pkg_path()) ) );
 
 
-    
+
 
     // Clear background color
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -715,11 +715,11 @@ void ROS_update(){
     // //
 
     // test, get NLOS boxes
-    std::shared_ptr< msgs::DetectedObjectArray > _nlos_box_ptr;
-    if (ros_api.get_message( int(MSG_ID::nlos_box), _nlos_box_ptr)){
-        std::cout << "---\n";
-        std::cout << "num of NLOS box: " << _nlos_box_ptr->objects.size() << "\n";
-    }
+    // std::shared_ptr< msgs::DetectedObjectArray > _nlos_box_ptr;
+    // if (ros_api.get_message( int(MSG_ID::nlos_box), _nlos_box_ptr)){
+    //     std::cout << "---\n";
+    //     std::cout << "num of NLOS box: " << _nlos_box_ptr->objects.size() << "\n";
+    // }
 
 
     // test, get NLOS GF
