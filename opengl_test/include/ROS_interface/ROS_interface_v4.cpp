@@ -256,17 +256,17 @@ void ROS_INTERFACE::_ROS_worker(){
     for (size_t _tid=0; _tid < _msg_type_2_topic_params[_msg_type].size(); ++_tid){
         MSG::T_PARAMS _tmp_params = _msg_type_2_topic_params[_msg_type][_tid];
         // SPSC Buffer
-        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< opengl_test::GUI2_op > (_tmp_params.buffer_length) );
+        async_buffer_list[_tmp_params.topic_id].reset( new async_buffer< visualizer_sdb::GUI2_op > (_tmp_params.buffer_length) );
         //
         // subs_id, pub_id
         if (_tmp_params.is_input){
             // Subscribe
             _pub_subs_id_list[_tmp_params.topic_id] = _subscriber_list.size();
-            _subscriber_list.push_back( _nh.subscribe< opengl_test::GUI2_op >( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_GUI2_op_CB, this, _1, _tmp_params)  ) );
+            _subscriber_list.push_back( _nh.subscribe< visualizer_sdb::GUI2_op >( _tmp_params.name, _tmp_params.ROS_queue, boost::bind(&ROS_INTERFACE::_GUI2_op_CB, this, _1, _tmp_params)  ) );
         }else{
             // Publish
             _pub_subs_id_list[_tmp_params.topic_id] = _publisher_list.size();
-            _publisher_list.push_back( _nh.advertise< opengl_test::GUI2_op >( _tmp_params.name, _tmp_params.ROS_queue) );
+            _publisher_list.push_back( _nh.advertise< visualizer_sdb::GUI2_op >( _tmp_params.name, _tmp_params.ROS_queue) );
         }
     }
 
@@ -893,7 +893,7 @@ void ROS_INTERFACE::_NavPath_CB(const nav_msgs::Path::ConstPtr& msg, const MSG::
 // GUI2_op
 //---------------------------------------------------------------//
 // input
-void ROS_INTERFACE::_GUI2_op_CB(const opengl_test::GUI2_op::ConstPtr& msg, const MSG::T_PARAMS & params){
+void ROS_INTERFACE::_GUI2_op_CB(const visualizer_sdb::GUI2_op::ConstPtr& msg, const MSG::T_PARAMS & params){
     // Time
     TIME_STAMP::Time _time_in(TIME_PARAM::NOW);
     // put
@@ -901,7 +901,7 @@ void ROS_INTERFACE::_GUI2_op_CB(const opengl_test::GUI2_op::ConstPtr& msg, const
     bool result = async_buffer_list[params.topic_id]->put_void( &(*msg), true, _time_in, false);
     if (!result){ std::cout << params.name << ": buffer full.\n"; }
 }
-bool ROS_INTERFACE::send_GUI2_op(const int topic_id, const opengl_test::GUI2_op &content_in){
+bool ROS_INTERFACE::send_GUI2_op(const int topic_id, const visualizer_sdb::GUI2_op &content_in){
     // pub_subs_id
     //------------------------------------//
     int _ps_id = _pub_subs_id_list[topic_id];

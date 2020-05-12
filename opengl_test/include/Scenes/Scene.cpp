@@ -307,7 +307,7 @@ void Scene::Reshape(int full_window_width, int full_window_height){
 // Interaction events
 //------------------------------------------------------//
 void Scene::ROSTopicEvent(ROS_API &ros_api){
-    std::shared_ptr< opengl_test::GUI2_op > _GUI2_op_ptr;
+    std::shared_ptr< visualizer_sdb::GUI2_op > _GUI2_op_ptr;
     bool result = ros_api.get_message( int(MSG_ID::GUI_operatio), _GUI2_op_ptr);
     if (!result){
         return;

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(opengl_test)
+project(visualizer_sdb)
 set(CMAKE_MODULE_PATH ${Project_SOURCE_DIR}/cmake)
 
 set (CMAKE_CXX_STANDARD 14)
@@ -75,7 +75,7 @@ catkin_package(
 )
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES opengl_test
+#  LIBRARIES visualizer_sdb
    CATKIN_DEPENDS roscpp rospy std_msgs message_runtime image_transport sensor_msgs cv_bridge message_runtime
 #  DEPENDS system_lib
 )

@@ -6,8 +6,8 @@ ROS_API::ROS_API():
     gui_name("passenger")
 {
     // TODO: replace the following hardcoded path to an auto-detected one
-    // path_pkg = "/home/benson516_itri/catkin_ws/src/opengl_test_ROS/opengl_test/";
-    path_pkg = ros::package::getPath("opengl_test");
+    // path_pkg = "/home/benson516_itri/catkin_ws/src/opengl_test_ROS/visualizer_sdb/";
+    path_pkg = ros::package::getPath("visualizer_sdb");
     if (path_pkg.back() != '/'){
         path_pkg += "/";
     }

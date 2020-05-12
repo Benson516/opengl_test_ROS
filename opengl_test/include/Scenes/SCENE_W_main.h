@@ -586,7 +586,7 @@ void SCENE_W_main::perSceneKeyBoardEvent(unsigned char key){
 // Interaction events
 //------------------------------------------------------//
 void SCENE_W_main::perSceneROSTopicEvent(ROS_API &ros_api){
-    std::shared_ptr< opengl_test::GUI2_op > _GUI2_op_ptr;
+    std::shared_ptr< visualizer_sdb::GUI2_op > _GUI2_op_ptr;
     bool result = ros_api.get_message( int(MSG_ID::GUI_operatio), _GUI2_op_ptr);
     if (!result){
         return;
@@ -641,7 +641,7 @@ void SCENE_W_main::perSceneROSTopicEvent(ROS_API &ros_api){
     //Response
     // Note: only the main window will send back response
     //----------------------------------------//
-    opengl_test::GUI2_op res_data;
+    visualizer_sdb::GUI2_op res_data;
     res_data.header = _GUI2_op_ptr->header;
     res_data.header.stamp = ros::Time::now(); // Update to current time
     // gui_name

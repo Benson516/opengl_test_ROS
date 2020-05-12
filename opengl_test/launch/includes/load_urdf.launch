@@ -3,8 +3,8 @@
     <arg name="robot_type" default="ICLU_B1" />
     <arg name="world_type" default="world_flower_expo" />
 
-    <arg name="robot_description_path"	 value="$(find opengl_test)/geometry_description/urdf/$(arg robot_type).xacro" />
-    <arg name="world_description_path"	 value="$(find opengl_test)/geometry_description/urdf/$(arg world_type).xacro" />
+    <arg name="robot_description_path"	 value="$(find visualizer_sdb)/geometry_description/urdf/$(arg robot_type).xacro" />
+    <arg name="world_description_path"	 value="$(find visualizer_sdb)/geometry_description/urdf/$(arg world_type).xacro" />
 
 
     <!-- Is the following parameter necessary for real robot??-->

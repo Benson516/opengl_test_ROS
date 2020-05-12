@@ -22,7 +22,7 @@ from std_msgs.msg import (
     Empty,
     Bool,
 )
-from opengl_test.msg import * # test
+from visualizer_sdb.msg import * # test
 #---------------------------#
 
 
