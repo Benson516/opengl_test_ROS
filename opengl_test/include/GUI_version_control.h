@@ -7,9 +7,10 @@
 #define __ROS_INTERFACE_VER__   2   // 1, 2
 // 1 - FlOWER_EXPOSE
 // 2 - HINO
-#define __HINO_VER__            2   // 1, 2
+#define __HINO_VER__            3   // 1, 2
 // 1 - Original HINO
 // 2 - post HINO
+// 3 - New 8-camera layout
 //----------------------------------//
 
 // The version of the class of detection object

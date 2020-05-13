@@ -193,9 +193,31 @@ bool ROS_API::_set_up_topics(){
         ros_interface.add_a_topic( int(MSG_ID::camera_left_fore), "cam/L_front", int(M_TYPE::Image), true, 2, 20, "GUI_base");
         ros_interface.add_a_topic( int(MSG_ID::camera_left_rear), "cam/L_rear", int(M_TYPE::Image), true, 2, 20, "GUI_base");
         ros_interface.add_a_topic( int(MSG_ID::camera_rear_center), "cam/B_top", int(M_TYPE::Image), true, 2, 20, "GUI_base");
+    #elif __HINO_VER__ == 3
+        // 8-camera
+        ros_interface.add_a_topic( int(MSG_ID::camera_front_center), "cam/front_bottom_60", int(M_TYPE::Image), true, 2, 20, "GUI_base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_front_top), "cam/front_top_close_120", int(M_TYPE::Image), true, 2, 20, "GUI_base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_front_top_far), "cam/front_top_far_30", int(M_TYPE::Image), true, 2, 20, "GUI_base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_right_fore), "cam/right_front_60", int(M_TYPE::Image), true, 2, 20, "GUI_base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_right_rear), "cam/right_back_60", int(M_TYPE::Image), true, 2, 20, "GUI_base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_left_fore), "cam/left_front_60", int(M_TYPE::Image), true, 2, 20, "GUI_base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_left_rear), "cam/left_back_60", int(M_TYPE::Image), true, 2, 20, "GUI_base");
+        ros_interface.add_a_topic( int(MSG_ID::camera_rear_center), "cam/back_top_120", int(M_TYPE::Image), true, 2, 20, "GUI_base");
     #endif
 
-        // 2D bounding box
+    // 2D bounding box
+    #if __HINO_VER__ == 3
+        // 8-camera
+        ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_front_center), "cam_obj/front_bottom_60", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "GUI_base");
+        ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_front_top), "cam_obj/front_top_close_120", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "GUI_base");
+        ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_front_top_far), "cam_obj/front_top_far_30", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "GUI_base");
+        ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_right_fore), "cam_obj/right_front_60", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "GUI_base");
+        ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_right_rear), "cam_obj/right_back_60", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "GUI_base");
+        ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_left_fore), "cam_obj/left_front_60", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "GUI_base");
+        ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_left_rear), "cam_obj/left_back_60", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "GUI_base");
+        ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_rear_center), "cam_obj/back_top_120", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "GUI_base");
+    #else
+        // 9-camera
         ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_front_right), "CamObjFrontRight", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "GUI_base");
         ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_front_center), "CamObjFrontCenter", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "GUI_base");
         ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_front_left), "CamObjFrontLeft", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "GUI_base");
@@ -205,6 +227,7 @@ bool ROS_API::_set_up_topics(){
         ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_left_fore), "CamObjLeftFront", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "GUI_base");
         ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_left_rear), "CamObjLeftBack", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "GUI_base");
         ros_interface.add_a_topic( int(MSG_ID::bounding_box_image_rear_center), "CamObjBackTop", int(M_TYPE::ITRIDetectedObjectArray), true, 10, 20, "GUI_base");
+    #endif
         // PointCloud
         ros_interface.add_a_topic( int(MSG_ID::point_cloud_raw), "LidarAll", int(M_TYPE::PointCloud2), true, 2, 20, "GUI_base");
         ros_interface.add_a_topic( int(MSG_ID::point_cloud_map), "points_map", int(M_TYPE::PointCloud2), true, 2, 20, "GUI_map");
