@@ -13,6 +13,8 @@ class SCENE_IM_ONE : public Scene
 public:
 	SCENE_IM_ONE(std::string pkg_path_in);
 
+    size_t chosed_image_id;
+
 private:
     inline static bool cal_viewport_w(int w, int h, int &cx, int &cy, int &vw, int &vh){
         double asp = _IMAGE_ASP_;
@@ -46,13 +48,16 @@ SCENE_IM_ONE::SCENE_IM_ONE(std::string pkg_path_in)
     _pkg_path = (pkg_path_in);
     _Assets_path = (pkg_path_in + "Assets/");
 
+    // The default image showed
+    chosed_image_id = 0;
+    //
 
     // Bounding box 2D
     std::shared_ptr<rmBoundingBox2D> _box2D_ptr;
     // Bounding box 2D (with tag)
     std::shared_ptr<rmlv2TagBoundingBox2D> _box2Dtag_ptr;
 
-
+    // 00
     // Back ground image rmImageDynamicBackground
     std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_left_fore), false, false, true) );
     _image_background_2_ptr->alpha = 1.0;
@@ -63,6 +68,104 @@ SCENE_IM_ONE::SCENE_IM_ONE(std::string pkg_path_in)
     _box2Dtag_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, 0, 0);
     _rm_BaseModel.push_back( _box2Dtag_ptr );
 
+    // 01
+    // Back ground image rmImageDynamicBackground
+    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_top_far), false, false, true) );
+    _image_background_2_ptr->alpha = 1.0;
+    _image_background_2_ptr->color_transform = glm::vec4(1.0f);
+    _rm_BaseModel.push_back( _image_background_2_ptr );
+    // Bounding box with tag
+    _box2Dtag_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_top_far), false, false ) );
+    _box2Dtag_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, 0, 0);
+    _rm_BaseModel.push_back( _box2Dtag_ptr );
+
+    // 02
+    // Back ground image rmImageDynamicBackground
+    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_right_fore), false, false, true) );
+    _image_background_2_ptr->alpha = 1.0;
+    _image_background_2_ptr->color_transform = glm::vec4(1.0f);
+    _rm_BaseModel.push_back( _image_background_2_ptr );
+    // Bounding box with tag
+    _box2Dtag_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_right_fore), false, false ) );
+    _box2Dtag_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, 0, 0);
+    _rm_BaseModel.push_back( _box2Dtag_ptr );
+
+    // 10
+    // Back ground image rmImageDynamicBackground
+    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_left_rear), false, false, true) );
+    _image_background_2_ptr->alpha = 1.0;
+    _image_background_2_ptr->color_transform = glm::vec4(1.0f);
+    _rm_BaseModel.push_back( _image_background_2_ptr );
+    // Bounding box with tag
+    _box2Dtag_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_left_rear), false, false ) );
+    _box2Dtag_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, 0, 0);
+    _rm_BaseModel.push_back( _box2Dtag_ptr );
+
+    // 11
+    // Back ground image rmImageDynamicBackground
+    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_center), false, false, true) );
+    _image_background_2_ptr->alpha = 1.0;
+    _image_background_2_ptr->color_transform = glm::vec4(1.0f);
+    _rm_BaseModel.push_back( _image_background_2_ptr );
+    // Bounding box with tag
+    _box2Dtag_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_center), false, false ) );
+    _box2Dtag_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, 0, 0);
+    _rm_BaseModel.push_back( _box2Dtag_ptr );
+
+    // 12
+    // Back ground image rmImageDynamicBackground
+    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_right_rear), false, false, true) );
+    _image_background_2_ptr->alpha = 1.0;
+    _image_background_2_ptr->color_transform = glm::vec4(1.0f);
+    _rm_BaseModel.push_back( _image_background_2_ptr );
+    // Bounding box with tag
+    _box2Dtag_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_right_rear), false, false ) );
+    _box2Dtag_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, 0, 0);
+    _rm_BaseModel.push_back( _box2Dtag_ptr );
+
+    // 21
+    // Back ground image rmImageDynamicBackground
+    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_top), false, false, true) );
+    _image_background_2_ptr->alpha = 1.0;
+    _image_background_2_ptr->color_transform = glm::vec4(1.0f);
+    _rm_BaseModel.push_back( _image_background_2_ptr );
+    // Bounding box with tag
+    _box2Dtag_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_front_top), false, false ) );
+    _box2Dtag_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, 0, 0);
+    _rm_BaseModel.push_back( _box2Dtag_ptr );
+
+    // 22
+    // Back ground image rmImageDynamicBackground
+    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_rear_center), false, false, true) );
+    _image_background_2_ptr->alpha = 1.0;
+    _image_background_2_ptr->color_transform = glm::vec4(1.0f);
+    _rm_BaseModel.push_back( _image_background_2_ptr );
+    // Bounding box with tag
+    _box2Dtag_ptr.reset(new rmlv2TagBoundingBox2D(_Assets_path, int(MSG_ID::bounding_box_image_rear_center), false, false ) );
+    _box2Dtag_ptr->setup_params(_IMAGE_W_, _IMAGE_H_, 0, 0);
+    _rm_BaseModel.push_back( _box2Dtag_ptr );
+
+
+
+}
+
+
+void SCENE_W_main::perSceneKeyBoardEvent(unsigned char key){
+    switch (key)
+	{
+    case 'i':
+    case 'I':
+        // Toggle enable
+        is_enable_image3D = !is_enable_image3D;
+        for (size_t i=0; i < enable_ctr_id_list_image.size(); ++i){
+            auto _ptr = &(_rm_BaseModel[ enable_ctr_id_list_image[i] ]);
+            // (*_ptr)->set_enable( !((*_ptr)->get_enable()) );
+            (*_ptr)->set_enable( is_enable_image3D );
+        }
+        break;
+	default:
+		break;
+	}
 }
 
 #endif  // SCENE_IM_ONE_H
