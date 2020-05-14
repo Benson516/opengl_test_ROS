@@ -29,6 +29,7 @@
 #include "SCENE_IM12.h"
 #include "SCENE_IM21.h"
 #include "SCENE_IM22.h"
+#include "SCENE_IM_ONE.h"
 
 // Debug
 #include <iostream>
@@ -615,6 +616,8 @@ void My_Init()
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM12(ros_api.get_pkg_path()) ) );
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM21(ros_api.get_pkg_path()) ) );
     all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM22(ros_api.get_pkg_path()) ) );
+    //
+    all_scenes.push_back( std::shared_ptr<Scene>( new SCENE_IM_ONE(ros_api.get_pkg_path()) ) );
 
 
 
