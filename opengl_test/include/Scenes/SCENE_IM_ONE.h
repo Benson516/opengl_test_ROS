@@ -14,6 +14,7 @@ public:
 	SCENE_IM_ONE(std::string pkg_path_in);
 
     int chosed_image_id; // Note: this start from 1, end with 8
+    void perSceneKeyBoardEvent(unsigned char key);
 
 private:
     inline static bool cal_viewport_w(int w, int h, int &cx, int &cy, int &vw, int &vh){
@@ -54,6 +55,8 @@ SCENE_IM_ONE::SCENE_IM_ONE(std::string pkg_path_in)
     chosed_image_id = 5;
     //
 
+    // Image
+    std::shared_ptr<rmImageBoard> _image_background_2_ptr;
     // Bounding box 2D
     std::shared_ptr<rmBoundingBox2D> _box2D_ptr;
     // Bounding box 2D (with tag)
@@ -61,7 +64,7 @@ SCENE_IM_ONE::SCENE_IM_ONE(std::string pkg_path_in)
 
     // 00
     // Back ground image rmImageDynamicBackground
-    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_left_fore), false, false, true) );
+    _image_background_2_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_left_fore), false, false, true) );
     _image_background_2_ptr->alpha = 1.0;
     _image_background_2_ptr->color_transform = glm::vec4(1.0f);
     _rm_BaseModel.push_back( _image_background_2_ptr );
@@ -72,7 +75,7 @@ SCENE_IM_ONE::SCENE_IM_ONE(std::string pkg_path_in)
 
     // 01
     // Back ground image rmImageDynamicBackground
-    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_top_far), false, false, true) );
+    _image_background_2_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_top_far), false, false, true) );
     _image_background_2_ptr->alpha = 1.0;
     _image_background_2_ptr->color_transform = glm::vec4(1.0f);
     _rm_BaseModel.push_back( _image_background_2_ptr );
@@ -83,7 +86,7 @@ SCENE_IM_ONE::SCENE_IM_ONE(std::string pkg_path_in)
 
     // 02
     // Back ground image rmImageDynamicBackground
-    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_right_fore), false, false, true) );
+    _image_background_2_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_right_fore), false, false, true) );
     _image_background_2_ptr->alpha = 1.0;
     _image_background_2_ptr->color_transform = glm::vec4(1.0f);
     _rm_BaseModel.push_back( _image_background_2_ptr );
@@ -94,7 +97,7 @@ SCENE_IM_ONE::SCENE_IM_ONE(std::string pkg_path_in)
 
     // 10
     // Back ground image rmImageDynamicBackground
-    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_left_rear), false, false, true) );
+    _image_background_2_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_left_rear), false, false, true) );
     _image_background_2_ptr->alpha = 1.0;
     _image_background_2_ptr->color_transform = glm::vec4(1.0f);
     _rm_BaseModel.push_back( _image_background_2_ptr );
@@ -105,7 +108,7 @@ SCENE_IM_ONE::SCENE_IM_ONE(std::string pkg_path_in)
 
     // 11
     // Back ground image rmImageDynamicBackground
-    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_center), false, false, true) );
+    _image_background_2_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_center), false, false, true) );
     _image_background_2_ptr->alpha = 1.0;
     _image_background_2_ptr->color_transform = glm::vec4(1.0f);
     _rm_BaseModel.push_back( _image_background_2_ptr );
@@ -116,7 +119,7 @@ SCENE_IM_ONE::SCENE_IM_ONE(std::string pkg_path_in)
 
     // 12
     // Back ground image rmImageDynamicBackground
-    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_right_rear), false, false, true) );
+    _image_background_2_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_right_rear), false, false, true) );
     _image_background_2_ptr->alpha = 1.0;
     _image_background_2_ptr->color_transform = glm::vec4(1.0f);
     _rm_BaseModel.push_back( _image_background_2_ptr );
@@ -127,7 +130,7 @@ SCENE_IM_ONE::SCENE_IM_ONE(std::string pkg_path_in)
 
     // 21
     // Back ground image rmImageDynamicBackground
-    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_top), false, false, true) );
+    _image_background_2_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_front_top), false, false, true) );
     _image_background_2_ptr->alpha = 1.0;
     _image_background_2_ptr->color_transform = glm::vec4(1.0f);
     _rm_BaseModel.push_back( _image_background_2_ptr );
@@ -138,7 +141,7 @@ SCENE_IM_ONE::SCENE_IM_ONE(std::string pkg_path_in)
 
     // 22
     // Back ground image rmImageDynamicBackground
-    std::shared_ptr<rmImageBoard> _image_background_2_ptr(new rmImageBoard(_Assets_path, int(MSG_ID::camera_rear_center), false, false, true) );
+    _image_background_2_ptr.reset(new rmImageBoard(_Assets_path, int(MSG_ID::camera_rear_center), false, false, true) );
     _image_background_2_ptr->alpha = 1.0;
     _image_background_2_ptr->color_transform = glm::vec4(1.0f);
     _rm_BaseModel.push_back( _image_background_2_ptr );
@@ -150,7 +153,7 @@ SCENE_IM_ONE::SCENE_IM_ONE(std::string pkg_path_in)
 
     // Choose image to show
     //-----------------------------------------//
-    select_image_with_id( chosed_image_id)
+    select_image_with_id( chosed_image_id);
     //-----------------------------------------//
 
 }
