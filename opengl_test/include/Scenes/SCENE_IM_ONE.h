@@ -13,7 +13,7 @@ class SCENE_IM_ONE : public Scene
 public:
 	SCENE_IM_ONE(std::string pkg_path_in);
 
-    size_t chosed_image_id;
+    int chosed_image_id; // Note: this start from 1, end with 8
 
 private:
     inline static bool cal_viewport_w(int w, int h, int &cx, int &cy, int &vw, int &vh){
@@ -31,6 +31,8 @@ private:
         vh = im_h;
         return true;
     }
+
+    bool select_image_with_id(int id);
 };
 
 
@@ -48,8 +50,8 @@ SCENE_IM_ONE::SCENE_IM_ONE(std::string pkg_path_in)
     _pkg_path = (pkg_path_in);
     _Assets_path = (pkg_path_in + "Assets/");
 
-    // The default image showed
-    chosed_image_id = 0;
+    // The default image showed: center image 11
+    chosed_image_id = 5;
     //
 
     // Bounding box 2D
@@ -146,26 +148,46 @@ SCENE_IM_ONE::SCENE_IM_ONE(std::string pkg_path_in)
     _rm_BaseModel.push_back( _box2Dtag_ptr );
 
 
+    // Choose image to show
+    //-----------------------------------------//
+    select_image_with_id( chosed_image_id)
+    //-----------------------------------------//
 
 }
 
+bool SCENE_IM_ONE::select_image_with_id(int id){
+    /*
+                Note: id start from 1
+    */
+    chosed_image_id = id;
+    for (size_t i=0; i < _rm_BaseModel.size(); ++i){
+        auto _ptr = &(_rm_BaseModel[i]);
+        // (*_ptr)->set_enable( !((*_ptr)->get_enable()) );
+        (*_ptr)->set_enable( int(i/2) == (id-1) );
+    }
+    return true;
+}
 
-void SCENE_W_main::perSceneKeyBoardEvent(unsigned char key){
+void SCENE_IM_ONE::perSceneKeyBoardEvent(unsigned char key){
+
     switch (key)
 	{
     case 'i':
     case 'I':
-        // Toggle enable
-        is_enable_image3D = !is_enable_image3D;
-        for (size_t i=0; i < enable_ctr_id_list_image.size(); ++i){
-            auto _ptr = &(_rm_BaseModel[ enable_ctr_id_list_image[i] ]);
-            // (*_ptr)->set_enable( !((*_ptr)->get_enable()) );
-            (*_ptr)->set_enable( is_enable_image3D );
-        }
+        // Toggle image
+        select_image_with_id( (chosed_image_id % 8) + 1 );
         break;
 	default:
 		break;
 	}
+    if (key >= '0'){
+        unsigned char number = key - '0';
+        if (number <=8 && number > 0 ){
+            select_image_with_id(int(number));
+        }
+    }
 }
+
+
 
 #endif  // SCENE_IM_ONE_H
